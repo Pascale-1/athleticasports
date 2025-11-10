@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const emailSchema = z.object({
   email: z.string().email("Invalid email address").max(255),
@@ -32,6 +33,10 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [oauthUrl, setOauthUrl] = useState<string | null>(null);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const redirectUrl = `${window.location.origin}/auth`;
+  const inIframe = (() => { try { return window.top !== window.self; } catch { return true; } })();
 
   const emailForm = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
@@ -61,6 +66,25 @@ const Auth = () => {
       window.history.replaceState({}, '', '/auth');
     }
   }, [searchParams, toast]);
+
+  useEffect(() => {
+    document.title = "Sign in | Athletica Sports";
+    const metaDesc = "Secure sign in and sign up for Athletica Sports.";
+    let meta = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.name = "description";
+      document.head.appendChild(meta);
+    }
+    meta.content = metaDesc;
+    let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = "canonical";
+      document.head.appendChild(link);
+    }
+    link.href = window.location.href;
+  }, []);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -130,19 +154,38 @@ const Auth = () => {
     }
   };
 
-  const handleGoogleAuth = async () => {
+const handleGoogleAuth = async () => {
     setGoogleLoading(true);
+    setOauthUrl(null);
     try {
       console.log('[OAuth] Starting Google sign-in', { origin: window.location.origin });
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth`,
+          redirectTo: redirectUrl,
+          skipBrowserRedirect: true,
         },
       });
 
       if (error) throw error;
+
       console.log('[OAuth] signInWithOAuth returned', data);
+      if (data?.url) {
+        setOauthUrl(data.url);
+        const url = data.url;
+        try {
+          if (window.top && window.top !== window.self) {
+            (window.top as Window).location.href = url;
+          } else {
+            window.location.assign(url);
+          }
+        } catch (navErr) {
+          console.warn('[OAuth] Top navigation blocked, opening new tab', navErr);
+          window.open(url, "_blank", "noopener,noreferrer");
+        }
+      } else {
+        throw new Error("No OAuth redirect URL was returned.");
+      }
     } catch (error: any) {
       console.error('[OAuth] Google sign in error', error);
       toast({
@@ -150,10 +193,8 @@ const Auth = () => {
         title: "Google Sign In Error",
         description: error.message || "Failed to sign in with Google.",
       });
-      setGoogleLoading(false);
     } finally {
-      // Safety: if no redirect happened, re-enable button after a moment
-      setTimeout(() => setGoogleLoading(false), 1500);
+      setTimeout(() => setGoogleLoading(false), 1000);
     }
   };
 
@@ -305,6 +346,29 @@ const Auth = () => {
                 </svg>
                 {googleLoading ? "Signing in with Google..." : "Continue with Google"}
               </Button>
+
+              {oauthUrl && (
+                <Alert className="mt-3">
+                  <AlertTitle>Having trouble redirecting?</AlertTitle>
+                  <AlertDescription>
+                    We generated your Google sign-in link but your browser blocked automatic navigation{inIframe ? " (possibly due to iframe)." : "."}
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <Button size="sm" onClick={() => window.open(oauthUrl, "_blank", "noopener,noreferrer")}>Open Google Sign-in</Button>
+                      <Button size="sm" variant="secondary" onClick={() => navigator.clipboard.writeText(oauthUrl)}>Copy Link</Button>
+                      <Button size="sm" variant="ghost" onClick={() => setShowDiagnostics((s) => !s)}>
+                        {showDiagnostics ? "Hide details" : "Show details"}
+                      </Button>
+                    </div>
+                    {showDiagnostics && (
+                      <div className="mt-2 grid gap-1 text-xs text-muted-foreground">
+                        <div>Origin: {window.location.origin}</div>
+                        <div>In iframe: {inIframe ? "yes" : "no"}</div>
+                        <div>Redirect URL: {redirectUrl}</div>
+                      </div>
+                    )}
+                  </AlertDescription>
+                </Alert>
+              )}
             </TabsContent>
             
             <TabsContent value="phone" className="space-y-4">
