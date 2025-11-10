@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TeamHeader } from "@/components/teams/TeamHeader";
@@ -20,10 +20,12 @@ import { Loader2 } from "lucide-react";
 const TeamDetail = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [memberCount, setMemberCount] = useState(0);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'announcements');
 
   const { team, userRole, isLoading, isMember, canManage } = useTeam(teamId || null);
   const { members, loading: membersLoading, removeMember, updateMemberRole } = useTeamMembers(teamId || null);
@@ -116,7 +118,7 @@ const TeamDetail = () => {
       />
 
       <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
-        <Tabs defaultValue="announcements" className="space-y-4 sm:space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 max-w-2xl">
             <TabsTrigger value="announcements" className="text-xs sm:text-sm px-2 sm:px-4">Announcements</TabsTrigger>
             <TabsTrigger value="members" className="text-xs sm:text-sm px-2 sm:px-4">Members</TabsTrigger>
@@ -187,6 +189,7 @@ const TeamDetail = () => {
                 canCreateSession={canCreateSession}
                 canManage={canManage}
                 currentUserId={currentUserId}
+                totalMembers={memberCount}
                 onCreateSession={createSession}
                 onUpdateSession={updateSession}
                 onDeleteSession={deleteSession}

@@ -32,7 +32,16 @@ export const NotificationItem = ({ notification }: NotificationItemProps) => {
       markAsRead(notification.id);
     }
     if (notification.link) {
-      navigate(notification.link);
+      // Parse the link to check for tab parameter
+      const url = new URL(notification.link, window.location.origin);
+      const tab = url.searchParams.get('tab');
+      
+      if (tab) {
+        // Navigate to the path and let the component handle the tab
+        navigate(url.pathname + url.search);
+      } else {
+        navigate(notification.link);
+      }
     }
   };
 

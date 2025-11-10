@@ -3,16 +3,18 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Clock, MapPin, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Clock, MapPin, Trash2, ChevronDown, ChevronUp, Check, HelpCircle, X } from "lucide-react";
 import { TrainingSession } from "@/hooks/useTrainingSessions";
 import { TrainingSessionDetail } from "./TrainingSessionDetail";
 import { format } from "date-fns";
+import { useSessionAttendance } from "@/hooks/useSessionAttendance";
 
 interface TrainingSessionCardProps {
   session: TrainingSession;
   canEdit: boolean;
   canManage: boolean;
   totalMembers: number;
+  currentUserId?: string;
   onUpdate: (data: Partial<TrainingSession>) => void;
   onDelete: () => void;
 }
@@ -22,9 +24,11 @@ export const TrainingSessionCard = ({
   canEdit,
   canManage,
   totalMembers,
+  currentUserId,
   onDelete,
 }: TrainingSessionCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { stats } = useSessionAttendance(session.id, totalMembers);
   const startTime = new Date(session.start_time);
   const endTime = new Date(session.end_time);
 
@@ -57,6 +61,21 @@ export const TrainingSessionCard = ({
                   <span className="truncate">{session.location}</span>
                 </div>
               )}
+            </div>
+
+            <div className="flex gap-1 mt-2">
+              <Badge variant="secondary" className="text-xs bg-green-500 hover:bg-green-600 text-white">
+                <Check className="h-3 w-3 mr-1" />
+                {stats.attending}
+              </Badge>
+              <Badge variant="secondary" className="text-xs bg-yellow-500 hover:bg-yellow-600 text-white">
+                <HelpCircle className="h-3 w-3 mr-1" />
+                {stats.maybe}
+              </Badge>
+              <Badge variant="destructive" className="text-xs">
+                <X className="h-3 w-3 mr-1" />
+                {stats.not_attending}
+              </Badge>
             </div>
           </div>
 
@@ -95,6 +114,7 @@ export const TrainingSessionCard = ({
               session={session}
               canManage={canManage}
               totalMembers={totalMembers}
+              currentUserId={currentUserId}
             />
           </div>
         </CollapsibleContent>

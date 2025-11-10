@@ -12,6 +12,7 @@ interface TrainingCalendarProps {
   canCreateSession: boolean;
   canManage: boolean;
   currentUserId: string | null;
+  totalMembers: number;
   onCreateSession: (data: any) => void;
   onUpdateSession: (id: string, data: any) => void;
   onDeleteSession: (id: string) => void;
@@ -22,6 +23,7 @@ export const TrainingCalendar = ({
   canCreateSession,
   canManage,
   currentUserId,
+  totalMembers,
   onCreateSession,
   onUpdateSession,
   onDeleteSession,
@@ -79,7 +81,8 @@ export const TrainingCalendar = ({
                   session={session}
                   canEdit={canManage || currentUserId === session.created_by}
                   canManage={canManage}
-                  totalMembers={sessions.length}
+                  totalMembers={totalMembers}
+                  currentUserId={currentUserId || undefined}
                   onUpdate={(data) => onUpdateSession(session.id, data)}
                   onDelete={() => onDeleteSession(session.id)}
                 />

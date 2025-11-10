@@ -397,6 +397,41 @@ export type Database = {
           },
         ]
       }
+      training_session_attendance: {
+        Row: {
+          id: string
+          responded_at: string | null
+          session_id: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          responded_at?: string | null
+          session_id: string
+          status: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          responded_at?: string | null
+          session_id?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_session_attendance_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "training_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       training_session_team_members: {
         Row: {
           created_at: string | null
@@ -554,8 +589,16 @@ export type Database = {
         Args: { profile_user_id: string }
         Returns: number
       }
+      get_session_attendance_count: {
+        Args: { _session_id: string; _status?: string }
+        Returns: number
+      }
       get_team_member_count: { Args: { _team_id: string }; Returns: number }
       get_unread_count: { Args: { _user_id: string }; Returns: number }
+      get_user_attendance_status: {
+        Args: { _session_id: string; _user_id: string }
+        Returns: string
+      }
       get_user_team_role: {
         Args: { _team_id: string; _user_id: string }
         Returns: Database["public"]["Enums"]["team_role"]

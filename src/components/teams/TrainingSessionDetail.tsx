@@ -8,17 +8,20 @@ import { TrainingSession } from "@/hooks/useTrainingSessions";
 import { useTeamGeneration } from "@/hooks/useTeamGeneration";
 import { GenerateTeamsDialog } from "./GenerateTeamsDialog";
 import { GeneratedTeamCard, accentColors } from "./GeneratedTeamCard";
+import { SessionAttendance } from "./SessionAttendance";
 
 interface TrainingSessionDetailProps {
   session: TrainingSession;
   canManage: boolean;
   totalMembers: number;
+  currentUserId?: string;
 }
 
 export const TrainingSessionDetail = ({
   session,
   canManage,
   totalMembers,
+  currentUserId,
 }: TrainingSessionDetailProps) => {
   const { teams, loading, generating, generateTeams, deleteTeams } = useTeamGeneration(session.id);
   const [showGenerateDialog, setShowGenerateDialog] = useState(false);
@@ -32,8 +35,19 @@ export const TrainingSessionDetail = ({
     setShowGenerateDialog(true);
   };
 
+  const isPastSession = new Date(session.end_time) < new Date();
+
   return (
     <div className="space-y-6">
+      {/* Attendance Section */}
+      <SessionAttendance
+        sessionId={session.id}
+        totalMembers={totalMembers}
+        canViewDetails={canManage}
+        currentUserId={currentUserId}
+        isPastSession={isPastSession}
+      />
+
       {/* Session Info */}
       <Card>
         <CardHeader>
