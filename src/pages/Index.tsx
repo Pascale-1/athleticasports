@@ -2,46 +2,125 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@supabase/supabase-js";
+
+interface Profile {
+  id: string;
+  user_id: string;
+  username: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+}
 
 const Index = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        setTimeout(() => fetchProfile(session.user.id), 0);
+      } else {
+        setProfile(null);
+        setLoading(false);
+      }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        setLoading(false);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const fetchProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+      
+      if (error) throw error;
+      setProfile(data);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
   };
 
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center space-y-6">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your App</h1>
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="w-full max-w-md space-y-6">
+        <h1 className="text-center text-4xl font-bold">Welcome to Athletica Sports</h1>
         
-        {user ? (
-          <div className="space-y-4">
-            <p className="text-xl text-muted-foreground">
-              You're signed in as: {user.email || user.phone}
-            </p>
-            <Button onClick={handleSignOut}>Sign Out</Button>
-          </div>
+        {user && profile ? (
+          <Card>
+            <CardHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage src={profile.avatar_url || undefined} />
+                  <AvatarFallback className="text-2xl">
+                    {profile.username.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+              <CardTitle className="text-2xl">@{profile.username}</CardTitle>
+              {profile.display_name && (
+                <CardDescription className="text-lg">{profile.display_name}</CardDescription>
+              )}
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {profile.bio && (
+                <p className="text-center text-muted-foreground">{profile.bio}</p>
+              )}
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground text-center">
+                  Signed in as: {user.email || user.phone}
+                </p>
+                <Button onClick={handleSignOut} className="w-full">
+                  Sign Out
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         ) : (
-          <div className="space-y-4">
-            <p className="text-xl text-muted-foreground">Get started by signing in</p>
-            <Button onClick={() => navigate("/auth")}>Sign In</Button>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Get Started</CardTitle>
+              <CardDescription>Sign in to access your profile</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={() => navigate("/auth")} className="w-full">
+                Sign In
+              </Button>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>
