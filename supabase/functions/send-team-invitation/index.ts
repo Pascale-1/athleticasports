@@ -12,9 +12,10 @@ interface InvitationRequest {
   teamId: string
   recipientEmail: string
   role: string
+  appOrigin?: string // Client's origin for building invite links
 }
 
-function generateEmailHTML(teamName: string, inviterName: string, role: string, acceptUrl: string, appUrl: string): string {
+function generateEmailHTML(teamName: string, inviterName: string, role: string, acceptUrl: string, authFallbackUrl: string, appUrl: string): string {
   return `
 <!DOCTYPE html>
 <html>
@@ -45,6 +46,10 @@ function generateEmailHTML(teamName: string, inviterName: string, role: string, 
       ${acceptUrl}
     </div>
     
+    <p style="color: #898989; font-size: 12px; line-height: 22px; margin-top: 20px; margin-bottom: 12px;">
+      Not logged in? <a href="${authFallbackUrl}" target="_blank" style="color: #8B5CF6; text-decoration: underline;">Sign in first</a>, then accept your invitation.
+    </p>
+    
     <p style="color: #898989; font-size: 12px; line-height: 22px; margin-top: 12px; margin-bottom: 24px;">
       If you didn't expect this invitation, you can safely ignore this email.
     </p>
@@ -74,9 +79,9 @@ Deno.serve(async (req) => {
       )
     }
 
-    const { invitationId, teamId, recipientEmail, role }: InvitationRequest = await req.json()
+    const { invitationId, teamId, recipientEmail, role, appOrigin }: InvitationRequest = await req.json()
 
-    console.log('Sending invitation email:', { invitationId, teamId, recipientEmail, role })
+    console.log('Sending invitation email:', { invitationId, teamId, recipientEmail, role, appOrigin })
 
     // Create authenticated Supabase client to verify user
     const supabaseAuth = createClient(
@@ -158,8 +163,12 @@ Deno.serve(async (req) => {
       throw new Error('Inviter profile not found')
     }
 
-    const appUrl = 'https://athleticasports.app'
+    // Construct invitation URL using APP_URL secret, client origin, or fallback
+    const appUrl = Deno.env.get('APP_URL') || appOrigin || 'https://vbnetwodxboajlsytolr.lovableproject.com'
     const acceptUrl = `${appUrl}/teams/invitations/accept?id=${invitationId}`
+    const authFallbackUrl = `${appUrl}/auth?invitationId=${invitationId}`
+    
+    console.log('Invitation URLs generated:', { acceptUrl, authFallbackUrl, appUrl })
 
     // Generate HTML email
     const html = generateEmailHTML(
@@ -167,6 +176,7 @@ Deno.serve(async (req) => {
       inviter.display_name || inviter.username,
       role.charAt(0).toUpperCase() + role.slice(1),
       acceptUrl,
+      authFallbackUrl,
       appUrl
     )
 

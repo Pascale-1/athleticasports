@@ -50,6 +50,13 @@ const Auth = () => {
     // Check for OAuth errors in URL params
     const error = searchParams.get('error');
     const errorDescription = searchParams.get('error_description');
+    const invitationId = searchParams.get('invitationId');
+    
+    // Store invitation ID if present (for users who need to login first)
+    if (invitationId) {
+      sessionStorage.setItem("pendingInvitationId", invitationId);
+      console.log('[Auth] Stored pending invitation ID:', invitationId);
+    }
     
     if (error) {
       const friendlyMessage = errorDescription 

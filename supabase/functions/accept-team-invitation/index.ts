@@ -37,6 +37,7 @@ Deno.serve(async (req) => {
     }
 
     console.log('Processing invitation acceptance for user:', user.id);
+    console.log('User email:', user.email);
 
     // Parse request body
     const { invitationId } = await req.json();
@@ -45,6 +46,7 @@ Deno.serve(async (req) => {
     }
 
     console.log('Invitation ID:', invitationId);
+    console.log('Authorization header present:', !!authHeader);
 
     // Fetch invitation using service role
     const { data: invitation, error: fetchError } = await supabaseServiceRole

@@ -149,6 +149,7 @@ export const useTeamInvitations = (teamId: string | null) => {
               teamId: teamId,
               recipientEmail: email,
               role: role,
+              appOrigin: window.location.origin, // Pass current origin for link generation
             },
           }
         );
@@ -224,6 +225,7 @@ export const useTeamInvitations = (teamId: string | null) => {
             teamId: invitation.team_id,
             recipientEmail: invitation.email,
             role: invitation.role,
+            appOrigin: window.location.origin, // Pass current origin for link generation
           },
         }
       );
