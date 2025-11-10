@@ -91,11 +91,15 @@ export const useTeamInvitations = (teamId: string | null) => {
         if (!profile) throw new Error("User not found");
         email = profile.username;
       } else {
+        // Sanitize input to prevent SQL injection
+        const sanitizedInput = emailOrUserId.replace(/[%_']/g, '\\$&')
+        const usernamePrefix = emailOrUserId.includes('@') ? sanitizedInput.split('@')[0] : sanitizedInput
+        
         // Try to find existing user by username or email
         const { data: existingProfile } = await supabase
           .from("profiles")
           .select("user_id, username")
-          .or(`username.eq.${emailOrUserId},username.ilike.${emailOrUserId.split('@')[0]}`)
+          .or(`username.eq.${sanitizedInput},username.ilike.${usernamePrefix}`)
           .maybeSingle();
 
         if (existingProfile) {

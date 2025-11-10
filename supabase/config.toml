@@ -1,4 +1,1 @@
 project_id = "vbnetwodxboajlsytolr"
-
-[functions.send-team-invitation]
-verify_jwt = false

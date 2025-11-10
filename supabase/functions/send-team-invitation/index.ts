@@ -65,11 +65,54 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Verify authentication
+    const authHeader = req.headers.get('authorization')
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - No authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     const { invitationId, teamId, recipientEmail, role }: InvitationRequest = await req.json()
 
     console.log('Sending invitation email:', { invitationId, teamId, recipientEmail, role })
 
-    // Create Supabase client with service role
+    // Create authenticated Supabase client to verify user
+    const supabaseAuth = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: { headers: { Authorization: authHeader } },
+        auth: { persistSession: false }
+      }
+    )
+
+    // Verify user is authenticated
+    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser()
+    if (userError || !user) {
+      console.error('Auth error:', userError)
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - Invalid token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Verify user can manage the team
+    const { data: canManage, error: authzError } = await supabaseAuth.rpc('can_manage_team', {
+      _user_id: user.id,
+      _team_id: teamId
+    })
+
+    if (authzError || !canManage) {
+      console.error('Authorization error:', authzError)
+      return new Response(
+        JSON.stringify({ error: 'Forbidden - You do not have permission to send invitations for this team' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Create Supabase client with service role for privileged operations
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',

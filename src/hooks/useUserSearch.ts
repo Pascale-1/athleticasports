@@ -30,11 +30,14 @@ export const useUserSearch = (query: string, teamId: string | null) => {
 
         const excludedUserIds = teamMembers?.map(m => m.user_id) || [];
 
+        // Sanitize query to prevent SQL injection
+        const sanitizedQuery = query.replace(/[%_]/g, '\\$&')
+        
         // Search for users by username or display name
         const { data, error } = await supabase
           .from("profiles")
           .select("user_id, username, display_name, avatar_url")
-          .or(`username.ilike.%${query}%,display_name.ilike.%${query}%`)
+          .or(`username.ilike.%${sanitizedQuery}%,display_name.ilike.%${sanitizedQuery}%`)
           .limit(5);
 
         if (error) throw error;
