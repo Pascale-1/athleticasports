@@ -13,6 +13,7 @@ import Admin from "./pages/Admin";
 import Teams from "./pages/Teams";
 import TeamCreate from "./pages/TeamCreate";
 import TeamDetail from "./pages/TeamDetail";
+import TeamSettings from "./pages/TeamSettings";
 import AcceptInvitation from "./pages/AcceptInvitation";
 import InvitationHelp from "./pages/InvitationHelp";
 import NotFound from "./pages/NotFound";
@@ -73,6 +74,13 @@ const App = () => (
             <ProtectedRoute>
               <AppLayout>
                 <TeamDetail />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/teams/:teamId/settings" element={
+            <ProtectedRoute>
+              <AppLayout>
+                <TeamSettings />
               </AppLayout>
             </ProtectedRoute>
           } />

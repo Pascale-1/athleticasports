@@ -115,3 +115,48 @@ export const leaveTeam = async (teamId: string) => {
 
   if (error) throw error;
 };
+
+export const transferTeamOwnership = async (
+  teamId: string,
+  newOwnerId: string
+) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  // Get current owner's team_member record
+  const { data: currentOwnerMember } = await supabase
+    .from("team_members")
+    .select("id")
+    .eq("team_id", teamId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!currentOwnerMember) throw new Error("Current owner not found");
+
+  // Get new owner's team_member record
+  const { data: newOwnerMember } = await supabase
+    .from("team_members")
+    .select("id")
+    .eq("team_id", teamId)
+    .eq("user_id", newOwnerId)
+    .single();
+
+  if (!newOwnerMember) throw new Error("New owner not found");
+
+  // Update current owner to admin
+  const { error: updateCurrentError } = await supabase
+    .from("team_member_roles")
+    .update({ role: "admin" })
+    .eq("team_member_id", currentOwnerMember.id)
+    .eq("role", "owner");
+
+  if (updateCurrentError) throw updateCurrentError;
+
+  // Update new owner to owner
+  const { error: updateNewError } = await supabase
+    .from("team_member_roles")
+    .update({ role: "owner", assigned_by: user.id })
+    .eq("team_member_id", newOwnerMember.id);
+
+  if (updateNewError) throw updateNewError;
+};
