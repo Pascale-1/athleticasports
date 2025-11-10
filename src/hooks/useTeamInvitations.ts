@@ -66,31 +66,56 @@ export const useTeamInvitations = (teamId: string | null) => {
     };
   }, [teamId]);
 
-  const sendInvitation = async (email: string) => {
+  const sendInvitation = async (emailOrUserId: string, isUserId: boolean = false) => {
     if (!teamId) return;
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const { data: existingProfile } = await supabase
-        .from("profiles")
-        .select("user_id")
-        .eq("username", email)
-        .single();
+      let invitedUserId: string | null = null;
+      let email: string = emailOrUserId;
+
+      if (isUserId) {
+        // User was selected from search
+        invitedUserId = emailOrUserId;
+        
+        // Get user's email/username for the invitation record
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("username")
+          .eq("user_id", emailOrUserId)
+          .single();
+        
+        if (!profile) throw new Error("User not found");
+        email = profile.username;
+      } else {
+        // Try to find existing user by username or email
+        const { data: existingProfile } = await supabase
+          .from("profiles")
+          .select("user_id, username")
+          .or(`username.eq.${emailOrUserId},username.ilike.${emailOrUserId.split('@')[0]}`)
+          .maybeSingle();
+
+        if (existingProfile) {
+          invitedUserId = existingProfile.user_id;
+        }
+      }
 
       const { error } = await supabase.from("team_invitations").insert({
         team_id: teamId,
         invited_by: user.id,
         email,
-        invited_user_id: existingProfile?.user_id || null,
+        invited_user_id: invitedUserId,
       });
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Invitation sent",
+        description: invitedUserId 
+          ? "User invited to team" 
+          : "Invitation sent by email",
       });
     } catch (error: any) {
       console.error("Error sending invitation:", error);

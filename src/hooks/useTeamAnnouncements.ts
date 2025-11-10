@@ -131,6 +131,9 @@ export const useTeamAnnouncements = (teamId: string | null) => {
 
   const deleteAnnouncement = async (announcementId: string) => {
     try {
+      // Optimistic update
+      setAnnouncements(prev => prev.filter(a => a.id !== announcementId));
+      
       const { error } = await supabase
         .from("team_announcements")
         .delete()
@@ -149,6 +152,30 @@ export const useTeamAnnouncements = (teamId: string | null) => {
         description: "Failed to delete announcement",
         variant: "destructive",
       });
+      // Refetch on error to restore correct state
+      if (teamId) {
+        const { data } = await supabase
+          .from("team_announcements")
+          .select(`
+            *,
+            profiles:posted_by (
+              username,
+              display_name,
+              avatar_url
+            )
+          `)
+          .eq("team_id", teamId)
+          .order("is_pinned", { ascending: false })
+          .order("created_at", { ascending: false });
+        
+        if (data) {
+          const formattedData = data.map(item => ({
+            ...item,
+            profile: Array.isArray(item.profiles) ? item.profiles[0] : item.profiles
+          }));
+          setAnnouncements(formattedData as TeamAnnouncement[]);
+        }
+      }
     }
   };
 

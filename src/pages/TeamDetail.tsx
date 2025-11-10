@@ -181,6 +181,7 @@ const TeamDetail = () => {
         open={inviteDialogOpen}
         onOpenChange={setInviteDialogOpen}
         onInvite={sendInvitation}
+        teamId={teamId || null}
       />
     </div>
   );
