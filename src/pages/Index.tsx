@@ -98,11 +98,8 @@ const Index = () => {
                 </Avatar>
               </div>
               <CardTitle className="text-2xl">@{profile.username}</CardTitle>
-              {profile.full_name && (
-                <CardDescription className="text-lg font-medium">{profile.full_name}</CardDescription>
-              )}
-              {profile.display_name && !profile.full_name && (
-                <CardDescription className="text-lg">{profile.display_name}</CardDescription>
+              {profile.display_name && (
+                <CardDescription className="text-lg font-medium">{profile.display_name}</CardDescription>
               )}
             </CardHeader>
             <CardContent className="space-y-4">
@@ -128,11 +125,6 @@ const Index = () => {
               )}
               
               <div className="space-y-2">
-                {user && (
-                  <p className="text-sm text-muted-foreground text-center">
-                    Signed in as: {user.email || user.phone}
-                  </p>
-                )}
                 <div className="flex gap-2">
                   <Button onClick={() => navigate("/settings")} variant="outline" className="flex-1">
                     Edit Profile
