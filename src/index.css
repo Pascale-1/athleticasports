@@ -20,11 +20,11 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 15%;
 
-    /* Primary - Coral to Rose Gradient */
-    --primary: 347 100% 70%;
-    --primary-dark: 347 77% 46%;
+    /* Primary - Deep Purple to Electric Blue */
+    --primary: 271 81% 56%;
+    --primary-dark: 258 90% 66%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 347 100% 80%;
+    --primary-glow: 258 90% 75%;
 
     /* Secondary - Teal */
     --secondary: 174 77% 40%;
@@ -58,7 +58,7 @@ All colors MUST be HSL.
     /* Border & Input */
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 347 100% 70%;
+    --ring: 271 81% 56%;
 
     /* Neutrals Scale */
     --neutral-50: 0 0% 98%;
@@ -73,7 +73,7 @@ All colors MUST be HSL.
     --neutral-900: 0 0% 15%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(347, 100%, 70%) 0%, hsl(347, 77%, 46%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(271, 81%, 56%) 0%, hsl(258, 90%, 66%) 100%);
     --gradient-secondary: linear-gradient(135deg, hsl(174, 77%, 40%) 0%, hsl(174, 77%, 50%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(45, 100%, 51%) 0%, hsl(38, 92%, 50%) 100%);
     --gradient-subtle: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 98%) 100%);
@@ -84,8 +84,8 @@ All colors MUST be HSL.
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
     --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-    --shadow-colored: 0 8px 24px rgba(255, 107, 157, 0.2);
-    --shadow-colored-lg: 0 12px 32px rgba(255, 107, 157, 0.3);
+    --shadow-colored: 0 8px 24px rgba(147, 97, 224, 0.25);
+    --shadow-colored-lg: 0 12px 32px rgba(147, 97, 224, 0.35);
 
     /* Spacing System (for reference) */
     --spacing-xs: 0.25rem;
@@ -114,12 +114,12 @@ All colors MUST be HSL.
     /* Sidebar */
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 0 0% 40%;
-    --sidebar-primary: 347 100% 70%;
+    --sidebar-primary: 271 81% 56%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 96%;
     --sidebar-accent-foreground: 0 0% 15%;
     --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 347 100% 70%;
+    --sidebar-ring: 271 81% 56%;
   }
 
   .dark {
@@ -136,10 +136,10 @@ All colors MUST be HSL.
     --popover-foreground: 0 0% 98%;
 
     /* Primary - Adjusted for dark mode */
-    --primary: 347 100% 70%;
-    --primary-dark: 347 77% 46%;
+    --primary: 271 81% 65%;
+    --primary-dark: 258 90% 70%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 347 100% 80%;
+    --primary-glow: 258 90% 80%;
 
     /* Secondary - Teal */
     --secondary: 174 77% 45%;
@@ -173,7 +173,7 @@ All colors MUST be HSL.
     /* Border & Input */
     --border: 0 0% 20%;
     --input: 0 0% 20%;
-    --ring: 347 100% 70%;
+    --ring: 271 81% 65%;
 
     /* Neutrals Scale (Dark Mode) */
     --neutral-50: 0 0% 15%;
@@ -193,18 +193,18 @@ All colors MUST be HSL.
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.3);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.4);
     --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.6);
-    --shadow-colored: 0 8px 24px rgba(255, 107, 157, 0.25);
-    --shadow-colored-lg: 0 12px 32px rgba(255, 107, 157, 0.35);
+    --shadow-colored: 0 8px 24px rgba(147, 97, 224, 0.3);
+    --shadow-colored-lg: 0 12px 32px rgba(147, 97, 224, 0.4);
 
     /* Sidebar */
     --sidebar-background: 0 0% 12%;
     --sidebar-foreground: 0 0% 85%;
-    --sidebar-primary: 347 100% 70%;
+    --sidebar-primary: 271 81% 65%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 18%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 347 100% 70%;
+    --sidebar-ring: 271 81% 65%;
   }
 }
 
@@ -240,12 +240,12 @@ All colors MUST be HSL.
 
   /* Gradient Text */
   .gradient-text {
-    @apply bg-gradient-to-r from-[hsl(347,100%,70%)] to-[hsl(347,77%,46%)] bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[hsl(271,81%,56%)] to-[hsl(258,90%,66%)] bg-clip-text text-transparent;
   }
 
   /* Gradient Backgrounds */
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(347, 100%, 70%) 0%, hsl(347, 77%, 46%) 100%);
+    background: linear-gradient(135deg, hsl(271, 81%, 56%) 0%, hsl(258, 90%, 66%) 100%);
   }
 
   .gradient-secondary {
@@ -262,11 +262,11 @@ All colors MUST be HSL.
 
   /* Shadow Utilities */
   .shadow-colored {
-    box-shadow: 0 8px 24px rgba(255, 107, 157, 0.2);
+    box-shadow: 0 8px 24px rgba(147, 97, 224, 0.25);
   }
 
   .shadow-colored-lg {
-    box-shadow: 0 12px 32px rgba(255, 107, 157, 0.3);
+    box-shadow: 0 12px 32px rgba(147, 97, 224, 0.35);
   }
 
   /* Smooth Transitions */
