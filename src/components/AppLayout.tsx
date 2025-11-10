@@ -16,7 +16,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           <header className="sticky top-0 z-10 flex h-16 md:h-18 shrink-0 items-center gap-2 border-b-2 border-primary/10 bg-gradient-to-r from-background via-background to-background/95 backdrop-blur-sm px-4 sm:px-6 shadow-sm">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-5 bg-border/50" />
-            <h1 className="text-lg md:text-xl font-heading font-bold bg-gradient-to-r from-primary via-primary-glow to-rose bg-clip-text text-transparent">
+            <h1 className="text-lg md:text-xl font-heading font-bold text-primary drop-shadow-sm">
               Athletica Sports
             </h1>
             <div className="ml-auto">

@@ -40,7 +40,7 @@ const Avatar = React.forwardRef<
     none: "",
     online: "bg-green-500",
     offline: "bg-neutral-400",
-    busy: "bg-rose",
+    busy: "bg-destructive",
   };
 
   return (
@@ -84,7 +84,7 @@ const AvatarFallback = React.forwardRef<
   <AvatarPrimitive.Fallback
     ref={ref}
     className={cn(
-      "flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-rose/20 text-primary font-semibold",
+      "flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary-dark/20 text-primary font-semibold",
       className
     )}
     {...props}

@@ -238,9 +238,9 @@ All colors MUST be HSL.
     @apply active:scale-[0.98] transition-transform duration-150;
   }
 
-  /* Gradient Text */
-  .gradient-text {
-    @apply bg-gradient-to-r from-[hsl(271,81%,56%)] to-[hsl(258,90%,66%)] bg-clip-text text-transparent;
+  /* Solid Text Utilities */
+  .text-primary-bold {
+    @apply text-primary font-bold;
   }
 
   /* Gradient Backgrounds */
@@ -296,6 +296,6 @@ All colors MUST be HSL.
   }
 
   .gradient-shift {
-    @apply bg-gradient-to-r from-primary via-primary-glow to-rose bg-[length:200%_100%] transition-all duration-500 hover:bg-right;
+    @apply bg-gradient-to-r from-primary via-primary-glow to-primary-dark bg-[length:200%_100%] transition-all duration-500 hover:bg-right;
   }
 }

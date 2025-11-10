@@ -67,7 +67,7 @@ export function AppSidebar() {
                     >
                       <NavLink to={item.url} end>
                         {isActive && (
-                          <span className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded-r-full bg-gradient-to-b from-primary via-primary-glow to-rose" />
+                          <span className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded-r-full bg-gradient-to-b from-primary via-primary-glow to-primary-dark" />
                         )}
                         <item.icon className={cn("transition-colors", isActive && "text-primary")} />
                         <span>{item.title}</span>
@@ -85,7 +85,7 @@ export function AppSidebar() {
                   >
                     <NavLink to="/admin" end>
                       {location.pathname === "/admin" && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded-r-full bg-gradient-to-b from-primary via-primary-glow to-rose" />
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded-r-full bg-gradient-to-b from-primary via-primary-glow to-primary-dark" />
                       )}
                       <Shield className={cn("transition-colors", location.pathname === "/admin" && "text-primary")} />
                       <span>Admin</span>
