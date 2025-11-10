@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@supabase/supabase-js";
+import { Trophy, Users } from "lucide-react";
 
 interface Profile {
   id: string;
@@ -13,6 +14,9 @@ interface Profile {
   display_name: string | null;
   avatar_url: string | null;
   bio: string | null;
+  full_name: string | null;
+  primary_sport: string | null;
+  team_name: string | null;
 }
 
 const Index = () => {
@@ -94,7 +98,10 @@ const Index = () => {
                 </Avatar>
               </div>
               <CardTitle className="text-2xl">@{profile.username}</CardTitle>
-              {profile.display_name && (
+              {profile.full_name && (
+                <CardDescription className="text-lg font-medium">{profile.full_name}</CardDescription>
+              )}
+              {profile.display_name && !profile.full_name && (
                 <CardDescription className="text-lg">{profile.display_name}</CardDescription>
               )}
             </CardHeader>
@@ -102,6 +109,24 @@ const Index = () => {
               {profile.bio && (
                 <p className="text-center text-muted-foreground">{profile.bio}</p>
               )}
+              
+              {(profile.primary_sport || profile.team_name) && (
+                <div className="flex flex-wrap justify-center gap-4 py-2">
+                  {profile.primary_sport && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Trophy className="h-4 w-4 text-primary" />
+                      <span className="font-medium">{profile.primary_sport}</span>
+                    </div>
+                  )}
+                  {profile.team_name && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Users className="h-4 w-4 text-primary" />
+                      <span className="font-medium">{profile.team_name}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+              
               <div className="space-y-2">
                 {user && (
                   <p className="text-sm text-muted-foreground text-center">

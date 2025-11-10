@@ -16,6 +16,9 @@ interface Profile {
   display_name: string | null;
   avatar_url: string | null;
   bio: string | null;
+  full_name: string | null;
+  primary_sport: string | null;
+  team_name: string | null;
 }
 
 const Settings = () => {
@@ -23,7 +26,10 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [fullName, setFullName] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [primarySport, setPrimarySport] = useState("");
+  const [teamName, setTeamName] = useState("");
   const [bio, setBio] = useState("");
 
   useEffect(() => {
@@ -44,7 +50,10 @@ const Settings = () => {
       if (error) throw error;
 
       setProfile(data);
+      setFullName(data.full_name || "");
       setDisplayName(data.display_name || "");
+      setPrimarySport(data.primary_sport || "");
+      setTeamName(data.team_name || "");
       setBio(data.bio || "");
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -62,7 +71,10 @@ const Settings = () => {
       const { error } = await supabase
         .from('profiles')
         .update({
+          full_name: fullName || null,
           display_name: displayName || null,
+          primary_sport: primarySport || null,
+          team_name: teamName || null,
           bio: bio || null,
         })
         .eq('user_id', profile.user_id);
@@ -200,12 +212,54 @@ const Settings = () => {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="fullName">Full Name</Label>
+            <Input
+              id="fullName"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Enter your full name"
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="displayName">Display Name</Label>
             <Input
               id="displayName"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Enter your display name"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="primarySport">Primary Sport</Label>
+            <select
+              id="primarySport"
+              value={primarySport}
+              onChange={(e) => setPrimarySport(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="">Select a sport</option>
+              <option value="Basketball">Basketball</option>
+              <option value="Football">Football</option>
+              <option value="Soccer">Soccer</option>
+              <option value="Baseball">Baseball</option>
+              <option value="Tennis">Tennis</option>
+              <option value="Volleyball">Volleyball</option>
+              <option value="Swimming">Swimming</option>
+              <option value="Track & Field">Track & Field</option>
+              <option value="Hockey">Hockey</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="teamName">Team/Club</Label>
+            <Input
+              id="teamName"
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
+              placeholder="Enter your team or club name"
             />
           </div>
 
