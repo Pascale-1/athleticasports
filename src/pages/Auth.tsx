@@ -89,13 +89,27 @@ const Auth = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
-        navigate("/");
+        // Check for pending invitation
+        const pendingInvitationId = sessionStorage.getItem("pendingInvitationId");
+        if (pendingInvitationId) {
+          sessionStorage.removeItem("pendingInvitationId");
+          navigate(`/teams/invitations/accept?id=${pendingInvitationId}`);
+        } else {
+          navigate("/");
+        }
       }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        navigate("/");
+        // Check for pending invitation
+        const pendingInvitationId = sessionStorage.getItem("pendingInvitationId");
+        if (pendingInvitationId) {
+          sessionStorage.removeItem("pendingInvitationId");
+          navigate(`/teams/invitations/accept?id=${pendingInvitationId}`);
+        } else {
+          navigate("/");
+        }
       }
     });
 
