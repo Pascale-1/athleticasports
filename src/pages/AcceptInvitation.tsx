@@ -41,105 +41,45 @@ const AcceptInvitation = () => {
         return;
       }
 
-      // User is authenticated, accept the invitation
+      // User is authenticated, call backend function to accept invitation
       try {
         setLoading(true);
         
-        // Fetch invitation details
-        const { data: invitation, error: fetchError } = await supabase
-          .from("team_invitations")
-          .select("team_id, status, invited_user_id, email, role")
-          .eq("id", invitationId)
-          .single();
-
-        if (fetchError) {
-          if (fetchError.code === "PGRST116") {
-            throw new Error("This invitation doesn't exist or has expired");
-          }
-          throw fetchError;
-        }
-
-        if (invitation.status === "accepted") {
-          // Already accepted, just redirect to team
-          setTeamId(invitation.team_id);
-          toast({
-            title: "Already a member",
-            description: "You're already part of this team",
-          });
-          setTimeout(() => navigate(`/teams/${invitation.team_id}`), 1500);
-          return;
-        }
-
-        // Check if user is already a member
-        const { data: existingMember } = await supabase
-          .from("team_members")
-          .select("id")
-          .eq("team_id", invitation.team_id)
-          .eq("user_id", session.user.id)
-          .eq("status", "active")
-          .maybeSingle();
-
-        if (existingMember) {
-          // User is already a member, just update invitation status
-          await supabase
-            .from("team_invitations")
-            .update({ status: "accepted", accepted_at: new Date().toISOString() })
-            .eq("id", invitationId);
-
-          setTeamId(invitation.team_id);
-          toast({
-            title: "Already a member",
-            description: "You're already part of this team",
-          });
-          setTimeout(() => navigate(`/teams/${invitation.team_id}`), 1500);
-          return;
-        }
-
-        // Add user to team
-        const { data: newMember, error: memberError } = await supabase
-          .from("team_members")
-          .insert({
-            team_id: invitation.team_id,
-            user_id: session.user.id,
-            status: "active",
-          })
-          .select()
-          .single();
-
-        if (memberError) throw memberError;
-
-        // Assign role
-        await supabase
-          .from("team_member_roles")
-          .insert({
-            team_member_id: newMember.id,
-            role: invitation.role || "member",
-            assigned_by: session.user.id,
-          });
-
-        // Update invitation status
-        await supabase
-          .from("team_invitations")
-          .update({ status: "accepted", accepted_at: new Date().toISOString() })
-          .eq("id", invitationId);
-
-        setTeamId(invitation.team_id);
-        
-        toast({
-          title: "Success!",
-          description: "You've joined the team",
+        const { data, error } = await supabase.functions.invoke('accept-team-invitation', {
+          body: { invitationId }
         });
 
+        if (error) throw error;
+
+        if (!data?.teamId) {
+          throw new Error("Invalid response from server");
+        }
+
+        setTeamId(data.teamId);
+        
+        if (data.alreadyAccepted) {
+          toast({
+            title: "Already a member",
+            description: "You're already part of this team",
+          });
+        } else {
+          toast({
+            title: "Success!",
+            description: "You've joined the team",
+          });
+        }
+
         // Redirect to team page
-        setTimeout(() => navigate(`/teams/${invitation.team_id}`), 1500);
+        setTimeout(() => navigate(`/teams/${data.teamId}`), 1500);
         
       } catch (err: any) {
         console.error("Error accepting invitation:", err);
-        setError(err.message || "Failed to accept invitation");
+        const errorMessage = err.message || "Failed to accept invitation";
+        setError(errorMessage);
         toast({
           variant: "destructive",
           title: "Error",
-          description: err.message || "Failed to accept invitation",
+          description: errorMessage,
         });
       } finally {
         setLoading(false);
