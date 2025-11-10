@@ -17,7 +17,9 @@ const emailSchema = z.object({
 });
 
 const phoneSchema = z.object({
-  phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number format"),
+  countryCode: z.string().min(1, "Please select a country code"),
+  phone: z.string().regex(/^[0-9]{6,14}$/, "Please enter a valid phone number (6-14 digits)"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 type EmailFormData = z.infer<typeof emailSchema>;
@@ -68,8 +70,8 @@ const Auth = () => {
         if (error) throw error;
         
         toast({
-          title: "Success!",
-          description: "Account created successfully. You can now sign in.",
+          title: "Account created!",
+          description: "You can now sign in with your credentials.",
         });
         setIsSignUp(false);
       } else {
@@ -78,7 +80,16 @@ const Auth = () => {
           password: data.password,
         });
         
-        if (error) throw error;
+        if (error) {
+          // Provide clearer error messages
+          if (error.message.includes("Invalid login credentials")) {
+            throw new Error("Invalid email or password. Don't have an account? Sign up below.");
+          }
+          if (error.message.includes("Email not confirmed")) {
+            throw new Error("Please check your email and confirm your account before signing in.");
+          }
+          throw error;
+        }
         
         toast({
           title: "Welcome back!",
@@ -88,7 +99,7 @@ const Auth = () => {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Authentication Error",
+        title: isSignUp ? "Sign Up Error" : "Sign In Error",
         description: error.message || "An error occurred during authentication.",
       });
     } finally {
@@ -120,20 +131,47 @@ const Auth = () => {
   const handlePhoneAuth = async (data: PhoneFormData) => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: data.phone,
-      });
+      const fullPhone = `${data.countryCode}${data.phone}`;
       
-      if (error) throw error;
-      
-      toast({
-        title: "Success!",
-        description: "Phone number verified. You're now signed in.",
-      });
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          phone: fullPhone,
+          password: data.password,
+          options: {
+            data: {
+              phone: fullPhone,
+            },
+          },
+        });
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Account created!",
+          description: "You're now signed in with your phone number.",
+        });
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          phone: fullPhone,
+          password: data.password,
+        });
+        
+        if (error) {
+          if (error.message.includes("Invalid login credentials")) {
+            throw new Error("Invalid phone or password. Don't have an account? Sign up below.");
+          }
+          throw error;
+        }
+        
+        toast({
+          title: "Welcome back!",
+          description: "Successfully signed in.",
+        });
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Phone Authentication Error",
+        title: isSignUp ? "Sign Up Error" : "Sign In Error",
         description: error.message || "Failed to authenticate with phone.",
       });
     } finally {
@@ -242,11 +280,41 @@ const Auth = () => {
             <TabsContent value="phone" className="space-y-4">
               <form onSubmit={phoneForm.handleSubmit(handlePhoneAuth)} className="space-y-4">
                 <div className="space-y-2">
+                  <Label htmlFor="countryCode">Country Code</Label>
+                  <select
+                    id="countryCode"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    {...phoneForm.register("countryCode")}
+                  >
+                    <option value="">Select country code</option>
+                    <option value="+1">🇺🇸 United States (+1)</option>
+                    <option value="+1">🇨🇦 Canada (+1)</option>
+                    <option value="+44">🇬🇧 United Kingdom (+44)</option>
+                    <option value="+33">🇫🇷 France (+33)</option>
+                    <option value="+49">🇩🇪 Germany (+49)</option>
+                    <option value="+39">🇮🇹 Italy (+39)</option>
+                    <option value="+34">🇪🇸 Spain (+34)</option>
+                    <option value="+61">🇦🇺 Australia (+61)</option>
+                    <option value="+86">🇨🇳 China (+86)</option>
+                    <option value="+81">🇯🇵 Japan (+81)</option>
+                    <option value="+82">🇰🇷 South Korea (+82)</option>
+                    <option value="+91">🇮🇳 India (+91)</option>
+                    <option value="+55">🇧🇷 Brazil (+55)</option>
+                    <option value="+52">🇲🇽 Mexico (+52)</option>
+                  </select>
+                  {phoneForm.formState.errors.countryCode && (
+                    <p className="text-sm text-destructive">
+                      {phoneForm.formState.errors.countryCode.message}
+                    </p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
                   <Input
                     id="phone"
                     type="tel"
-                    placeholder="+1234567890"
+                    placeholder="123456789"
                     {...phoneForm.register("phone")}
                   />
                   {phoneForm.formState.errors.phone && (
@@ -255,12 +323,37 @@ const Auth = () => {
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground">
-                    Enter your phone number with country code (e.g., +1234567890)
+                    Enter your phone number without country code
                   </p>
                 </div>
                 
+                <div className="space-y-2">
+                  <Label htmlFor="phone-password">Password</Label>
+                  <Input
+                    id="phone-password"
+                    type="password"
+                    placeholder="••••••••"
+                    {...phoneForm.register("password")}
+                  />
+                  {phoneForm.formState.errors.password && (
+                    <p className="text-sm text-destructive">
+                      {phoneForm.formState.errors.password.message}
+                    </p>
+                  )}
+                </div>
+                
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Loading..." : "Sign In with Phone"}
+                  {loading ? "Loading..." : isSignUp ? "Sign Up with Phone" : "Sign In with Phone"}
+                </Button>
+                
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  disabled={loading}
+                >
+                  {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
                 </Button>
               </form>
             </TabsContent>
