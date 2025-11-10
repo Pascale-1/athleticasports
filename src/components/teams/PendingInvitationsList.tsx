@@ -2,8 +2,19 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Mail, X, Clock } from "lucide-react";
+import { Mail, X, Clock, RefreshCw } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
 
 export interface PendingInvitation {
   id: string;
@@ -18,16 +29,34 @@ interface PendingInvitationsListProps {
   invitations: PendingInvitation[];
   canManage: boolean;
   onCancel?: (invitationId: string) => void;
+  onResend?: (invitationId: string) => void;
 }
 
 export const PendingInvitationsList = ({
   invitations,
   canManage,
   onCancel,
+  onResend,
 }: PendingInvitationsListProps) => {
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [selectedInvitationId, setSelectedInvitationId] = useState<string | null>(null);
+
   if (invitations.length === 0) {
     return null;
   }
+
+  const handleCancelClick = (invitationId: string) => {
+    setSelectedInvitationId(invitationId);
+    setCancelDialogOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    if (selectedInvitationId && onCancel) {
+      onCancel(selectedInvitationId);
+      setCancelDialogOpen(false);
+      setSelectedInvitationId(null);
+    }
+  };
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
@@ -76,21 +105,52 @@ export const PendingInvitationsList = ({
                   {invitation.role}
                 </Badge>
                 
-                {canManage && onCancel && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onCancel(invitation.id)}
-                    className="h-8 w-8"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                {canManage && (
+                  <>
+                    {onResend && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onResend(invitation.id)}
+                        className="h-8 w-8"
+                        title="Resend invitation"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {onCancel && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleCancelClick(invitation.id)}
+                        className="h-8 w-8"
+                        title="Cancel invitation"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </>
                 )}
               </div>
             </div>
           </Card>
         ))}
       </div>
+
+      <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Invitation?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel this invitation? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>No, keep it</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmCancel}>Yes, cancel</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

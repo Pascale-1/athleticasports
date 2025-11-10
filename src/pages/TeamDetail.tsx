@@ -26,7 +26,7 @@ const TeamDetail = () => {
 
   const { team, userRole, isLoading, isMember, canManage } = useTeam(teamId || null);
   const { members, loading: membersLoading, removeMember, updateMemberRole } = useTeamMembers(teamId || null);
-  const { sendInvitation, invitations, loading: invitationsLoading } = useTeamInvitations(teamId || null);
+  const { sendInvitation, cancelInvitation, resendInvitation, invitations, loading: invitationsLoading } = useTeamInvitations(teamId || null);
   const {
     announcements,
     loading: announcementsLoading,
@@ -154,6 +154,8 @@ const TeamDetail = () => {
                 onRemoveMember={removeMember}
                 onUpdateRole={updateMemberRole}
                 invitations={invitations}
+                onCancelInvitation={cancelInvitation}
+                onResendInvitation={resendInvitation}
               />
             )}
           </TabsContent>

@@ -12,6 +12,8 @@ interface TeamMemberListProps {
   onRemoveMember: (memberId: string) => void;
   onUpdateRole: (memberId: string, role: string) => void;
   invitations?: PendingInvitation[];
+  onCancelInvitation?: (invitationId: string) => void;
+  onResendInvitation?: (invitationId: string) => void;
 }
 
 export const TeamMemberList = ({
@@ -22,6 +24,8 @@ export const TeamMemberList = ({
   onRemoveMember,
   onUpdateRole,
   invitations = [],
+  onCancelInvitation,
+  onResendInvitation,
 }: TeamMemberListProps) => {
   const pendingInvitations = invitations.filter(inv => inv.status === 'pending');
 
@@ -31,6 +35,8 @@ export const TeamMemberList = ({
         <PendingInvitationsList
           invitations={pendingInvitations}
           canManage={canManage}
+          onCancel={onCancelInvitation}
+          onResend={onResendInvitation}
         />
       )}
 

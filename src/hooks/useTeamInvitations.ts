@@ -103,6 +103,24 @@ export const useTeamInvitations = (teamId: string | null) => {
         }
       }
 
+      // Check for existing pending invitation
+      const { data: existingInvitation } = await supabase
+        .from("team_invitations")
+        .select("id")
+        .eq("team_id", teamId)
+        .eq("email", email)
+        .eq("status", "pending")
+        .maybeSingle();
+
+      if (existingInvitation) {
+        toast({
+          title: "Already invited",
+          description: "This user already has a pending invitation",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { data: newInvitation, error } = await supabase
         .from("team_invitations")
         .insert([{
@@ -155,6 +173,76 @@ export const useTeamInvitations = (teamId: string | null) => {
       toast({
         title: "Error",
         description: error.message || "Failed to send invitation",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const cancelInvitation = async (invitationId: string) => {
+    try {
+      const { error } = await supabase
+        .from("team_invitations")
+        .delete()
+        .eq("id", invitationId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Invitation cancelled",
+      });
+    } catch (error: any) {
+      console.error("Error cancelling invitation:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to cancel invitation",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const resendInvitation = async (invitationId: string) => {
+    try {
+      const { data: invitation } = await supabase
+        .from("team_invitations")
+        .select("*")
+        .eq("id", invitationId)
+        .single();
+
+      if (!invitation) throw new Error("Invitation not found");
+
+      // Call edge function to resend email
+      const { error: emailError } = await supabase.functions.invoke(
+        'send-team-invitation',
+        {
+          body: {
+            invitationId: invitation.id,
+            teamId: invitation.team_id,
+            recipientEmail: invitation.email,
+            role: invitation.role,
+          },
+        }
+      );
+
+      if (emailError) {
+        throw emailError;
+      }
+
+      // Update the created_at timestamp to show it was resent
+      await supabase
+        .from("team_invitations")
+        .update({ created_at: new Date().toISOString() })
+        .eq("id", invitationId);
+
+      toast({
+        title: "Success",
+        description: "Invitation resent successfully",
+      });
+    } catch (error: any) {
+      console.error("Error resending invitation:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to resend invitation",
         variant: "destructive",
       });
     }
@@ -244,6 +332,8 @@ export const useTeamInvitations = (teamId: string | null) => {
     invitations,
     loading,
     sendInvitation,
+    cancelInvitation,
+    resendInvitation,
     acceptInvitation,
     declineInvitation,
   };
