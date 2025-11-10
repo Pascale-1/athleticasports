@@ -5,6 +5,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
+import { z } from "zod";
+
+const uuidSchema = z.string().uuid({ message: "Invalid invitation link" });
 
 const AcceptInvitation = () => {
   const navigate = useNavigate();
@@ -13,15 +16,20 @@ const AcceptInvitation = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [teamId, setTeamId] = useState<string | null>(null);
-  const invitationId = searchParams.get("id");
 
   useEffect(() => {
     const handleInvitation = async () => {
-      if (!invitationId) {
-        setError("No invitation ID provided");
+      const rawId = searchParams.get("id");
+      
+      // Validate UUID format
+      const validation = uuidSchema.safeParse(rawId);
+      if (!validation.success) {
+        setError("Invalid invitation link. Please check the URL and try again.");
         setLoading(false);
         return;
       }
+      
+      const invitationId = validation.data;
 
       // Check if user is authenticated
       const { data: { session } } = await supabase.auth.getSession();
@@ -46,7 +54,7 @@ const AcceptInvitation = () => {
 
         if (fetchError) {
           if (fetchError.code === "PGRST116") {
-            throw new Error("Invitation not found");
+            throw new Error("This invitation doesn't exist or has expired");
           }
           throw fetchError;
         }
@@ -139,7 +147,7 @@ const AcceptInvitation = () => {
     };
 
     handleInvitation();
-  }, [invitationId, navigate, toast]);
+  }, [searchParams, navigate, toast]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
