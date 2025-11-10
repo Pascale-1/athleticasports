@@ -1,8 +1,6 @@
-import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
-import { Resend } from 'npm:resend@4.0.0'
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
-const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string)
+const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -129,33 +127,42 @@ Deno.serve(async (req) => {
       appUrl
     )
 
-    // Send email via Resend
-    const { data, error } = await resend.emails.send({
-      from: 'Athletica Sports <noreply@athleticasports.app>',
-      to: [recipientEmail],
-      subject: `You've been invited to join ${team.name}`,
-      html,
+    // Send email via Resend HTTP API
+    const resendResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: 'Athletica Sports <noreply@athleticasports.app>',
+        to: [recipientEmail],
+        subject: `You've been invited to join ${team.name}`,
+        html,
+      }),
     })
 
-    if (error) {
-      console.error('Error sending email:', error)
-      throw error
+    const resendData = await resendResponse.json()
+
+    if (!resendResponse.ok) {
+      console.error('Error sending email:', resendData)
+      throw resendData
     }
 
-    console.log('Email sent successfully:', data)
+    console.log('Email sent successfully:', resendData)
 
     return new Response(
-      JSON.stringify({ success: true, messageId: data?.id }),
+      JSON.stringify({ success: true, messageId: resendData?.id }),
       {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     )
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in send-team-invitation function:', error)
     return new Response(
       JSON.stringify({
-        error: error.message || 'Failed to send invitation email',
+        error: error?.message || 'Failed to send invitation email',
       }),
       {
         status: 500,
