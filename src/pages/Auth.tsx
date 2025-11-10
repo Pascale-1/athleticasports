@@ -35,6 +35,7 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [oauthUrl, setOauthUrl] = useState<string | null>(null);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const [invitationId, setInvitationId] = useState<string | null>(null);
   const redirectUrl = `${window.location.origin}/auth`;
   const inIframe = (() => { try { return window.top !== window.self; } catch { return true; } })();
 
@@ -50,12 +51,13 @@ const Auth = () => {
     // Check for OAuth errors in URL params
     const error = searchParams.get('error');
     const errorDescription = searchParams.get('error_description');
-    const invitationId = searchParams.get('invitationId');
+    const invitationIdParam = searchParams.get('invitationId');
     
     // Store invitation ID if present (for users who need to login first)
-    if (invitationId) {
-      sessionStorage.setItem("pendingInvitationId", invitationId);
-      console.log('[Auth] Stored pending invitation ID:', invitationId);
+    if (invitationIdParam) {
+      setInvitationId(invitationIdParam);
+      sessionStorage.setItem("pendingInvitationId", invitationIdParam);
+      console.log('[Auth] Stored pending invitation ID:', invitationIdParam);
     }
     
     if (error) {
@@ -63,14 +65,17 @@ const Auth = () => {
         ? errorDescription.replace(/\+/g, ' ')
         : 'An error occurred during sign in';
       
+      console.error('[Auth] OAuth error:', error, errorDescription);
+      
       toast({
         variant: "destructive",
         title: "Google Sign In Error",
         description: friendlyMessage,
       });
       
-      // Clean up URL
-      window.history.replaceState({}, '', '/auth');
+      // Clean up URL but preserve invitation ID
+      const cleanUrl = invitationIdParam ? `/auth?invitationId=${invitationIdParam}` : '/auth';
+      window.history.replaceState({}, '', cleanUrl);
     }
   }, [searchParams, toast]);
 
@@ -179,11 +184,22 @@ const handleGoogleAuth = async () => {
     setGoogleLoading(true);
     setOauthUrl(null);
     try {
-      console.log('[OAuth] Starting Google sign-in', { origin: window.location.origin });
+      console.log('[OAuth] Starting Google sign-in', { 
+        origin: window.location.origin,
+        invitationId: invitationId || 'none'
+      });
+      
+      // Preserve invitation ID through OAuth redirect
+      const finalRedirectUrl = invitationId 
+        ? `${redirectUrl}?invitationId=${invitationId}`
+        : redirectUrl;
+      
+      console.log('[OAuth] Redirect URL:', finalRedirectUrl);
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: redirectUrl,
+          redirectTo: finalRedirectUrl,
           skipBrowserRedirect: true,
         },
       });
@@ -194,6 +210,7 @@ const handleGoogleAuth = async () => {
       if (data?.url) {
         setOauthUrl(data.url);
         const url = data.url;
+        console.log('[OAuth] Navigating to Google OAuth URL');
         try {
           if (window.top && window.top !== window.self) {
             (window.top as Window).location.href = url;
@@ -278,6 +295,15 @@ const handleGoogleAuth = async () => {
           <CardDescription className="text-sm">Sign in to your account or create a new one</CardDescription>
         </CardHeader>
         <CardContent className="p-4 sm:p-6">
+          {invitationId && (
+            <Alert className="mb-4 border-primary/50 bg-primary/5">
+              <AlertTitle className="text-primary">Team Invitation</AlertTitle>
+              <AlertDescription className="text-sm">
+                You've been invited to join a team! Please sign in or create an account to accept the invitation.
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <Tabs defaultValue="email" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="email" className="text-xs sm:text-sm">Email</TabsTrigger>
@@ -316,6 +342,12 @@ const handleGoogleAuth = async () => {
                   )}
                 </div>
                 
+                {invitationId && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    💡 Tip: Use the same email address where you received the invitation
+                  </p>
+                )}
+                
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
                 </Button>
@@ -339,6 +371,12 @@ const handleGoogleAuth = async () => {
                   <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
                 </div>
               </div>
+              
+              {invitationId && (
+                <p className="text-xs text-muted-foreground text-center">
+                  💡 You can also sign up with Google using your invited email address
+                </p>
+              )}
               
               <Button
                 type="button"

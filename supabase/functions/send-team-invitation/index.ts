@@ -15,7 +15,7 @@ interface InvitationRequest {
   appOrigin?: string // Client's origin for building invite links
 }
 
-function generateEmailHTML(teamName: string, inviterName: string, role: string, acceptUrl: string, authFallbackUrl: string, appUrl: string): string {
+function generateEmailHTML(teamName: string, inviterName: string, role: string, acceptUrl: string, authFallbackUrl: string, appUrl: string, recipientEmail: string): string {
   return `
 <!DOCTYPE html>
 <html>
@@ -32,10 +32,31 @@ function generateEmailHTML(teamName: string, inviterName: string, role: string, 
       <strong>${inviterName}</strong> has invited you to join <strong>${teamName}</strong> as a <strong>${role}</strong>.
     </p>
     
+    <div style="background-color: #F3F4F6; border-left: 4px solid #8B5CF6; padding: 16px; margin: 24px 0; border-radius: 4px;">
+      <p style="color: #333; font-size: 13px; line-height: 20px; margin: 0 0 8px 0; font-weight: 600;">
+        📧 Important: Use this email address to sign up
+      </p>
+      <p style="color: #666; font-size: 13px; line-height: 20px; margin: 0;">
+        This invitation was sent to <strong>${recipientEmail}</strong>. When you create your account or sign in, make sure to use this exact email address.
+      </p>
+    </div>
+    
     <div style="padding: 27px 0;">
       <a href="${acceptUrl}" target="_blank" style="background-color: #8B5CF6; border-radius: 5px; color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; text-align: center; display: block; width: 100%; padding: 12px;">
         Accept Invitation
       </a>
+    </div>
+    
+    <div style="background-color: #F9FAFB; padding: 16px; border-radius: 4px; margin: 16px 0;">
+      <p style="color: #333; font-size: 13px; line-height: 20px; margin: 0 0 12px 0; font-weight: 600;">
+        How to accept this invitation:
+      </p>
+      <ol style="color: #666; font-size: 13px; line-height: 20px; margin: 0; padding-left: 20px;">
+        <li style="margin-bottom: 8px;">Click the "Accept Invitation" button above</li>
+        <li style="margin-bottom: 8px;">If you don't have an account, create one using <strong>${recipientEmail}</strong></li>
+        <li style="margin-bottom: 8px;">You can sign up with email/password or use Google Sign-in (make sure to use ${recipientEmail})</li>
+        <li>Once signed in, you'll automatically join the team</li>
+      </ol>
     </div>
     
     <p style="color: #333; font-size: 14px; line-height: 24px; margin: 16px 0;">
@@ -47,7 +68,11 @@ function generateEmailHTML(teamName: string, inviterName: string, role: string, 
     </div>
     
     <p style="color: #898989; font-size: 12px; line-height: 22px; margin-top: 20px; margin-bottom: 12px;">
-      Not logged in? <a href="${authFallbackUrl}" target="_blank" style="color: #8B5CF6; text-decoration: underline;">Sign in first</a>, then accept your invitation.
+      Already have an account? <a href="${authFallbackUrl}" target="_blank" style="color: #8B5CF6; text-decoration: underline;">Sign in first</a>, then accept your invitation.
+    </p>
+    
+    <p style="color: #898989; font-size: 12px; line-height: 22px; margin-top: 12px; margin-bottom: 12px;">
+      Having trouble? <a href="${appUrl}/teams/invitations/help" target="_blank" style="color: #8B5CF6; text-decoration: underline;">View our troubleshooting guide</a>
     </p>
     
     <p style="color: #898989; font-size: 12px; line-height: 22px; margin-top: 12px; margin-bottom: 24px;">
@@ -177,7 +202,8 @@ Deno.serve(async (req) => {
       role.charAt(0).toUpperCase() + role.slice(1),
       acceptUrl,
       authFallbackUrl,
-      appUrl
+      appUrl,
+      recipientEmail
     )
 
     // Send email via Resend HTTP API

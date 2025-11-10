@@ -14,6 +14,7 @@ import Teams from "./pages/Teams";
 import TeamCreate from "./pages/TeamCreate";
 import TeamDetail from "./pages/TeamDetail";
 import AcceptInvitation from "./pages/AcceptInvitation";
+import InvitationHelp from "./pages/InvitationHelp";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -76,6 +77,7 @@ const App = () => (
             </ProtectedRoute>
           } />
           <Route path="/teams/invitations/accept" element={<AcceptInvitation />} />
+          <Route path="/teams/invitations/help" element={<InvitationHelp />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
