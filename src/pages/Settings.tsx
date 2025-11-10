@@ -45,16 +45,18 @@ const Settings = () => {
         .from('profiles')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
       setProfile(data);
-      setFullName(data.full_name || "");
-      setDisplayName(data.display_name || "");
-      setPrimarySport(data.primary_sport || "");
-      setTeamName(data.team_name || "");
-      setBio(data.bio || "");
+      if (data) {
+        setFullName(data.full_name || "");
+        setDisplayName(data.display_name || "");
+        setPrimarySport(data.primary_sport || "");
+        setTeamName(data.team_name || "");
+        setBio(data.bio || "");
+      }
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast.error("Failed to load profile");
@@ -64,28 +66,53 @@ const Settings = () => {
   };
 
   const handleSave = async () => {
-    if (!profile) return;
-
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          full_name: fullName || null,
-          display_name: displayName || null,
-          primary_sport: primarySport || null,
-          team_name: teamName || null,
-          bio: bio || null,
-        })
-        .eq('user_id', profile.user_id);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
 
-      if (error) throw error;
+      if (profile) {
+        // Update existing profile
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            full_name: fullName || null,
+            display_name: displayName || null,
+            primary_sport: primarySport || null,
+            team_name: teamName || null,
+            bio: bio || null,
+          })
+          .eq('user_id', profile.user_id);
 
-      toast.success("Profile updated successfully");
+        if (error) throw error;
+        toast.success("Profile updated successfully");
+      } else {
+        // Create new profile - generate random username
+        const { data: username, error: usernameError } = await supabase
+          .rpc('generate_random_username');
+
+        if (usernameError) throw usernameError;
+
+        const { error } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: user.id,
+            username: username,
+            full_name: fullName || null,
+            display_name: displayName || null,
+            primary_sport: primarySport || null,
+            team_name: teamName || null,
+            bio: bio || null,
+          });
+
+        if (error) throw error;
+        toast.success("Profile created successfully");
+      }
+
       fetchProfile();
     } catch (error) {
-      console.error('Error updating profile:', error);
-      toast.error("Failed to update profile");
+      console.error('Error saving profile:', error);
+      toast.error(profile ? "Failed to update profile" : "Failed to create profile");
     } finally {
       setSaving(false);
     }
@@ -135,13 +162,6 @@ const Settings = () => {
     );
   }
 
-  if (!profile) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">Profile not found</p>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
@@ -150,18 +170,19 @@ const Settings = () => {
         <p className="text-muted-foreground">Manage your profile settings</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile Picture</CardTitle>
-          <CardDescription>Upload a profile picture for your account</CardDescription>
-        </CardHeader>
-        <CardContent className="flex items-center gap-6">
-          <Avatar className="h-24 w-24">
-            <AvatarImage src={profile.avatar_url || undefined} />
-            <AvatarFallback className="text-2xl">
-              {profile.username.substring(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+      {profile && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Profile Picture</CardTitle>
+            <CardDescription>Upload a profile picture for your account</CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center gap-6">
+            <Avatar className="h-24 w-24">
+              <AvatarImage src={profile.avatar_url || undefined} />
+              <AvatarFallback className="text-2xl">
+                {profile.username.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
           <div>
             <Input
               id="avatar"
@@ -191,6 +212,7 @@ const Settings = () => {
           </div>
         </CardContent>
       </Card>
+      )}
 
       <Card>
         <CardHeader>
@@ -198,18 +220,26 @@ const Settings = () => {
           <CardDescription>Update your profile details</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              value={profile.username}
-              disabled
-              className="bg-muted"
-            />
-            <p className="text-xs text-muted-foreground">
-              Your username cannot be changed
-            </p>
-          </div>
+          {profile && (
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                value={profile.username}
+                disabled
+                className="bg-muted"
+              />
+              <p className="text-xs text-muted-foreground">
+                Your username cannot be changed
+              </p>
+            </div>
+          )}
+          
+          {!profile && (
+            <div className="rounded-lg bg-muted p-4 text-sm text-muted-foreground">
+              A unique username will be generated for you automatically
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="fullName">Full Name</Label>
@@ -278,10 +308,10 @@ const Settings = () => {
             {saving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                {profile ? "Saving..." : "Creating..."}
               </>
             ) : (
-              "Save Changes"
+              profile ? "Save Changes" : "Create Profile"
             )}
           </Button>
         </CardContent>
