@@ -131,7 +131,7 @@ Deno.serve(async (req) => {
 
     // Send email via Resend
     const { data, error } = await resend.emails.send({
-      from: 'Athletica Sports <onboarding@resend.dev>',
+      from: 'Athletica Sports <noreply@athleticasports.app>',
       to: [recipientEmail],
       subject: `You've been invited to join ${team.name}`,
       html,
