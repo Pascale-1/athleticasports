@@ -133,21 +133,27 @@ const Auth = () => {
   const handleGoogleAuth = async () => {
     setGoogleLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      console.log('[OAuth] Starting Google sign-in', { origin: window.location.origin });
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth`,
         },
       });
-      
+
       if (error) throw error;
+      console.log('[OAuth] signInWithOAuth returned', data);
     } catch (error: any) {
+      console.error('[OAuth] Google sign in error', error);
       toast({
         variant: "destructive",
         title: "Google Sign In Error",
         description: error.message || "Failed to sign in with Google.",
       });
       setGoogleLoading(false);
+    } finally {
+      // Safety: if no redirect happened, re-enable button after a moment
+      setTimeout(() => setGoogleLoading(false), 1500);
     }
   };
 
@@ -273,6 +279,7 @@ const Auth = () => {
               </div>
               
               <Button
+                type="button"
                 variant="outline"
                 className="w-full"
                 onClick={handleGoogleAuth}
