@@ -21,17 +21,17 @@ export const TeamMemberList = ({
   onUpdateRole,
 }: TeamMemberListProps) => {
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Members ({members.length})</h3>
+    <div className="space-y-3 sm:space-y-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-4">
+        <h3 className="text-base sm:text-lg font-semibold">Members ({members.length})</h3>
         {canManage && (
-          <Button onClick={onInvite}>
+          <Button onClick={onInvite} className="w-full sm:w-auto min-h-11">
             <UserPlus className="h-4 w-4 mr-2" />
-            Invite Members
+            <span className="text-xs sm:text-sm">Invite Members</span>
           </Button>
         )}
       </div>
-      <div className="space-y-3">
+      <div className="space-y-2 sm:space-y-3">
         {members.map((member) => (
           <TeamMemberCard
             key={member.id}

@@ -73,10 +73,10 @@ const Users = () => {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Users Directory</h1>
-        <p className="text-muted-foreground">Browse all registered users</p>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Users Directory</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Browse all registered users</p>
       </div>
 
       <div className="relative">
@@ -96,19 +96,19 @@ const Users = () => {
             
             return (
               <Card key={profile.id} className="hover-scale">
-                <CardContent className="pt-6">
-                  <div className="flex flex-col items-center text-center space-y-4">
-                    <Avatar className="h-20 w-20">
+                <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
+                  <div className="flex flex-col items-center text-center space-y-3 sm:space-y-4">
+                    <Avatar className="h-16 w-16 md:h-20 md:w-20">
                       <AvatarImage src={profile.avatar_url || undefined} />
-                      <AvatarFallback className="text-xl">
+                      <AvatarFallback className="text-lg md:text-xl">
                         {profile.username.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     
                     <div className="space-y-1 w-full">
-                      <h3 className="font-semibold text-lg">@{profile.username}</h3>
+                      <h3 className="font-semibold text-base sm:text-lg truncate">@{profile.username}</h3>
                       {profile.display_name && (
-                        <p className="text-sm text-muted-foreground">{profile.display_name}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground truncate">{profile.display_name}</p>
                       )}
                       <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground pt-1">
                         <UsersIcon className="h-3 w-3" />

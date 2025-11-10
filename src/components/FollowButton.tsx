@@ -38,22 +38,22 @@ export const FollowButton = ({ userId, username }: FollowButtonProps) => {
       disabled={actionLoading}
       variant={isFollowing ? "outline" : "default"}
       size="sm"
-      className="min-w-[100px]"
+      className="w-full sm:w-auto min-w-[100px] min-h-11"
     >
       {actionLoading ? (
         <>
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span>{isFollowing ? "Unfollowing..." : "Following..."}</span>
+          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          <span className="text-xs sm:text-sm">{isFollowing ? "Unfollowing..." : "Following..."}</span>
         </>
       ) : isFollowing ? (
         <>
-          <UserCheck className="h-4 w-4" />
-          <span>Following</span>
+          <UserCheck className="h-4 w-4 mr-2" />
+          <span className="text-xs sm:text-sm">Following</span>
         </>
       ) : (
         <>
-          <UserPlus className="h-4 w-4" />
-          <span>Follow</span>
+          <UserPlus className="h-4 w-4 mr-2" />
+          <span className="text-xs sm:text-sm">Follow</span>
         </>
       )}
     </Button>

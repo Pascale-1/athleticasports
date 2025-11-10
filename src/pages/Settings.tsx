@@ -168,10 +168,10 @@ const Settings = () => {
 
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
+    <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6 animate-fade-in px-3 sm:px-0">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">Manage your profile settings</p>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Settings</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Manage your profile settings</p>
       </div>
 
       {profile && (
@@ -180,14 +180,14 @@ const Settings = () => {
             <CardTitle>Profile Picture</CardTitle>
             <CardDescription>Upload a profile picture for your account</CardDescription>
           </CardHeader>
-          <CardContent className="flex items-center gap-6">
-            <Avatar className="h-24 w-24">
+          <CardContent className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 p-4 sm:p-6">
+            <Avatar className="h-20 w-20 md:h-24 md:w-24">
               <AvatarImage src={profile.avatar_url || undefined} />
-              <AvatarFallback className="text-2xl">
+              <AvatarFallback className="text-xl md:text-2xl">
                 {profile.username.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-          <div>
+          <div className="w-full sm:w-auto">
             <Input
               id="avatar"
               type="file"
@@ -196,18 +196,18 @@ const Settings = () => {
               disabled={uploading}
               className="hidden"
             />
-            <Label htmlFor="avatar">
-              <Button asChild disabled={uploading}>
+            <Label htmlFor="avatar" className="w-full sm:w-auto">
+              <Button asChild disabled={uploading} className="w-full sm:w-auto min-h-11">
                 <span className="cursor-pointer">
                   {uploading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Uploading...
+                      <span className="text-xs sm:text-sm">Uploading...</span>
                     </>
                   ) : (
                     <>
                       <Upload className="mr-2 h-4 w-4" />
-                      Upload Avatar
+                      <span className="text-xs sm:text-sm">Upload Avatar</span>
                     </>
                   )}
                 </span>

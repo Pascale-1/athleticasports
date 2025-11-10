@@ -76,25 +76,25 @@ const Teams = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="space-y-8">
-        <div className="flex items-center justify-between">
+    <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-6xl">
+      <div className="space-y-6 sm:space-y-8">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
           <div>
-            <h1 className="text-4xl font-bold">Teams</h1>
-            <p className="text-muted-foreground mt-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Teams</h1>
+            <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
               Create and manage your sports teams
             </p>
           </div>
-          <Button onClick={() => navigate("/teams/create")}>
+          <Button onClick={() => navigate("/teams/create")} className="w-full sm:w-auto min-h-11">
             <Plus className="h-4 w-4 mr-2" />
-            Create Team
+            <span className="text-xs sm:text-sm">Create Team</span>
           </Button>
         </div>
 
         {myTeams.length > 0 && (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold">My Teams</h2>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-3 sm:space-y-4">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold">My Teams</h2>
+            <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
               {myTeams.map((team) => (
                 <TeamCard
                   key={team.id}
@@ -107,8 +107,8 @@ const Teams = () => {
           </div>
         )}
 
-        <div className="space-y-4">
-          <h2 className="text-2xl font-semibold">Discover Public Teams</h2>
+        <div className="space-y-3 sm:space-y-4">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-semibold">Discover Public Teams</h2>
           {publicTeams.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {publicTeams

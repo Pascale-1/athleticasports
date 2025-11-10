@@ -80,31 +80,31 @@ const Index = () => {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
       <div className="text-center space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight">Welcome to Athletica Sports</h1>
-        <p className="text-muted-foreground">Your sports community platform</p>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">Welcome to Athletica Sports</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Your sports community platform</p>
       </div>
 
       {profile ? (
         <div className="max-w-2xl mx-auto">
           <Card>
-            <CardHeader className="text-center">
+            <CardHeader className="text-center p-4 sm:p-6">
               <div className="flex justify-center mb-4">
-                <Avatar className="h-24 w-24">
+                <Avatar className="h-20 w-20 md:h-24 md:w-24">
                   <AvatarImage src={profile.avatar_url || undefined} />
-                  <AvatarFallback className="text-2xl">
+                  <AvatarFallback className="text-xl md:text-2xl">
                     {profile.username.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
               </div>
-              <CardTitle className="text-2xl">@{profile.username}</CardTitle>
+              <CardTitle className="text-xl sm:text-2xl">@{profile.username}</CardTitle>
               {profile.display_name && (
-                <CardDescription className="text-lg font-medium">{profile.display_name}</CardDescription>
+                <CardDescription className="text-base sm:text-lg font-medium">{profile.display_name}</CardDescription>
               )}
               <FollowerStats userId={profile.user_id} />
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
               {profile.bio && (
                 <p className="text-center text-muted-foreground">{profile.bio}</p>
               )}

@@ -114,12 +114,12 @@ const TeamDetail = () => {
         onLeaveTeam={handleLeaveTeam}
       />
 
-      <div className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="announcements" className="space-y-6">
+      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
+        <Tabs defaultValue="announcements" className="space-y-4 sm:space-y-6">
           <TabsList className="grid w-full grid-cols-3 max-w-md">
-            <TabsTrigger value="announcements">Announcements</TabsTrigger>
-            <TabsTrigger value="members">Members</TabsTrigger>
-            <TabsTrigger value="training">Training</TabsTrigger>
+            <TabsTrigger value="announcements" className="text-xs sm:text-sm px-2 sm:px-4">Announcements</TabsTrigger>
+            <TabsTrigger value="members" className="text-xs sm:text-sm px-2 sm:px-4">Members</TabsTrigger>
+            <TabsTrigger value="training" className="text-xs sm:text-sm px-2 sm:px-4">Training</TabsTrigger>
           </TabsList>
 
           <TabsContent value="announcements" className="space-y-4">

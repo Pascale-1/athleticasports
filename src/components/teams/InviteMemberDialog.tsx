@@ -31,10 +31,10 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite }: InviteMembe
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="mx-3 sm:mx-auto">
         <DialogHeader>
-          <DialogTitle>Invite Team Member</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">Invite Team Member</DialogTitle>
+          <DialogDescription className="text-xs sm:text-sm">
             Enter the email or username of the person you want to invite to your team.
           </DialogDescription>
         </DialogHeader>

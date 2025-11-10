@@ -36,34 +36,34 @@ export const TeamMemberCard = ({
   const canModifyMember = canManage && member.role !== "owner" && currentUserRole === "owner";
 
   return (
-    <Card className="p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-12 w-12">
+    <Card className="p-3 sm:p-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-0 sm:justify-between">
+        <div className="flex items-center gap-3 w-full sm:flex-1 min-w-0">
+          <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
             <AvatarImage src={member.profile.avatar_url || undefined} />
-            <AvatarFallback className="bg-primary text-primary-foreground">
+            <AvatarFallback className="bg-primary text-primary-foreground text-sm">
               {member.profile.username.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <div>
-            <p className="font-medium">@{member.profile.username}</p>
+          <div className="min-w-0 flex-1">
+            <p className="font-medium text-sm sm:text-base truncate">@{member.profile.username}</p>
             {member.profile.display_name && (
-              <p className="text-sm text-muted-foreground">{member.profile.display_name}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">{member.profile.display_name}</p>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className={roleColors[member.role]}>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Badge variant="outline" className={`${roleColors[member.role]} text-xs flex-shrink-0`}>
             {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
           </Badge>
           {canModifyMember && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="min-h-11 min-w-11">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="z-50">
                 <DropdownMenuItem onClick={() => onChangeRole(member.id, "admin")}>
                   <Shield className="h-4 w-4 mr-2" />
                   Make Admin

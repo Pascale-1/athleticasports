@@ -25,57 +25,57 @@ export const TeamHeader = ({ team, memberCount, userRole, canManage, onLeaveTeam
 
   return (
     <div className="border-b bg-card">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
+        <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 w-full md:flex-1">
+            <Avatar className="h-16 w-16 md:h-20 md:w-20">
               <AvatarImage src={team.avatar_url || undefined} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
+              <AvatarFallback className="bg-primary text-primary-foreground text-xl md:text-2xl">
                 {team.name.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold">{team.name}</h1>
+            <div className="w-full text-center sm:text-left">
+              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-3 mb-2">
+                <h1 className="text-2xl md:text-3xl font-bold truncate max-w-full">{team.name}</h1>
                 {team.is_private ? (
-                  <Badge variant="outline" className="gap-1">
+                  <Badge variant="outline" className="gap-1 text-xs">
                     <Lock className="h-3 w-3" />
                     Private
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="gap-1">
+                  <Badge variant="outline" className="gap-1 text-xs">
                     <Globe className="h-3 w-3" />
                     Public
                   </Badge>
                 )}
               </div>
               {team.description && (
-                <p className="text-muted-foreground mb-2">{team.description}</p>
+                <p className="text-sm sm:text-base text-muted-foreground mb-2 line-clamp-2">{team.description}</p>
               )}
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-3">
+                <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
                   <Users className="h-4 w-4" />
                   <span>{memberCount} members</span>
                 </div>
                 {userRole && (
-                  <Badge variant="outline" className={roleColors[userRole]}>
+                  <Badge variant="outline" className={`${roleColors[userRole]} text-xs`}>
                     {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
                   </Badge>
                 )}
               </div>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
             {canManage && (
-              <Button variant="outline" onClick={() => navigate(`/teams/${team.id}/settings`)}>
+              <Button variant="outline" onClick={() => navigate(`/teams/${team.id}/settings`)} className="w-full sm:w-auto min-h-11">
                 <Settings className="h-4 w-4 mr-2" />
-                Settings
+                <span className="text-xs sm:text-sm">Settings</span>
               </Button>
             )}
             {userRole && userRole !== "owner" && (
-              <Button variant="outline" onClick={onLeaveTeam}>
+              <Button variant="outline" onClick={onLeaveTeam} className="w-full sm:w-auto min-h-11">
                 <LogOut className="h-4 w-4 mr-2" />
-                Leave Team
+                <span className="text-xs sm:text-sm">Leave Team</span>
               </Button>
             )}
           </div>

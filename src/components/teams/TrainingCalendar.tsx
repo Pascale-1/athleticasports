@@ -36,13 +36,13 @@ export const TrainingCalendar = ({
   const datesWithSessions = sessions.map((session) => new Date(session.start_time));
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Training Schedule</h3>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-4">
+        <h3 className="text-base sm:text-lg font-semibold">Training Schedule</h3>
         {canCreateSession && (
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Button onClick={() => setIsCreateDialogOpen(true)} className="w-full sm:w-auto min-h-11">
             <Plus className="h-4 w-4 mr-2" />
-            New Session
+            <span className="text-xs sm:text-sm">New Session</span>
           </Button>
         )}
       </div>
@@ -63,8 +63,8 @@ export const TrainingCalendar = ({
           />
         </div>
 
-        <div className="space-y-4">
-          <h4 className="font-medium">
+        <div className="space-y-3 sm:space-y-4">
+          <h4 className="font-medium text-sm sm:text-base">
             Sessions on {selectedDate.toLocaleDateString("en-US", { 
               month: "long", 
               day: "numeric",

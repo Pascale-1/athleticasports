@@ -67,10 +67,10 @@ export const CreateSessionDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md mx-3 sm:mx-auto">
         <DialogHeader>
-          <DialogTitle>Create Training Session</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">Create Training Session</DialogTitle>
+          <DialogDescription className="text-xs sm:text-sm">
             Schedule a new training session for your team
           </DialogDescription>
         </DialogHeader>

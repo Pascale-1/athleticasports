@@ -250,17 +250,17 @@ const handleGoogleAuth = async () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen items-center justify-center bg-background p-3 sm:p-4">
       <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Welcome</CardTitle>
-          <CardDescription>Sign in to your account or create a new one</CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-xl sm:text-2xl">Welcome</CardTitle>
+          <CardDescription className="text-sm">Sign in to your account or create a new one</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           <Tabs defaultValue="email" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="email">Email</TabsTrigger>
-              <TabsTrigger value="phone">Phone</TabsTrigger>
+              <TabsTrigger value="email" className="text-xs sm:text-sm">Email</TabsTrigger>
+              <TabsTrigger value="phone" className="text-xs sm:text-sm">Phone</TabsTrigger>
             </TabsList>
             
             <TabsContent value="email" className="space-y-4">

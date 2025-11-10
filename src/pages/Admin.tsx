@@ -127,12 +127,12 @@ const Admin = () => {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
       <div className="flex items-center gap-2">
-        <Shield className="h-8 w-8 text-primary" />
+        <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage user roles and permissions</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage user roles and permissions</p>
         </div>
       </div>
 
@@ -148,29 +148,29 @@ const Admin = () => {
             {profiles.map((profile) => (
               <div
                 key={profile.id}
-                className="flex items-center justify-between p-4 rounded-lg border"
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 rounded-lg border gap-3 sm:gap-4"
               >
-                <div className="flex items-center gap-4">
-                  <Avatar>
+                <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                  <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
                     <AvatarImage src={profile.avatar_url || undefined} />
-                    <AvatarFallback>
+                    <AvatarFallback className="text-sm">
                       {profile.username.substring(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <p className="font-medium">@{profile.username}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm sm:text-base truncate">@{profile.username}</p>
                     {profile.display_name && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">
                         {profile.display_name}
                       </p>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                  <div className="flex gap-2 flex-wrap">
                     {profile.roles.map(role => (
-                      <Badge key={role} variant={role === 'admin' ? 'default' : 'secondary'}>
+                      <Badge key={role} variant={role === 'admin' ? 'default' : 'secondary'} className="text-xs">
                         {role}
                       </Badge>
                     ))}
@@ -179,10 +179,10 @@ const Admin = () => {
                     value={profile.roles[0] || 'user'}
                     onValueChange={(value) => handleRoleChange(profile.user_id, value)}
                   >
-                    <SelectTrigger className="w-[140px]">
+                    <SelectTrigger className="w-full sm:w-[140px] min-h-11">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="z-50">
                       <SelectItem value="user">User</SelectItem>
                       <SelectItem value="moderator">Moderator</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
