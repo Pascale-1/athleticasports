@@ -33,6 +33,7 @@ const Settings = () => {
   const [primarySport, setPrimarySport] = useState("");
   const [teamName, setTeamName] = useState("");
   const [bio, setBio] = useState("");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     fetchProfile();
@@ -42,6 +43,8 @@ const Settings = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      setEmail(user.email || "");
 
       const { data, error } = await supabase
         .from('profiles')
@@ -244,6 +247,20 @@ const Settings = () => {
               A unique username will be generated for you automatically
             </div>
           )}
+
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              disabled
+              className="bg-muted"
+            />
+            <p className="text-xs text-muted-foreground">
+              Your email is managed through your account settings
+            </p>
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="fullName">Full Name</Label>
