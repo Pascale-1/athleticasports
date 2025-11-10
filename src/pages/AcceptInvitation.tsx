@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useTeamInvitations } from "@/hooks/useTeamInvitations";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,6 @@ const AcceptInvitation = () => {
   const [error, setError] = useState<string | null>(null);
   const [teamId, setTeamId] = useState<string | null>(null);
   const invitationId = searchParams.get("id");
-  const { acceptInvitation } = useTeamInvitations(null);
 
   useEffect(() => {
     const handleInvitation = async () => {
@@ -39,10 +37,10 @@ const AcceptInvitation = () => {
       try {
         setLoading(true);
         
-        // Fetch invitation details to get team_id
+        // Fetch invitation details
         const { data: invitation, error: fetchError } = await supabase
           .from("team_invitations")
-          .select("team_id, status")
+          .select("team_id, status, invited_user_id, email, role")
           .eq("id", invitationId)
           .single();
 
@@ -64,9 +62,59 @@ const AcceptInvitation = () => {
           return;
         }
 
-        // Accept the invitation
-        await acceptInvitation(invitationId);
-        
+        // Check if user is already a member
+        const { data: existingMember } = await supabase
+          .from("team_members")
+          .select("id")
+          .eq("team_id", invitation.team_id)
+          .eq("user_id", session.user.id)
+          .eq("status", "active")
+          .maybeSingle();
+
+        if (existingMember) {
+          // User is already a member, just update invitation status
+          await supabase
+            .from("team_invitations")
+            .update({ status: "accepted", accepted_at: new Date().toISOString() })
+            .eq("id", invitationId);
+
+          setTeamId(invitation.team_id);
+          toast({
+            title: "Already a member",
+            description: "You're already part of this team",
+          });
+          setTimeout(() => navigate(`/teams/${invitation.team_id}`), 1500);
+          return;
+        }
+
+        // Add user to team
+        const { data: newMember, error: memberError } = await supabase
+          .from("team_members")
+          .insert({
+            team_id: invitation.team_id,
+            user_id: session.user.id,
+            status: "active",
+          })
+          .select()
+          .single();
+
+        if (memberError) throw memberError;
+
+        // Assign role
+        await supabase
+          .from("team_member_roles")
+          .insert({
+            team_member_id: newMember.id,
+            role: invitation.role || "member",
+            assigned_by: session.user.id,
+          });
+
+        // Update invitation status
+        await supabase
+          .from("team_invitations")
+          .update({ status: "accepted", accepted_at: new Date().toISOString() })
+          .eq("id", invitationId);
+
         setTeamId(invitation.team_id);
         
         toast({
@@ -91,7 +139,7 @@ const AcceptInvitation = () => {
     };
 
     handleInvitation();
-  }, [invitationId, navigate, acceptInvitation, toast]);
+  }, [invitationId, navigate, toast]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
