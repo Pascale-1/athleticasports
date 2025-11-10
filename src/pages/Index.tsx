@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@supabase/supabase-js";
 import { Trophy, Users } from "lucide-react";
+import { FollowerStats } from "@/components/FollowerStats";
 
 interface Profile {
   id: string;
@@ -101,6 +102,7 @@ const Index = () => {
               {profile.display_name && (
                 <CardDescription className="text-lg font-medium">{profile.display_name}</CardDescription>
               )}
+              <FollowerStats userId={profile.user_id} />
             </CardHeader>
             <CardContent className="space-y-4">
               {profile.bio && (
