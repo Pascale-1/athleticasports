@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import Settings from "./pages/Settings";
 import Users from "./pages/Users";
 import Admin from "./pages/Admin";
+import Track from "./pages/Track";
 import Teams from "./pages/Teams";
 import TeamCreate from "./pages/TeamCreate";
 import TeamDetail from "./pages/TeamDetail";
@@ -53,6 +54,13 @@ const App = () => (
             <ProtectedRoute>
               <AppLayout>
                 <Admin />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/track" element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Track />
               </AppLayout>
             </ProtectedRoute>
           } />

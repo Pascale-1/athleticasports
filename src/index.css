@@ -225,6 +225,15 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   /* Interactive Utilities */
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-105;
