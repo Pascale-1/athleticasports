@@ -86,6 +86,44 @@ export type Database = {
         }
         Relationships: []
       }
+      player_performance_levels: {
+        Row: {
+          assigned_at: string | null
+          assigned_by: string
+          id: string
+          level: number
+          notes: string | null
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          assigned_by: string
+          id?: string
+          level: number
+          notes?: string | null
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string | null
+          assigned_by?: string
+          id?: string
+          level?: number
+          notes?: string | null
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_performance_levels_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -356,6 +394,73 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      training_session_team_members: {
+        Row: {
+          created_at: string | null
+          id: string
+          performance_level: number | null
+          session_team_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          performance_level?: number | null
+          session_team_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          performance_level?: number | null
+          session_team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_session_team_members_session_team_id_fkey"
+            columns: ["session_team_id"]
+            isOneToOne: false
+            referencedRelation: "training_session_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_session_teams: {
+        Row: {
+          average_level: number | null
+          created_at: string | null
+          id: string
+          team_name: string
+          team_number: number
+          training_session_id: string
+        }
+        Insert: {
+          average_level?: number | null
+          created_at?: string | null
+          id?: string
+          team_name: string
+          team_number: number
+          training_session_id: string
+        }
+        Update: {
+          average_level?: number | null
+          created_at?: string | null
+          id?: string
+          team_name?: string
+          team_number?: number
+          training_session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_session_teams_training_session_id_fkey"
+            columns: ["training_session_id"]
+            isOneToOne: false
+            referencedRelation: "training_sessions"
+            referencedColumns: ["id"]
           },
         ]
       }

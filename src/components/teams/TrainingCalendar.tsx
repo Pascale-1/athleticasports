@@ -78,6 +78,8 @@ export const TrainingCalendar = ({
                   key={session.id}
                   session={session}
                   canEdit={canManage || currentUserId === session.created_by}
+                  canManage={canManage}
+                  totalMembers={sessions.length}
                   onUpdate={(data) => onUpdateSession(session.id, data)}
                   onDelete={() => onDeleteSession(session.id)}
                 />

@@ -7,6 +7,7 @@ import { TeamMemberList } from "@/components/teams/TeamMemberList";
 import { TeamAnnouncements } from "@/components/teams/TeamAnnouncements";
 import { TrainingCalendar } from "@/components/teams/TrainingCalendar";
 import { InviteMemberDialog } from "@/components/teams/InviteMemberDialog";
+import { PerformanceLevelsTab } from "@/components/teams/PerformanceLevelsTab";
 import { useTeam } from "@/hooks/useTeam";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useTeamInvitations } from "@/hooks/useTeamInvitations";
@@ -116,9 +117,10 @@ const TeamDetail = () => {
 
       <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
         <Tabs defaultValue="announcements" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-3 max-w-md">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 max-w-2xl">
             <TabsTrigger value="announcements" className="text-xs sm:text-sm px-2 sm:px-4">Announcements</TabsTrigger>
             <TabsTrigger value="members" className="text-xs sm:text-sm px-2 sm:px-4">Members</TabsTrigger>
+            <TabsTrigger value="performance" className="text-xs sm:text-sm px-2 sm:px-4">Performance</TabsTrigger>
             <TabsTrigger value="training" className="text-xs sm:text-sm px-2 sm:px-4">Training</TabsTrigger>
           </TabsList>
 
@@ -156,6 +158,20 @@ const TeamDetail = () => {
                 invitations={invitations}
                 onCancelInvitation={cancelInvitation}
                 onResendInvitation={resendInvitation}
+              />
+            )}
+          </TabsContent>
+
+          <TabsContent value="performance" className="space-y-4">
+            {membersLoading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <PerformanceLevelsTab
+                teamId={teamId || ""}
+                members={members}
+                canManage={canManage || userRole === "coach"}
               />
             )}
           </TabsContent>
