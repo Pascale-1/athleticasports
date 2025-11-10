@@ -75,11 +75,14 @@ const Index = () => {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md space-y-6">
-        <h1 className="text-center text-4xl font-bold">Welcome to Athletica Sports</h1>
-        
-        {user && profile ? (
+    <div className="space-y-6 animate-fade-in">
+      <div className="text-center space-y-2">
+        <h1 className="text-4xl font-bold tracking-tight">Welcome to Athletica Sports</h1>
+        <p className="text-muted-foreground">Your sports community platform</p>
+      </div>
+
+      {profile && (
+        <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader className="text-center">
               <div className="flex justify-center mb-4">
@@ -100,29 +103,24 @@ const Index = () => {
                 <p className="text-center text-muted-foreground">{profile.bio}</p>
               )}
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground text-center">
-                  Signed in as: {user.email || user.phone}
-                </p>
-                <Button onClick={handleSignOut} className="w-full">
-                  Sign Out
-                </Button>
+                {user && (
+                  <p className="text-sm text-muted-foreground text-center">
+                    Signed in as: {user.email || user.phone}
+                  </p>
+                )}
+                <div className="flex gap-2">
+                  <Button onClick={() => navigate("/settings")} variant="outline" className="flex-1">
+                    Edit Profile
+                  </Button>
+                  <Button onClick={handleSignOut} variant="outline" className="flex-1">
+                    Sign Out
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
-        ) : (
-          <Card>
-            <CardHeader>
-              <CardTitle>Get Started</CardTitle>
-              <CardDescription>Sign in to access your profile</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={() => navigate("/auth")} className="w-full">
-                Sign In
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
