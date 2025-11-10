@@ -273,4 +273,29 @@ All colors MUST be HSL.
   .transition-smooth {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
+
+  /* Animation Utilities */
+  .story-link {
+    @apply relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 ease-out hover:-translate-y-1;
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-200 ease-out hover:scale-105 active:scale-95;
+  }
+
+  .press-scale {
+    @apply transition-transform duration-100 ease-out active:scale-95;
+  }
+
+  .glow-coral {
+    @apply transition-all duration-300 hover:shadow-glow;
+  }
+
+  .gradient-shift {
+    @apply bg-gradient-to-r from-primary via-primary-glow to-rose bg-[length:200%_100%] transition-all duration-500 hover:bg-right;
+  }
 }

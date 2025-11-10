@@ -13,16 +13,20 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <SidebarInset className="flex-1">
-          <header className="sticky top-0 z-10 flex h-14 md:h-16 shrink-0 items-center gap-2 border-b bg-background px-3 sm:px-4">
+          <header className="sticky top-0 z-10 flex h-16 md:h-18 shrink-0 items-center gap-2 border-b-2 border-primary/10 bg-gradient-to-r from-background via-background to-background/95 backdrop-blur-sm px-4 sm:px-6 shadow-sm">
             <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <h1 className="text-base md:text-lg font-semibold">Athletica Sports</h1>
+            <Separator orientation="vertical" className="mr-2 h-5 bg-border/50" />
+            <h1 className="text-lg md:text-xl font-heading font-bold bg-gradient-to-r from-primary via-primary-glow to-rose bg-clip-text text-transparent">
+              Athletica Sports
+            </h1>
             <div className="ml-auto">
               <NotificationBell />
             </div>
           </header>
-          <main className="flex-1 p-3 sm:p-4 md:p-6">
-            {children}
+          <main className="flex-1 p-4 sm:p-6 md:p-8 bg-gradient-to-br from-background via-background to-neutral-50/30 dark:to-neutral-900/30 min-h-screen">
+            <div className="mx-auto max-w-7xl">
+              {children}
+            </div>
           </main>
         </SidebarInset>
       </div>

@@ -3,6 +3,7 @@ import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 import {
   Sidebar,
@@ -47,27 +48,46 @@ export function AppSidebar() {
   }, []);
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarContent>
+    <Sidebar collapsible="icon" className="border-r-2 border-border/50 bg-gradient-to-b from-background via-neutral-50/50 to-background dark:from-background dark:via-neutral-900/50 dark:to-background">
+      <SidebarContent className="p-2">
         <SidebarGroup>
-          <SidebarGroupLabel>Athletica Sports</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-4 py-3 text-sm font-heading font-bold text-primary">
+            Athletica Sports
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {mainItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={location.pathname === item.url}>
-                    <NavLink to={item.url} end>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+            <SidebarMenu className="space-y-1">
+              {mainItems.map((item) => {
+                const isActive = location.pathname === item.url;
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      asChild 
+                      isActive={isActive}
+                      className="relative transition-all hover:bg-accent/50 data-[active=true]:bg-accent data-[active=true]:text-primary data-[active=true]:font-semibold"
+                    >
+                      <NavLink to={item.url} end>
+                        {isActive && (
+                          <span className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded-r-full bg-gradient-to-b from-primary via-primary-glow to-rose" />
+                        )}
+                        <item.icon className={cn("transition-colors", isActive && "text-primary")} />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
               {isAdmin && (
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={location.pathname === "/admin"}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={location.pathname === "/admin"}
+                    className="relative transition-all hover:bg-accent/50 data-[active=true]:bg-accent data-[active=true]:text-primary data-[active=true]:font-semibold"
+                  >
                     <NavLink to="/admin" end>
-                      <Shield />
+                      {location.pathname === "/admin" && (
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded-r-full bg-gradient-to-b from-primary via-primary-glow to-rose" />
+                      )}
+                      <Shield className={cn("transition-colors", location.pathname === "/admin" && "text-primary")} />
                       <span>Admin</span>
                     </NavLink>
                   </SidebarMenuButton>
