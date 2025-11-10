@@ -9,6 +9,7 @@ export interface TeamInvitation {
   email: string;
   invited_user_id: string | null;
   status: string;
+  role: string;
   created_at: string;
   expires_at: string;
   accepted_at: string | null;
@@ -66,7 +67,7 @@ export const useTeamInvitations = (teamId: string | null) => {
     };
   }, [teamId]);
 
-  const sendInvitation = async (emailOrUserId: string, isUserId: boolean = false) => {
+  const sendInvitation = async (emailOrUserId: string, isUserId: boolean = false, role: "member" | "coach" | "admin" | "owner" = "member") => {
     if (!teamId) return;
 
     try {
@@ -102,21 +103,53 @@ export const useTeamInvitations = (teamId: string | null) => {
         }
       }
 
-      const { error } = await supabase.from("team_invitations").insert({
-        team_id: teamId,
-        invited_by: user.id,
-        email,
-        invited_user_id: invitedUserId,
-      });
+      const { data: newInvitation, error } = await supabase
+        .from("team_invitations")
+        .insert([{
+          team_id: teamId,
+          invited_by: user.id,
+          email,
+          invited_user_id: invitedUserId,
+          role: role as "member" | "coach" | "admin" | "owner",
+        }])
+        .select()
+        .single();
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: invitedUserId 
-          ? "User invited to team" 
-          : "Invitation sent by email",
-      });
+      // Send email via edge function
+      try {
+        const { error: emailError } = await supabase.functions.invoke(
+          'send-team-invitation',
+          {
+            body: {
+              invitationId: newInvitation.id,
+              teamId: teamId,
+              recipientEmail: email,
+              role: role,
+            },
+          }
+        );
+
+        if (emailError) {
+          console.error("Error sending invitation email:", emailError);
+          toast({
+            title: "Success",
+            description: "Invitation created (email failed to send)",
+          });
+        } else {
+          toast({
+            title: "Success",
+            description: "Invitation sent successfully",
+          });
+        }
+      } catch (emailError) {
+        console.error("Error calling email function:", emailError);
+        toast({
+          title: "Success",
+          description: "Invitation created (email failed to send)",
+        });
+      }
     } catch (error: any) {
       console.error("Error sending invitation:", error);
       toast({
@@ -140,15 +173,28 @@ export const useTeamInvitations = (teamId: string | null) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const { error: memberError } = await supabase
+      const { data: newMember, error: memberError } = await supabase
         .from("team_members")
         .insert({
           team_id: invitation.team_id,
           user_id: user.id,
           status: "active",
-        });
+        })
+        .select()
+        .single();
 
       if (memberError) throw memberError;
+
+      // Add member role with the role from invitation
+      const { error: roleError } = await supabase
+        .from("team_member_roles")
+        .insert({
+          team_member_id: newMember.id,
+          role: invitation.role as "member" | "coach" | "admin" | "owner",
+          assigned_by: invitation.invited_by,
+        });
+
+      if (roleError) throw roleError;
 
       const { error: inviteError } = await supabase
         .from("team_invitations")

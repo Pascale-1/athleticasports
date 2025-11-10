@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { useUserSearch } from "@/hooks/useUserSearch";
 import { Loader2, Search, UserPlus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,25 +20,40 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface InviteMemberDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onInvite: (emailOrUserId: string, isUserId?: boolean) => void;
+  onInvite: (emailOrUserId: string, isUserId?: boolean, role?: string) => void;
   teamId: string | null;
+  canManage: boolean;
 }
 
-export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId }: InviteMemberDialogProps) => {
+export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canManage }: InviteMemberDialogProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRole, setSelectedRole] = useState("member");
   const { users, loading } = useUserSearch(searchQuery, teamId);
 
   const handleSelectUser = (userId: string) => {
-    onInvite(userId, true);
+    onInvite(userId, true, selectedRole);
     setSearchQuery("");
+    setSelectedRole("member");
     onOpenChange(false);
   };
 
   const handleInviteByEmail = () => {
     if (searchQuery.trim() && searchQuery.includes("@")) {
-      onInvite(searchQuery.trim(), false);
+      onInvite(searchQuery.trim(), false, selectedRole);
       setSearchQuery("");
+      setSelectedRole("member");
       onOpenChange(false);
+    }
+  };
+
+  const getRoleBadgeVariant = (role: string) => {
+    switch (role) {
+      case "admin":
+        return "secondary";
+      case "coach":
+        return "outline";
+      default:
+        return "outline";
     }
   };
 
@@ -62,6 +79,24 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId }: Inv
                 className="pl-9"
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="role">Role</Label>
+            <Select value={selectedRole} onValueChange={setSelectedRole}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="member">Member</SelectItem>
+                {canManage && (
+                  <>
+                    <SelectItem value="coach">Coach</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </>
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
           {searchQuery.trim().length >= 2 && (
@@ -92,7 +127,9 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId }: Inv
                           @{user.username}
                         </p>
                       </div>
-                      <UserPlus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <Badge variant={getRoleBadgeVariant(selectedRole)}>
+                        {selectedRole}
+                      </Badge>
                     </button>
                   ))}
                 </div>
