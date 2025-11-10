@@ -16,11 +16,11 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const mainItems = [
-  { title: "Home", url: "/", icon: Home },
-  { title: "Users", url: "/users", icon: Users },
-  { title: "Settings", url: "/settings", icon: Settings },
-];
+  const mainItems = [
+    { title: "Profile", url: "/", icon: Home },
+    { title: "Users", url: "/users", icon: Users },
+    { title: "Settings", url: "/settings", icon: Settings },
+  ];
 
 export function AppSidebar() {
   const { open } = useSidebar();

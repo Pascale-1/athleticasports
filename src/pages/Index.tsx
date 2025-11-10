@@ -54,7 +54,7 @@ const Index = () => {
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       setProfile(data);
@@ -85,7 +85,7 @@ const Index = () => {
         <p className="text-muted-foreground">Your sports community platform</p>
       </div>
 
-      {profile && (
+      {profile ? (
         <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader className="text-center">
@@ -141,6 +141,30 @@ const Index = () => {
                     Sign Out
                   </Button>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <div className="max-w-2xl mx-auto">
+          <Card>
+            <CardHeader className="text-center">
+              <CardTitle>Complete Your Profile</CardTitle>
+              <CardDescription>
+                Set up your athlete profile to get started
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <p className="text-muted-foreground">
+                You haven't set up your profile yet. Click below to add your information and join the community.
+              </p>
+              <div className="flex gap-2">
+                <Button onClick={() => navigate("/settings")} className="flex-1">
+                  Create Profile
+                </Button>
+                <Button onClick={handleSignOut} variant="outline" className="flex-1">
+                  Sign Out
+                </Button>
               </div>
             </CardContent>
           </Card>
