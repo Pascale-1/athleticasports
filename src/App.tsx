@@ -10,6 +10,9 @@ import Auth from "./pages/Auth";
 import Settings from "./pages/Settings";
 import Users from "./pages/Users";
 import Admin from "./pages/Admin";
+import Teams from "./pages/Teams";
+import TeamCreate from "./pages/TeamCreate";
+import TeamDetail from "./pages/TeamDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +50,27 @@ const App = () => (
             <ProtectedRoute>
               <AppLayout>
                 <Admin />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/teams" element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Teams />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/teams/create" element={
+            <ProtectedRoute>
+              <AppLayout>
+                <TeamCreate />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/teams/:teamId" element={
+            <ProtectedRoute>
+              <AppLayout>
+                <TeamDetail />
               </AppLayout>
             </ProtectedRoute>
           } />
