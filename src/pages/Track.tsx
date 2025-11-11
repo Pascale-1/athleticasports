@@ -91,30 +91,30 @@ const Track = () => {
           <LogActivityDialog />
         </AnimatedCard>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {/* Stats Grid - Denser Layout */}
+        <div className="grid grid-cols-4 gap-2">
           <AnimatedCard delay={0.15}>
-            <Card className="p-4 text-center">
-              <div className="text-2xl font-bold text-primary">{stats.totalActivities}</div>
-              <div className="text-xs text-muted-foreground mt-1">Activities</div>
+            <Card className="p-3 text-center">
+              <div className="text-display font-bold text-primary leading-none">{stats.totalActivities}</div>
+              <div className="text-caption text-muted-foreground mt-1">Activities</div>
             </Card>
           </AnimatedCard>
           <AnimatedCard delay={0.2}>
-            <Card className="p-4 text-center">
-              <div className="text-2xl font-bold text-primary">{stats.totalDistance.toFixed(1)}</div>
-              <div className="text-xs text-muted-foreground mt-1">Total km</div>
+            <Card className="p-3 text-center">
+              <div className="text-display font-bold text-primary leading-none">{stats.totalDistance.toFixed(1)}</div>
+              <div className="text-caption text-muted-foreground mt-1">km</div>
             </Card>
           </AnimatedCard>
           <AnimatedCard delay={0.25}>
-            <Card className="p-4 text-center">
-              <div className="text-2xl font-bold text-primary">{Math.floor(stats.totalDuration / 60)}h</div>
-              <div className="text-xs text-muted-foreground mt-1">Total time</div>
+            <Card className="p-3 text-center">
+              <div className="text-display font-bold text-primary leading-none">{Math.floor(stats.totalDuration / 60)}h</div>
+              <div className="text-caption text-muted-foreground mt-1">Duration</div>
             </Card>
           </AnimatedCard>
           <AnimatedCard delay={0.3}>
-            <Card className="p-4 text-center">
-              <div className="text-2xl font-bold text-primary">{stats.totalCalories}</div>
-              <div className="text-xs text-muted-foreground mt-1">Calories</div>
+            <Card className="p-3 text-center">
+              <div className="text-display font-bold text-primary leading-none">{Math.round(stats.totalCalories / 1000)}k</div>
+              <div className="text-caption text-muted-foreground mt-1">Calories</div>
             </Card>
           </AnimatedCard>
         </div>
@@ -138,30 +138,38 @@ const Track = () => {
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <div className="space-y-3 p-4 pt-0">
-                    {activeGoals.map((goal) => (
-                      <Card key={goal.id} className="p-3 bg-muted/30">
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-medium text-sm">{goal.title}</h4>
-                            <Badge variant="outline" className="text-xs">{goal.goal_type}</Badge>
-                          </div>
-                          {goal.target_value && (
-                            <div className="space-y-1">
-                              <div className="flex items-center justify-between text-xs">
-                                <span className="text-muted-foreground">Progress</span>
-                                <span className="font-medium">
-                                  {goal.current_value} / {goal.target_value} {goal.unit}
-                                </span>
-                              </div>
-                              <Progress 
-                                value={(goal.current_value / goal.target_value) * 100} 
-                                className="h-1.5"
-                              />
+                    {activeGoals.map((goal) => {
+                      const percentage = goal.target_value 
+                        ? Math.min((goal.current_value / goal.target_value) * 100, 100)
+                        : 0;
+                      
+                      return (
+                        <Card key={goal.id} className="p-3 bg-muted/30">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <h4 className="font-medium text-body flex-1 min-w-0 truncate">{goal.title}</h4>
+                              <Badge variant="outline" className="text-caption shrink-0">{goal.goal_type}</Badge>
                             </div>
-                          )}
-                        </div>
-                      </Card>
-                    ))}
+                            {goal.target_value && (
+                              <div className="space-y-2">
+                                <Progress 
+                                  value={percentage} 
+                                  className="h-2"
+                                />
+                                <div className="flex items-center justify-between">
+                                  <span className="text-body font-semibold text-primary">
+                                    {Math.round(percentage)}%
+                                  </span>
+                                  <span className="text-caption text-muted-foreground">
+                                    {goal.current_value} / {goal.target_value} {goal.unit}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </Card>
+                      );
+                    })}
                   </div>
                 </CollapsibleContent>
               </Card>

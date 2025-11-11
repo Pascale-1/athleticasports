@@ -46,17 +46,17 @@ export const ActivityCard = ({
     <Card className="overflow-hidden hover-lift transition-all duration-200 active:scale-[0.98] w-full max-w-full min-w-0">
       {/* Header */}
       <div className="p-4 flex items-center gap-3">
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={avatarUrl} />
-          <AvatarFallback className="text-sm bg-primary/10 text-primary">
+        <Avatar size="md">
+          <AvatarImage src={avatarUrl} loading="lazy" />
+          <AvatarFallback className="text-body bg-primary/10 text-primary">
             {username.substring(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0 overflow-hidden">
-          <p className="text-prominent body-default break-words max-w-full">
+          <p className="text-body-large font-semibold break-words max-w-full">
             {displayName || username}
           </p>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+          <div className="flex items-center gap-2 text-caption text-muted-foreground flex-wrap">
             <Trophy className="h-3 w-3" />
             <span>{activityType}</span>
             <span>•</span>
@@ -81,7 +81,7 @@ export const ActivityCard = ({
       {/* Content */}
       {description && (
         <div className="px-4 py-3">
-          <p className="body-default leading-relaxed break-words hyphens-auto max-w-full">{description}</p>
+          <p className="text-body leading-relaxed break-words hyphens-auto max-w-full">{description}</p>
         </div>
       )}
 
@@ -91,7 +91,7 @@ export const ActivityCard = ({
           {achievements.map((achievement, index) => (
             <span
               key={index}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 body-small font-medium text-primary"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-caption font-medium text-primary"
             >
               <Trophy className="h-3 w-3" />
               {achievement}
@@ -101,18 +101,22 @@ export const ActivityCard = ({
       )}
 
       {/* Actions */}
-      <div className="px-4 py-3 border-t border-border/50 flex items-center gap-4">
+      <div className="px-4 py-3 border-t border-border/50 flex items-center gap-6">
         <button
           onClick={handleLike}
           className={cn(
-            "flex items-center gap-2 text-sm font-medium transition-all duration-200 active:scale-95",
+            "flex items-center gap-2 text-body font-medium transition-all duration-200 active:scale-95 min-h-[44px] min-w-[44px] -m-2 p-2",
             isLiked ? "text-destructive" : "text-muted-foreground hover:text-foreground"
           )}
+          aria-label={isLiked ? "Unlike" : "Like"}
         >
-          <Heart className={cn("h-5 w-5", isLiked && "fill-current")} />
+          <Heart className={cn("h-5 w-5 transition-transform", isLiked && "fill-current scale-110")} />
           <span>{likeCount}</span>
         </button>
-        <button className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors active:scale-95">
+        <button 
+          className="flex items-center gap-2 text-body font-medium text-muted-foreground hover:text-foreground transition-colors active:scale-95 min-h-[44px] min-w-[44px] -m-2 p-2"
+          aria-label="Comment"
+        >
           <MessageCircle className="h-5 w-5" />
           <span>{comments}</span>
         </button>

@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { Loader2, Upload } from "lucide-react";
+import { SportSelector } from "@/components/settings/SportSelector";
+import { ProfilePreview } from "@/components/settings/ProfilePreview";
 
 interface Profile {
   id: string;
@@ -171,83 +173,66 @@ const Settings = () => {
 
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6 animate-fade-in px-3 sm:px-0">
+    <div className="max-w-2xl mx-auto space-y-4 animate-fade-in px-3 sm:px-0 pb-20">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">Manage your profile settings</p>
+        <h1 className="text-heading-1 font-bold tracking-tight">Settings</h1>
+        <p className="text-body text-muted-foreground">Manage your profile settings</p>
       </div>
 
+      {/* Profile Preview Section */}
       {profile && (
         <Card>
-          <CardHeader>
-            <CardTitle>Profile Picture</CardTitle>
-            <CardDescription>Upload a profile picture for your account</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 p-4 sm:p-6">
-            <Avatar className="h-20 w-20 md:h-24 md:w-24">
-              <AvatarImage src={profile.avatar_url || undefined} />
-              <AvatarFallback className="text-xl md:text-2xl">
-                {profile.username.substring(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          <div className="w-full sm:w-auto">
-            <Input
-              id="avatar"
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarUpload}
-              disabled={uploading}
-              className="hidden"
-            />
-            <Label htmlFor="avatar" className="w-full sm:w-auto">
-              <Button asChild disabled={uploading} className="w-full sm:w-auto min-h-11">
-                <span className="cursor-pointer">
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="relative">
+                <Avatar size="2xl" ring="coral">
+                  <AvatarImage src={profile.avatar_url || undefined} />
+                  <AvatarFallback className="text-heading-1 bg-primary/10 text-primary">
+                    {profile.username.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <Input
+                  id="avatar"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  disabled={uploading}
+                  className="hidden"
+                />
+                <Label 
+                  htmlFor="avatar" 
+                  className="absolute bottom-0 right-0 h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center cursor-pointer hover:bg-primary-dark transition-all shadow-md"
+                  aria-label="Upload avatar"
+                >
                   {uploading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      <span className="text-xs sm:text-sm">Uploading...</span>
-                    </>
+                    <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
-                    <>
-                      <Upload className="mr-2 h-4 w-4" />
-                      <span className="text-xs sm:text-sm">Upload Avatar</span>
-                    </>
+                    <Upload className="h-5 w-5" />
                   )}
-                </span>
-              </Button>
-            </Label>
-          </div>
-        </CardContent>
-      </Card>
+                </Label>
+              </div>
+              <div>
+                <p className="text-heading-3 font-semibold">@{profile.username}</p>
+              </div>
+              <ProfilePreview
+                username={profile.username}
+                displayName={displayName || profile.display_name}
+                avatarUrl={profile.avatar_url}
+                bio={bio || profile.bio}
+                primarySport={primarySport || profile.primary_sport}
+              />
+            </div>
+          </CardContent>
+        </Card>
       )}
 
+      {/* Personal Info */}
       <Card>
         <CardHeader>
-          <CardTitle>Profile Information</CardTitle>
-          <CardDescription>Update your profile details</CardDescription>
+          <CardTitle>Personal Info</CardTitle>
+          <CardDescription>Your basic information</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {profile && (
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                value={profile.username}
-                disabled
-                className="bg-muted"
-              />
-              <p className="text-xs text-muted-foreground">
-                Your username cannot be changed
-              </p>
-            </div>
-          )}
-          
-          {!profile && (
-            <div className="rounded-lg bg-muted p-4 text-sm text-muted-foreground">
-              A unique username will be generated for you automatically
-            </div>
-          )}
-
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -257,8 +242,8 @@ const Settings = () => {
               disabled
               className="bg-muted"
             />
-            <p className="text-xs text-muted-foreground">
-              Your email is managed through your account settings
+            <p className="text-caption text-muted-foreground">
+              🔒 Your email is managed through your account settings
             </p>
           </div>
 
@@ -281,27 +266,22 @@ const Settings = () => {
               placeholder="Enter your display name"
             />
           </div>
+        </CardContent>
+      </Card>
 
+      {/* Athletics */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Athletics</CardTitle>
+          <CardDescription>Your sport and team information</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="primarySport">Primary Sport</Label>
-            <select
-              id="primarySport"
+            <Label>Primary Sport</Label>
+            <SportSelector
               value={primarySport}
-              onChange={(e) => setPrimarySport(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <option value="">Select a sport</option>
-              <option value="Basketball">Basketball</option>
-              <option value="Football">Football</option>
-              <option value="Soccer">Soccer</option>
-              <option value="Baseball">Baseball</option>
-              <option value="Tennis">Tennis</option>
-              <option value="Volleyball">Volleyball</option>
-              <option value="Swimming">Swimming</option>
-              <option value="Track & Field">Track & Field</option>
-              <option value="Hockey">Hockey</option>
-              <option value="Other">Other</option>
-            </select>
+              onChange={setPrimarySport}
+            />
           </div>
 
           <div className="space-y-2">
@@ -313,30 +293,51 @@ const Settings = () => {
               placeholder="Enter your team or club name"
             />
           </div>
+        </CardContent>
+      </Card>
 
+      {/* About */}
+      <Card>
+        <CardHeader>
+          <CardTitle>About</CardTitle>
+          <CardDescription>Tell other athletes about yourself</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="bio">Bio</Label>
             <Textarea
               id="bio"
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              placeholder="Tell us about yourself"
+              placeholder="Tell us about yourself, your goals, achievements..."
               rows={4}
+              className="resize-none"
             />
+            <p className="text-caption text-muted-foreground">
+              {bio.length}/500 characters
+            </p>
           </div>
-
-          <Button onClick={handleSave} disabled={saving} className="w-full">
-            {saving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {profile ? "Saving..." : "Creating..."}
-              </>
-            ) : (
-              profile ? "Save Changes" : "Create Profile"
-            )}
-          </Button>
         </CardContent>
       </Card>
+
+      {/* Sticky Save Button */}
+      <div className="fixed bottom-16 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t md:relative md:bottom-auto md:left-auto md:right-auto md:p-0 md:bg-transparent md:backdrop-blur-none md:border-t-0">
+        <Button 
+          onClick={handleSave} 
+          disabled={saving} 
+          size="lg"
+          className="w-full max-w-2xl mx-auto"
+        >
+          {saving ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {profile ? "Saving..." : "Creating..."}
+            </>
+          ) : (
+            profile ? "Save Changes" : "Create Profile"
+          )}
+        </Button>
+      </div>
     </div>
   );
 };

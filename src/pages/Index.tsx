@@ -153,19 +153,19 @@ const Index = () => {
         >
           {/* Hero Section with Merged Stats */}
           <AnimatedCard delay={0.1}>
-            <Card className="p-4 space-y-4">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
+            <Card className="p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <Avatar size="xl" ring="coral">
                   <AvatarImage src={profile.avatar_url || undefined} />
-                  <AvatarFallback className="text-xl bg-primary/10 text-primary">
+                  <AvatarFallback className="text-heading-3 bg-primary/10 text-primary">
                     {profile.username.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-xl font-bold break-words max-w-full">
+                  <h1 className="text-heading-2 font-bold break-words max-w-full">
                     Welcome back, {profile.display_name || profile.username}!
                   </h1>
-                  <p className="text-sm text-muted-foreground">Ready to conquer today?</p>
+                  <p className="text-body text-muted-foreground">Ready to conquer today?</p>
                 </div>
               </div>
 
@@ -173,26 +173,26 @@ const Index = () => {
               <div className="flex items-center justify-around border-t pt-3">
                 <button 
                   onClick={() => navigate("/teams")}
-                  className="flex flex-col items-center gap-1 transition-colors hover:text-primary"
+                  className="flex flex-col items-center gap-1 transition-all hover:text-primary active:scale-95 min-h-[44px] min-w-[44px]"
                 >
                   <Users className="h-4 w-4 text-primary" />
-                  <p className="text-lg font-bold">{stats.teams}</p>
-                  <p className="text-xs text-muted-foreground">Teams</p>
+                  <p className="text-body-large font-bold">{stats.teams}</p>
+                  <p className="text-caption text-muted-foreground">Teams</p>
                 </button>
                 <div className="h-12 w-px bg-border" />
                 <div className="flex flex-col items-center gap-1">
                   <Activity className="h-4 w-4 text-primary" />
-                  <p className="text-lg font-bold">{stats.activities}</p>
-                  <p className="text-xs text-muted-foreground">Activities</p>
+                  <p className="text-body-large font-bold">{stats.activities}</p>
+                  <p className="text-caption text-muted-foreground">Activities</p>
                 </div>
                 <div className="h-12 w-px bg-border" />
                 <button
                   onClick={() => navigate("/users")}
-                  className="flex flex-col items-center gap-1 transition-colors hover:text-primary"
+                  className="flex flex-col items-center gap-1 transition-all hover:text-primary active:scale-95 min-h-[44px] min-w-[44px]"
                 >
                   <TrendingUp className="h-4 w-4 text-primary" />
-                  <p className="text-lg font-bold">{stats.followers}</p>
-                  <p className="text-xs text-muted-foreground">Followers</p>
+                  <p className="text-body-large font-bold">{stats.followers}</p>
+                  <p className="text-caption text-muted-foreground">Followers</p>
                 </button>
               </div>
             </Card>
@@ -218,8 +218,8 @@ const Index = () => {
             transition={{ delay: 0.3 }}
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Activity Feed</h2>
-              <Button variant="ghost" size="sm" className="text-primary">
+              <h2 className="text-heading-3 font-semibold">Activity Feed</h2>
+              <Button variant="ghost" size="sm" className="text-primary min-h-[44px]">
                 View All
               </Button>
             </div>
