@@ -56,6 +56,191 @@ export type Database = {
         }
         Relationships: []
       }
+      event_attendance: {
+        Row: {
+          event_id: string
+          id: string
+          responded_at: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          event_id: string
+          id?: string
+          responded_at?: string | null
+          status: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          event_id?: string
+          id?: string
+          responded_at?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_attendance_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_team_members: {
+        Row: {
+          created_at: string | null
+          event_team_id: string
+          id: string
+          performance_level: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_team_id: string
+          id?: string
+          performance_level?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_team_id?: string
+          id?: string
+          performance_level?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_team_members_event_team_id_fkey"
+            columns: ["event_team_id"]
+            isOneToOne: false
+            referencedRelation: "event_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_teams: {
+        Row: {
+          average_level: number | null
+          created_at: string | null
+          event_id: string
+          id: string
+          team_name: string
+          team_number: number
+        }
+        Insert: {
+          average_level?: number | null
+          created_at?: string | null
+          event_id: string
+          id?: string
+          team_name: string
+          team_number: number
+        }
+        Update: {
+          average_level?: number | null
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          team_name?: string
+          team_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_teams_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          end_time: string
+          home_away: Database["public"]["Enums"]["home_away"] | null
+          id: string
+          is_public: boolean
+          is_recurring: boolean
+          location: string | null
+          location_type: Database["public"]["Enums"]["location_type"] | null
+          location_url: string | null
+          match_format: string | null
+          max_participants: number | null
+          meetup_category: string | null
+          opponent_logo_url: string | null
+          opponent_name: string | null
+          recurrence_rule: string | null
+          start_time: string
+          team_id: string | null
+          title: string
+          type: Database["public"]["Enums"]["event_type"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          end_time: string
+          home_away?: Database["public"]["Enums"]["home_away"] | null
+          id?: string
+          is_public?: boolean
+          is_recurring?: boolean
+          location?: string | null
+          location_type?: Database["public"]["Enums"]["location_type"] | null
+          location_url?: string | null
+          match_format?: string | null
+          max_participants?: number | null
+          meetup_category?: string | null
+          opponent_logo_url?: string | null
+          opponent_name?: string | null
+          recurrence_rule?: string | null
+          start_time: string
+          team_id?: string | null
+          title: string
+          type: Database["public"]["Enums"]["event_type"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_time?: string
+          home_away?: Database["public"]["Enums"]["home_away"] | null
+          id?: string
+          is_public?: boolean
+          is_recurring?: boolean
+          location?: string | null
+          location_type?: Database["public"]["Enums"]["location_type"] | null
+          location_url?: string | null
+          match_format?: string | null
+          max_participants?: number | null
+          meetup_category?: string | null
+          opponent_logo_url?: string | null
+          opponent_name?: string | null
+          recurrence_rule?: string | null
+          start_time?: string
+          team_id?: string | null
+          title?: string
+          type?: Database["public"]["Enums"]["event_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       followers: {
         Row: {
           created_at: string
@@ -442,162 +627,6 @@ export type Database = {
           },
         ]
       }
-      training_session_attendance: {
-        Row: {
-          id: string
-          responded_at: string | null
-          session_id: string
-          status: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          id?: string
-          responded_at?: string | null
-          session_id: string
-          status: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          id?: string
-          responded_at?: string | null
-          session_id?: string
-          status?: string
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "training_session_attendance_session_id_fkey"
-            columns: ["session_id"]
-            isOneToOne: false
-            referencedRelation: "training_sessions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      training_session_team_members: {
-        Row: {
-          created_at: string | null
-          id: string
-          performance_level: number | null
-          session_team_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          performance_level?: number | null
-          session_team_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          performance_level?: number | null
-          session_team_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "training_session_team_members_session_team_id_fkey"
-            columns: ["session_team_id"]
-            isOneToOne: false
-            referencedRelation: "training_session_teams"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      training_session_teams: {
-        Row: {
-          average_level: number | null
-          created_at: string | null
-          id: string
-          team_name: string
-          team_number: number
-          training_session_id: string
-        }
-        Insert: {
-          average_level?: number | null
-          created_at?: string | null
-          id?: string
-          team_name: string
-          team_number: number
-          training_session_id: string
-        }
-        Update: {
-          average_level?: number | null
-          created_at?: string | null
-          id?: string
-          team_name?: string
-          team_number?: number
-          training_session_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "training_session_teams_training_session_id_fkey"
-            columns: ["training_session_id"]
-            isOneToOne: false
-            referencedRelation: "training_sessions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      training_sessions: {
-        Row: {
-          created_at: string
-          created_by: string
-          description: string | null
-          end_time: string
-          id: string
-          location: string | null
-          start_time: string
-          team_id: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by: string
-          description?: string | null
-          end_time: string
-          id?: string
-          location?: string | null
-          start_time: string
-          team_id: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string
-          description?: string | null
-          end_time?: string
-          id?: string
-          location?: string | null
-          start_time?: string
-          team_id?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "training_sessions_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "training_sessions_team_id_fkey"
-            columns: ["team_id"]
-            isOneToOne: false
-            referencedRelation: "teams"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       user_goals: {
         Row: {
           created_at: string
@@ -722,6 +751,9 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      event_type: "training" | "meetup" | "match"
+      home_away: "home" | "away" | "neutral"
+      location_type: "physical" | "virtual" | "tbd"
       team_role: "owner" | "admin" | "coach" | "member"
     }
     CompositeTypes: {
@@ -851,6 +883,9 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      event_type: ["training", "meetup", "match"],
+      home_away: ["home", "away", "neutral"],
+      location_type: ["physical", "virtual", "tbd"],
       team_role: ["owner", "admin", "coach", "member"],
     },
   },

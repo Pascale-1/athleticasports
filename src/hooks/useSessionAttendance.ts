@@ -6,7 +6,7 @@ export type AttendanceStatus = "attending" | "not_attending" | "maybe";
 
 export interface SessionAttendance {
   id: string;
-  session_id: string;
+  event_id: string;
   user_id: string;
   status: AttendanceStatus;
   responded_at: string;
@@ -47,9 +47,9 @@ export const useSessionAttendance = (
 
         // Fetch all attendance records
         const { data: attendanceData, error: attendanceError } = await supabase
-          .from("training_session_attendance")
+          .from("event_attendance")
           .select("*")
-          .eq("session_id", sessionId);
+          .eq("event_id", sessionId);
 
         if (attendanceError) throw attendanceError;
 
@@ -96,8 +96,8 @@ export const useSessionAttendance = (
         {
           event: "*",
           schema: "public",
-          table: "training_session_attendance",
-          filter: `session_id=eq.${sessionId}`,
+          table: "event_attendance",
+          filter: `event_id=eq.${sessionId}`,
         },
         () => {
           fetchAttendance();
@@ -130,7 +130,7 @@ export const useSessionAttendance = (
       if (existing) {
         // Update existing record
         const { error } = await supabase
-          .from("training_session_attendance")
+          .from("event_attendance")
           .update({ status, updated_at: new Date().toISOString() })
           .eq("id", existing.id);
 
@@ -138,9 +138,9 @@ export const useSessionAttendance = (
       } else {
         // Insert new record
         const { error } = await supabase
-          .from("training_session_attendance")
+          .from("event_attendance")
           .insert({
-            session_id: sessionId,
+            event_id: sessionId,
             user_id: user.id,
             status,
           });
@@ -178,7 +178,7 @@ export const useSessionAttendance = (
       if (!existing) return;
 
       const { error } = await supabase
-        .from("training_session_attendance")
+        .from("event_attendance")
         .delete()
         .eq("id", existing.id);
 

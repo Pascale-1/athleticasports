@@ -36,9 +36,9 @@ export const useTeamGeneration = (sessionId: string | null) => {
     const fetchTeams = async () => {
       try {
         const { data: teamsData, error: teamsError } = await supabase
-          .from("training_session_teams")
+          .from("event_teams")
           .select("*")
-          .eq("training_session_id", sessionId)
+          .eq("event_id", sessionId)
           .order("team_number");
 
         if (teamsError) throw teamsError;
@@ -51,9 +51,9 @@ export const useTeamGeneration = (sessionId: string | null) => {
         const teamsWithMembers = await Promise.all(
           teamsData.map(async (team) => {
             const { data: membersData, error: membersError } = await supabase
-              .from("training_session_team_members")
+              .from("event_team_members")
               .select("id, user_id, performance_level")
-              .eq("session_team_id", team.id);
+              .eq("event_team_id", team.id);
 
             if (membersError) throw membersError;
 
@@ -101,8 +101,8 @@ export const useTeamGeneration = (sessionId: string | null) => {
         {
           event: "*",
           schema: "public",
-          table: "training_session_teams",
-          filter: `training_session_id=eq.${sessionId}`,
+          table: "event_teams",
+          filter: `event_id=eq.${sessionId}`,
         },
         () => {
           fetchTeams();
@@ -152,9 +152,9 @@ export const useTeamGeneration = (sessionId: string | null) => {
 
     try {
       const { error } = await supabase
-        .from("training_session_teams")
+        .from("event_teams")
         .delete()
-        .eq("training_session_id", sessionId);
+        .eq("event_id", sessionId);
 
       if (error) throw error;
 

@@ -29,7 +29,7 @@ export const useTrainingSessions = (teamId: string | null) => {
     const fetchSessions = async () => {
       try {
         const { data, error } = await supabase
-          .from("training_sessions")
+          .from("events")
           .select("*")
           .eq("team_id", teamId)
           .order("start_time", { ascending: true });
@@ -46,13 +46,13 @@ export const useTrainingSessions = (teamId: string | null) => {
     fetchSessions();
 
     const channel = supabase
-      .channel(`training-sessions-${teamId}`)
+      .channel(`events-${teamId}`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
-          table: "training_sessions",
+          table: "events",
           filter: `team_id=eq.${teamId}`,
         },
         () => {
@@ -79,8 +79,9 @@ export const useTrainingSessions = (teamId: string | null) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const { error } = await supabase.from("training_sessions").insert({
+      const { error } = await supabase.from("events").insert({
         team_id: teamId,
+        type: "training",
         created_by: user.id,
         ...data,
       });
@@ -107,7 +108,7 @@ export const useTrainingSessions = (teamId: string | null) => {
   ) => {
     try {
       const { error } = await supabase
-        .from("training_sessions")
+        .from("events")
         .update(data)
         .eq("id", sessionId);
 
@@ -130,7 +131,7 @@ export const useTrainingSessions = (teamId: string | null) => {
   const deleteSession = async (sessionId: string) => {
     try {
       const { error } = await supabase
-        .from("training_sessions")
+        .from("events")
         .delete()
         .eq("id", sessionId);
 
