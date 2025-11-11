@@ -16,6 +16,9 @@ import { useTrainingSessions } from "@/hooks/useTrainingSessions";
 import { leaveTeam } from "@/lib/teams";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { useSwipeableTabs } from "@/hooks/useSwipeableTabs";
+import { SwipeableTabContent } from "@/components/animations/SwipeableTabContent";
+import { motion } from "framer-motion";
 
 const TeamDetail = () => {
   const { teamId } = useParams<{ teamId: string }>();
@@ -26,6 +29,13 @@ const TeamDetail = () => {
   const [memberCount, setMemberCount] = useState(0);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'announcements');
+
+  const tabs = ["announcements", "members", "performance", "training"];
+  const { swipeOffset, isSwiping, handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeableTabs({
+    tabs,
+    activeTab,
+    onTabChange: setActiveTab,
+  });
 
   const { team, userRole, isLoading, isMember, canManage } = useTeam(teamId || null);
   const { members, loading: membersLoading, removeMember, updateMemberRole } = useTeamMembers(teamId || null);
@@ -108,7 +118,12 @@ const TeamDetail = () => {
   const canCreateSession = canManage || userRole === "coach";
 
   return (
-    <div className="min-h-screen bg-background">
+    <motion.div 
+      className="min-h-screen bg-background"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <TeamHeader
         team={team}
         memberCount={memberCount}
@@ -126,76 +141,103 @@ const TeamDetail = () => {
             <TabsTrigger value="training" className="text-xs sm:text-sm px-2 sm:px-4">Training</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="announcements" className="space-y-4">
-            {announcementsLoading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : (
-              <TeamAnnouncements
-                announcements={announcements}
-                canPost={isMember}
-                canManage={canManage}
-                currentUserId={currentUserId}
-                onPost={createAnnouncement}
-                onTogglePin={togglePin}
-                onDelete={deleteAnnouncement}
-              />
-            )}
-          </TabsContent>
+          <div
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            className="overflow-hidden"
+          >
+            <SwipeableTabContent
+              activeTab={activeTab}
+              tabValue="announcements"
+              swipeOffset={swipeOffset}
+              isSwiping={isSwiping}
+            >
+              {announcementsLoading ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <TeamAnnouncements
+                  announcements={announcements}
+                  canPost={isMember}
+                  canManage={canManage}
+                  currentUserId={currentUserId}
+                  onPost={createAnnouncement}
+                  onTogglePin={togglePin}
+                  onDelete={deleteAnnouncement}
+                />
+              )}
+            </SwipeableTabContent>
 
-          <TabsContent value="members" className="space-y-4">
-            {membersLoading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : (
-              <TeamMemberList
-                members={members}
-                canManage={canManage}
-                currentUserRole={userRole}
-                onInvite={() => setInviteDialogOpen(true)}
-                onRemoveMember={removeMember}
-                onUpdateRole={updateMemberRole}
-                invitations={invitations}
-                onCancelInvitation={cancelInvitation}
-                onResendInvitation={resendInvitation}
-              />
-            )}
-          </TabsContent>
+            <SwipeableTabContent
+              activeTab={activeTab}
+              tabValue="members"
+              swipeOffset={swipeOffset}
+              isSwiping={isSwiping}
+            >
+              {membersLoading ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <TeamMemberList
+                  members={members}
+                  canManage={canManage}
+                  currentUserRole={userRole}
+                  onInvite={() => setInviteDialogOpen(true)}
+                  onRemoveMember={removeMember}
+                  onUpdateRole={updateMemberRole}
+                  invitations={invitations}
+                  onCancelInvitation={cancelInvitation}
+                  onResendInvitation={resendInvitation}
+                />
+              )}
+            </SwipeableTabContent>
 
-          <TabsContent value="performance" className="space-y-4">
-            {membersLoading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : (
-              <PerformanceLevelsTab
-                teamId={teamId || ""}
-                members={members}
-                canManage={canManage || userRole === "coach"}
-              />
-            )}
-          </TabsContent>
+            <SwipeableTabContent
+              activeTab={activeTab}
+              tabValue="performance"
+              swipeOffset={swipeOffset}
+              isSwiping={isSwiping}
+            >
+              {membersLoading ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <PerformanceLevelsTab
+                  teamId={teamId || ""}
+                  members={members}
+                  canManage={canManage || userRole === "coach"}
+                />
+              )}
+            </SwipeableTabContent>
 
-          <TabsContent value="training" className="space-y-4">
-            {sessionsLoading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : (
-              <TrainingCalendar
-                sessions={sessions}
-                canCreateSession={canCreateSession}
-                canManage={canManage}
-                currentUserId={currentUserId}
-                totalMembers={memberCount}
-                onCreateSession={createSession}
-                onUpdateSession={updateSession}
-                onDeleteSession={deleteSession}
-              />
-            )}
-          </TabsContent>
+            <SwipeableTabContent
+              activeTab={activeTab}
+              tabValue="training"
+              swipeOffset={swipeOffset}
+              isSwiping={isSwiping}
+            >
+              {sessionsLoading ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <TrainingCalendar
+                  sessions={sessions}
+                  canCreateSession={canCreateSession}
+                  canManage={canManage}
+                  currentUserId={currentUserId}
+                  totalMembers={memberCount}
+                  onCreateSession={createSession}
+                  onUpdateSession={updateSession}
+                  onDeleteSession={deleteSession}
+                />
+              )}
+            </SwipeableTabContent>
+          </div>
         </Tabs>
       </div>
 
@@ -206,7 +248,7 @@ const TeamDetail = () => {
         teamId={teamId || null}
         canManage={canManage}
       />
-    </div>
+    </motion.div>
   );
 };
 

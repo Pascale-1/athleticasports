@@ -11,6 +11,9 @@ import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
 import { QuickActions } from "@/components/feed/QuickActions";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
 import { PageContainer } from "@/components/mobile/PageContainer";
+import { PullToRefresh } from "@/components/animations/PullToRefresh";
+import { AnimatedCard } from "@/components/animations/AnimatedCard";
+import { motion } from "framer-motion";
 
 interface Profile {
   id: string;
@@ -105,6 +108,12 @@ const Index = () => {
     }
   };
 
+  const handleRefresh = async () => {
+    if (user?.id) {
+      await fetchProfile(user.id);
+    }
+  };
+
   if (loading) {
     return (
       <PageContainer>
@@ -134,91 +143,127 @@ const Index = () => {
 
   return (
     <PageContainer>
-      <div className="space-y-6 animate-fade-in">
-        {/* Hero Section */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
-              <AvatarImage src={profile.avatar_url || undefined} />
-              <AvatarFallback className="text-2xl bg-gradient-to-br from-primary to-primary-dark text-primary-foreground">
-                {profile.username.substring(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold truncate">
-                Welcome back, {profile.display_name || profile.username}!
-              </h1>
-              <p className="text-sm text-muted-foreground">Ready to conquer today?</p>
-            </div>
-          </div>
-
-          {/* Stats Row */}
-          <div className="grid grid-cols-3 gap-3">
-            <Card className="p-4 text-center hover-scale cursor-pointer transition-all" onClick={() => navigate("/teams")}>
-              <Users className="h-5 w-5 mx-auto mb-2 text-primary" />
-              <p className="text-2xl font-bold text-primary">{stats.teams}</p>
-              <p className="text-xs text-muted-foreground">Teams</p>
-            </Card>
-            <Card className="p-4 text-center hover-scale cursor-pointer transition-all">
-              <Activity className="h-5 w-5 mx-auto mb-2 text-accent" />
-              <p className="text-2xl font-bold text-accent">{stats.activities}</p>
-              <p className="text-xs text-muted-foreground">Activities</p>
-            </Card>
-            <Card className="p-4 text-center hover-scale cursor-pointer transition-all" onClick={() => navigate("/users")}>
-              <TrendingUp className="h-5 w-5 mx-auto mb-2 text-teal" />
-              <p className="text-2xl font-bold text-teal">{stats.followers}</p>
-              <p className="text-xs text-muted-foreground">Followers</p>
-            </Card>
-          </div>
-
-          {/* Primary CTA */}
-          <Button 
-            size="lg" 
-            className="w-full bg-gradient-to-r from-primary to-primary-dark hover:opacity-90 transition-all active:scale-[0.98]"
-            onClick={() => navigate("/track")}
+      <PullToRefresh onRefresh={handleRefresh}>
+        <motion.div 
+          className="space-y-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          {/* Hero Section */}
+          <motion.div 
+            className="space-y-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
           >
-            <Trophy className="mr-2 h-5 w-5" />
-            Log Activity
-          </Button>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold">Quick Actions</h2>
-          <QuickActions />
-        </div>
-
-        {/* Activity Feed */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Activity Feed</h2>
-            <Button variant="ghost" size="sm" className="text-primary">
-              View All
-            </Button>
-          </div>
-
-          {feedLoading ? (
-            <FeedSkeleton />
-          ) : activities.length > 0 ? (
-            <div className="space-y-4">
-              {activities.map((activity) => (
-                <ActivityCard key={activity.id} {...activity} />
-              ))}
+            <div className="flex items-center gap-4">
+              <Avatar className="h-20 w-20 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
+                <AvatarImage src={profile.avatar_url || undefined} />
+                <AvatarFallback className="text-2xl bg-gradient-to-br from-primary to-primary-dark text-primary-foreground">
+                  {profile.username.substring(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-2xl font-bold truncate">
+                  Welcome back, {profile.display_name || profile.username}!
+                </h1>
+                <p className="text-sm text-muted-foreground">Ready to conquer today?</p>
+              </div>
             </div>
-          ) : (
-            <Card className="p-8 text-center">
-              <Activity className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-              <h3 className="font-semibold mb-2">No Activities Yet</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Start following athletes or join teams to see their activities here.
-              </p>
-              <Button onClick={() => navigate("/users")} variant="outline">
-                Find Athletes
+
+            {/* Stats Row */}
+            <div className="grid grid-cols-3 gap-3">
+              <AnimatedCard delay={0.2} onClick={() => navigate("/teams")}>
+                <Card className="p-4 text-center cursor-pointer transition-all">
+                  <Users className="h-5 w-5 mx-auto mb-2 text-primary" />
+                  <p className="text-2xl font-bold text-primary">{stats.teams}</p>
+                  <p className="text-xs text-muted-foreground">Teams</p>
+                </Card>
+              </AnimatedCard>
+              <AnimatedCard delay={0.25}>
+                <Card className="p-4 text-center cursor-pointer transition-all">
+                  <Activity className="h-5 w-5 mx-auto mb-2 text-accent" />
+                  <p className="text-2xl font-bold text-accent">{stats.activities}</p>
+                  <p className="text-xs text-muted-foreground">Activities</p>
+                </Card>
+              </AnimatedCard>
+              <AnimatedCard delay={0.3} onClick={() => navigate("/users")}>
+                <Card className="p-4 text-center cursor-pointer transition-all">
+                  <TrendingUp className="h-5 w-5 mx-auto mb-2 text-teal" />
+                  <p className="text-2xl font-bold text-teal">{stats.followers}</p>
+                  <p className="text-xs text-muted-foreground">Followers</p>
+                </Card>
+              </AnimatedCard>
+            </div>
+
+            {/* Primary CTA */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.35 }}
+            >
+              <Button 
+                size="lg" 
+                className="w-full bg-gradient-to-r from-primary to-primary-dark hover:opacity-90 transition-all active:scale-[0.98]"
+                onClick={() => navigate("/track")}
+              >
+                <Trophy className="mr-2 h-5 w-5" />
+                Log Activity
               </Button>
-            </Card>
-          )}
-        </div>
-      </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Quick Actions */}
+          <motion.div 
+            className="space-y-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            <h2 className="text-lg font-semibold">Quick Actions</h2>
+            <QuickActions />
+          </motion.div>
+
+          {/* Activity Feed */}
+          <motion.div 
+            className="space-y-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Activity Feed</h2>
+              <Button variant="ghost" size="sm" className="text-primary">
+                View All
+              </Button>
+            </div>
+
+            {feedLoading ? (
+              <FeedSkeleton />
+            ) : activities.length > 0 ? (
+              <div className="space-y-4">
+                {activities.map((activity, index) => (
+                  <AnimatedCard key={activity.id} delay={0.6 + index * 0.05} hover={false}>
+                    <ActivityCard {...activity} />
+                  </AnimatedCard>
+                ))}
+              </div>
+            ) : (
+              <Card className="p-8 text-center">
+                <Activity className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+                <h3 className="font-semibold mb-2">No Activities Yet</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Start following athletes or join teams to see their activities here.
+                </p>
+                <Button onClick={() => navigate("/users")} variant="outline">
+                  Find Athletes
+                </Button>
+              </Card>
+            )}
+          </motion.div>
+        </motion.div>
+      </PullToRefresh>
     </PageContainer>
   );
 };

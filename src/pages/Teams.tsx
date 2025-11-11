@@ -13,6 +13,9 @@ import { FAB } from "@/components/mobile/FAB";
 import { EmptyState } from "@/components/EmptyState";
 import { useTeamFilters } from "@/hooks/useTeamFilters";
 import { toast } from "sonner";
+import { PullToRefresh } from "@/components/animations/PullToRefresh";
+import { AnimatedCard } from "@/components/animations/AnimatedCard";
+import { motion } from "framer-motion";
 
 const Teams = () => {
   const navigate = useNavigate();
@@ -35,41 +38,25 @@ const Teams = () => {
   } = useTeamFilters(publicTeams.filter(team => !myTeams.some(mt => mt.id === team.id)));
 
   useEffect(() => {
-    const fetchTeams = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUserId(user?.id || null);
+    fetchTeams();
+  }, []);
 
-        if (user) {
-          const { data: myTeamsData } = await supabase
-            .from("team_members")
-            .select("team_id, teams(*)")
-            .eq("user_id", user.id)
-            .eq("status", "active");
+  const fetchTeams = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
 
-          const teams = myTeamsData?.map((item: any) => item.teams).filter(Boolean) || [];
-          setMyTeams(teams);
+      if (user) {
+        const { data: myTeamsData } = await supabase
+          .from("team_members")
+          .select("team_id, teams(*)")
+          .eq("user_id", user.id)
+          .eq("status", "active");
 
-          for (const team of teams) {
-            const { data: countData } = await supabase.rpc("get_team_member_count", {
-              _team_id: team.id,
-            });
-            if (countData !== null) {
-              setMemberCounts((prev) => ({ ...prev, [team.id]: countData }));
-            }
-          }
-        }
+        const teams = myTeamsData?.map((item: any) => item.teams).filter(Boolean) || [];
+        setMyTeams(teams);
 
-        const { data: publicTeamsData } = await supabase
-          .from("teams")
-          .select("*")
-          .eq("is_private", false)
-          .order("created_at", { ascending: false })
-          .limit(20);
-
-        setPublicTeams(publicTeamsData || []);
-
-        for (const team of publicTeamsData || []) {
+        for (const team of teams) {
           const { data: countData } = await supabase.rpc("get_team_member_count", {
             _team_id: team.id,
           });
@@ -77,16 +64,37 @@ const Teams = () => {
             setMemberCounts((prev) => ({ ...prev, [team.id]: countData }));
           }
         }
-      } catch (error) {
-        console.error("Error fetching teams:", error);
-        toast.error("Failed to load teams");
-      } finally {
-        setLoading(false);
       }
-    };
 
-    fetchTeams();
-  }, []);
+      const { data: publicTeamsData } = await supabase
+        .from("teams")
+        .select("*")
+        .eq("is_private", false)
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      setPublicTeams(publicTeamsData || []);
+
+      for (const team of publicTeamsData || []) {
+        const { data: countData } = await supabase.rpc("get_team_member_count", {
+          _team_id: team.id,
+        });
+        if (countData !== null) {
+          setMemberCounts((prev) => ({ ...prev, [team.id]: countData }));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching teams:", error);
+      toast.error("Failed to load teams");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setLoading(true);
+    await fetchTeams();
+  };
 
   const handleLeaveTeam = async (teamId: string) => {
     if (!userId) return;
@@ -127,115 +135,156 @@ const Teams = () => {
 
   return (
     <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-6xl pb-24">
-      <div className="space-y-4 sm:space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Teams</h1>
-            <p className="text-sm sm:text-base text-muted-foreground mt-1">
-              {myTeams.length + publicTeams.length} teams • {Object.values(memberCounts).reduce((a, b) => a + b, 0)} members
-            </p>
-          </div>
-          <Button 
-            onClick={() => navigate("/teams/create")} 
-            className="hidden sm:flex w-full sm:w-auto"
+      <PullToRefresh onRefresh={handleRefresh}>
+        <motion.div 
+          className="space-y-4 sm:space-y-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          {/* Header */}
+          <motion.div 
+            className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
           >
-            <Plus className="h-4 w-4 mr-2" />
-            Create Team
-          </Button>
-        </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Teams</h1>
+              <p className="text-sm sm:text-base text-muted-foreground mt-1">
+                {myTeams.length + publicTeams.length} teams • {Object.values(memberCounts).reduce((a, b) => a + b, 0)} members
+              </p>
+            </div>
+            <Button 
+              onClick={() => navigate("/teams/create")} 
+              className="hidden sm:flex w-full sm:w-auto"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create Team
+            </Button>
+          </motion.div>
 
-        {/* Search Bar */}
-        <TeamSearchBar 
-          value={searchQuery} 
-          onChange={setSearchQuery}
-        />
-
-        {/* Filter Chips */}
-        <TeamFilters 
-          activeSport={activeSport}
-          onSportChange={setActiveSport}
-        />
-
-        {/* Featured Teams Carousel */}
-        {!searchQuery && featuredTeams.length > 0 && (
-          <div className="space-y-3">
-            <h2 className="text-lg sm:text-xl font-semibold">Featured Teams</h2>
-            <TeamCarousel 
-              teams={featuredTeams}
-              memberCounts={memberCounts}
-              myTeamIds={myTeams.map(t => t.id)}
+          {/* Search Bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+          >
+            <TeamSearchBar 
+              value={searchQuery} 
+              onChange={setSearchQuery}
             />
-          </div>
-        )}
+          </motion.div>
 
-        {/* My Teams Section */}
-        {filteredMyTeams.length > 0 && (
-          <div className="space-y-3 sm:space-y-4">
-            <h2 className="text-lg sm:text-xl font-semibold">
-              My Teams ({filteredMyTeams.length})
-            </h2>
-            <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
-              {filteredMyTeams.map((team) => (
-                <SwipeableTeamCard
-                  key={team.id}
-                  team={team}
-                  memberCount={memberCounts[team.id] || 0}
-                  isMember={true}
-                  onLeave={() => handleLeaveTeam(team.id)}
-                  onSettings={() => navigate(`/teams/${team.id}/settings`)}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Discover Public Teams Section */}
-        <div className="space-y-3 sm:space-y-4">
-          <h2 className="text-lg sm:text-xl font-semibold">
-            {searchQuery ? `Search Results (${filteredPublicTeams.length})` : "Discover Public Teams"}
-          </h2>
-          
-          {loading ? (
-            <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
-              {[...Array(6)].map((_, i) => (
-                <TeamCardSkeleton key={i} />
-              ))}
-            </div>
-          ) : filteredPublicTeams.length > 0 ? (
-            <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
-              {filteredPublicTeams.map((team) => (
-                <SwipeableTeamCard
-                  key={team.id}
-                  team={team}
-                  memberCount={memberCounts[team.id] || 0}
-                  isMember={false}
-                  onJoin={() => navigate(`/teams/${team.id}`)}
-                  onShare={() => handleShareTeam(team.id)}
-                />
-              ))}
-            </div>
-          ) : (
-            <EmptyState
-              icon={searchQuery ? SearchIcon : Users}
-              title={searchQuery ? "No teams found" : activeSport !== "All" ? `No ${activeSport} teams yet` : "No public teams available"}
-              description={searchQuery ? "Try adjusting your search terms or filters" : activeSport !== "All" ? "Be the first to create one!" : "Create the first team for your community"}
-              action={
-                searchQuery ? (
-                  <Button onClick={() => setSearchQuery("")} variant="outline">
-                    Clear Search
-                  </Button>
-                ) : (
-                  <Button onClick={() => navigate("/teams/create")}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Team
-                  </Button>
-                )
-              }
+          {/* Filter Chips */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <TeamFilters 
+              activeSport={activeSport}
+              onSportChange={setActiveSport}
             />
+          </motion.div>
+
+          {/* Featured Teams Carousel */}
+          {!searchQuery && featuredTeams.length > 0 && (
+            <motion.div 
+              className="space-y-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.25 }}
+            >
+              <h2 className="text-lg sm:text-xl font-semibold">Featured Teams</h2>
+              <TeamCarousel 
+                teams={featuredTeams}
+                memberCounts={memberCounts}
+                myTeamIds={myTeams.map(t => t.id)}
+              />
+            </motion.div>
           )}
-        </div>
-      </div>
+
+          {/* My Teams Section */}
+          {filteredMyTeams.length > 0 && (
+            <motion.div 
+              className="space-y-3 sm:space-y-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <h2 className="text-lg sm:text-xl font-semibold">
+                My Teams ({filteredMyTeams.length})
+              </h2>
+              <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
+                {filteredMyTeams.map((team, index) => (
+                  <AnimatedCard key={team.id} delay={0.35 + index * 0.05} hover={false}>
+                    <SwipeableTeamCard
+                      team={team}
+                      memberCount={memberCounts[team.id] || 0}
+                      isMember={true}
+                      onLeave={() => handleLeaveTeam(team.id)}
+                      onSettings={() => navigate(`/teams/${team.id}/settings`)}
+                    />
+                  </AnimatedCard>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Discover Public Teams Section */}
+          <motion.div 
+            className="space-y-3 sm:space-y-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            <h2 className="text-lg sm:text-xl font-semibold">
+              {searchQuery ? `Search Results (${filteredPublicTeams.length})` : "Discover Public Teams"}
+            </h2>
+            
+            {loading ? (
+              <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
+                {[...Array(6)].map((_, i) => (
+                  <TeamCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : filteredPublicTeams.length > 0 ? (
+              <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
+                {filteredPublicTeams.map((team, index) => (
+                  <AnimatedCard key={team.id} delay={0.45 + index * 0.05} hover={false}>
+                    <SwipeableTeamCard
+                      team={team}
+                      memberCount={memberCounts[team.id] || 0}
+                      isMember={false}
+                      onJoin={() => navigate(`/teams/${team.id}`)}
+                      onShare={() => handleShareTeam(team.id)}
+                    />
+                  </AnimatedCard>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                icon={searchQuery ? SearchIcon : Users}
+                title={searchQuery ? "No teams found" : activeSport !== "All" ? `No ${activeSport} teams yet` : "No public teams available"}
+                description={searchQuery ? "Try adjusting your search terms or filters" : activeSport !== "All" ? "Be the first to create one!" : "Create the first team for your community"}
+                action={
+                  searchQuery ? (
+                    <Button onClick={() => setSearchQuery("")} variant="outline">
+                      Clear Search
+                    </Button>
+                  ) : (
+                    <Button onClick={() => navigate("/teams/create")}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Team
+                    </Button>
+                  )
+                }
+              />
+            )}
+          </motion.div>
+        </motion.div>
+      </PullToRefresh>
 
       {/* Floating Action Button (Mobile) */}
       <FAB
