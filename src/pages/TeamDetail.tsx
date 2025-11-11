@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TeamHeader } from "@/components/teams/TeamHeader";
 import { TeamQuickStats } from "@/components/teams/TeamQuickStats";
 import { TeamAboutSection } from "@/components/teams/TeamAboutSection";
-import { NextEventPreview } from "@/components/teams/NextEventPreview";
+import { EventsPreview } from "@/components/teams/EventsPreview";
 import { AnnouncementsPreview } from "@/components/teams/AnnouncementsPreview";
 import { MembersPreview } from "@/components/teams/MembersPreview";
 import { PerformancePreview } from "@/components/teams/PerformancePreview";
@@ -134,8 +134,8 @@ const TeamDetail = () => {
 
           <TeamAboutSection description={team.description} />
 
-          <NextEventPreview
-            event={upcomingSessions[0] || null}
+          <EventsPreview
+            events={upcomingSessions}
             teamId={teamId || ""}
             canRSVP={isMember}
           />

@@ -65,7 +65,7 @@ export const PerformancePreview = ({ teamId, memberCount }: PerformancePreviewPr
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-body-large font-semibold">Performance Levels</h3>
-          <Link to={`/teams/${teamId}?tab=performance`}>
+          <Link to={`/teams/${teamId}/performance`}>
             <Button variant="ghost" size="sm" className="text-primary">
               View all <ArrowRight className="h-4 w-4 ml-1" />
             </Button>

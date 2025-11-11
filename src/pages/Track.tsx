@@ -1,10 +1,11 @@
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { Card } from "@/components/ui/card";
-import { Activity, TrendingUp, Target, History, Loader2, Flame, ChevronRight } from "lucide-react";
+import { Dumbbell, Flame, TrendingUp, Activity, Target, Calendar, Users, Clock, History, Loader2, ChevronRight } from "lucide-react";
 import { LogActivityDialog } from "@/components/track/LogActivityDialog";
 import { ActivityCard } from "@/components/track/ActivityCard";
 import { useActivities } from "@/hooks/useActivities";
 import { useGoals } from "@/hooks/useGoals";
+import { useTeamActivityFeed } from "@/hooks/useTeamActivityFeed";
 import { EmptyState } from "@/components/EmptyState";
 import { AnimatedCard } from "@/components/animations/AnimatedCard";
 import { motion } from "framer-motion";
@@ -19,6 +20,7 @@ const Track = () => {
   const navigate = useNavigate();
   const { activities, loading: activitiesLoading, deleteActivity, getStats } = useActivities();
   const { goals, loading: goalsLoading } = useGoals();
+  const { activities: teamActivities, loading: teamActivitiesLoading } = useTeamActivityFeed();
   const stats = getStats();
   const [goalsOpen, setGoalsOpen] = useState(true);
 
@@ -219,6 +221,65 @@ const Track = () => {
             )}
           </div>
         </AnimatedCard>
+
+        {/* Team Activity Feed */}
+        {!teamActivitiesLoading && teamActivities.length > 0 && (
+          <AnimatedCard delay={0.5}>
+            <Card>
+              <div className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <Users className="h-4 w-4 text-primary" />
+                    Team Activity Feed
+                  </h3>
+                </div>
+
+                <div className="space-y-3">
+                  {teamActivities.slice(0, 5).map((activity) => (
+                    <div key={activity.id} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                      <img
+                        src={activity.profile.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${activity.profile.username}`}
+                        alt={activity.profile.display_name || activity.profile.username}
+                        className="h-10 w-10 rounded-full object-cover"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-caption font-medium">
+                          {activity.profile.display_name || activity.profile.username}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {activity.title} • {activity.type}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
+                          <Badge variant="outline" className="text-[10px] h-5">
+                            {activity.team_name}
+                          </Badge>
+                          {activity.distance && (
+                            <span className="flex items-center gap-1">
+                              <Target className="h-3 w-3" />
+                              {activity.distance}km
+                            </span>
+                          )}
+                          {activity.duration && (
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {Math.round(activity.duration / 60)}min
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {teamActivities.length > 5 && (
+                  <p className="text-[11px] text-center text-muted-foreground">
+                    +{teamActivities.length - 5} more activities from teammates
+                  </p>
+                )}
+              </div>
+            </Card>
+          </AnimatedCard>
+        )}
       </div>
     </PageContainer>
   );

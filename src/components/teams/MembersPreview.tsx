@@ -30,7 +30,7 @@ export const MembersPreview = ({ members, canInvite, onInvite, teamId }: Members
                 Invite
               </Button>
             )}
-            <Link to={`/teams/${teamId}?tab=members`}>
+            <Link to={`/teams/${teamId}/members`}>
               <Button variant="ghost" size="sm" className="text-primary">
                 View all <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
