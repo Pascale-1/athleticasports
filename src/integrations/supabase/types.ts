@@ -160,12 +160,15 @@ export type Database = {
       }
       events: {
         Row: {
+          allow_public_join: boolean | null
           created_at: string
           created_by: string
+          created_invite_code_at: string | null
           description: string | null
           end_time: string
           home_away: Database["public"]["Enums"]["home_away"] | null
           id: string
+          invite_code: string | null
           is_public: boolean
           is_recurring: boolean
           location: string | null
@@ -185,12 +188,15 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          allow_public_join?: boolean | null
           created_at?: string
           created_by: string
+          created_invite_code_at?: string | null
           description?: string | null
           end_time: string
           home_away?: Database["public"]["Enums"]["home_away"] | null
           id?: string
+          invite_code?: string | null
           is_public?: boolean
           is_recurring?: boolean
           location?: string | null
@@ -210,12 +216,15 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          allow_public_join?: boolean | null
           created_at?: string
           created_by?: string
+          created_invite_code_at?: string | null
           description?: string | null
           end_time?: string
           home_away?: Database["public"]["Enums"]["home_away"] | null
           id?: string
+          invite_code?: string | null
           is_public?: boolean
           is_recurring?: boolean
           location?: string | null

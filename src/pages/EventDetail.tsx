@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { EventInviteLink } from "@/components/events/EventInviteLink";
 import { 
   ArrowLeft, 
   Calendar, 
@@ -287,6 +288,16 @@ const EventDetail = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Share Event Section */}
+        {canEdit && event.invite_code && (
+          <EventInviteLink
+            eventId={event.id}
+            inviteCode={event.invite_code}
+            allowPublicJoin={event.allow_public_join ?? true}
+            eventTitle={event.title}
+          />
+        )}
 
         {/* Attendance Section */}
         <Card>

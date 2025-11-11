@@ -24,6 +24,9 @@ export interface Event {
   created_by: string;
   created_at: string;
   updated_at: string;
+  invite_code?: string;
+  allow_public_join?: boolean;
+  created_invite_code_at?: string;
 }
 
 export interface EventWithAttendance extends Event {

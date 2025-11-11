@@ -36,6 +36,7 @@ const Auth = () => {
   const [oauthUrl, setOauthUrl] = useState<string | null>(null);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
   const [invitationId, setInvitationId] = useState<string | null>(null);
+  const returnUrl = searchParams.get('returnUrl');
   const redirectUrl = `${window.location.origin}/auth`;
   const inIframe = (() => { try { return window.top !== window.self; } catch { return true; } })();
 
@@ -101,11 +102,14 @@ const Auth = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
-        // Check for pending invitation
+        // Check for pending invitation first
         const pendingInvitationId = sessionStorage.getItem("pendingInvitationId");
         if (pendingInvitationId) {
           sessionStorage.removeItem("pendingInvitationId");
           navigate(`/teams/invitations/accept?id=${pendingInvitationId}`);
+        } else if (returnUrl) {
+          // Redirect to returnUrl after authentication
+          navigate(returnUrl);
         } else {
           navigate("/");
         }
@@ -114,11 +118,14 @@ const Auth = () => {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        // Check for pending invitation
+        // Check for pending invitation first
         const pendingInvitationId = sessionStorage.getItem("pendingInvitationId");
         if (pendingInvitationId) {
           sessionStorage.removeItem("pendingInvitationId");
           navigate(`/teams/invitations/accept?id=${pendingInvitationId}`);
+        } else if (returnUrl) {
+          // Redirect to returnUrl after authentication
+          navigate(returnUrl);
         } else {
           navigate("/");
         }
@@ -126,7 +133,7 @@ const Auth = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, returnUrl]);
 
   const handleEmailAuth = async (data: EmailFormData) => {
     setLoading(true);

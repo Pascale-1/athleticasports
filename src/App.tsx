@@ -23,6 +23,7 @@ import JoinTeam from "./pages/JoinTeam";
 import AcceptInvitation from "./pages/AcceptInvitation";
 import InvitationHelp from "./pages/InvitationHelp";
 import NotFound from "./pages/NotFound";
+import JoinEvent from "./pages/JoinEvent";
 
 const queryClient = new QueryClient();
 
@@ -123,6 +124,7 @@ const App = () => (
           <Route path="/teams/join/:code" element={<JoinTeam />} />
           <Route path="/teams/invitations/accept" element={<AcceptInvitation />} />
           <Route path="/teams/invitations/help" element={<InvitationHelp />} />
+          <Route path="/events/join/:code" element={<JoinEvent />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

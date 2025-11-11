@@ -31,7 +31,7 @@ const TeamDetail = () => {
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'announcements');
 
-  const tabs = ["announcements", "members", "performance", "training"];
+  const tabs = ["announcements", "members", "performance", "events"];
   const { swipeOffset, isSwiping, handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeableTabs({
     tabs,
     activeTab,
@@ -54,7 +54,7 @@ const TeamDetail = () => {
     createEvent: createSession,
     updateEvent: updateSession,
     deleteEvent: deleteSession,
-  } = useEvents(teamId || null, { type: 'training' });
+  } = useEvents(teamId || null, { includeAsOpponent: true });
 
   useEffect(() => {
     const getUser = async () => {
@@ -139,7 +139,7 @@ const TeamDetail = () => {
             <TabsTrigger value="announcements" className="text-[11px] xs:text-xs sm:text-sm px-2 py-2.5 h-auto whitespace-normal leading-tight">Announcements</TabsTrigger>
             <TabsTrigger value="members" className="text-[11px] xs:text-xs sm:text-sm px-2 py-2.5 h-auto whitespace-normal leading-tight">Members</TabsTrigger>
             <TabsTrigger value="performance" className="text-[11px] xs:text-xs sm:text-sm px-2 py-2.5 h-auto whitespace-normal leading-tight">Performance</TabsTrigger>
-            <TabsTrigger value="training" className="text-[11px] xs:text-xs sm:text-sm px-2 py-2.5 h-auto whitespace-normal leading-tight">Training</TabsTrigger>
+            <TabsTrigger value="events" className="text-[11px] xs:text-xs sm:text-sm px-2 py-2.5 h-auto whitespace-normal leading-tight">Events</TabsTrigger>
           </TabsList>
 
           <div
@@ -227,7 +227,7 @@ const TeamDetail = () => {
 
             <SwipeableTabContent
               activeTab={activeTab}
-              tabValue="training"
+              tabValue="events"
               swipeOffset={swipeOffset}
               isSwiping={isSwiping}
             >

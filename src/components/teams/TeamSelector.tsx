@@ -87,6 +87,18 @@ export const TeamSelector = ({
   };
 
   const handleTeamCreated = (teamId: string, teamName: string, teamLogo?: string) => {
+    // Add new team to local state immediately
+    const newTeam = {
+      id: teamId,
+      name: teamName,
+      sport: null,
+      avatar_url: teamLogo || null,
+    };
+    setTeams(prev => [newTeam, ...prev]);
+    
+    // Also refetch to ensure consistency
+    fetchTeams();
+    
     onSelect(teamId, teamName, teamLogo);
     setShowCreateDialog(false);
   };

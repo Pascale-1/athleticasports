@@ -29,6 +29,7 @@ export const useEvents = (teamId?: string | null, filters?: {
   type?: string;
   status?: 'upcoming' | 'past' | 'all';
   isPublic?: boolean;
+  includeAsOpponent?: boolean;
 }) => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,7 +71,12 @@ export const useEvents = (teamId?: string | null, filters?: {
         if (teamId === null) {
           query = query.is('team_id', null);
         } else {
-          query = query.eq("team_id", teamId);
+          // Support querying by both team_id and opponent_team_id
+          if (filters?.includeAsOpponent) {
+            query = query.or(`team_id.eq.${teamId},opponent_team_id.eq.${teamId}`);
+          } else {
+            query = query.eq("team_id", teamId);
+          }
         }
       }
 
