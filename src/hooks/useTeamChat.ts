@@ -63,7 +63,25 @@ export const useTeamChat = (teamId: string | null) => {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setMessages((data as any) || []);
+      
+      // Transform flattened data to nested structure expected by component
+      const transformedMessages = (data || []).map((msg: any) => ({
+        id: msg.id,
+        team_id: msg.team_id,
+        user_id: msg.user_id,
+        content: msg.content,
+        created_at: msg.created_at,
+        updated_at: msg.updated_at,
+        is_edited: msg.is_edited,
+        replied_to_id: msg.replied_to_id,
+        profiles: {
+          username: msg.username,
+          display_name: msg.display_name,
+          avatar_url: msg.avatar_url
+        }
+      }));
+      
+      setMessages(transformedMessages);
     } catch (error) {
       console.error('Error fetching messages:', error);
       toast.error("Failed to load messages");
@@ -94,12 +112,19 @@ export const useTeamChat = (teamId: string | null) => {
 
   const deleteMessage = async (messageId: string) => {
     try {
+      // Optimistic update - remove message immediately from UI
+      setMessages(prev => prev.filter(msg => msg.id !== messageId));
+      
       const { error } = await supabase
         .from('team_messages')
         .delete()
         .eq('id', messageId);
 
-      if (error) throw error;
+      if (error) {
+        // Revert on error by refetching
+        fetchMessages();
+        throw error;
+      }
       toast.success("Message deleted");
     } catch (error) {
       console.error('Error deleting message:', error);
