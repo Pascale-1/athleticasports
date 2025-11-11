@@ -1,34 +1,22 @@
 import { BottomNavigation } from "./BottomNavigation";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
-import { useIsMobile } from "@/hooks/useBreakpoint";
-import { Menu } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { AppSidebar } from "@/components/app-sidebar";
+import { useScrollDirection } from "@/hooks/useScrollDirection";
+import { cn } from "@/lib/utils";
 
 interface MobileLayoutProps {
   children: React.ReactNode;
 }
 
 export const MobileLayout = ({ children }: MobileLayoutProps) => {
-  const isMobile = useIsMobile();
+  const scrollDirection = useScrollDirection(10);
 
   return (
     <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-hidden">
       {/* Mobile Header */}
-      <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-4 border-b border-border/50 bg-background/95 backdrop-blur-lg px-4 shadow-sm max-w-full overflow-hidden">
-        {isMobile && (
-          <Sheet>
-            <SheetTrigger asChild>
-              <button className="lg:hidden p-2 -ml-2 hover:bg-accent rounded-lg transition-colors">
-                <Menu className="h-5 w-5" />
-              </button>
-            </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-64">
-              <AppSidebar />
-            </SheetContent>
-          </Sheet>
-        )}
-        
+      <header className={cn(
+        "sticky top-0 z-40 flex h-14 shrink-0 items-center gap-4 border-b border-border/50 bg-background/95 backdrop-blur-lg px-4 shadow-sm max-w-full overflow-hidden transition-transform duration-300 ease-in-out",
+        scrollDirection === "down" && "transform -translate-y-full"
+      )}>
         <div className="flex items-center gap-2 min-w-0">
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
             <span className="text-primary-foreground font-bold text-sm">A</span>

@@ -9,6 +9,7 @@ import { InstallPrompt } from "./components/InstallPrompt";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Settings from "./pages/Settings";
+import Discover from "./pages/Discover";
 import Community from "./pages/Community";
 import Admin from "./pages/Admin";
 import Track from "./pages/Track";
@@ -47,6 +48,13 @@ const App = () => (
             <ProtectedRoute>
               <AppLayout>
                 <Settings />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/discover" element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Discover />
               </AppLayout>
             </ProtectedRoute>
           } />
