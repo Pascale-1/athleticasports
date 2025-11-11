@@ -19,6 +19,7 @@ import Users from "./pages/Users";
 import TeamCreate from "./pages/TeamCreate";
 import TeamDetail from "./pages/TeamDetail";
 import TeamSettings from "./pages/TeamSettings";
+import JoinTeam from "./pages/JoinTeam";
 import AcceptInvitation from "./pages/AcceptInvitation";
 import InvitationHelp from "./pages/InvitationHelp";
 import NotFound from "./pages/NotFound";
@@ -119,6 +120,7 @@ const App = () => (
               </AppLayout>
             </ProtectedRoute>
           } />
+          <Route path="/teams/join/:code" element={<JoinTeam />} />
           <Route path="/teams/invitations/accept" element={<AcceptInvitation />} />
           <Route path="/teams/invitations/help" element={<InvitationHelp />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

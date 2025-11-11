@@ -7,6 +7,7 @@ import { TeamMemberList } from "@/components/teams/TeamMemberList";
 import { TeamAnnouncements } from "@/components/teams/TeamAnnouncements";
 import { TrainingCalendar } from "@/components/teams/TrainingCalendar";
 import { InviteMemberDialog } from "@/components/teams/InviteMemberDialog";
+import { TeamInviteLink } from "@/components/teams/TeamInviteLink";
 import { PerformanceLevelsTab } from "@/components/teams/PerformanceLevelsTab";
 import { useTeam } from "@/hooks/useTeam";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
@@ -181,17 +182,27 @@ const TeamDetail = () => {
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : (
-                <TeamMemberList
-                  members={members}
-                  canManage={canManage}
-                  currentUserRole={userRole}
-                  onInvite={() => setInviteDialogOpen(true)}
-                  onRemoveMember={removeMember}
-                  onUpdateRole={updateMemberRole}
-                  invitations={invitations}
-                  onCancelInvitation={cancelInvitation}
-                  onResendInvitation={resendInvitation}
-                />
+                <div className="space-y-6">
+                  {canManage && team.invite_code && (
+                    <TeamInviteLink
+                      teamId={teamId || ""}
+                      inviteCode={team.invite_code}
+                      allowLinkJoining={team.allow_link_joining ?? true}
+                      canManage={canManage}
+                    />
+                  )}
+                  <TeamMemberList
+                    members={members}
+                    canManage={canManage}
+                    currentUserRole={userRole}
+                    onInvite={() => setInviteDialogOpen(true)}
+                    onRemoveMember={removeMember}
+                    onUpdateRole={updateMemberRole}
+                    invitations={invitations}
+                    onCancelInvitation={cancelInvitation}
+                    onResendInvitation={resendInvitation}
+                  />
+                </div>
               )}
             </SwipeableTabContent>
 

@@ -585,33 +585,42 @@ export type Database = {
       }
       teams: {
         Row: {
+          allow_link_joining: boolean | null
           avatar_url: string | null
           created_at: string
           created_by: string
+          created_invite_code_at: string | null
           description: string | null
           id: string
+          invite_code: string | null
           is_private: boolean
           name: string
           sport: string | null
           updated_at: string
         }
         Insert: {
+          allow_link_joining?: boolean | null
           avatar_url?: string | null
           created_at?: string
           created_by: string
+          created_invite_code_at?: string | null
           description?: string | null
           id?: string
+          invite_code?: string | null
           is_private?: boolean
           name: string
           sport?: string | null
           updated_at?: string
         }
         Update: {
+          allow_link_joining?: boolean | null
           avatar_url?: string | null
           created_at?: string
           created_by?: string
+          created_invite_code_at?: string | null
           description?: string | null
           id?: string
+          invite_code?: string | null
           is_private?: boolean
           name?: string
           sport?: string | null

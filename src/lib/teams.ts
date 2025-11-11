@@ -10,6 +10,9 @@ export interface Team {
   created_at: string;
   updated_at: string;
   sport: string | null;
+  invite_code: string | null;
+  allow_link_joining: boolean | null;
+  created_invite_code_at: string | null;
 }
 
 export interface TeamMember {
@@ -160,4 +163,57 @@ export const transferTeamOwnership = async (
     .eq("team_member_id", newOwnerMember.id);
 
   if (updateNewError) throw updateNewError;
+};
+
+export const joinTeamByCode = async (inviteCode: string) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  // Find team by invite code
+  const { data: team, error: teamError } = await supabase
+    .from("teams")
+    .select("id, name, allow_link_joining, created_by")
+    .eq("invite_code", inviteCode.toUpperCase())
+    .single();
+
+  if (teamError || !team) throw new Error("Invalid invite code");
+  if (!team.allow_link_joining) throw new Error("Team is not accepting new members");
+
+  // Check if already a member
+  const { data: existingMember } = await supabase
+    .from("team_members")
+    .select("id")
+    .eq("team_id", team.id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (existingMember) {
+    return { teamId: team.id, alreadyMember: true };
+  }
+
+  // Add user to team
+  const { data: newMember, error: memberError } = await supabase
+    .from("team_members")
+    .insert({
+      team_id: team.id,
+      user_id: user.id,
+      status: "active",
+    })
+    .select()
+    .single();
+
+  if (memberError) throw memberError;
+
+  // Assign default role (member)
+  const { error: roleError } = await supabase
+    .from("team_member_roles")
+    .insert({
+      team_member_id: newMember.id,
+      role: "member",
+      assigned_by: team.created_by,
+    });
+
+  if (roleError) throw roleError;
+
+  return { teamId: team.id, alreadyMember: false };
 };
