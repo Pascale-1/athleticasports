@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@supabase/supabase-js";
-import { Trophy, Users, Activity, TrendingUp } from "lucide-react";
+import { Trophy, Users, Activity, TrendingUp, Calendar } from "lucide-react";
+import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { ActivityCard } from "@/components/feed/ActivityCard";
 import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
@@ -36,6 +37,7 @@ const Index = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState<Stats>({ teams: 0, activities: 0, followers: 0 });
   const [loading, setLoading] = useState(true);
+  const [createEventDialogOpen, setCreateEventDialogOpen] = useState(false);
   const { activities, loading: feedLoading } = useActivityFeed();
 
   useEffect(() => {
@@ -198,16 +200,36 @@ const Index = () => {
             </Card>
           </AnimatedCard>
 
-          {/* Primary CTA */}
+          {/* Quick Actions */}
           <AnimatedCard delay={0.2}>
-            <Button 
-              size="lg" 
-              className="w-full"
-              onClick={() => navigate("/track")}
-            >
-              <Trophy className="mr-2 h-5 w-5" />
-              Log Activity
-            </Button>
+            <div className="grid grid-cols-3 gap-2">
+              <Button 
+                variant="outline"
+                className="flex flex-col items-center justify-center gap-2 h-auto py-4 px-2"
+                onClick={() => navigate("/teams/new")}
+              >
+                <Users className="h-5 w-5 text-primary" />
+                <span className="text-xs font-medium text-center">Create Team</span>
+              </Button>
+              
+              <Button 
+                variant="default"
+                className="flex flex-col items-center justify-center gap-2 h-auto py-4 px-2"
+                onClick={() => setCreateEventDialogOpen(true)}
+              >
+                <Calendar className="h-5 w-5" />
+                <span className="text-xs font-medium text-center">Create Event</span>
+              </Button>
+              
+              <Button 
+                variant="outline"
+                className="flex flex-col items-center justify-center gap-2 h-auto py-4 px-2"
+                onClick={() => navigate("/track")}
+              >
+                <Trophy className="h-5 w-5 text-primary" />
+                <span className="text-xs font-medium text-center">Log Activity</span>
+              </Button>
+            </div>
           </AnimatedCard>
 
           {/* Activity Feed */}
@@ -249,6 +271,11 @@ const Index = () => {
           </motion.div>
         </motion.div>
       </PullToRefresh>
+
+      <CreateEventDialog
+        open={createEventDialogOpen}
+        onOpenChange={setCreateEventDialogOpen}
+      />
     </PageContainer>
   );
 };

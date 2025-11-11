@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar as CalendarIcon, List, LayoutGrid } from "lucide-react";
+import { ArrowLeft, Calendar as CalendarIcon, List, LayoutGrid, Plus } from "lucide-react";
+import { FAB } from "@/components/mobile/FAB";
+import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { useEvents } from "@/hooks/useEvents";
 import { useTeam } from "@/hooks/useTeam";
 import { EventsList } from "@/components/events/EventsList";
@@ -15,6 +17,7 @@ const TeamEvents = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'compact'>('list');
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   
   const { team, isLoading: teamLoading } = useTeam(teamId || null);
   const { events, loading: eventsLoading } = useEvents(teamId, { status: 'upcoming' });
@@ -160,6 +163,18 @@ const TeamEvents = () => {
           </div>
         )}
       </div>
+
+      <FAB
+        icon={<Plus className="h-5 w-5" />}
+        label="Create Event"
+        onClick={() => setCreateDialogOpen(true)}
+      />
+
+      <CreateEventDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        teamId={teamId}
+      />
     </PageContainer>
   );
 };

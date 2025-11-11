@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { formatDistanceToNow } from 'date-fns';
 
-interface Activity {
+export interface Activity {
   id: string;
   username: string;
   displayName?: string;
@@ -14,90 +15,141 @@ interface Activity {
   comments?: number;
   imageUrl?: string;
   createdAt: string;
+  actionIcon?: 'users' | 'user-plus' | 'calendar' | 'check' | 'activity';
 }
 
 export const useActivityFeed = (userId?: string) => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchActivities = async () => {
       try {
         setLoading(true);
-        
-        // Fetch real activities from team members and followed users
-        const { data: activities, error: activitiesError } = await supabase
-          .from('activities')
+
+        // Get current user if not provided
+        let currentUserId = userId;
+        if (!currentUserId) {
+          const { data: { user } } = await supabase.auth.getUser();
+          currentUserId = user?.id;
+        }
+
+        if (!currentUserId) {
+          setActivities([]);
+          return;
+        }
+
+        // Fetch from user_activity_log table
+        const { data: activityLogs, error: logsError } = await supabase
+          .from('user_activity_log')
           .select(`
             id,
-            type,
-            title,
-            description,
-            distance,
-            duration,
-            calories,
+            action_type,
+            entity_id,
+            entity_type,
+            metadata,
             created_at,
-            user_id,
-            visibility,
             profiles:user_id (
               username,
               display_name,
-              avatar_url,
-              primary_sport
+              avatar_url
             )
           `)
-          .in('visibility', ['team', 'public'])
           .order('created_at', { ascending: false })
-          .limit(20);
+          .limit(30);
 
-        if (activitiesError) throw activitiesError;
+        if (logsError) throw logsError;
 
-        // Transform to Activity format
-        const transformedActivities: Activity[] = (activities || []).map((activity: any) => {
-          const profile = activity.profiles;
-          const now = new Date();
-          const activityDate = new Date(activity.created_at);
-          const diffMs = now.getTime() - activityDate.getTime();
-          const diffMins = Math.floor(diffMs / 60000);
-          const diffHours = Math.floor(diffMins / 60);
-          const diffDays = Math.floor(diffHours / 24);
+        // Transform activity logs to unified Activity format
+        const transformedActivities: Activity[] = (activityLogs || []).map((log: any) => {
+          const profile = log.profiles;
+          const timeAgo = formatDistanceToNow(new Date(log.created_at), { addSuffix: true });
           
-          let timeAgo: string;
-          if (diffMins < 1) {
-            timeAgo = "Just now";
-          } else if (diffMins < 60) {
-            timeAgo = `${diffMins}m ago`;
-          } else if (diffHours < 24) {
-            timeAgo = `${diffHours}h ago`;
-          } else {
-            timeAgo = `${diffDays}d ago`;
+          let description = '';
+          let activityType = '';
+          let actionIcon: Activity['actionIcon'] = 'activity';
+          
+          switch (log.action_type) {
+            case 'team_created':
+              activityType = 'Created Team';
+              description = `Created "${log.metadata.team_name}"`;
+              actionIcon = 'users';
+              break;
+            case 'team_joined':
+              activityType = 'Joined Team';
+              description = `Joined "${log.metadata.team_name}"`;
+              actionIcon = 'user-plus';
+              break;
+            case 'event_created':
+              activityType = 'Created Event';
+              const eventTypeEmoji = log.metadata.event_type === 'training' ? '🏋️' : 
+                                    log.metadata.event_type === 'match' ? '⚽' : '👥';
+              description = `${eventTypeEmoji} ${log.metadata.event_title}`;
+              actionIcon = 'calendar';
+              break;
+            case 'event_rsvp':
+              activityType = 'RSVP';
+              description = `Attending "${log.metadata.event_title}"`;
+              actionIcon = 'check';
+              break;
+            case 'activity_logged':
+              activityType = log.metadata.activity_type || 'Activity';
+              const distanceStr = log.metadata.distance ? ` - ${log.metadata.distance}km` : '';
+              const durationStr = log.metadata.duration ? ` • ${Math.round(log.metadata.duration / 60)}min` : '';
+              description = `${log.metadata.title}${distanceStr}${durationStr}`;
+              actionIcon = 'activity';
+              break;
+            default:
+              activityType = 'Activity';
+              description = 'Logged an activity';
           }
-
+          
           return {
-            id: activity.id,
+            id: log.id,
             username: profile?.username || 'Unknown',
             displayName: profile?.display_name,
             avatarUrl: profile?.avatar_url,
-            activityType: activity.type.charAt(0).toUpperCase() + activity.type.slice(1),
+            activityType,
             timeAgo,
-            description: activity.description || `${activity.title}${activity.distance ? ` - ${activity.distance}km` : ''}${activity.duration ? ` - ${activity.duration}min` : ''}`,
+            description,
             likes: 0,
             comments: 0,
-            createdAt: activity.created_at,
+            createdAt: log.created_at,
+            actionIcon,
           };
         });
 
         setActivities(transformedActivities);
       } catch (err) {
-        console.error('Error fetching activities:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch activities');
+        console.error('Error fetching activity feed:', err);
+        setError(err as Error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchActivities();
+
+    // Set up realtime subscription
+    const channel = supabase
+      .channel('activity-feed')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_activity_log',
+        },
+        () => {
+          fetchActivities();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [userId]);
 
   return { activities, loading, error };

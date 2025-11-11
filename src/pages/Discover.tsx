@@ -6,7 +6,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AnimatedCard } from "@/components/animations/AnimatedCard";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Search, Calendar, Users, Trophy, ArrowRight } from "lucide-react";
+import { Loader2, Search, Calendar, Users, Trophy, ArrowRight, Plus, MapPin, ChevronRight } from "lucide-react";
+import { CreateEventDialog } from "@/components/events/CreateEventDialog";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import { formatEventDate, Event } from "@/lib/events";
 import { Link } from "react-router-dom";
 import { FilterSheet } from "@/components/common/FilterSheet";
@@ -32,7 +35,8 @@ const Discover = () => {
   const [teams, setTeams] = useState<any[]>([]);
   const [people, setPeople] = useState<Profile[]>([]);
   const { selectedSport, setSelectedSport } = useSportFilter();
-  const [activeTab, setActiveTab] = useState<'teams' | 'people'>('teams');
+  const [activeTab, setActiveTab] = useState<'teams' | 'events'>('teams');
+  const [createEventDialogOpen, setCreateEventDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -222,18 +226,18 @@ const Discover = () => {
                 Teams
               </button>
               <button
-                onClick={() => setActiveTab('people')}
+                onClick={() => setActiveTab('events')}
                 className={`pb-2 px-1 text-body font-medium border-b-2 transition-colors ${
-                  activeTab === 'people'
+                  activeTab === 'events'
                     ? 'border-primary text-primary'
                     : 'border-transparent text-muted-foreground'
                 }`}
               >
-                <Trophy className="h-4 w-4 inline mr-2" />
-                Athletes
+                <Calendar className="h-4 w-4 inline mr-2" />
+                All Events
               </button>
             </div>
-            <Link to={activeTab === 'teams' ? '/teams' : '/users'}>
+            <Link to={activeTab === 'teams' ? '/teams' : '/events'}>
               <Button variant="ghost" size="sm" className="text-primary">
                 See all <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
@@ -301,66 +305,71 @@ const Discover = () => {
             </>
           )}
 
-          {/* People Tab */}
-          {activeTab === 'people' && (
+          {/* Events Tab */}
+          {activeTab === 'events' && (
             <>
-              {filteredPeople.length > 0 ? (
-                <div className="grid gap-3">
-                  {filteredPeople.slice(0, 6).map((person) => (
-                    <AnimatedCard key={person.id}>
-                      <Card className="hover:shadow-md transition-shadow">
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-12 w-12">
-                              <AvatarImage src={person.avatar_url} />
-                              <AvatarFallback>
-                                {person.display_name?.substring(0, 2).toUpperCase() || 
-                                 person.username?.substring(0, 2).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-body truncate">
-                                {person.display_name || person.username}
-                              </h3>
-                              {person.bio && (
-                                <p className="text-caption text-muted-foreground line-clamp-1">
-                                  {person.bio}
-                                </p>
-                              )}
-                              {person.primary_sport && (
-                                <Badge variant="outline" className="text-caption mt-1">{person.primary_sport}</Badge>
-                              )}
-                            </div>
-                            <FollowButton userId={person.id} />
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-body-large font-semibold">Discover Events</h3>
+                <Button onClick={() => setCreateEventDialogOpen(true)} size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Event
+                </Button>
+              </div>
+              
+              {filteredEvents.length > 0 ? (
+                <div className="grid grid-cols-1 gap-3">
+                  {filteredEvents.map((event) => (
+                    <Link key={event.id} to={`/events/${event.id}`}>
+                      <Card className="p-4 hover:shadow-md transition-all">
+                        <div className="flex items-start gap-3">
+                          <div className={cn(
+                            "p-2 rounded-lg flex-shrink-0",
+                            event.type === 'training' && "bg-blue-500/10",
+                            event.type === 'match' && "bg-green-500/10",
+                            event.type === 'meetup' && "bg-purple-500/10"
+                          )}>
+                            <Calendar className={cn(
+                              "h-5 w-5",
+                              event.type === 'training' && "text-blue-500",
+                              event.type === 'match' && "text-green-500",
+                              event.type === 'meetup' && "text-purple-500"
+                            )} />
                           </div>
-                        </CardContent>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-body-large truncate">{event.title}</h4>
+                            <p className="text-caption text-muted-foreground">
+                              {format(new Date(event.start_time), 'MMM d, h:mm a')}
+                            </p>
+                            {event.location && (
+                              <p className="text-caption text-muted-foreground flex items-center gap-1 mt-1">
+                                <MapPin className="h-3 w-3" />
+                                <span className="truncate">{event.location}</span>
+                              </p>
+                            )}
+                          </div>
+                          <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                        </div>
                       </Card>
-                    </AnimatedCard>
+                    </Link>
                   ))}
                 </div>
               ) : (
-                <Card>
-                  <CardContent className="p-8 text-center">
-                    <Trophy className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                    <h3 className="font-semibold text-body mb-1">No Athletes Found</h3>
-                    <p className="text-caption text-muted-foreground mb-4">
-                      {searchQuery || selectedSport
-                        ? 'Try adjusting your search or filters'
-                        : 'Connect with athletes in your community'}
-                    </p>
-                    {(searchQuery || selectedSport) && (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => {
-                          setSearchQuery('');
-                          setSelectedSport(null);
-                        }}
-                      >
-                        Clear Filters
-                      </Button>
-                    )}
-                  </CardContent>
+                <Card className="p-8 text-center">
+                  <Calendar className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+                  <h3 className="font-semibold mb-2">No Events Found</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {searchQuery || selectedSport
+                      ? "Try adjusting your filters to find events."
+                      : "Be the first to create an event!"}
+                  </p>
+                  {(searchQuery || selectedSport) && (
+                    <Button variant="outline" onClick={() => {
+                      setSearchQuery('');
+                      setSelectedSport(null);
+                    }}>
+                      Clear Filters
+                    </Button>
+                  )}
                 </Card>
               )}
             </>
@@ -380,6 +389,11 @@ const Discover = () => {
           </Card>
         )}
       </div>
+
+      <CreateEventDialog
+        open={createEventDialogOpen}
+        onOpenChange={setCreateEventDialogOpen}
+      />
     </PageContainer>
   );
 };

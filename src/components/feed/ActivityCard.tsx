@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import { Heart, MessageCircle, Trophy, Clock } from "lucide-react";
+import { Heart, MessageCircle, Trophy, Clock, Users, UserPlus, Calendar, Check, Activity as ActivityIcon } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ interface ActivityCardProps {
   likes?: number;
   comments?: number;
   imageUrl?: string;
+  actionIcon?: 'users' | 'user-plus' | 'calendar' | 'check' | 'activity';
 }
 
 export const ActivityCard = ({
@@ -29,6 +30,7 @@ export const ActivityCard = ({
   likes = 0,
   comments = 0,
   imageUrl,
+  actionIcon = 'activity',
 }: ActivityCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
@@ -40,6 +42,22 @@ export const ActivityCard = ({
       setLikeCount(prev => prev + 1);
     }
     setIsLiked(!isLiked);
+  };
+
+  const getActionIcon = () => {
+    const iconClass = "h-4 w-4";
+    switch (actionIcon) {
+      case 'users':
+        return <Users className={iconClass} />;
+      case 'user-plus':
+        return <UserPlus className={iconClass} />;
+      case 'calendar':
+        return <Calendar className={iconClass} />;
+      case 'check':
+        return <Check className={iconClass} />;
+      default:
+        return <Trophy className={iconClass} />;
+    }
   };
 
   return (
@@ -57,7 +75,7 @@ export const ActivityCard = ({
             {displayName || username}
           </p>
           <div className="flex items-center gap-2 text-caption text-muted-foreground flex-wrap">
-            <Trophy className="h-3 w-3" />
+            {getActionIcon()}
             <span>{activityType}</span>
             <span>•</span>
             <Clock className="h-3 w-3" />
