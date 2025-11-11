@@ -8,6 +8,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Search, Calendar, Users, Trophy, ArrowRight, Plus, MapPin, ChevronRight } from "lucide-react";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
+import { EventsList } from "@/components/events/EventsList";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { formatEventDate, Event } from "@/lib/events";
@@ -40,6 +41,22 @@ const Discover = () => {
 
   useEffect(() => {
     fetchData();
+
+    // Subscribe to realtime events changes
+    const channel = supabase
+      .channel('discover-events')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'events' },
+        () => {
+          fetchData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchData = async () => {
@@ -317,42 +334,17 @@ const Discover = () => {
               </div>
               
               {filteredEvents.length > 0 ? (
-                <div className="grid grid-cols-1 gap-3">
-                  {filteredEvents.map((event) => (
-                    <Link key={event.id} to={`/events/${event.id}`}>
-                      <Card className="p-4 hover:shadow-md transition-all">
-                        <div className="flex items-start gap-3">
-                          <div className={cn(
-                            "p-2 rounded-lg flex-shrink-0",
-                            event.type === 'training' && "bg-blue-500/10",
-                            event.type === 'match' && "bg-green-500/10",
-                            event.type === 'meetup' && "bg-purple-500/10"
-                          )}>
-                            <Calendar className={cn(
-                              "h-5 w-5",
-                              event.type === 'training' && "text-blue-500",
-                              event.type === 'match' && "text-green-500",
-                              event.type === 'meetup' && "text-purple-500"
-                            )} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-body-large truncate">{event.title}</h4>
-                            <p className="text-caption text-muted-foreground">
-                              {format(new Date(event.start_time), 'MMM d, h:mm a')}
-                            </p>
-                            {event.location && (
-                              <p className="text-caption text-muted-foreground flex items-center gap-1 mt-1">
-                                <MapPin className="h-3 w-3" />
-                                <span className="truncate">{event.location}</span>
-                              </p>
-                            )}
-                          </div>
-                          <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                        </div>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
+                <EventsList
+                  events={filteredEvents}
+                  variant="compact"
+                  showInlineRSVP={true}
+                  emptyTitle="No Events Found"
+                  emptyDescription={
+                    searchQuery || selectedSport
+                      ? "Try adjusting your filters to find events."
+                      : "Be the first to create an event!"
+                  }
+                />
               ) : (
                 <Card className="p-8 text-center">
                   <Calendar className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
