@@ -9,7 +9,7 @@ import { Team } from "@/lib/teams";
 import { SportFilter } from "@/components/community/SportFilter";
 import { PeopleTab } from "@/components/community/PeopleTab";
 import { TeamsTab } from "@/components/community/TeamsTab";
-import { FAB } from "@/components/mobile/FAB";
+
 import { PullToRefresh } from "@/components/animations/PullToRefresh";
 import { useSportFilter } from "@/hooks/useSportFilter";
 import { toast } from "sonner";
@@ -165,7 +165,7 @@ const Community = () => {
             </div>
             <Button 
               onClick={() => navigate("/teams/create")} 
-              className="hidden sm:flex w-full sm:w-auto"
+              className="w-full sm:w-auto"
             >
               <Plus className="h-4 w-4 mr-2" />
               Create Team
@@ -217,12 +217,6 @@ const Community = () => {
         </motion.div>
       </PullToRefresh>
 
-      {/* Floating Action Button */}
-      <FAB
-        icon={<Plus className="h-5 w-5" />}
-        label="Create Team"
-        onClick={() => navigate("/teams/create")}
-      />
     </div>
   );
 };
