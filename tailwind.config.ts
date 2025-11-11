@@ -38,14 +38,9 @@ export default {
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
+          light: "hsl(var(--primary-light))",
           dark: "hsl(var(--primary-dark))",
           foreground: "hsl(var(--primary-foreground))",
-          glow: "hsl(var(--primary-glow))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-          light: "hsl(var(--secondary-light))",
         },
         accent: {
           DEFAULT: "hsl(var(--accent))",
@@ -125,8 +120,8 @@ export default {
         lg: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
         xl: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
         "2xl": "0 25px 50px -12px rgb(0 0 0 / 0.25)",
-        colored: "0 8px 24px rgba(147, 97, 224, 0.25)",
-        "colored-lg": "0 12px 32px rgba(147, 97, 224, 0.35)",
+        colored: "0 8px 24px rgba(0, 128, 255, 0.20)",
+        "colored-lg": "0 12px 32px rgba(0, 128, 255, 0.30)",
       },
       transitionDuration: {
         fast: "150ms",

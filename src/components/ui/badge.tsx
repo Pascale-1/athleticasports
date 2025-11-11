@@ -15,7 +15,7 @@ const badgeVariants = cva(
         coral: "border-transparent bg-primary text-white shadow-sm",
         teal: "border-transparent bg-teal text-white shadow-sm",
         gold: "border-transparent bg-gold text-neutral-900 shadow-sm font-bold",
-        gradient: "border-transparent bg-gradient-to-r from-primary via-primary-glow to-primary-dark text-white shadow-sm",
+        gradient: "border-transparent bg-primary text-white shadow-sm",
       },
       size: {
         xs: "px-2 py-0 text-[10px]",

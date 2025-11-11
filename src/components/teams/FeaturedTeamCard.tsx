@@ -60,7 +60,7 @@ export const FeaturedTeamCard = ({ team, memberCount, isMember }: FeaturedTeamCa
               >
                 <Button 
                   size="sm" 
-                  className="w-full gradient-primary min-h-[44px]"
+                  className="w-full min-h-[44px]"
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/teams/${team.id}`);

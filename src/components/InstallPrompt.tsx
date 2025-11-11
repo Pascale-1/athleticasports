@@ -86,7 +86,7 @@ export const InstallPrompt = () => {
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-gradient-to-br from-primary to-primary-dark">
+                <div className="p-2 rounded-lg bg-primary">
                   <Download className="h-5 w-5 text-white" />
                 </div>
                 <div>
@@ -114,7 +114,7 @@ export const InstallPrompt = () => {
             </ul>
             <Button
               onClick={handleInstall}
-              className="w-full gradient-primary text-white"
+              className="w-full"
             >
               Install App
             </Button>

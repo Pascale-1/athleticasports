@@ -30,7 +30,7 @@ export const MobileLayout = ({ children }: MobileLayoutProps) => {
         )}
         
         <div className="flex items-center gap-2 min-w-0">
-          <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center shrink-0">
+          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
             <span className="text-primary-foreground font-bold text-sm">A</span>
           </div>
           <h1 className="text-base md:text-lg font-heading font-bold text-primary truncate max-w-[150px] sm:max-w-none">
