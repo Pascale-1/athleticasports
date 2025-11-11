@@ -5,6 +5,7 @@ import { Event } from "@/lib/events";
 
 export interface CreateEventData {
   team_id?: string | null;
+  opponent_team_id?: string | null;
   type: 'training' | 'meetup' | 'match';
   title: string;
   description?: string;

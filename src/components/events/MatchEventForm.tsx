@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -8,14 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CreateEventData } from "@/hooks/useEvents";
+import { TeamSelector } from "@/components/teams/TeamSelector";
+import { useTeam } from "@/hooks/useTeam";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(100),
-  opponentName: z.string().min(1, "Opponent name is required").max(100),
+  homeTeamId: z.string().optional(),
+  opponentTeamId: z.string().optional(),
+  opponentName: z.string().max(100).optional(),
   opponentLogoUrl: z.string().url().optional().or(z.literal("")),
   homeAway: z.enum(['home', 'away', 'neutral']),
   matchFormat: z.string().max(100).optional(),
@@ -24,7 +30,13 @@ const formSchema = z.object({
   date: z.date({ required_error: "Date is required" }),
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "End time is required"),
-});
+}).refine(
+  (data) => data.opponentTeamId || data.opponentName,
+  { 
+    message: "Select opponent team or enter name manually",
+    path: ["opponentTeamId"]
+  }
+);
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -36,10 +48,20 @@ interface MatchEventFormProps {
 }
 
 export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: MatchEventFormProps) => {
+  const [useTeamSelector, setUseTeamSelector] = useState(true);
+  const [homeTeamId, setHomeTeamId] = useState<string | undefined>(teamId);
+  const [opponentTeamId, setOpponentTeamId] = useState<string | null>(null);
+  const [opponentTeamName, setOpponentTeamName] = useState<string>("");
+  const [opponentLogoUrl, setOpponentLogoUrl] = useState<string>("");
+  
+  const { team: homeTeam } = useTeam(teamId);
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
+      homeTeamId: teamId || undefined,
+      opponentTeamId: undefined,
       opponentName: "",
       opponentLogoUrl: "",
       homeAway: 'home',
@@ -61,19 +83,20 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
     endDateTime.setHours(parseInt(endHour), parseInt(endMinute));
 
     onSubmit({
-      team_id: teamId || null,
+      team_id: homeTeamId || null,
+      opponent_team_id: opponentTeamId || null,
       type: 'match',
       title: values.title,
       description: values.description || undefined,
-      opponent_name: values.opponentName,
-      opponent_logo_url: values.opponentLogoUrl || undefined,
+      opponent_name: opponentTeamId ? undefined : (opponentTeamName || values.opponentName),
+      opponent_logo_url: opponentLogoUrl || values.opponentLogoUrl || undefined,
       home_away: values.homeAway,
       match_format: values.matchFormat || undefined,
       location: values.location || undefined,
       location_type: values.location ? 'physical' : 'tbd',
       start_time: startDateTime.toISOString(),
       end_time: endDateTime.toISOString(),
-      is_public: !teamId,
+      is_public: !homeTeamId,
     });
   };
 
@@ -94,19 +117,114 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="opponentName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Opponent Name</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., City Rivals FC" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+        {/* Home Team Selection */}
+        <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-sm">Your Team (Home)</h3>
+            {homeTeamId && <Badge variant="secondary">✓ Selected</Badge>}
+          </div>
+          
+          {teamId && homeTeam ? (
+            <div className="flex items-center gap-2 p-2 bg-background rounded border">
+              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold">
+                {homeTeam.name.substring(0, 2).toUpperCase()}
+              </div>
+              <span className="text-sm font-medium">{homeTeam.name}</span>
+            </div>
+          ) : (
+            <>
+              <TeamSelector
+                onSelect={(id, name, logo) => {
+                  setHomeTeamId(id);
+                  form.setValue("homeTeamId", id);
+                }}
+                selectedTeamId={homeTeamId}
+                placeholder="Select your team"
+                label="Which team are you organizing this match for?"
+                showCreateButton={true}
+              />
+              {!homeTeamId && (
+                <p className="text-xs text-muted-foreground">
+                  💡 Creating a team helps organize matches and grow your community!
+                </p>
+              )}
+            </>
           )}
-        />
+        </div>
+
+        {/* Opponent Team Selection */}
+        <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-sm">Opponent Team</h3>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant={useTeamSelector ? "default" : "outline"}
+                onClick={() => setUseTeamSelector(true)}
+              >
+                Select Team
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={!useTeamSelector ? "default" : "outline"}
+                onClick={() => setUseTeamSelector(false)}
+              >
+                Enter Manually
+              </Button>
+            </div>
+          </div>
+
+          {useTeamSelector ? (
+            <div className="space-y-2">
+              <TeamSelector
+                onSelect={(id, name, logo) => {
+                  setOpponentTeamId(id);
+                  setOpponentTeamName(name);
+                  setOpponentLogoUrl(logo || "");
+                  form.setValue("opponentTeamId", id);
+                  form.setValue("opponentName", name);
+                }}
+                selectedTeamId={opponentTeamId || undefined}
+                excludeTeamId={homeTeamId}
+                placeholder="Search opponent teams..."
+                label="Select opponent from existing teams"
+                sportFilter={homeTeam?.sport || undefined}
+                showCreateButton={true}
+              />
+              <p className="text-xs text-muted-foreground">
+                🎯 Recommended: Select a team to notify their members and track matches
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <FormField
+                control={form.control}
+                name="opponentName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Opponent Name</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="e.g., City Rivals FC" 
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          setOpponentTeamName(e.target.value);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <p className="text-xs text-muted-foreground">
+                💡 Help them create a team account to join your match!
+              </p>
+            </div>
+          )}
+        </div>
 
         <FormField
           control={form.control}

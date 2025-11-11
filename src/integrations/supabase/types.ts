@@ -176,6 +176,7 @@ export type Database = {
           meetup_category: string | null
           opponent_logo_url: string | null
           opponent_name: string | null
+          opponent_team_id: string | null
           recurrence_rule: string | null
           start_time: string
           team_id: string | null
@@ -200,6 +201,7 @@ export type Database = {
           meetup_category?: string | null
           opponent_logo_url?: string | null
           opponent_name?: string | null
+          opponent_team_id?: string | null
           recurrence_rule?: string | null
           start_time: string
           team_id?: string | null
@@ -224,6 +226,7 @@ export type Database = {
           meetup_category?: string | null
           opponent_logo_url?: string | null
           opponent_name?: string | null
+          opponent_team_id?: string | null
           recurrence_rule?: string | null
           start_time?: string
           team_id?: string | null
@@ -232,6 +235,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "events_opponent_team_id_fkey"
+            columns: ["opponent_team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "events_team_id_fkey"
             columns: ["team_id"]
