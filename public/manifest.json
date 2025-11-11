@@ -1,0 +1,54 @@
+{
+  "name": "Athletica Sports",
+  "short_name": "Athletica",
+  "description": "Empowering women in sports through community and teamwork",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#9361E0",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["sports", "fitness", "social"],
+  "shortcuts": [
+    {
+      "name": "Log Activity",
+      "short_name": "Log",
+      "description": "Quickly log a new activity",
+      "url": "/track",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "My Teams",
+      "short_name": "Teams",
+      "description": "View your teams",
+      "url": "/teams",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
