@@ -20,6 +20,7 @@ import Teams from "./pages/Teams";
 import Users from "./pages/Users";
 import TeamCreate from "./pages/TeamCreate";
 import TeamDetail from "./pages/TeamDetail";
+import TeamEvents from "./pages/TeamEvents";
 import TeamSettings from "./pages/TeamSettings";
 import JoinTeam from "./pages/JoinTeam";
 import AcceptInvitation from "./pages/AcceptInvitation";
@@ -127,6 +128,13 @@ const App = () => (
             <ProtectedRoute>
               <AppLayout>
                 <TeamDetail />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/teams/:teamId/events" element={
+            <ProtectedRoute>
+              <AppLayout>
+                <TeamEvents />
               </AppLayout>
             </ProtectedRoute>
           } />

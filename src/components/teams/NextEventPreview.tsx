@@ -21,7 +21,7 @@ export const NextEventPreview = ({ event, teamId, canRSVP }: NextEventPreviewPro
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-body-large font-semibold">Next Event</h3>
-            <Link to={`/teams/${teamId}?tab=events`}>
+            <Link to={`/teams/${teamId}/events`}>
               <Button variant="ghost" size="sm" className="text-primary">
                 View all <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
@@ -40,7 +40,7 @@ export const NextEventPreview = ({ event, teamId, canRSVP }: NextEventPreviewPro
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-body-large font-semibold">Next Event</h3>
-          <Link to={`/teams/${teamId}?tab=events`}>
+          <Link to={`/teams/${teamId}/events`}>
             <Button variant="ghost" size="sm" className="text-primary">
               View all <ArrowRight className="h-4 w-4 ml-1" />
             </Button>

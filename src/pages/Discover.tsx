@@ -80,7 +80,8 @@ const Discover = () => {
     const matchesSearch = searchQuery === '' || 
       event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesSport = !selectedSport || event.type === selectedSport;
+    const matchesSport = !selectedSport || selectedSport === 'All' || 
+      event.type?.toLowerCase() === selectedSport.toLowerCase();
     return matchesSearch && matchesSport;
   });
 
@@ -88,7 +89,8 @@ const Discover = () => {
     const matchesSearch = searchQuery === '' || 
       team.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       team.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesSport = !selectedSport || team.sport === selectedSport;
+    const matchesSport = !selectedSport || selectedSport === 'All' || 
+      team.sport?.toLowerCase() === selectedSport.toLowerCase();
     return matchesSearch && matchesSport;
   });
 
@@ -97,7 +99,8 @@ const Discover = () => {
       person.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       person.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       person.bio?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesSport = !selectedSport || person.primary_sport === selectedSport;
+    const matchesSport = !selectedSport || selectedSport === 'All' || 
+      person.primary_sport?.toLowerCase() === selectedSport.toLowerCase();
     return matchesSearch && matchesSport;
   });
 
@@ -238,73 +241,129 @@ const Discover = () => {
           </div>
 
           {/* Teams Tab */}
-          {activeTab === 'teams' && filteredTeams.length > 0 && (
-            <div className="grid gap-3">
-              {filteredTeams.slice(0, 6).map((team) => (
-                <AnimatedCard key={team.id}>
-                  <Link to={`/teams/${team.id}`}>
-                    <Card className="hover:shadow-md transition-shadow">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-12 w-12">
-                            <AvatarImage src={team.logo_url} />
-                            <AvatarFallback>
-                              {team.name.substring(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-body truncate">{team.name}</h3>
-                            <p className="text-caption text-muted-foreground">
-                              {team.team_members?.[0]?.count || 0} members
-                            </p>
-                          </div>
-                          {team.sport && (
-                            <Badge variant="outline" className="text-caption">{team.sport}</Badge>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </AnimatedCard>
-              ))}
-            </div>
+          {activeTab === 'teams' && (
+            <>
+              {filteredTeams.length > 0 ? (
+                <div className="grid grid-cols-2 gap-3">
+                  {filteredTeams.slice(0, 6).map((team, index) => (
+                    <AnimatedCard key={team.id}>
+                      <Link to={`/teams/${team.id}`}>
+                        <Card className="hover:shadow-md transition-shadow h-full">
+                          <CardContent className="p-3">
+                            <div className="flex flex-col items-center text-center gap-2">
+                              <Avatar className="h-10 w-10">
+                                <AvatarImage src={team.logo_url} />
+                                <AvatarFallback>
+                                  {team.name.substring(0, 2).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="w-full min-w-0">
+                                <h3 className="font-semibold text-sm truncate">{team.name}</h3>
+                                <p className="text-xs text-muted-foreground">
+                                  {team.team_members?.[0]?.count || 0} members
+                                </p>
+                                {team.sport && (
+                                  <Badge variant="outline" className="text-xs mt-1">{team.sport}</Badge>
+                                )}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    </AnimatedCard>
+                  ))}
+                </div>
+              ) : (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <Users className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                    <h3 className="font-semibold text-body mb-1">No Teams Found</h3>
+                    <p className="text-caption text-muted-foreground mb-4">
+                      {searchQuery || selectedSport 
+                        ? 'Try adjusting your search or filters'
+                        : 'Be the first to create a team!'}
+                    </p>
+                    {(searchQuery || selectedSport) && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setSearchQuery('');
+                          setSelectedSport(null);
+                        }}
+                      >
+                        Clear Filters
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </>
           )}
 
           {/* People Tab */}
-          {activeTab === 'people' && filteredPeople.length > 0 && (
-            <div className="grid gap-3">
-              {filteredPeople.slice(0, 6).map((person) => (
-                <AnimatedCard key={person.id}>
-                  <Card className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-12 w-12">
-                          <AvatarImage src={person.avatar_url} />
-                          <AvatarFallback>
-                            {person.display_name?.substring(0, 2).toUpperCase() || 
-                             person.username?.substring(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-body truncate">
-                            {person.display_name || person.username}
-                          </h3>
-                          {person.bio && (
-                            <p className="text-caption text-muted-foreground line-clamp-1">
-                              {person.bio}
-                            </p>
-                          )}
-                          {person.primary_sport && (
-                            <Badge variant="outline" className="text-caption mt-1">{person.primary_sport}</Badge>
-                          )}
-                        </div>
-                        <FollowButton userId={person.id} />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </AnimatedCard>
-              ))}
-            </div>
+          {activeTab === 'people' && (
+            <>
+              {filteredPeople.length > 0 ? (
+                <div className="grid gap-3">
+                  {filteredPeople.slice(0, 6).map((person) => (
+                    <AnimatedCard key={person.id}>
+                      <Card className="hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-12 w-12">
+                              <AvatarImage src={person.avatar_url} />
+                              <AvatarFallback>
+                                {person.display_name?.substring(0, 2).toUpperCase() || 
+                                 person.username?.substring(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-body truncate">
+                                {person.display_name || person.username}
+                              </h3>
+                              {person.bio && (
+                                <p className="text-caption text-muted-foreground line-clamp-1">
+                                  {person.bio}
+                                </p>
+                              )}
+                              {person.primary_sport && (
+                                <Badge variant="outline" className="text-caption mt-1">{person.primary_sport}</Badge>
+                              )}
+                            </div>
+                            <FollowButton userId={person.id} />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </AnimatedCard>
+                  ))}
+                </div>
+              ) : (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <Trophy className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                    <h3 className="font-semibold text-body mb-1">No Athletes Found</h3>
+                    <p className="text-caption text-muted-foreground mb-4">
+                      {searchQuery || selectedSport
+                        ? 'Try adjusting your search or filters'
+                        : 'Connect with athletes in your community'}
+                    </p>
+                    {(searchQuery || selectedSport) && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setSearchQuery('');
+                          setSelectedSport(null);
+                        }}
+                      >
+                        Clear Filters
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </>
           )}
         </div>
 
