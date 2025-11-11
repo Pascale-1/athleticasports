@@ -14,6 +14,7 @@ interface TrainingCalendarProps {
   canManage: boolean;
   currentUserId: string | null;
   totalMembers: number;
+  teamId?: string;
   onCreateSession: (data: any) => void;
   onUpdateSession: (id: string, data: any) => void;
   onDeleteSession: (id: string) => void;
@@ -25,6 +26,7 @@ export const TrainingCalendar = ({
   canManage,
   currentUserId,
   totalMembers,
+  teamId,
   onCreateSession,
   onUpdateSession,
   onDeleteSession,
@@ -129,6 +131,7 @@ export const TrainingCalendar = ({
         onOpenChange={setIsCreateDialogOpen}
         onCreateSession={onCreateSession}
         defaultDate={selectedDate}
+        teamId={teamId}
       />
     </div>
   );

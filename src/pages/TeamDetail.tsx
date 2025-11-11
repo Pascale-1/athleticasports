@@ -231,6 +231,7 @@ const TeamDetail = () => {
                   canManage={canManage}
                   currentUserId={currentUserId}
                   totalMembers={memberCount}
+                  teamId={teamId || undefined}
                   onCreateSession={createSession}
                   onUpdateSession={updateSession}
                   onDeleteSession={deleteSession}

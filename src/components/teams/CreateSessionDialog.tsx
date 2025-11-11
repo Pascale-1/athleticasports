@@ -22,8 +22,10 @@ interface CreateSessionDialogProps {
     location?: string;
     start_time: string;
     end_time: string;
+    team_id?: string;
   }) => void;
   defaultDate?: Date;
+  teamId?: string;
 }
 
 export const CreateSessionDialog = ({
@@ -31,6 +33,7 @@ export const CreateSessionDialog = ({
   onOpenChange,
   onCreateSession,
   defaultDate = new Date(),
+  teamId,
 }: CreateSessionDialogProps) => {
   const [formData, setFormData] = useState({
     title: "",
@@ -54,6 +57,7 @@ export const CreateSessionDialog = ({
       location: formData.location || undefined,
       start_time: startDateTime,
       end_time: endDateTime,
+      team_id: teamId,
     });
 
     setFormData({
