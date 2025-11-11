@@ -8,12 +8,16 @@ interface EventsListProps {
   events: Event[];
   emptyTitle?: string;
   emptyDescription?: string;
+  variant?: 'default' | 'compact';
+  showInlineRSVP?: boolean;
 }
 
 export const EventsList = ({ 
   events, 
   emptyTitle = "No events yet",
-  emptyDescription = "Create your first event to get started"
+  emptyDescription = "Create your first event to get started",
+  variant = 'default',
+  showInlineRSVP = false
 }: EventsListProps) => {
   if (events.length === 0) {
     return (
@@ -26,22 +30,38 @@ export const EventsList = ({
   }
 
   return (
-    <div className="space-y-3">
+    <div className={variant === 'compact' ? 'grid grid-cols-1 sm:grid-cols-2 gap-3' : 'space-y-3'}>
       {events.map((event) => (
-        <EventCardWithAttendance key={event.id} event={event} />
+        <EventCardWithAttendance 
+          key={event.id} 
+          event={event} 
+          variant={variant}
+          showInlineRSVP={showInlineRSVP}
+        />
       ))}
     </div>
   );
 };
 
-const EventCardWithAttendance = ({ event }: { event: Event }) => {
-  const { stats, userStatus } = useEventAttendance(event.id);
+const EventCardWithAttendance = ({ 
+  event, 
+  variant,
+  showInlineRSVP 
+}: { 
+  event: Event;
+  variant?: 'default' | 'compact';
+  showInlineRSVP?: boolean;
+}) => {
+  const { stats, userStatus, updateAttendance } = useEventAttendance(event.id);
 
   return (
     <EventCard
       event={event}
       attendeeCount={stats.attending}
       userStatus={userStatus as 'attending' | 'maybe' | 'not_attending' | null}
+      variant={variant}
+      showInlineRSVP={showInlineRSVP}
+      onRSVPChange={updateAttendance}
     />
   );
 };

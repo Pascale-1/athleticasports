@@ -217,7 +217,7 @@ const Teams = () => {
             </motion.div>
           )}
 
-          {/* My Teams Section */}
+          {/* My Teams Section - 2 Column Grid */}
           {filteredMyTeams.length > 0 && (
             <motion.div 
               className="space-y-3 sm:space-y-4"
@@ -225,10 +225,10 @@ const Teams = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
             >
-              <h2 className="text-lg sm:text-xl font-semibold">
+              <h2 className="text-body-large font-semibold">
                 My Teams ({filteredMyTeams.length})
               </h2>
-              <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredMyTeams.map((team, index) => (
                   <AnimatedCard key={team.id} delay={0.35 + index * 0.05} hover={false}>
                     <SwipeableTeamCard
@@ -244,25 +244,25 @@ const Teams = () => {
             </motion.div>
           )}
 
-          {/* Discover Public Teams Section */}
+          {/* Discover Public Teams Section - 2 Column Grid */}
           <motion.div 
             className="space-y-3 sm:space-y-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
-            <h2 className="text-lg sm:text-xl font-semibold">
+            <h2 className="text-body-large font-semibold">
               {searchQuery ? `Search Results (${filteredPublicTeams.length})` : "Discover Public Teams"}
             </h2>
             
             {loading ? (
-              <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {[...Array(6)].map((_, i) => (
                   <TeamCardSkeleton key={i} />
                 ))}
               </div>
             ) : filteredPublicTeams.length > 0 ? (
-              <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredPublicTeams.map((team, index) => (
                   <AnimatedCard key={team.id} delay={0.45 + index * 0.05} hover={false}>
                     <SwipeableTeamCard
