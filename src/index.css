@@ -20,10 +20,10 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 15%;
 
-    /* Primary - Electric Blue */
+    /* Primary - Electric Blue (#0066FF) */
     --primary: 211 100% 50%;
-    --primary-light: 211 100% 60%;
-    --primary-dark: 211 100% 45%;
+    --primary-light: 211 100% 95%;
+    --primary-dark: 211 100% 40%;
     --primary-foreground: 0 0% 100%;
 
     /* Muted Accent */
@@ -34,20 +34,20 @@ All colors MUST be HSL.
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
 
-    /* Destructive */
-    --destructive: 0 84% 60%;
+    /* Destructive - Red (#F44336) */
+    --destructive: 4 90% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Success */
-    --success: 142 70% 45%;
+    /* Success - Green (#00C853) */
+    --success: 142 71% 39%;
     --success-foreground: 0 0% 100%;
 
-    /* Warning */
-    --warning: 45 95% 55%;
-    --warning-foreground: 0 0% 15%;
+    /* Warning - Amber (#FFB300) */
+    --warning: 45 100% 50%;
+    --warning-foreground: 0 0% 13%;
 
-    /* Info */
-    --info: 200 90% 50%;
+    /* Info - Blue (#2196F3) */
+    --info: 207 90% 54%;
     --info-foreground: 0 0% 100%;
 
     /* Border & Input */
@@ -126,9 +126,9 @@ All colors MUST be HSL.
     --popover-foreground: 0 0% 98%;
 
     /* Primary - Electric Blue (Dark Mode) */
-    --primary: 211 95% 60%;
-    --primary-light: 211 95% 65%;
-    --primary-dark: 211 95% 55%;
+    --primary: 211 100% 60%;
+    --primary-light: 211 100% 70%;
+    --primary-dark: 211 100% 50%;
     --primary-foreground: 0 0% 100%;
 
     /* Muted Accent */
@@ -139,20 +139,20 @@ All colors MUST be HSL.
     --muted: 0 0% 20%;
     --muted-foreground: 0 0% 65%;
 
-    /* Destructive */
-    --destructive: 0 84% 60%;
+    /* Destructive - Red (Dark Mode) */
+    --destructive: 4 90% 65%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Success */
-    --success: 142 70% 50%;
+    /* Success - Green (Dark Mode) */
+    --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
 
-    /* Warning */
-    --warning: 45 90% 60%;
+    /* Warning - Amber (Dark Mode) */
+    --warning: 45 100% 60%;
     --warning-foreground: 0 0% 10%;
 
-    /* Info */
-    --info: 200 85% 60%;
+    /* Info - Blue (Dark Mode) */
+    --info: 207 90% 60%;
     --info-foreground: 0 0% 100%;
 
     /* Border & Input */

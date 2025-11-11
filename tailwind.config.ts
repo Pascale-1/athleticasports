@@ -26,13 +26,15 @@ export default {
       },
       fontSize: {
         "xxs": ["0.625rem", { lineHeight: "1.4" }],
-        "display": ["2.5rem", { lineHeight: "1.1", fontWeight: "800", letterSpacing: "-0.02em" }],
-        "h1": ["1.75rem", { lineHeight: "1.2", fontWeight: "700", letterSpacing: "-0.02em" }],
-        "h2": ["1.5rem", { lineHeight: "1.3", fontWeight: "600", letterSpacing: "-0.01em" }],
-        "h3": ["1.25rem", { lineHeight: "1.4", fontWeight: "600" }],
-        "h4": ["1.125rem", { lineHeight: "1.5", fontWeight: "600" }],
-        "body": ["0.9375rem", { lineHeight: "1.6" }],
-        "small": ["0.875rem", { lineHeight: "1.5" }],
+        "display": ["2rem", { lineHeight: "2.5rem", fontWeight: "700" }],
+        "h1": ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }],
+        "h2": ["1.25rem", { lineHeight: "1.75rem", fontWeight: "600" }],
+        "h3": ["1.125rem", { lineHeight: "1.5rem", fontWeight: "600" }],
+        "h4": ["1rem", { lineHeight: "1.5rem", fontWeight: "600" }],
+        "body-lg": ["1rem", { lineHeight: "1.5rem" }],
+        "body": ["0.875rem", { lineHeight: "1.25rem" }],
+        "caption": ["0.75rem", { lineHeight: "1rem" }],
+        "small": ["0.875rem", { lineHeight: "1.25rem" }],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -102,20 +104,20 @@ export default {
         },
       },
       spacing: {
-        "xs": "0.25rem",
-        "sm": "0.5rem",
-        "md": "1rem",
-        "lg": "1.5rem",
-        "xl": "2rem",
-        "2xl": "3rem",
-        "3xl": "4rem",
+        "xs": "0.25rem",    /* 4px */
+        "sm": "0.5rem",     /* 8px - base unit */
+        "md": "1rem",       /* 16px - 2 units */
+        "lg": "1.5rem",     /* 24px - 3 units */
+        "xl": "2rem",       /* 32px - 4 units */
+        "2xl": "3rem",      /* 48px - 6 units */
+        "3xl": "4rem",      /* 64px - 8 units */
       },
       borderRadius: {
-        sm: "0.375rem",
-        md: "0.5rem",
-        lg: "0.75rem",
-        xl: "1rem",
-        "2xl": "1.5rem",
+        sm: "0.5rem",      /* 8px */
+        md: "0.75rem",     /* 12px */
+        lg: "1rem",        /* 16px */
+        xl: "1.5rem",      /* 24px */
+        "2xl": "2rem",     /* 32px */
         full: "9999px",
       },
       boxShadow: {
@@ -124,8 +126,8 @@ export default {
         lg: "0 4px 6px -2px rgb(0 0 0 / 0.08)",
         xl: "0 8px 12px -3px rgb(0 0 0 / 0.1)",
         "2xl": "0 12px 24px -6px rgb(0 0 0 / 0.15)",
-        colored: "0 4px 12px rgba(0, 128, 255, 0.12)",
-        "colored-lg": "0 6px 16px rgba(0, 128, 255, 0.18)",
+        colored: "0 4px 12px rgba(0, 102, 255, 0.12)",
+        "colored-lg": "0 6px 16px rgba(0, 102, 255, 0.18)",
       },
       transitionDuration: {
         fast: "150ms",
