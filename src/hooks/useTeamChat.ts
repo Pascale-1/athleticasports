@@ -57,15 +57,8 @@ export const useTeamChat = (teamId: string | null) => {
 
     try {
       const { data, error } = await supabase
-        .from('team_messages')
-        .select(`
-          *,
-          profiles:user_id (
-            username,
-            display_name,
-            avatar_url
-          )
-        `)
+        .from('team_messages_with_profiles')
+        .select('*')
         .eq('team_id', teamId)
         .order('created_at', { ascending: true });
 

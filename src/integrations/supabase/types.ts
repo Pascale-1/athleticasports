@@ -652,6 +652,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "team_messages_replied_to_id_fkey"
+            columns: ["replied_to_id"]
+            isOneToOne: false
+            referencedRelation: "team_messages_with_profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "team_messages_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
@@ -814,7 +821,44 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      team_messages_with_profiles: {
+        Row: {
+          avatar_url: string | null
+          content: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string | null
+          is_edited: boolean | null
+          replied_to_id: string | null
+          team_id: string | null
+          updated_at: string | null
+          user_id: string | null
+          username: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_messages_replied_to_id_fkey"
+            columns: ["replied_to_id"]
+            isOneToOne: false
+            referencedRelation: "team_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_messages_replied_to_id_fkey"
+            columns: ["replied_to_id"]
+            isOneToOne: false
+            referencedRelation: "team_messages_with_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_messages_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       can_manage_team: {
