@@ -45,20 +45,25 @@ export const PerformanceLevelsTab = ({ teamId, members, canManage }: Performance
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {statsCards.map((stat) => {
           const Icon = stat.icon;
           return (
-            <Card key={stat.level}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
+            <Card key={stat.level} className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2 space-y-0">
+                <div className="flex items-center justify-between mb-2">
+                  <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${stat.color}`} />
                   <PerformanceLevelBadge level={stat.level} size="sm" />
                 </div>
+                <CardTitle className="text-xl sm:text-2xl font-bold">
+                  {stat.count}
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.count}</div>
-                <p className="text-xs text-muted-foreground mt-1">
+              <CardContent className="pb-3">
+                <p className="body-small text-subtle">
+                  {stat.label}
+                </p>
+                <p className="text-xs text-muted-foreground">
                   {((stat.count / stats.total) * 100).toFixed(0)}% of team
                 </p>
               </CardContent>
@@ -106,33 +111,37 @@ export const PerformanceLevelsTab = ({ teamId, members, canManage }: Performance
                 return (
                   <div
                     key={member.id}
-                    className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
                   >
-                    <div className="flex items-center gap-3">
-                      <Avatar>
+                    {/* User Info Section */}
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <Avatar className="flex-shrink-0">
                         <AvatarImage src={member.profile.avatar_url || undefined} />
-                        <AvatarFallback>
+                        <AvatarFallback className="bg-primary/10 text-primary">
                           {member.profile.display_name?.[0] || member.profile.username[0]}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <p className="font-medium">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm sm:text-base truncate">
                           {member.profile.display_name || member.profile.username}
                         </p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground truncate">
                           @{member.profile.username}
                         </p>
                       </div>
-                      <Badge variant="secondary" className="ml-2">
+                      <Badge variant="secondary" className="flex-shrink-0">
                         {member.role}
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-3">
+
+                    {/* Actions Section - Separate row on mobile */}
+                    <div className="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0">
                       <PerformanceLevelBadge level={level} />
                       {canManage && (
                         <Button
                           size="sm"
                           variant="outline"
+                          className="min-w-[70px]"
                           onClick={() =>
                             setDialogPlayer({
                               userId: member.user_id,

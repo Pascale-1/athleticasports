@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrainingSessionCard } from "./TrainingSessionCard";
 import { CreateSessionDialog } from "./CreateSessionDialog";
 import { Plus } from "lucide-react";
@@ -40,60 +41,87 @@ export const TrainingCalendar = ({
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-4">
-        <h3 className="text-base sm:text-lg font-semibold">Training Schedule</h3>
+        <h3 className="heading-3">Training Schedule</h3>
         {canCreateSession && (
-          <Button onClick={() => setIsCreateDialogOpen(true)} className="w-full sm:w-auto min-h-11">
+          <Button onClick={() => setIsCreateDialogOpen(true)} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
-            <span className="text-xs sm:text-sm">New Session</span>
+            New Session
           </Button>
         )}
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="flex justify-center">
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={(date) => date && setSelectedDate(date)}
-            className="rounded-md border"
-            modifiers={{
-              hasSession: datesWithSessions,
-            }}
-            modifiersClassNames={{
-              hasSession: "bg-primary/10 font-semibold",
-            }}
-          />
-        </div>
-
-        <div className="space-y-3 sm:space-y-4">
-          <h4 className="font-medium text-sm sm:text-base">
-            Sessions on {selectedDate.toLocaleDateString("en-US", { 
-              month: "long", 
-              day: "numeric",
-              year: "numeric"
-            })}
-          </h4>
-          {sessionsOnSelectedDate.length > 0 ? (
-            <div className="space-y-3">
-              {sessionsOnSelectedDate.map((session) => (
-                <TrainingSessionCard
-                  key={session.id}
-                  session={session}
-                  canEdit={canManage || currentUserId === session.created_by}
-                  canManage={canManage}
-                  totalMembers={totalMembers}
-                  currentUserId={currentUserId || undefined}
-                  onUpdate={(data) => onUpdateSession(session.id, data)}
-                  onDelete={() => onDeleteSession(session.id)}
-                />
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-center py-8">
-              No training sessions scheduled for this day
+      <div className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-[300px_1fr] lg:gap-6">
+        {/* Calendar Section */}
+        <Card className="p-4">
+          <div className="flex flex-col items-center">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={(date) => date && setSelectedDate(date)}
+              className="rounded-md"
+              modifiers={{
+                hasSession: datesWithSessions,
+              }}
+              modifiersClassNames={{
+                hasSession: "bg-primary/10 font-semibold text-primary",
+              }}
+            />
+            <p className="text-xs text-muted-foreground mt-3 text-center">
+              Days with sessions are highlighted
             </p>
-          )}
-        </div>
+          </div>
+        </Card>
+
+        {/* Sessions List Section */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="heading-4">
+              {selectedDate.toLocaleDateString("en-US", { 
+                weekday: "long",
+                month: "long", 
+                day: "numeric",
+                year: "numeric"
+              })}
+            </CardTitle>
+            <CardDescription>
+              {sessionsOnSelectedDate.length} session{sessionsOnSelectedDate.length !== 1 ? 's' : ''} scheduled
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {sessionsOnSelectedDate.length > 0 ? (
+              <div className="space-y-3">
+                {sessionsOnSelectedDate.map((session) => (
+                  <TrainingSessionCard
+                    key={session.id}
+                    session={session}
+                    canEdit={canManage || currentUserId === session.created_by}
+                    canManage={canManage}
+                    totalMembers={totalMembers}
+                    currentUserId={currentUserId || undefined}
+                    onUpdate={(data) => onUpdateSession(session.id, data)}
+                    onDelete={() => onDeleteSession(session.id)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground body-default mb-4">
+                  No training sessions scheduled for this day
+                </p>
+                {canCreateSession && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setIsCreateDialogOpen(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Session
+                  </Button>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <CreateSessionDialog

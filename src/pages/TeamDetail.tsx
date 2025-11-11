@@ -134,11 +134,11 @@ const TeamDetail = () => {
 
       <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 max-w-2xl">
-            <TabsTrigger value="announcements" className="text-xs sm:text-sm px-2 sm:px-4">Announcements</TabsTrigger>
-            <TabsTrigger value="members" className="text-xs sm:text-sm px-2 sm:px-4">Members</TabsTrigger>
-            <TabsTrigger value="performance" className="text-xs sm:text-sm px-2 sm:px-4">Performance</TabsTrigger>
-            <TabsTrigger value="training" className="text-xs sm:text-sm px-2 sm:px-4">Training</TabsTrigger>
+          <TabsList className="inline-flex w-full sm:grid sm:grid-cols-4 overflow-x-auto gap-1 sm:gap-0">
+            <TabsTrigger value="announcements" className="text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap flex-shrink-0">Announcements</TabsTrigger>
+            <TabsTrigger value="members" className="text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap flex-shrink-0">Members</TabsTrigger>
+            <TabsTrigger value="performance" className="text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap flex-shrink-0">Performance</TabsTrigger>
+            <TabsTrigger value="training" className="text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap flex-shrink-0">Training</TabsTrigger>
           </TabsList>
 
           <div
