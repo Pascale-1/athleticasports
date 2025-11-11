@@ -1,4 +1,4 @@
-import { Home, Users, Calendar, Activity, User } from "lucide-react";
+import { Home, Users, Calendar, Plus, User } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { title: "Home", url: "/", icon: Home },
   { title: "Discover", url: "/discover", icon: Users },
-  { title: "Activity", url: "/track", icon: Activity, isPrimary: true },
+  { title: "Activity", url: "/track", icon: Plus, isPrimary: true },
   { title: "You", url: "/settings", icon: User },
 ];
 
@@ -27,7 +27,7 @@ export const BottomNavigation = () => {
               to={item.url}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-all duration-150 active:scale-95 min-w-[56px]",
-                isPrimary && "relative -mt-6",
+                isPrimary && "relative -mt-5",
                 isActive && !isPrimary
                   ? "text-primary"
                   : !isPrimary && "text-muted-foreground hover:text-foreground"
@@ -35,8 +35,8 @@ export const BottomNavigation = () => {
             >
               {isPrimary ? (
                 <>
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary shadow-lg">
-                    <Icon className="h-6 w-6 text-primary-foreground" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary shadow-lg">
+                    <Icon className="h-5 w-5 text-primary-foreground" />
                   </div>
                   <span className="text-xs font-medium text-foreground mt-1">
                     {item.title}
