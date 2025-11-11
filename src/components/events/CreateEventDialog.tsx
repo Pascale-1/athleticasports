@@ -45,19 +45,27 @@ export const CreateEventDialog = ({
           <DialogTitle>Create New Event</DialogTitle>
         </DialogHeader>
 
+        <div className="text-center mb-4">
+          <h3 className="text-lg font-semibold">Choose Event Type</h3>
+          <p className="text-sm text-muted-foreground mt-1">Select the type of event you want to create</p>
+        </div>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="training" className="flex items-center gap-2">
-              <Trophy className="h-4 w-4" />
-              <span className="hidden sm:inline">Training</span>
+          <TabsList className="grid w-full grid-cols-3 h-auto p-1">
+            <TabsTrigger value="training" className="flex flex-col items-center gap-1 py-3">
+              <Trophy className="h-5 w-5" />
+              <span className="text-xs font-medium">Training</span>
+              <span className="text-[10px] text-muted-foreground">Practice sessions</span>
             </TabsTrigger>
-            <TabsTrigger value="meetup" className="flex items-center gap-2">
-              <Coffee className="h-4 w-4" />
-              <span className="hidden sm:inline">Meetup</span>
+            <TabsTrigger value="meetup" className="flex flex-col items-center gap-1 py-3">
+              <Coffee className="h-5 w-5" />
+              <span className="text-xs font-medium">Meetup</span>
+              <span className="text-[10px] text-muted-foreground">Social gatherings</span>
             </TabsTrigger>
-            <TabsTrigger value="match" className="flex items-center gap-2">
-              <Swords className="h-4 w-4" />
-              <span className="hidden sm:inline">Match</span>
+            <TabsTrigger value="match" className="flex flex-col items-center gap-1 py-3">
+              <Swords className="h-5 w-5" />
+              <span className="text-xs font-medium">Match</span>
+              <span className="text-[10px] text-muted-foreground">Competitive games</span>
             </TabsTrigger>
           </TabsList>
 

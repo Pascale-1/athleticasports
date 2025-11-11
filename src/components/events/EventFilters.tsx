@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Filter, X } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Card } from "@/components/ui/card";
 
 interface EventFiltersProps {
   searchQuery: string;
@@ -60,56 +61,60 @@ export const EventFilters = ({
       </div>
 
       {/* Quick Filters - Desktop */}
-      <div className="hidden sm:flex items-center gap-2 flex-wrap">
-        <Select value={typeFilter} onValueChange={onTypeChange}>
-          <SelectTrigger className="w-[140px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="training">Training</SelectItem>
-            <SelectItem value="meetup">Meetup</SelectItem>
-            <SelectItem value="match">Match</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select value={statusFilter} onValueChange={onStatusChange}>
-          <SelectTrigger className="w-[140px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="upcoming">Upcoming</SelectItem>
-            <SelectItem value="past">Past</SelectItem>
-            <SelectItem value="all">All Events</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {showPublicFilter && onPublicFilterChange && (
-          <Select
-            value={publicFilter === undefined ? 'all' : publicFilter ? 'public' : 'private'}
-            onValueChange={(val) => {
-              if (val === 'all') onPublicFilterChange(undefined);
-              else onPublicFilterChange(val === 'public');
-            }}
-          >
-            <SelectTrigger className="w-[140px]">
+      <Card className="hidden sm:block p-4">
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="text-sm font-medium text-muted-foreground">Filter by:</span>
+          
+          <Select value={typeFilter} onValueChange={onTypeChange}>
+            <SelectTrigger className="w-[150px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Events</SelectItem>
-              <SelectItem value="public">Public</SelectItem>
-              <SelectItem value="private">Team Only</SelectItem>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="training">Training</SelectItem>
+              <SelectItem value="meetup">Meetup</SelectItem>
+              <SelectItem value="match">Match</SelectItem>
             </SelectContent>
           </Select>
-        )}
 
-        {hasActiveFilters && (
-          <Button variant="ghost" size="sm" onClick={clearFilters}>
-            <X className="h-4 w-4 mr-1" />
-            Clear
-          </Button>
-        )}
-      </div>
+          <Select value={statusFilter} onValueChange={onStatusChange}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="upcoming">Upcoming</SelectItem>
+              <SelectItem value="past">Past</SelectItem>
+              <SelectItem value="all">All Events</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {showPublicFilter && onPublicFilterChange && (
+            <Select
+              value={publicFilter === undefined ? 'all' : publicFilter ? 'public' : 'private'}
+              onValueChange={(val) => {
+                if (val === 'all') onPublicFilterChange(undefined);
+                else onPublicFilterChange(val === 'public');
+              }}
+            >
+              <SelectTrigger className="w-[150px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Events</SelectItem>
+                <SelectItem value="public">Public</SelectItem>
+                <SelectItem value="private">Team Only</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+
+          {hasActiveFilters && (
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <X className="h-4 w-4 mr-1" />
+              Clear
+            </Button>
+          )}
+        </div>
+      </Card>
 
       {/* Mobile Filter Sheet */}
       <div className="sm:hidden">

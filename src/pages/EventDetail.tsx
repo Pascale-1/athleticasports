@@ -86,10 +86,6 @@ const EventDetail = () => {
     if (!eventId || !confirm('Are you sure you want to delete this event?')) return;
     
     await deleteEvent(eventId);
-    toast({
-      title: "Event deleted",
-      description: "The event has been successfully deleted",
-    });
     navigate('/events');
   };
 
@@ -149,23 +145,14 @@ const EventDetail = () => {
           </Button>
           
           {canEdit && (
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => navigate(`/events/${eventId}/edit`)}
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Edit
-              </Button>
-              <Button 
-                variant="destructive" 
-                size="sm"
-                onClick={handleDelete}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
+            <Button 
+              variant="destructive" 
+              size="sm"
+              onClick={handleDelete}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
           )}
         </div>
 
