@@ -165,7 +165,7 @@ const Index = () => {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <h1 className="text-2xl font-bold truncate">
+                <h1 className="text-2xl font-bold break-words max-w-full">
                   Welcome back, {profile.display_name || profile.username}!
                 </h1>
                 <p className="text-sm text-muted-foreground">Ready to conquer today?</p>
@@ -205,7 +205,7 @@ const Index = () => {
             >
               <Button 
                 size="lg" 
-                className="w-full bg-gradient-to-r from-primary to-primary-dark hover:opacity-90 transition-all active:scale-[0.98]"
+                className="w-full"
                 onClick={() => navigate("/track")}
               >
                 <Trophy className="mr-2 h-5 w-5" />

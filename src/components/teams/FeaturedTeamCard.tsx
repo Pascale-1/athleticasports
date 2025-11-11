@@ -47,7 +47,7 @@ export const FeaturedTeamCard = ({ team, memberCount, isMember }: FeaturedTeamCa
           </div>
           
           <div className="min-w-0 w-full">
-            <h3 className="font-bold text-xl mb-1 line-clamp-1 break-words">{team.name}</h3>
+            <h3 className="font-bold text-xl mb-1 break-words hyphens-auto max-w-full">{team.name}</h3>
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 flex-wrap">
               <Users className="h-4 w-4" />
               <span>{memberCount} {memberCount === 1 ? 'member' : 'members'}</span>
@@ -66,8 +66,8 @@ export const FeaturedTeamCard = ({ team, memberCount, isMember }: FeaturedTeamCa
                     navigate(`/teams/${team.id}`);
                   }}
                 >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Join Team
+                  <Plus className="h-4 w-4 mr-1 shrink-0" />
+                  <span className="break-words">Join Team</span>
                 </Button>
               </motion.div>
             )}

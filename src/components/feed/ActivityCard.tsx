@@ -53,7 +53,7 @@ export const ActivityCard = ({
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0 overflow-hidden">
-          <p className="font-semibold text-sm truncate break-all max-w-full">
+          <p className="font-semibold text-sm break-words max-w-full">
             {displayName || username}
           </p>
           <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
@@ -81,7 +81,7 @@ export const ActivityCard = ({
       {/* Content */}
       {description && (
         <div className="px-4 py-3">
-          <p className="text-sm leading-relaxed break-words overflow-wrap-anywhere">{description}</p>
+          <p className="text-sm leading-relaxed break-words hyphens-auto max-w-full">{description}</p>
         </div>
       )}
 

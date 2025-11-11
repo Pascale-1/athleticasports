@@ -141,7 +141,7 @@ export const SwipeableTeamCard = ({
 
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2 mb-1">
-                <h3 className="font-semibold text-base sm:text-lg line-clamp-1">{team.name}</h3>
+                <h3 className="font-semibold text-base sm:text-lg break-words hyphens-auto max-w-full">{team.name}</h3>
                 <div className="flex items-center gap-1 shrink-0">
                   {team.is_private ? (
                     <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
@@ -169,7 +169,7 @@ export const SwipeableTeamCard = ({
               </div>
 
               {team.description && (
-                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
+                <p className="text-xs sm:text-sm text-muted-foreground break-words hyphens-auto max-w-full line-clamp-2">
                   {team.description}
                 </p>
               )}

@@ -15,7 +15,7 @@ export const MobileLayout = ({ children }: MobileLayoutProps) => {
   return (
     <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-hidden">
       {/* Mobile Header */}
-      <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-4 border-b border-border/50 bg-background/95 backdrop-blur-lg px-4 shadow-sm max-w-full">
+      <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-4 border-b border-border/50 bg-background/95 backdrop-blur-lg px-4 shadow-sm max-w-full overflow-hidden">
         {isMobile && (
           <Sheet>
             <SheetTrigger asChild>
@@ -33,7 +33,7 @@ export const MobileLayout = ({ children }: MobileLayoutProps) => {
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
             <span className="text-primary-foreground font-bold text-sm">A</span>
           </div>
-          <h1 className="text-base md:text-lg font-heading font-bold text-primary truncate max-w-[150px] sm:max-w-none">
+          <h1 className="text-base md:text-lg font-heading font-bold text-primary break-words max-w-[120px] sm:max-w-none">
             Athletica
           </h1>
         </div>

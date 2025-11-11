@@ -134,7 +134,7 @@ const Teams = () => {
   }
 
   return (
-    <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-6xl pb-24">
+    <div className="w-full max-w-[100vw] overflow-x-hidden mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-6xl pb-24">
       <PullToRefresh onRefresh={handleRefresh}>
         <motion.div 
           className="space-y-4 sm:space-y-6"
@@ -150,7 +150,7 @@ const Teams = () => {
             transition={{ delay: 0.1 }}
           >
             <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Teams</h1>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold break-words max-w-full">Teams</h1>
               <p className="text-sm sm:text-base text-muted-foreground mt-1">
                 {myTeams.length + publicTeams.length} teams • {Object.values(memberCounts).reduce((a, b) => a + b, 0)} members
               </p>
