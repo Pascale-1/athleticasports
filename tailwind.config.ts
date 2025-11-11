@@ -25,6 +25,7 @@ export default {
         body: ["Inter", "system-ui", "sans-serif"],
       },
       fontSize: {
+        "xxs": ["0.625rem", { lineHeight: "1.4" }],
         "display": ["2.5rem", { lineHeight: "1.1", fontWeight: "800", letterSpacing: "-0.02em" }],
         "h1": ["1.75rem", { lineHeight: "1.2", fontWeight: "700", letterSpacing: "-0.02em" }],
         "h2": ["1.5rem", { lineHeight: "1.3", fontWeight: "600", letterSpacing: "-0.01em" }],

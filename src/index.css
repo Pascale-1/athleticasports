@@ -196,15 +196,18 @@ All colors MUST be HSL.
 @layer base {
   * {
     @apply border-border;
+    max-width: 100%;
   }
 
   html, body {
     @apply overflow-x-hidden max-w-full;
     position: relative;
+    width: 100%;
   }
 
   #root {
     @apply overflow-x-hidden max-w-full;
+    width: 100%;
   }
 
   body {
@@ -215,6 +218,12 @@ All colors MUST be HSL.
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
+  }
+
+  /* Ensure all containers respect viewport width */
+  .container {
+    max-width: 100vw !important;
+    overflow-x: hidden;
   }
 }
 

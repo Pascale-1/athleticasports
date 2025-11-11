@@ -24,19 +24,19 @@ export const TeamHeader = ({ team, memberCount, userRole, canManage, onLeaveTeam
   const navigate = useNavigate();
 
   return (
-    <div className="border-b bg-card">
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
-        <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 w-full md:flex-1">
-            <Avatar className="h-16 w-16 md:h-20 md:w-20">
+    <div className="border-b bg-card overflow-hidden">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-full">
+        <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6 max-w-full">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 w-full md:flex-1 min-w-0">
+            <Avatar className="h-16 w-16 md:h-20 md:w-20 flex-shrink-0">
               <AvatarImage src={team.avatar_url || undefined} />
               <AvatarFallback className="bg-primary text-primary-foreground text-xl md:text-2xl">
                 {team.name.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div className="w-full text-center sm:text-left">
-              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-3 mb-2">
-                <h1 className="text-2xl md:text-3xl font-bold truncate max-w-full">{team.name}</h1>
+            <div className="w-full text-center sm:text-left min-w-0">
+              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-3 mb-2 max-w-full">
+                <h1 className="text-2xl md:text-3xl font-bold break-words max-w-full min-w-0">{team.name}</h1>
                 {team.is_private ? (
                   <Badge variant="outline" className="gap-1 text-xs">
                     <Lock className="h-3 w-3" />
@@ -50,7 +50,7 @@ export const TeamHeader = ({ team, memberCount, userRole, canManage, onLeaveTeam
                 )}
               </div>
               {team.description && (
-                <p className="text-sm sm:text-base text-muted-foreground mb-2 line-clamp-2">{team.description}</p>
+                <p className="text-sm sm:text-base text-muted-foreground mb-2 line-clamp-2 break-words">{team.description}</p>
               )}
               <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-3">
                 <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
