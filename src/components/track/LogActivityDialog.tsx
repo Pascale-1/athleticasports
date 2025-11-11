@@ -5,13 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, Users, Lock, Globe } from "lucide-react";
 import { Activity, useActivities } from "@/hooks/useActivities";
 
 export const LogActivityDialog = () => {
   const { createActivity } = useActivities();
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState<Partial<Activity>>({
+  const [formData, setFormData] = useState<Partial<Activity> & { visibility?: string }>({
     type: "run",
     title: "",
     description: "",
@@ -19,6 +19,7 @@ export const LogActivityDialog = () => {
     duration: undefined,
     calories: undefined,
     date: new Date().toISOString(),
+    visibility: "team",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,6 +36,7 @@ export const LogActivityDialog = () => {
       duration: undefined,
       calories: undefined,
       date: new Date().toISOString(),
+      visibility: "team",
     });
   };
 
@@ -135,6 +137,35 @@ export const LogActivityDialog = () => {
               onChange={(e) => setFormData({ ...formData, date: new Date(e.target.value).toISOString() })}
               required
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="visibility">Who can see this?</Label>
+            <Select value={formData.visibility} onValueChange={(value) => setFormData({ ...formData, visibility: value })}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="private">
+                  <div className="flex items-center gap-2">
+                    <Lock className="h-4 w-4" />
+                    <span>Private - Only me</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="team">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    <span>Team - Teammates & followers</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="public">
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4" />
+                    <span>Public - Everyone</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <Button type="submit" className="w-full">

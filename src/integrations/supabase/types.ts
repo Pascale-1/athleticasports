@@ -27,6 +27,7 @@ export type Database = {
           type: string
           updated_at: string
           user_id: string
+          visibility: string | null
         }
         Insert: {
           calories?: number | null
@@ -40,6 +41,7 @@ export type Database = {
           type: string
           updated_at?: string
           user_id: string
+          visibility?: string | null
         }
         Update: {
           calories?: number | null
@@ -53,6 +55,7 @@ export type Database = {
           type?: string
           updated_at?: string
           user_id?: string
+          visibility?: string | null
         }
         Relationships: []
       }

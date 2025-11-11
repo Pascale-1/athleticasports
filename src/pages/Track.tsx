@@ -1,7 +1,7 @@
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Activity, TrendingUp, Target, History, Loader2 } from "lucide-react";
+import { Activity, TrendingUp, Target, History, Loader2, Flame } from "lucide-react";
 import { LogActivityDialog } from "@/components/track/LogActivityDialog";
 import { ActivityCard } from "@/components/track/ActivityCard";
 import { useActivities } from "@/hooks/useActivities";
@@ -11,6 +11,7 @@ import { AnimatedCard } from "@/components/animations/AnimatedCard";
 import { motion } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { useMemo } from "react";
 
 const Track = () => {
   const { activities, loading: activitiesLoading, deleteActivity, getStats } = useActivities();
@@ -18,6 +19,37 @@ const Track = () => {
   const stats = getStats();
 
   const activeGoals = goals.filter(g => g.status === 'active');
+
+  // Calculate streak
+  const streak = useMemo(() => {
+    if (activities.length === 0) return 0;
+    
+    const sortedActivities = [...activities].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    
+    let currentStreak = 0;
+    let checkDate = new Date();
+    checkDate.setHours(0, 0, 0, 0);
+    
+    for (const activity of sortedActivities) {
+      const activityDate = new Date(activity.date);
+      activityDate.setHours(0, 0, 0, 0);
+      
+      const diffDays = Math.floor(
+        (checkDate.getTime() - activityDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      
+      if (diffDays === 0 || diffDays === 1) {
+        currentStreak++;
+        checkDate = activityDate;
+      } else if (diffDays > 1) {
+        break;
+      }
+    }
+    
+    return currentStreak;
+  }, [activities]);
 
   if (activitiesLoading || goalsLoading) {
     return (
@@ -38,6 +70,25 @@ const Track = () => {
           <h1 className="text-2xl font-bold">Track Your Progress</h1>
           <p className="text-sm text-muted-foreground">Log activities, set goals, and monitor your journey</p>
         </div>
+
+        {/* Streak Card */}
+        {streak > 0 && (
+          <AnimatedCard delay={0.05}>
+            <Card className="p-4 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
+                    <Flame className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-primary">{streak} Day{streak !== 1 ? 's' : ''}</div>
+                    <div className="text-sm text-muted-foreground">Current Streak 🔥</div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </AnimatedCard>
+        )}
 
         {/* Stats Overview */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

@@ -26,31 +26,69 @@ export const useActivityFeed = (userId?: string) => {
       try {
         setLoading(true);
         
-        // For now, we'll create mock activities based on actual user data
-        // In a real implementation, you'd have an activities table
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('*')
-          .limit(10);
+        // Fetch real activities from team members and followed users
+        const { data: activities, error: activitiesError } = await supabase
+          .from('activities')
+          .select(`
+            id,
+            type,
+            title,
+            description,
+            distance,
+            duration,
+            calories,
+            created_at,
+            user_id,
+            visibility,
+            profiles:user_id (
+              username,
+              display_name,
+              avatar_url,
+              primary_sport
+            )
+          `)
+          .in('visibility', ['team', 'public'])
+          .order('created_at', { ascending: false })
+          .limit(20);
 
-        if (profilesError) throw profilesError;
+        if (activitiesError) throw activitiesError;
 
-        // Mock activities from profiles
-        const mockActivities: Activity[] = (profiles || []).map((profile, index) => ({
-          id: profile.id,
-          username: profile.username,
-          displayName: profile.display_name || undefined,
-          avatarUrl: profile.avatar_url || undefined,
-          activityType: profile.primary_sport || "Training Session",
-          timeAgo: index === 0 ? "Just now" : index === 1 ? "2 hours ago" : `${index} days ago`,
-          description: `Completed an amazing ${profile.primary_sport || "training"} session today! Feeling stronger every day 💪`,
-          achievements: index % 3 === 0 ? ["Personal Best", "5km Streak"] : undefined,
-          likes: Math.floor(Math.random() * 50) + 5,
-          comments: Math.floor(Math.random() * 10),
-          createdAt: new Date(Date.now() - index * 86400000).toISOString(),
-        }));
+        // Transform to Activity format
+        const transformedActivities: Activity[] = (activities || []).map((activity: any) => {
+          const profile = activity.profiles;
+          const now = new Date();
+          const activityDate = new Date(activity.created_at);
+          const diffMs = now.getTime() - activityDate.getTime();
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMins / 60);
+          const diffDays = Math.floor(diffHours / 24);
+          
+          let timeAgo: string;
+          if (diffMins < 1) {
+            timeAgo = "Just now";
+          } else if (diffMins < 60) {
+            timeAgo = `${diffMins}m ago`;
+          } else if (diffHours < 24) {
+            timeAgo = `${diffHours}h ago`;
+          } else {
+            timeAgo = `${diffDays}d ago`;
+          }
 
-        setActivities(mockActivities);
+          return {
+            id: activity.id,
+            username: profile?.username || 'Unknown',
+            displayName: profile?.display_name,
+            avatarUrl: profile?.avatar_url,
+            activityType: activity.type.charAt(0).toUpperCase() + activity.type.slice(1),
+            timeAgo,
+            description: activity.description || `${activity.title}${activity.distance ? ` - ${activity.distance}km` : ''}${activity.duration ? ` - ${activity.duration}min` : ''}`,
+            likes: 0,
+            comments: 0,
+            createdAt: activity.created_at,
+          };
+        });
+
+        setActivities(transformedActivities);
       } catch (err) {
         console.error('Error fetching activities:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch activities');
