@@ -60,7 +60,7 @@ export const useTeamChat = (teamId: string | null) => {
         .from('team_messages')
         .select(`
           *,
-          profiles!team_messages_user_id_fkey (
+          profiles:user_id (
             username,
             display_name,
             avatar_url
