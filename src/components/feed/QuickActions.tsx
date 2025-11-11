@@ -49,10 +49,7 @@ export const QuickActions = () => {
             variant={action.variant}
             size="sm"
             onClick={() => navigate(action.href)}
-            className={cn(
-              "flex items-center gap-2 whitespace-nowrap snap-start transition-transform active:scale-95",
-              action.variant === "default" && "bg-gradient-to-r from-primary to-primary-dark hover:opacity-90"
-            )}
+            className="flex items-center gap-2 whitespace-nowrap snap-start transition-transform active:scale-95"
           >
             {action.icon}
             <span className="font-medium">{action.label}</span>

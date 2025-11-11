@@ -18,17 +18,6 @@ interface SwipeableTeamCardProps {
   onShare?: () => void;
 }
 
-const sportColors: Record<string, string> = {
-  Basketball: "border-l-orange-500",
-  Soccer: "border-l-green-500",
-  Running: "border-l-blue-500",
-  Volleyball: "border-l-purple-500",
-  Cycling: "border-l-yellow-500",
-  Gym: "border-l-red-500",
-  Yoga: "border-l-teal-500",
-  Other: "border-l-neutral-500",
-  General: "border-l-primary",
-};
 
 export const SwipeableTeamCard = ({
   team,
@@ -117,8 +106,7 @@ export const SwipeableTeamCard = ({
       {/* Card with swipe functionality */}
       <Card
         className={cn(
-          "cursor-pointer transition-all hover:shadow-md relative z-10 border-l-4",
-          team.sport ? sportColors[team.sport] : "border-l-primary",
+          "cursor-pointer transition-all hover:shadow-md relative z-10 border-l-4 border-l-primary",
           "md:translate-x-0"
         )}
         style={{
@@ -141,7 +129,7 @@ export const SwipeableTeamCard = ({
 
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2 mb-1">
-                <h3 className="font-semibold text-base sm:text-lg break-words hyphens-auto max-w-full">{team.name}</h3>
+                <h3 className="heading-4 break-words hyphens-auto max-w-full">{team.name}</h3>
                 <div className="flex items-center gap-1 shrink-0">
                   {team.is_private ? (
                     <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
@@ -152,24 +140,24 @@ export const SwipeableTeamCard = ({
               </div>
 
               <div className="flex items-center gap-3 mb-2">
-                <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
+                <div className="flex items-center gap-1 body-small text-subtle">
                   <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>{memberCount}</span>
                 </div>
                 {team.sport && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="body-small">
                     {team.sport}
                   </Badge>
                 )}
                 {isMember && (
-                  <Badge variant="default" className="text-xs">
+                  <Badge variant="default" className="body-small">
                     Member
                   </Badge>
                 )}
               </div>
 
               {team.description && (
-                <p className="text-xs sm:text-sm text-muted-foreground break-words hyphens-auto max-w-full line-clamp-2">
+                <p className="body-small text-subtle break-words hyphens-auto max-w-full line-clamp-2">
                   {team.description}
                 </p>
               )}

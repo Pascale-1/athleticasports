@@ -33,7 +33,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               <NotificationBell />
             </div>
           </header>
-          <main className="flex-1 p-6 md:p-8 bg-gradient-to-br from-background via-background to-neutral-50/30 dark:to-neutral-900/30 min-h-screen">
+          <main className="flex-1 p-6 md:p-8 bg-background min-h-screen">
             <div className="mx-auto max-w-7xl">
               {children}
             </div>

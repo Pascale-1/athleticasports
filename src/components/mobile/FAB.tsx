@@ -27,7 +27,7 @@ export const FAB = ({ icon, label, onClick, className }: FABProps) => {
         onClick={onClick}
         className={cn(
           "fixed bottom-20 right-4 h-14 w-14 rounded-full shadow-lg z-50",
-          "bg-gradient-to-r from-primary to-primary/90",
+          "bg-primary",
           "md:hidden",
           className
         )}

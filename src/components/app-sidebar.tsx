@@ -48,7 +48,7 @@ export function AppSidebar() {
   }, []);
 
   return (
-    <Sidebar collapsible="icon" className="border-r-2 border-border/50 bg-gradient-to-b from-background via-neutral-50/50 to-background dark:from-background dark:via-neutral-900/50 dark:to-background">
+    <Sidebar collapsible="icon" className="border-r border-border/50 bg-background">
       <SidebarContent className="p-2">
         <SidebarGroup>
           <SidebarGroupLabel className="px-4 py-3 text-sm font-heading font-bold text-primary">
@@ -67,7 +67,7 @@ export function AppSidebar() {
                     >
                       <NavLink to={item.url} end>
                         {isActive && (
-                          <span className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded-r-full bg-gradient-to-b from-primary via-primary-glow to-primary-dark" />
+                          <span className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded-r-full bg-primary" />
                         )}
                         <item.icon className={cn("transition-colors", isActive && "text-primary")} />
                         <span>{item.title}</span>
@@ -85,7 +85,7 @@ export function AppSidebar() {
                   >
                     <NavLink to="/admin" end>
                       {location.pathname === "/admin" && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded-r-full bg-gradient-to-b from-primary via-primary-glow to-primary-dark" />
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded-r-full bg-primary" />
                       )}
                       <Shield className={cn("transition-colors", location.pathname === "/admin" && "text-primary")} />
                       <span>Admin</span>

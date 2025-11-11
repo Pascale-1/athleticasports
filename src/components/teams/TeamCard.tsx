@@ -18,7 +18,7 @@ export const TeamCard = ({ team, memberCount = 0, isMember }: TeamCardProps) => 
   return (
     <Card 
       variant="elevated" 
-      className="cursor-pointer group hover:shadow-glow transition-all active:scale-[0.98]" 
+      className="cursor-pointer group hover:shadow-lg transition-all active:scale-[0.98]" 
       onClick={() => navigate(`/teams/${team.id}`)}
     >
       <CardHeader className="p-4 sm:p-6">
@@ -26,8 +26,8 @@ export const TeamCard = ({ team, memberCount = 0, isMember }: TeamCardProps) => 
           <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
             <Avatar 
               size="lg" 
-              ring="coral"
-              className="flex-shrink-0 group-hover:scale-110 transition-transform"
+              ring="none"
+              className="flex-shrink-0 group-hover:scale-105 transition-transform"
             >
               <AvatarImage src={team.avatar_url || undefined} />
               <AvatarFallback className="text-sm font-bold">
@@ -35,22 +35,22 @@ export const TeamCard = ({ team, memberCount = 0, isMember }: TeamCardProps) => 
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg group-hover:text-primary transition-colors">
+              <CardTitle className="heading-4 flex items-center gap-2 group-hover:text-primary transition-colors">
                 <span className="truncate">{team.name}</span>
                 {team.is_private ? (
                   <Lock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 ) : (
-                  <Globe className="h-4 w-4 text-teal flex-shrink-0" />
+                  <Globe className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 )}
               </CardTitle>
               <div className="flex items-center gap-2 mt-1.5">
                 <Users className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                <span className="text-sm text-muted-foreground font-medium">{memberCount} members</span>
+                <span className="body-small text-subtle font-medium">{memberCount} members</span>
               </div>
             </div>
           </div>
           {isMember && (
-            <Badge variant="gold" size="sm" className="flex-shrink-0">
+            <Badge variant="default" size="sm" className="flex-shrink-0">
               Member
             </Badge>
           )}

@@ -23,8 +23,8 @@ const Avatar = React.forwardRef<
   const ringStyles = {
     none: "",
     coral: "ring-2 ring-primary ring-offset-2 ring-offset-background",
-    gold: "ring-2 ring-gold ring-offset-2 ring-offset-background",
-    teal: "ring-2 ring-teal ring-offset-2 ring-offset-background",
+    gold: "ring-2 ring-primary ring-offset-2 ring-offset-background",
+    teal: "ring-2 ring-primary ring-offset-2 ring-offset-background",
   };
 
   const statusDotSize = {
@@ -84,7 +84,7 @@ const AvatarFallback = React.forwardRef<
   <AvatarPrimitive.Fallback
     ref={ref}
     className={cn(
-      "flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary-dark/20 text-primary font-semibold",
+      "flex h-full w-full items-center justify-center rounded-full bg-primary/10 text-primary font-semibold",
       className
     )}
     {...props}

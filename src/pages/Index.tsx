@@ -160,39 +160,39 @@ const Index = () => {
             <div className="flex items-center gap-4">
               <Avatar className="h-20 w-20 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
                 <AvatarImage src={profile.avatar_url || undefined} />
-                <AvatarFallback className="text-2xl bg-gradient-to-br from-primary to-primary-dark text-primary-foreground">
+                <AvatarFallback className="text-2xl bg-primary/10 text-primary">
                   {profile.username.substring(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <h1 className="text-2xl font-bold break-words max-w-full">
+                <h1 className="heading-2 break-words max-w-full">
                   Welcome back, {profile.display_name || profile.username}!
                 </h1>
-                <p className="text-sm text-muted-foreground">Ready to conquer today?</p>
+                <p className="body-small text-subtle">Ready to conquer today?</p>
               </div>
             </div>
 
             {/* Stats Row */}
             <div className="grid grid-cols-3 gap-3">
               <AnimatedCard delay={0.2} onClick={() => navigate("/teams")}>
-                <Card className="p-4 text-center cursor-pointer transition-all">
+                <Card className="p-4 text-center cursor-pointer transition-all hover-lift">
                   <Users className="h-5 w-5 mx-auto mb-2 text-primary" />
-                  <p className="text-2xl font-bold text-primary">{stats.teams}</p>
-                  <p className="text-xs text-muted-foreground">Teams</p>
+                  <p className="text-2xl font-bold font-heading text-primary">{stats.teams}</p>
+                  <p className="body-small text-subtle">Teams</p>
                 </Card>
               </AnimatedCard>
               <AnimatedCard delay={0.25}>
-                <Card className="p-4 text-center cursor-pointer transition-all">
-                  <Activity className="h-5 w-5 mx-auto mb-2 text-accent" />
-                  <p className="text-2xl font-bold text-accent">{stats.activities}</p>
-                  <p className="text-xs text-muted-foreground">Activities</p>
+                <Card className="p-4 text-center cursor-pointer transition-all hover-lift">
+                  <Activity className="h-5 w-5 mx-auto mb-2 text-primary" />
+                  <p className="text-2xl font-bold font-heading text-primary">{stats.activities}</p>
+                  <p className="body-small text-subtle">Activities</p>
                 </Card>
               </AnimatedCard>
               <AnimatedCard delay={0.3} onClick={() => navigate("/users")}>
-                <Card className="p-4 text-center cursor-pointer transition-all">
-                  <TrendingUp className="h-5 w-5 mx-auto mb-2 text-teal" />
-                  <p className="text-2xl font-bold text-teal">{stats.followers}</p>
-                  <p className="text-xs text-muted-foreground">Followers</p>
+                <Card className="p-4 text-center cursor-pointer transition-all hover-lift">
+                  <TrendingUp className="h-5 w-5 mx-auto mb-2 text-primary" />
+                  <p className="text-2xl font-bold font-heading text-primary">{stats.followers}</p>
+                  <p className="body-small text-subtle">Followers</p>
                 </Card>
               </AnimatedCard>
             </div>
@@ -221,7 +221,7 @@ const Index = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
-            <h2 className="text-lg font-semibold">Quick Actions</h2>
+            <h2 className="heading-3">Quick Actions</h2>
             <QuickActions />
           </motion.div>
 
@@ -233,7 +233,7 @@ const Index = () => {
             transition={{ delay: 0.5 }}
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Activity Feed</h2>
+              <h2 className="heading-3">Activity Feed</h2>
               <Button variant="ghost" size="sm" className="text-primary">
                 View All
               </Button>
