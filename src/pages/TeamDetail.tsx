@@ -16,10 +16,11 @@ import { useTeamAnnouncements } from "@/hooks/useTeamAnnouncements";
 import { useEvents } from "@/hooks/useEvents";
 import { leaveTeam } from "@/lib/teams";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, UserPlus } from "lucide-react";
 import { useSwipeableTabs } from "@/hooks/useSwipeableTabs";
 import { SwipeableTabContent } from "@/components/animations/SwipeableTabContent";
 import { motion } from "framer-motion";
+import { FAB } from "@/components/mobile/FAB";
 
 const TeamDetail = () => {
   const { teamId } = useParams<{ teamId: string }>();
@@ -260,6 +261,14 @@ const TeamDetail = () => {
         teamId={teamId || null}
         canManage={canManage}
       />
+
+      {canManage && activeTab === "members" && (
+        <FAB
+          icon={<UserPlus className="h-5 w-5" />}
+          label="Invite Member"
+          onClick={() => setInviteDialogOpen(true)}
+        />
+      )}
     </motion.div>
   );
 };

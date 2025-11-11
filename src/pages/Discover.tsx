@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, Users as UsersIcon, Trophy, Loader2 } from "lucide-react";
+import { Search, Users as UsersIcon, Trophy, Loader2, UserPlus } from "lucide-react";
 import { EventCard } from "@/components/events/EventCard";
 import { TeamCard } from "@/components/teams/TeamCard";
 import { PageContainer } from "@/components/mobile/PageContainer";
@@ -11,6 +11,8 @@ import { AnimatedCard } from "@/components/animations/AnimatedCard";
 import { SportFilter } from "@/components/community/SportFilter";
 import { FilterSheet } from "@/components/common/FilterSheet";
 import { useSportFilter } from "@/hooks/useSportFilter";
+import { FAB } from "@/components/mobile/FAB";
+import { QuickTeamCreateDialog } from "@/components/teams/QuickTeamCreateDialog";
 
 interface Profile {
   id: string;
@@ -29,6 +31,7 @@ const Discover = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
   const [people, setPeople] = useState<Profile[]>([]);
+  const [createTeamOpen, setCreateTeamOpen] = useState(false);
   
   const { selectedSport, setSelectedSport } = useSportFilter();
 
@@ -219,6 +222,21 @@ const Discover = () => {
           </Card>
         )}
       </div>
+
+      <FAB
+        icon={<UserPlus className="h-5 w-5" />}
+        label="Create Team"
+        onClick={() => setCreateTeamOpen(true)}
+      />
+
+      <QuickTeamCreateDialog
+        open={createTeamOpen}
+        onOpenChange={setCreateTeamOpen}
+        onTeamCreated={() => {
+          setCreateTeamOpen(false);
+          fetchData();
+        }}
+      />
     </PageContainer>
   );
 };

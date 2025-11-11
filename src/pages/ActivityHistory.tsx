@@ -1,16 +1,20 @@
 import { PageContainer } from "@/components/mobile/PageContainer";
-import { Button } from "@/components/ui/button";
-import { History, Loader2, ArrowLeft } from "lucide-react";
 import { ActivityCard } from "@/components/track/ActivityCard";
 import { useActivities } from "@/hooks/useActivities";
+import { ArrowLeft, Loader2, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { FAB } from "@/components/mobile/FAB";
+import { LogActivityDialog } from "@/components/track/LogActivityDialog";
+import { useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
 import { AnimatedCard } from "@/components/animations/AnimatedCard";
-import { useNavigate } from "react-router-dom";
-import { LogActivityDialog } from "@/components/track/LogActivityDialog";
+import { History } from "lucide-react";
 
 const ActivityHistory = () => {
   const navigate = useNavigate();
   const { activities, loading, deleteActivity } = useActivities();
+  const [logActivityOpen, setLogActivityOpen] = useState(false);
 
   if (loading) {
     return (
@@ -61,6 +65,18 @@ const ActivityHistory = () => {
           />
         )}
       </div>
+
+      <FAB
+        icon={<Plus className="h-5 w-5" />}
+        label="Log Activity"
+        onClick={() => setLogActivityOpen(true)}
+      />
+
+      {logActivityOpen && (
+        <LogActivityDialog 
+          onClose={() => setLogActivityOpen(false)}
+        />
+      )}
     </PageContainer>
   );
 };

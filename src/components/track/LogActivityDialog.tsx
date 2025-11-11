@@ -7,8 +7,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Users, Lock, Globe } from "lucide-react";
 import { Activity, useActivities } from "@/hooks/useActivities";
+import { LogActivitySheet } from "./LogActivitySheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-export const LogActivityDialog = () => {
+interface LogActivityDialogProps {
+  onClose?: () => void;
+}
+
+export const LogActivityDialog = ({ onClose }: LogActivityDialogProps = {}) => {
+  const isMobile = useIsMobile();
   const { createActivity } = useActivities();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<Activity> & { visibility?: string }>({
@@ -28,6 +35,7 @@ export const LogActivityDialog = () => {
 
     await createActivity(formData as Omit<Activity, 'id' | 'user_id' | 'created_at' | 'updated_at'>);
     setOpen(false);
+    onClose?.();
     setFormData({
       type: "run",
       title: "",
@@ -39,6 +47,10 @@ export const LogActivityDialog = () => {
       visibility: "team",
     });
   };
+
+  if (isMobile && onClose) {
+    return <LogActivitySheet onClose={onClose} />;
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
