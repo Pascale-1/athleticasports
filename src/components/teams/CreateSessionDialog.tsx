@@ -16,6 +16,7 @@ interface CreateSessionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreateSession: (data: {
+    type: 'training';
     title: string;
     description?: string;
     location?: string;
@@ -47,6 +48,7 @@ export const CreateSessionDialog = ({
     const endDateTime = `${formData.date}T${formData.endTime}:00`;
 
     onCreateSession({
+      type: 'training',
       title: formData.title,
       description: formData.description || undefined,
       location: formData.location || undefined,

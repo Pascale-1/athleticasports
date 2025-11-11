@@ -5,11 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { TrainingSessionCard } from "./TrainingSessionCard";
 import { CreateSessionDialog } from "./CreateSessionDialog";
 import { Plus } from "lucide-react";
-import { TrainingSession } from "@/hooks/useTrainingSessions";
+import { Event } from "@/lib/events";
 import { isSameDay } from "date-fns";
 
 interface TrainingCalendarProps {
-  sessions: TrainingSession[];
+  sessions: Event[];
   canCreateSession: boolean;
   canManage: boolean;
   currentUserId: string | null;

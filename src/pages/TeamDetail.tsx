@@ -12,7 +12,7 @@ import { useTeam } from "@/hooks/useTeam";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useTeamInvitations } from "@/hooks/useTeamInvitations";
 import { useTeamAnnouncements } from "@/hooks/useTeamAnnouncements";
-import { useTrainingSessions } from "@/hooks/useTrainingSessions";
+import { useEvents } from "@/hooks/useEvents";
 import { leaveTeam } from "@/lib/teams";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
@@ -48,12 +48,12 @@ const TeamDetail = () => {
     deleteAnnouncement,
   } = useTeamAnnouncements(teamId || null);
   const {
-    sessions,
+    events: sessions,
     loading: sessionsLoading,
-    createSession,
-    updateSession,
-    deleteSession,
-  } = useTrainingSessions(teamId || null);
+    createEvent: createSession,
+    updateEvent: updateSession,
+    deleteEvent: deleteSession,
+  } = useEvents(teamId || null, { type: 'training' });
 
   useEffect(() => {
     const getUser = async () => {
