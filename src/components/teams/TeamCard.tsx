@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +13,7 @@ interface TeamCardProps {
   isMember: boolean;
 }
 
-export const TeamCard = ({ team, memberCount = 0, isMember }: TeamCardProps) => {
+export const TeamCard = memo(({ team, memberCount = 0, isMember }: TeamCardProps) => {
   const navigate = useNavigate();
 
   return (
@@ -65,4 +66,5 @@ export const TeamCard = ({ team, memberCount = 0, isMember }: TeamCardProps) => 
       )}
     </Card>
   );
-};
+});
+TeamCard.displayName = "TeamCard";

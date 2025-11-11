@@ -33,8 +33,11 @@ export const AnimatedCard = ({
       whileTap={onClick ? { scale: 0.98 } : undefined}
       className={className}
       onClick={onClick}
+      style={{ pointerEvents: onClick ? 'auto' : 'none' }}
     >
-      {children}
+      <div style={{ pointerEvents: 'auto' }}>
+        {children}
+      </div>
     </motion.div>
   );
 };

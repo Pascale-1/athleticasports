@@ -87,6 +87,8 @@ const Community = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
 
+      let allTeamIds: string[] = [];
+
       if (user) {
         const { data: myTeamsData } = await supabase
           .from("team_members")
@@ -96,15 +98,7 @@ const Community = () => {
 
         const teams = myTeamsData?.map((item: any) => item.teams).filter(Boolean) || [];
         setMyTeams(teams);
-
-        for (const team of teams) {
-          const { data: countData } = await supabase.rpc("get_team_member_count", {
-            _team_id: team.id,
-          });
-          if (countData !== null) {
-            setMemberCounts((prev) => ({ ...prev, [team.id]: countData }));
-          }
-        }
+        allTeamIds.push(...teams.map((t: any) => t.id));
       }
 
       const { data: publicTeamsData } = await supabase
@@ -115,14 +109,25 @@ const Community = () => {
         .limit(20);
 
       setPublicTeams(publicTeamsData || []);
+      allTeamIds.push(...(publicTeamsData || []).map((t: any) => t.id));
 
-      for (const team of publicTeamsData || []) {
-        const { data: countData } = await supabase.rpc("get_team_member_count", {
-          _team_id: team.id,
+      // Batch fetch all member counts in parallel
+      if (allTeamIds.length > 0) {
+        const countPromises = allTeamIds.map(teamId =>
+          supabase.rpc("get_team_member_count", { _team_id: teamId })
+        );
+        
+        const countResults = await Promise.all(countPromises);
+        
+        const newCounts: Record<string, number> = {};
+        allTeamIds.forEach((teamId, index) => {
+          const result = countResults[index];
+          if (result.data !== null && result.data !== undefined) {
+            newCounts[teamId] = result.data;
+          }
         });
-        if (countData !== null) {
-          setMemberCounts((prev) => ({ ...prev, [team.id]: countData }));
-        }
+        
+        setMemberCounts(newCounts);
       }
     } catch (error) {
       console.error("Error fetching teams:", error);

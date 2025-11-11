@@ -45,6 +45,9 @@ function generateEmailHTML(teamName: string, inviterName: string, role: string, 
       <a href="${acceptUrl}" target="_blank" style="background-color: #8B5CF6; border-radius: 5px; color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; text-align: center; display: block; width: 100%; padding: 12px;">
         Accept Invitation
       </a>
+      <p style="color: #666; font-size: 12px; text-align: center; margin-top: 12px;">
+        If the button doesn't work, click this link: <a href="${acceptUrl}" target="_blank" style="color: #8B5CF6; text-decoration: underline; word-break: break-all;">${acceptUrl}</a>
+      </p>
     </div>
     
     <div style="background-color: #F9FAFB; padding: 16px; border-radius: 4px; margin: 16px 0;">
@@ -64,7 +67,7 @@ function generateEmailHTML(teamName: string, inviterName: string, role: string, 
     </p>
     
     <div style="display: inline-block; padding: 16px 4.5%; width: 90.5%; background-color: #f4f4f4; border-radius: 5px; border: 1px solid #eee; color: #333; font-size: 12px; word-break: break-all;">
-      ${acceptUrl}
+      <a href="${acceptUrl}" target="_blank" style="color: #8B5CF6; text-decoration: underline;">${acceptUrl}</a>
     </div>
     
     <p style="color: #898989; font-size: 12px; line-height: 22px; margin-top: 20px; margin-bottom: 12px;">
@@ -189,11 +192,23 @@ Deno.serve(async (req) => {
     }
 
     // Construct invitation URL using APP_URL secret, client origin, or fallback
-    const appUrl = Deno.env.get('APP_URL') || appOrigin || 'https://vbnetwodxboajlsytolr.lovableproject.com'
-    const acceptUrl = `${appUrl}/teams/invitations/accept?id=${invitationId}`
-    const authFallbackUrl = `${appUrl}/auth?invitationId=${invitationId}`
+    const appUrl = Deno.env.get('APP_URL') || appOrigin || 'https://cf052cd2-1671-4422-bc90-2b3b42373aba.lovableproject.com'
     
-    console.log('Invitation URLs generated:', { acceptUrl, authFallbackUrl, appUrl })
+    // Ensure appUrl doesn't have trailing slash
+    const cleanAppUrl = appUrl.replace(/\/$/, '')
+    
+    // Encode the invitation ID to ensure URL safety
+    const encodedInvitationId = encodeURIComponent(invitationId)
+    
+    const acceptUrl = `${cleanAppUrl}/teams/invitations/accept?id=${encodedInvitationId}`
+    const authFallbackUrl = `${cleanAppUrl}/auth?invitationId=${encodedInvitationId}`
+    
+    // Validate URLs are properly formed
+    if (!acceptUrl || !acceptUrl.startsWith('http')) {
+      throw new Error(`Invalid accept URL generated: ${acceptUrl}`)
+    }
+    
+    console.log('Invitation URLs generated:', { acceptUrl, authFallbackUrl, appUrl, cleanAppUrl })
 
     // Generate HTML email
     const html = generateEmailHTML(

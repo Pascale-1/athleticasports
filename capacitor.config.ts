@@ -1,13 +1,14 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.cf052cd216714422bc902b3b42373aba',
+  appId: 'com.athletica.sports',
   appName: 'Athletica',
   webDir: 'dist',
-  server: {
-    url: 'https://cf052cd2-1671-4422-bc90-2b3b42373aba.lovableproject.com?forceHideBadge=true',
-    cleartext: true
-  },
+  // Temporarily disabled remote server for local testing
+  // server: {
+  //   url: 'https://cf052cd2-1671-4422-bc90-2b3b42373aba.lovableproject.com?forceHideBadge=true',
+  //   cleartext: true
+  // },
   plugins: {
     SplashScreen: {
       launchShowDuration: 0

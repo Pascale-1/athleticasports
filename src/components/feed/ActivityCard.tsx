@@ -1,8 +1,8 @@
+import { memo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Heart, MessageCircle, Trophy, Clock, Users, UserPlus, Calendar, Check, Activity as ActivityIcon } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface ActivityCardProps {
@@ -19,7 +19,7 @@ interface ActivityCardProps {
   actionIcon?: 'users' | 'user-plus' | 'calendar' | 'check' | 'activity';
 }
 
-export const ActivityCard = ({
+export const ActivityCard = memo(({
   username,
   displayName,
   avatarUrl,
@@ -141,4 +141,5 @@ export const ActivityCard = ({
       </div>
     </Card>
   );
-};
+});
+ActivityCard.displayName = "ActivityCard";

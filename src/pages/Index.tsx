@@ -38,7 +38,7 @@ const Index = () => {
   const [stats, setStats] = useState<Stats>({ teams: 0, activities: 0, followers: 0 });
   const [loading, setLoading] = useState(true);
   const [createEventDialogOpen, setCreateEventDialogOpen] = useState(false);
-  const { activities, loading: feedLoading } = useActivityFeed();
+  const { activities, loading: feedLoading, loadingMore, hasMore, loadMore } = useActivityFeed();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -204,9 +204,10 @@ const Index = () => {
           <AnimatedCard delay={0.2}>
             <div className="grid grid-cols-3 gap-2">
               <Button 
+                type="button"
                 variant="outline"
                 className="flex flex-col items-center justify-center gap-2 h-auto py-4 px-2"
-                onClick={() => navigate("/teams/new")}
+                onClick={() => navigate("/teams/create")}
               >
                 <Users className="h-5 w-5 text-primary" />
                 <span className="text-xs font-medium text-center">Create Team</span>
@@ -255,6 +256,18 @@ const Index = () => {
                     <ActivityCard {...activity} />
                   </AnimatedCard>
                 ))}
+                {hasMore && (
+                  <div className="flex justify-center pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={loadMore}
+                      disabled={loadingMore}
+                      className="min-h-[44px]"
+                    >
+                      {loadingMore ? "Loading..." : "Load More"}
+                    </Button>
+                  </div>
+                )}
               </div>
             ) : (
               <Card className="p-8 text-center">

@@ -25,6 +25,15 @@ const TeamCreate = () => {
     setLoading(true);
 
     try {
+      // Validate form data
+      if (!formData.name || formData.name.trim().length < 2) {
+        throw new Error("Team name must be at least 2 characters long");
+      }
+
+      if (formData.name.length > 100) {
+        throw new Error("Team name must be less than 100 characters");
+      }
+
       const team = await createTeam(formData);
       toast({
         title: "Success",
@@ -33,9 +42,10 @@ const TeamCreate = () => {
       navigate(`/teams/${team.id}`);
     } catch (error: any) {
       console.error("Error creating team:", error);
+      const errorMessage = error?.message || error?.error?.message || "Failed to create team. Please try again.";
       toast({
         title: "Error",
-        description: error.message || "Failed to create team",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

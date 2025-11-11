@@ -17,7 +17,7 @@ export const QuickActions = () => {
     {
       label: "Create Team",
       icon: <Users className="h-4 w-4" />,
-      href: "/teams/new",
+      href: "/teams/create",
       variant: "default",
     },
     {

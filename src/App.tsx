@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,40 +7,63 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "./components/AppLayout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { InstallPrompt } from "./components/InstallPrompt";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Settings from "./pages/Settings";
-import Discover from "./pages/Discover";
-import Community from "./pages/Community";
-import Admin from "./pages/Admin";
-import Track from "./pages/Track";
-import ActivityHistory from "./pages/ActivityHistory";
-import Events from "./pages/Events";
-import EventDetail from "./pages/EventDetail";
-import Teams from "./pages/Teams";
-import Users from "./pages/Users";
-import TeamCreate from "./pages/TeamCreate";
-import TeamDetail from "./pages/TeamDetail";
-import TeamEvents from "./pages/TeamEvents";
-import TeamPerformance from "./pages/TeamPerformance";
-import TeamMembers from "./pages/TeamMembers";
-import TeamSettings from "./pages/TeamSettings";
-import JoinTeam from "./pages/JoinTeam";
-import AcceptInvitation from "./pages/AcceptInvitation";
-import InvitationHelp from "./pages/InvitationHelp";
-import NotFound from "./pages/NotFound";
-import JoinEvent from "./pages/JoinEvent";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { Loader2 } from "lucide-react";
 
-const queryClient = new QueryClient();
+// Lazy load all route components for code splitting
+const Index = lazy(() => import("./pages/Index"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Discover = lazy(() => import("./pages/Discover"));
+const Community = lazy(() => import("./pages/Community"));
+const Admin = lazy(() => import("./pages/Admin"));
+const Track = lazy(() => import("./pages/Track"));
+const ActivityHistory = lazy(() => import("./pages/ActivityHistory"));
+const Events = lazy(() => import("./pages/Events"));
+const EventDetail = lazy(() => import("./pages/EventDetail"));
+const Teams = lazy(() => import("./pages/Teams"));
+const Users = lazy(() => import("./pages/Users"));
+const TeamCreate = lazy(() => import("./pages/TeamCreate"));
+const TeamDetail = lazy(() => import("./pages/TeamDetail"));
+const TeamEvents = lazy(() => import("./pages/TeamEvents"));
+const TeamPerformance = lazy(() => import("./pages/TeamPerformance"));
+const TeamMembers = lazy(() => import("./pages/TeamMembers"));
+const TeamSettings = lazy(() => import("./pages/TeamSettings"));
+const JoinTeam = lazy(() => import("./pages/JoinTeam"));
+const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
+const InvitationHelp = lazy(() => import("./pages/InvitationHelp"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const JoinEvent = lazy(() => import("./pages/JoinEvent"));
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="flex min-h-screen items-center justify-center">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+  </div>
+);
+
+// Optimized QueryClient with better caching
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      cacheTime: 1000 * 60 * 10, // 10 minutes
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <InstallPrompt />
-      <BrowserRouter>
-        <Routes>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <InstallPrompt />
+        <BrowserRouter>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route path="/" element={
             <ProtectedRoute>
@@ -167,10 +191,12 @@ const App = () => (
           <Route path="/events/join/:code" element={<JoinEvent />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

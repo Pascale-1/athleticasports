@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ interface EventCardProps {
   onRSVPChange?: (status: 'attending' | 'maybe' | 'not_attending') => void;
 }
 
-export const EventCard = ({ 
+export const EventCard = memo(({ 
   event, 
   onAttendanceClick,
   attendeeCount = 0,
@@ -230,4 +231,5 @@ export const EventCard = ({
       </Card>
     </Link>
   );
-};
+});
+EventCard.displayName = "EventCard";

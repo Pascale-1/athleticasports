@@ -10,6 +10,44 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  build: {
+    chunkSizeWarningLimit: 500,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Core React libraries
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          // UI component libraries
+          'vendor-ui': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-select',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-avatar',
+            '@radix-ui/react-checkbox',
+            '@radix-ui/react-label',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-separator',
+            '@radix-ui/react-switch',
+          ],
+          // Data and state management
+          'vendor-data': ['@tanstack/react-query', '@supabase/supabase-js'],
+          // Forms and validation
+          'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          // Charts and visualization
+          'vendor-charts': ['recharts'],
+          // Animations
+          'vendor-animations': ['framer-motion'],
+          // Date utilities
+          'vendor-dates': ['date-fns', 'react-day-picker'],
+          // Other utilities
+          'vendor-utils': ['clsx', 'tailwind-merge', 'class-variance-authority'],
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     mode === "development" && componentTagger(),

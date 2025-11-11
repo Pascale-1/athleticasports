@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Athletica</string>
+    <string name="title_activity_main">Athletica</string>
+    <string name="package_name">app.lovable.cf052cd216714422bc902b3b42373aba</string>
+    <string name="custom_url_scheme">app.lovable.cf052cd216714422bc902b3b42373aba</string>
+</resources>
