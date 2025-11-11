@@ -1,35 +1,113 @@
+import { useState } from "react";
 import { PageContainer } from "@/components/mobile/PageContainer";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Plus } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Calendar as CalendarIcon, List } from "lucide-react";
+import { useEvents } from "@/hooks/useEvents";
+import { useEventFilters } from "@/hooks/useEventFilters";
+import { CreateEventDialog } from "@/components/events/CreateEventDialog";
+import { EventsList } from "@/components/events/EventsList";
+import { EventFilters } from "@/components/events/EventFilters";
+import { EventCalendar } from "@/components/events/EventCalendar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Events = () => {
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  
+  const { events, loading } = useEvents(undefined, { status: 'upcoming' });
+  
+  const {
+    filters,
+    filteredEvents,
+    setTypeFilter,
+    setStatusFilter,
+    setSearchQuery,
+    setPublicFilter,
+  } = useEventFilters(events);
+
   return (
     <PageContainer>
       <div className="space-y-6 animate-fade-in">
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-dark mb-3">
-            <Calendar className="h-8 w-8 text-primary-foreground" />
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Events</h1>
+            <p className="text-sm text-muted-foreground">
+              Discover and manage training, meetups, and matches
+            </p>
           </div>
-          <h1 className="text-2xl font-bold">Events</h1>
-          <p className="text-sm text-muted-foreground">Discover and manage training, meetups, and matches</p>
+          <Button onClick={() => setCreateDialogOpen(true)} size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Create</span>
+          </Button>
         </div>
 
-        <Card className="p-6 space-y-4">
-          <div className="flex items-center gap-3 text-muted-foreground">
-            <Calendar className="h-5 w-5" />
-            <span className="text-sm">Events System</span>
-          </div>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            The unified events system is under development. Soon you'll be able to create and manage 
-            training sessions, social meetups, and competitive matches all in one place.
-          </p>
-          <Button variant="outline" className="w-full">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Event (Coming Soon)
+        {/* Filters */}
+        <EventFilters
+          searchQuery={filters.searchQuery}
+          onSearchChange={setSearchQuery}
+          typeFilter={filters.type}
+          onTypeChange={setTypeFilter}
+          statusFilter={filters.status}
+          onStatusChange={setStatusFilter}
+          showPublicFilter
+          publicFilter={filters.isPublic}
+          onPublicFilterChange={setPublicFilter}
+        />
+
+        {/* View Toggle */}
+        <div className="flex items-center gap-2">
+          <Button
+            variant={viewMode === 'list' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setViewMode('list')}
+          >
+            <List className="h-4 w-4 mr-2" />
+            List
           </Button>
-        </Card>
+          <Button
+            variant={viewMode === 'calendar' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setViewMode('calendar')}
+          >
+            <CalendarIcon className="h-4 w-4 mr-2" />
+            Calendar
+          </Button>
+        </div>
+
+        {/* Content */}
+        {loading ? (
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-32 w-full" />
+            ))}
+          </div>
+        ) : viewMode === 'list' ? (
+          <EventsList
+            events={filteredEvents}
+            emptyTitle={
+              filters.status === 'past'
+                ? 'No past events'
+                : filters.status === 'upcoming'
+                ? 'No upcoming events'
+                : 'No events found'
+            }
+            emptyDescription={
+              filters.searchQuery
+                ? 'Try adjusting your search or filters'
+                : 'Create your first event to get started'
+            }
+          />
+        ) : (
+          <EventCalendar events={filteredEvents} />
+        )}
       </div>
+
+      <CreateEventDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+      />
     </PageContainer>
   );
 };
