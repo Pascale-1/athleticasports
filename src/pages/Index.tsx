@@ -8,7 +8,6 @@ import { User } from "@supabase/supabase-js";
 import { Trophy, Users, Activity, TrendingUp } from "lucide-react";
 import { ActivityCard } from "@/components/feed/ActivityCard";
 import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
-import { QuickActions } from "@/components/feed/QuickActions";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PullToRefresh } from "@/components/animations/PullToRefresh";
@@ -74,7 +73,6 @@ const Index = () => {
       setProfile(data);
 
       if (data) {
-        // Fetch user stats
         await fetchStats(userId);
       }
     } catch (error) {
@@ -86,19 +84,16 @@ const Index = () => {
 
   const fetchStats = async (userId: string) => {
     try {
-      // Fetch teams count
       const { count: teamsCount } = await supabase
         .from('team_members')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId);
 
-      // Fetch followers count
       const { count: followersCount } = await supabase
         .from('followers')
         .select('*', { count: 'exact', head: true })
         .eq('following_id', userId);
 
-      // Fetch activities count
       const { count: activitiesCount } = await supabase
         .from('activities')
         .select('*', { count: 'exact', head: true })
@@ -156,90 +151,74 @@ const Index = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          {/* Hero Section */}
-          <motion.div 
-            className="space-y-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1 }}
-          >
-            <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
-                <AvatarImage src={profile.avatar_url || undefined} />
-                <AvatarFallback className="text-2xl bg-primary/10 text-primary">
-                  {profile.username.substring(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <h1 className="heading-2 break-words max-w-full">
-                  Welcome back, {profile.display_name || profile.username}!
-                </h1>
-                <p className="body-small text-subtle">Ready to conquer today?</p>
+          {/* Hero Section with Merged Stats */}
+          <AnimatedCard delay={0.1}>
+            <Card className="p-4 space-y-4">
+              <div className="flex items-center gap-4">
+                <Avatar className="h-16 w-16 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
+                  <AvatarImage src={profile.avatar_url || undefined} />
+                  <AvatarFallback className="text-xl bg-primary/10 text-primary">
+                    {profile.username.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-xl font-bold break-words max-w-full">
+                    Welcome back, {profile.display_name || profile.username}!
+                  </h1>
+                  <p className="text-sm text-muted-foreground">Ready to conquer today?</p>
+                </div>
               </div>
-            </div>
 
-            {/* Stats Row */}
-            <div className="grid grid-cols-3 gap-3">
-              <AnimatedCard delay={0.2} onClick={() => navigate("/teams")}>
-                <Card className="p-4 text-center cursor-pointer transition-all hover-lift">
-                  <Users className="h-5 w-5 mx-auto mb-2 text-primary" />
-                  <p className="text-2xl font-bold font-heading text-primary">{stats.teams}</p>
-                  <p className="body-small text-subtle">Teams</p>
-                </Card>
-              </AnimatedCard>
-              <AnimatedCard delay={0.25}>
-                <Card className="p-4 text-center cursor-pointer transition-all hover-lift">
-                  <Activity className="h-5 w-5 mx-auto mb-2 text-primary" />
-                  <p className="text-2xl font-bold font-heading text-primary">{stats.activities}</p>
-                  <p className="body-small text-subtle">Activities</p>
-                </Card>
-              </AnimatedCard>
-              <AnimatedCard delay={0.3} onClick={() => navigate("/users")}>
-                <Card className="p-4 text-center cursor-pointer transition-all hover-lift">
-                  <TrendingUp className="h-5 w-5 mx-auto mb-2 text-primary" />
-                  <p className="text-2xl font-bold font-heading text-primary">{stats.followers}</p>
-                  <p className="body-small text-subtle">Followers</p>
-                </Card>
-              </AnimatedCard>
-            </div>
+              {/* Compact Stats Row */}
+              <div className="flex items-center justify-around border-t pt-3">
+                <button 
+                  onClick={() => navigate("/teams")}
+                  className="flex flex-col items-center gap-1 transition-colors hover:text-primary"
+                >
+                  <Users className="h-4 w-4 text-primary" />
+                  <p className="text-lg font-bold">{stats.teams}</p>
+                  <p className="text-xs text-muted-foreground">Teams</p>
+                </button>
+                <div className="h-12 w-px bg-border" />
+                <div className="flex flex-col items-center gap-1">
+                  <Activity className="h-4 w-4 text-primary" />
+                  <p className="text-lg font-bold">{stats.activities}</p>
+                  <p className="text-xs text-muted-foreground">Activities</p>
+                </div>
+                <div className="h-12 w-px bg-border" />
+                <button
+                  onClick={() => navigate("/users")}
+                  className="flex flex-col items-center gap-1 transition-colors hover:text-primary"
+                >
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                  <p className="text-lg font-bold">{stats.followers}</p>
+                  <p className="text-xs text-muted-foreground">Followers</p>
+                </button>
+              </div>
+            </Card>
+          </AnimatedCard>
 
-            {/* Primary CTA */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.35 }}
+          {/* Primary CTA */}
+          <AnimatedCard delay={0.2}>
+            <Button 
+              size="lg" 
+              className="w-full"
+              onClick={() => navigate("/track")}
             >
-              <Button 
-                size="lg" 
-                className="w-full"
-                onClick={() => navigate("/track")}
-              >
-                <Trophy className="mr-2 h-5 w-5" />
-                Log Activity
-              </Button>
-            </motion.div>
-          </motion.div>
-
-          {/* Quick Actions */}
-          <motion.div 
-            className="space-y-3"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            <h2 className="heading-3">Quick Actions</h2>
-            <QuickActions />
-          </motion.div>
+              <Trophy className="mr-2 h-5 w-5" />
+              Log Activity
+            </Button>
+          </AnimatedCard>
 
           {/* Activity Feed */}
           <motion.div 
             className="space-y-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.3 }}
           >
             <div className="flex items-center justify-between">
-              <h2 className="heading-3">Activity Feed</h2>
+              <h2 className="text-lg font-semibold">Activity Feed</h2>
               <Button variant="ghost" size="sm" className="text-primary">
                 View All
               </Button>
@@ -250,7 +229,7 @@ const Index = () => {
             ) : activities.length > 0 ? (
               <div className="space-y-4">
                 {activities.map((activity, index) => (
-                  <AnimatedCard key={activity.id} delay={0.6 + index * 0.05} hover={false}>
+                  <AnimatedCard key={activity.id} delay={0.4 + index * 0.05} hover={false}>
                     <ActivityCard {...activity} />
                   </AnimatedCard>
                 ))}

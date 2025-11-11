@@ -13,6 +13,7 @@ import Discover from "./pages/Discover";
 import Community from "./pages/Community";
 import Admin from "./pages/Admin";
 import Track from "./pages/Track";
+import ActivityHistory from "./pages/ActivityHistory";
 import Events from "./pages/Events";
 import EventDetail from "./pages/EventDetail";
 import Teams from "./pages/Teams";
@@ -91,6 +92,13 @@ const App = () => (
             <ProtectedRoute>
               <AppLayout>
                 <Track />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/activity-history" element={
+            <ProtectedRoute>
+              <AppLayout>
+                <ActivityHistory />
               </AppLayout>
             </ProtectedRoute>
           } />

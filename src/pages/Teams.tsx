@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Plus, Loader2, Users, Search as SearchIcon } from "lucide-react";
 import { Team } from "@/lib/teams";
 import { TeamSearchBar } from "@/components/teams/TeamSearchBar";
-import { TeamFilters } from "@/components/teams/TeamFilters";
 import { TeamCarousel } from "@/components/teams/TeamCarousel";
 import { SwipeableTeamCard } from "@/components/teams/SwipeableTeamCard";
 import { TeamCardSkeleton } from "@/components/teams/TeamCardSkeleton";
@@ -16,6 +15,8 @@ import { toast } from "sonner";
 import { PullToRefresh } from "@/components/animations/PullToRefresh";
 import { AnimatedCard } from "@/components/animations/AnimatedCard";
 import { motion } from "framer-motion";
+import { FilterSheet } from "@/components/common/FilterSheet";
+import { SportFilter } from "@/components/community/SportFilter";
 
 const Teams = () => {
   const navigate = useNavigate();
@@ -176,16 +177,27 @@ const Teams = () => {
             />
           </motion.div>
 
-          {/* Filter Chips */}
+          {/* Filter Button */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <TeamFilters 
-              activeSport={activeSport}
-              onSportChange={setActiveSport}
-            />
+            <FilterSheet 
+              activeCount={activeSport !== "All" ? 1 : 0}
+              onApply={() => {}}
+              onReset={() => setActiveSport("All")}
+            >
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium mb-3">Sport</h3>
+                  <SportFilter
+                    activeSport={activeSport}
+                    onSportChange={setActiveSport}
+                  />
+                </div>
+              </div>
+            </FilterSheet>
           </motion.div>
 
           {/* Featured Teams Carousel */}
