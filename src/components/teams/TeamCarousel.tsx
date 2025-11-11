@@ -23,13 +23,13 @@ export const TeamCarousel = ({ teams, memberCounts, myTeamIds }: TeamCarouselPro
         align: "start",
         loop: false,
       }}
-      className="w-full"
+      className="w-full max-w-full"
     >
-      <CarouselContent className="-ml-2 md:-ml-4">
+      <CarouselContent className="-ml-2 md:-ml-4 max-w-full">
         {teams.map((team) => (
           <CarouselItem 
             key={team.id} 
-            className="pl-2 md:pl-4 basis-[280px] md:basis-[320px]"
+            className="pl-2 md:pl-4 basis-[85%] sm:basis-[280px] md:basis-[320px] max-w-[320px] min-w-[260px]"
           >
             <FeaturedTeamCard
               team={team}

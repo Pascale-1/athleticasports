@@ -22,7 +22,7 @@ export const FeaturedTeamCard = ({ team, memberCount, isMember }: FeaturedTeamCa
       whileTap={{ scale: 0.98 }}
     >
       <Card 
-        className="h-[200px] relative overflow-hidden cursor-pointer group transition-shadow hover:shadow-xl"
+        className="min-h-[200px] relative overflow-hidden cursor-pointer group transition-shadow hover:shadow-xl w-full max-w-full"
         onClick={() => navigate(`/teams/${team.id}`)}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent z-10" />
@@ -46,9 +46,9 @@ export const FeaturedTeamCard = ({ team, memberCount, isMember }: FeaturedTeamCa
             )}
           </div>
           
-          <div>
-            <h3 className="font-bold text-xl mb-1 line-clamp-1">{team.name}</h3>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+          <div className="min-w-0 w-full">
+            <h3 className="font-bold text-xl mb-1 line-clamp-1 break-words">{team.name}</h3>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 flex-wrap">
               <Users className="h-4 w-4" />
               <span>{memberCount} {memberCount === 1 ? 'member' : 'members'}</span>
             </div>
@@ -60,7 +60,7 @@ export const FeaturedTeamCard = ({ team, memberCount, isMember }: FeaturedTeamCa
               >
                 <Button 
                   size="sm" 
-                  className="w-full bg-gradient-to-r from-primary to-primary/90"
+                  className="w-full gradient-primary min-h-[44px]"
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/teams/${team.id}`);

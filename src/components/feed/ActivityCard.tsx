@@ -43,7 +43,7 @@ export const ActivityCard = ({
   };
 
   return (
-    <Card className="overflow-hidden hover-lift transition-all duration-200 active:scale-[0.98]">
+    <Card className="overflow-hidden hover-lift transition-all duration-200 active:scale-[0.98] w-full max-w-full min-w-0">
       {/* Header */}
       <div className="p-4 flex items-center gap-3">
         <Avatar className="h-10 w-10">
@@ -52,11 +52,11 @@ export const ActivityCard = ({
             {username.substring(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm truncate">
+        <div className="flex-1 min-w-0 overflow-hidden">
+          <p className="font-semibold text-sm truncate break-all max-w-full">
             {displayName || username}
           </p>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
             <Trophy className="h-3 w-3" />
             <span>{activityType}</span>
             <span>•</span>
@@ -81,7 +81,7 @@ export const ActivityCard = ({
       {/* Content */}
       {description && (
         <div className="px-4 py-3">
-          <p className="text-sm leading-relaxed">{description}</p>
+          <p className="text-sm leading-relaxed break-words overflow-wrap-anywhere">{description}</p>
         </div>
       )}
 

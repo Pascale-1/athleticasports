@@ -23,7 +23,7 @@ const Card = React.forwardRef<
   ) : null;
 
   return (
-    <div ref={ref} className={cn(variantStyles[variant], "hover-lift", className)} {...props}>
+    <div ref={ref} className={cn(variantStyles[variant], "hover-lift w-full max-w-full min-w-0", className)} {...props}>
       {content || props.children}
     </div>
   );
