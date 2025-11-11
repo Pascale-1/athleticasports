@@ -98,9 +98,15 @@ const Index = () => {
         .select('*', { count: 'exact', head: true })
         .eq('following_id', userId);
 
+      // Fetch activities count
+      const { count: activitiesCount } = await supabase
+        .from('activities')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
       setStats({
         teams: teamsCount || 0,
-        activities: Math.floor(Math.random() * 20) + 5, // Mock for now
+        activities: activitiesCount || 0,
         followers: followersCount || 0,
       });
     } catch (error) {

@@ -9,10 +9,13 @@ import { InstallPrompt } from "./components/InstallPrompt";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Settings from "./pages/Settings";
-import Users from "./pages/Users";
+import Community from "./pages/Community";
 import Admin from "./pages/Admin";
 import Track from "./pages/Track";
+import Events from "./pages/Events";
+import EventDetail from "./pages/EventDetail";
 import Teams from "./pages/Teams";
+import Users from "./pages/Users";
 import TeamCreate from "./pages/TeamCreate";
 import TeamDetail from "./pages/TeamDetail";
 import TeamSettings from "./pages/TeamSettings";
@@ -45,10 +48,25 @@ const App = () => (
               </AppLayout>
             </ProtectedRoute>
           } />
+          <Route path="/community" element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Community />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          {/* Redirects for old routes */}
           <Route path="/users" element={
             <ProtectedRoute>
               <AppLayout>
                 <Users />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/teams" element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Teams />
               </AppLayout>
             </ProtectedRoute>
           } />
@@ -66,10 +84,17 @@ const App = () => (
               </AppLayout>
             </ProtectedRoute>
           } />
-          <Route path="/teams" element={
+          <Route path="/events" element={
             <ProtectedRoute>
               <AppLayout>
-                <Teams />
+                <Events />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/events/:eventId" element={
+            <ProtectedRoute>
+              <AppLayout>
+                <EventDetail />
               </AppLayout>
             </ProtectedRoute>
           } />

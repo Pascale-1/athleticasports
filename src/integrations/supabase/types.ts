@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      activities: {
+        Row: {
+          calories: number | null
+          created_at: string
+          date: string
+          description: string | null
+          distance: number | null
+          duration: number | null
+          id: string
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          calories?: number | null
+          created_at?: string
+          date?: string
+          description?: string | null
+          distance?: number | null
+          duration?: number | null
+          id?: string
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          calories?: number | null
+          created_at?: string
+          date?: string
+          description?: string | null
+          distance?: number | null
+          duration?: number | null
+          id?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       followers: {
         Row: {
           created_at: string
@@ -555,6 +597,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_goals: {
+        Row: {
+          created_at: string
+          current_value: number | null
+          description: string | null
+          end_date: string | null
+          goal_type: string
+          id: string
+          start_date: string
+          status: string
+          target_value: number | null
+          title: string
+          unit: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_value?: number | null
+          description?: string | null
+          end_date?: string | null
+          goal_type: string
+          id?: string
+          start_date?: string
+          status?: string
+          target_value?: number | null
+          title: string
+          unit?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_value?: number | null
+          description?: string | null
+          end_date?: string | null
+          goal_type?: string
+          id?: string
+          start_date?: string
+          status?: string
+          target_value?: number | null
+          title?: string
+          unit?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

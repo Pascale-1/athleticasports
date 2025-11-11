@@ -1,13 +1,13 @@
-import { Home, Users, Plus, Globe, User } from "lucide-react";
+import { Home, Users, Calendar, Activity, User } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { title: "Home", url: "/", icon: Home },
-  { title: "Teams", url: "/teams", icon: Users },
-  { title: "Track", url: "/track", icon: Plus },
-  { title: "Community", url: "/users", icon: Globe },
+  { title: "Track", url: "/track", icon: Activity },
+  { title: "Events", url: "/events", icon: Calendar },
+  { title: "Community", url: "/community", icon: Users },
   { title: "Profile", url: "/settings", icon: User },
 ];
 
