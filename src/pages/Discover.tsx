@@ -9,8 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Search, Calendar, Users, Trophy, ArrowRight } from "lucide-react";
 import { formatEventDate, Event } from "@/lib/events";
 import { Link } from "react-router-dom";
-import { FAB } from "@/components/mobile/FAB";
-import { QuickTeamCreateDialog } from "@/components/teams/QuickTeamCreateDialog";
 import { FilterSheet } from "@/components/common/FilterSheet";
 import { useSportFilter } from "@/hooks/useSportFilter";
 import { FollowButton } from "@/components/FollowButton";
@@ -33,7 +31,6 @@ const Discover = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
   const [people, setPeople] = useState<Profile[]>([]);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const { selectedSport, setSelectedSport } = useSportFilter();
   const [activeTab, setActiveTab] = useState<'teams' | 'people'>('teams');
 
@@ -324,18 +321,6 @@ const Discover = () => {
           </Card>
         )}
       </div>
-
-      <FAB
-        icon={<Users className="h-5 w-5" />}
-        label="Create Team"
-        onClick={() => setCreateDialogOpen(true)}
-      />
-
-      <QuickTeamCreateDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-        onTeamCreated={fetchData}
-      />
     </PageContainer>
   );
 };

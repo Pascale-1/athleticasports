@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TeamHeader } from "@/components/teams/TeamHeader";
-import { TeamMemberList } from "@/components/teams/TeamMemberList";
-import { TeamAnnouncements } from "@/components/teams/TeamAnnouncements";
-import { TrainingCalendar } from "@/components/teams/TrainingCalendar";
+import { TeamQuickStats } from "@/components/teams/TeamQuickStats";
+import { TeamAboutSection } from "@/components/teams/TeamAboutSection";
+import { NextEventPreview } from "@/components/teams/NextEventPreview";
+import { AnnouncementsPreview } from "@/components/teams/AnnouncementsPreview";
+import { MembersPreview } from "@/components/teams/MembersPreview";
+import { PerformancePreview } from "@/components/teams/PerformancePreview";
 import { InviteMemberDialog } from "@/components/teams/InviteMemberDialog";
-import { TeamInviteLink } from "@/components/teams/TeamInviteLink";
-import { PerformanceLevelsTab } from "@/components/teams/PerformanceLevelsTab";
 import { useTeam } from "@/hooks/useTeam";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useTeamInvitations } from "@/hooks/useTeamInvitations";
@@ -16,32 +16,22 @@ import { useTeamAnnouncements } from "@/hooks/useTeamAnnouncements";
 import { useEvents } from "@/hooks/useEvents";
 import { leaveTeam } from "@/lib/teams";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, UserPlus } from "lucide-react";
-import { useSwipeableTabs } from "@/hooks/useSwipeableTabs";
-import { SwipeableTabContent } from "@/components/animations/SwipeableTabContent";
+import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { FAB } from "@/components/mobile/FAB";
+import { isThisWeek } from "date-fns";
+import { PageContainer } from "@/components/mobile/PageContainer";
 
 const TeamDetail = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [memberCount, setMemberCount] = useState(0);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'announcements');
-
-  const tabs = ["announcements", "members", "performance", "events"];
-  const { swipeOffset, isSwiping, handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeableTabs({
-    tabs,
-    activeTab,
-    onTabChange: setActiveTab,
-  });
 
   const { team, userRole, isLoading, isMember, canManage } = useTeam(teamId || null);
-  const { members, loading: membersLoading, removeMember, updateMemberRole } = useTeamMembers(teamId || null);
-  const { sendInvitation, cancelInvitation, resendInvitation, invitations, loading: invitationsLoading } = useTeamInvitations(teamId || null);
+  const { members, loading: membersLoading } = useTeamMembers(teamId || null);
+  const { sendInvitation } = useTeamInvitations(teamId || null);
   const {
     announcements,
     loading: announcementsLoading,
@@ -52,9 +42,6 @@ const TeamDetail = () => {
   const {
     events: sessions,
     loading: sessionsLoading,
-    createEvent: createSession,
-    updateEvent: updateSession,
-    deleteEvent: deleteSession,
   } = useEvents(teamId || null, { includeAsOpponent: true });
 
   useEffect(() => {
@@ -117,7 +104,9 @@ const TeamDetail = () => {
     );
   }
 
-  const canCreateSession = canManage || userRole === "coach";
+  const activeMemberCount = members.filter(m => m.status === 'active').length;
+  const upcomingSessions = sessions.filter(s => new Date(s.start_time) > new Date());
+  const weeklyPosts = announcements.filter(a => isThisWeek(new Date(a.created_at))).length;
 
   return (
     <motion.div 
@@ -134,125 +123,47 @@ const TeamDetail = () => {
         onLeaveTeam={handleLeaveTeam}
       />
 
-      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-full">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6 max-w-full">
-          <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full gap-1 h-auto p-1">
-            <TabsTrigger value="announcements" className="text-[11px] xs:text-xs sm:text-sm px-2 py-2.5 h-auto whitespace-normal leading-tight">Announcements</TabsTrigger>
-            <TabsTrigger value="members" className="text-[11px] xs:text-xs sm:text-sm px-2 py-2.5 h-auto whitespace-normal leading-tight">Members</TabsTrigger>
-            <TabsTrigger value="performance" className="text-[11px] xs:text-xs sm:text-sm px-2 py-2.5 h-auto whitespace-normal leading-tight">Performance</TabsTrigger>
-            <TabsTrigger value="events" className="text-[11px] xs:text-xs sm:text-sm px-2 py-2.5 h-auto whitespace-normal leading-tight">Events</TabsTrigger>
-          </TabsList>
+      <PageContainer>
+        <div className="space-y-6 animate-fade-in">
+          <TeamQuickStats
+            eventCount={upcomingSessions.length}
+            activeMemberCount={activeMemberCount}
+            weeklyPosts={weeklyPosts}
+            loading={membersLoading || sessionsLoading || announcementsLoading}
+          />
 
-          <div
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            className="overflow-hidden"
-          >
-            <SwipeableTabContent
-              activeTab={activeTab}
-              tabValue="announcements"
-              swipeOffset={swipeOffset}
-              isSwiping={isSwiping}
-            >
-              {announcementsLoading ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : (
-                <TeamAnnouncements
-                  announcements={announcements}
-                  canPost={isMember}
-                  canManage={canManage}
-                  currentUserId={currentUserId}
-                  onPost={createAnnouncement}
-                  onTogglePin={togglePin}
-                  onDelete={deleteAnnouncement}
-                />
-              )}
-            </SwipeableTabContent>
+          <TeamAboutSection description={team.description} />
 
-            <SwipeableTabContent
-              activeTab={activeTab}
-              tabValue="members"
-              swipeOffset={swipeOffset}
-              isSwiping={isSwiping}
-            >
-              {membersLoading ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {canManage && team.invite_code && (
-                    <TeamInviteLink
-                      teamId={teamId || ""}
-                      inviteCode={team.invite_code}
-                      allowLinkJoining={team.allow_link_joining ?? true}
-                      canManage={canManage}
-                    />
-                  )}
-                  <TeamMemberList
-                    members={members}
-                    canManage={canManage}
-                    currentUserRole={userRole}
-                    onInvite={() => setInviteDialogOpen(true)}
-                    onRemoveMember={removeMember}
-                    onUpdateRole={updateMemberRole}
-                    invitations={invitations}
-                    onCancelInvitation={cancelInvitation}
-                    onResendInvitation={resendInvitation}
-                  />
-                </div>
-              )}
-            </SwipeableTabContent>
+          <NextEventPreview
+            event={upcomingSessions[0] || null}
+            teamId={teamId || ""}
+            canRSVP={isMember}
+          />
 
-            <SwipeableTabContent
-              activeTab={activeTab}
-              tabValue="performance"
-              swipeOffset={swipeOffset}
-              isSwiping={isSwiping}
-            >
-              {membersLoading ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : (
-                <PerformanceLevelsTab
-                  teamId={teamId || ""}
-                  members={members}
-                  canManage={canManage || userRole === "coach"}
-                />
-              )}
-            </SwipeableTabContent>
+          <AnnouncementsPreview
+            announcements={announcements}
+            canPost={isMember}
+            canManage={canManage}
+            currentUserId={currentUserId}
+            onPost={createAnnouncement}
+            onTogglePin={togglePin}
+            onDelete={deleteAnnouncement}
+            teamId={teamId || ""}
+          />
 
-            <SwipeableTabContent
-              activeTab={activeTab}
-              tabValue="events"
-              swipeOffset={swipeOffset}
-              isSwiping={isSwiping}
-            >
-              {sessionsLoading ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : (
-                <TrainingCalendar
-                  sessions={sessions}
-                  canCreateSession={canCreateSession}
-                  canManage={canManage}
-                  currentUserId={currentUserId}
-                  totalMembers={memberCount}
-                  teamId={teamId || undefined}
-                  onCreateSession={createSession}
-                  onUpdateSession={updateSession}
-                  onDeleteSession={deleteSession}
-                />
-              )}
-            </SwipeableTabContent>
-          </div>
-        </Tabs>
-      </div>
+          <MembersPreview
+            members={members}
+            canInvite={canManage}
+            onInvite={() => setInviteDialogOpen(true)}
+            teamId={teamId || ""}
+          />
+
+          <PerformancePreview
+            teamId={teamId || ""}
+            memberCount={memberCount}
+          />
+        </div>
+      </PageContainer>
 
       <InviteMemberDialog
         open={inviteDialogOpen}
@@ -261,14 +172,6 @@ const TeamDetail = () => {
         teamId={teamId || null}
         canManage={canManage}
       />
-
-      {canManage && activeTab === "members" && (
-        <FAB
-          icon={<UserPlus className="h-5 w-5" />}
-          label="Invite Member"
-          onClick={() => setInviteDialogOpen(true)}
-        />
-      )}
     </motion.div>
   );
 };

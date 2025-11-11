@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-const sports = ["All", "Football", "Basketball", "Running", "Cycling", "Swimming", "Tennis", "Volleyball"];
+const sports = ["All", "Soccer", "Basketball", "Running", "Cycling", "Swimming", "Tennis", "Volleyball"];
 
 interface SportFilterProps {
   activeSport: string;
