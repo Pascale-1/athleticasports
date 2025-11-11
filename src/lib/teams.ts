@@ -9,6 +9,7 @@ export interface Team {
   created_by: string;
   created_at: string;
   updated_at: string;
+  sport: string | null;
 }
 
 export interface TeamMember {
