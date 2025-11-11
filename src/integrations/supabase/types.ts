@@ -612,6 +612,54 @@ export type Database = {
           },
         ]
       }
+      team_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_edited: boolean | null
+          replied_to_id: string | null
+          team_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_edited?: boolean | null
+          replied_to_id?: string | null
+          team_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_edited?: boolean | null
+          replied_to_id?: string | null
+          team_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_messages_replied_to_id_fkey"
+            columns: ["replied_to_id"]
+            isOneToOne: false
+            referencedRelation: "team_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_messages_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teams: {
         Row: {
           allow_link_joining: boolean | null

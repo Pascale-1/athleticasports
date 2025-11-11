@@ -30,12 +30,20 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [primarySport, setPrimarySport] = useState("");
   const [teamName, setTeamName] = useState("");
   const [bio, setBio] = useState("");
   const [email, setEmail] = useState("");
+  const [originalValues, setOriginalValues] = useState({
+    fullName: "",
+    displayName: "",
+    primarySport: "",
+    teamName: "",
+    bio: ""
+  });
 
   useEffect(() => {
     fetchProfile();
@@ -58,11 +66,19 @@ const Settings = () => {
 
       setProfile(data);
       if (data) {
-        setFullName(data.full_name || "");
-        setDisplayName(data.display_name || "");
-        setPrimarySport(data.primary_sport || "");
-        setTeamName(data.team_name || "");
-        setBio(data.bio || "");
+        const values = {
+          fullName: data.full_name || "",
+          displayName: data.display_name || "",
+          primarySport: data.primary_sport || "",
+          teamName: data.team_name || "",
+          bio: data.bio || ""
+        };
+        setFullName(values.fullName);
+        setDisplayName(values.displayName);
+        setPrimarySport(values.primarySport);
+        setTeamName(values.teamName);
+        setBio(values.bio);
+        setOriginalValues(values);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -93,7 +109,8 @@ const Settings = () => {
 
         if (error) throw error;
         toast.success("Profile updated successfully");
-        navigate("/");
+        setIsEditing(false);
+        fetchProfile();
       } else {
         // Create new profile - generate random username
         const { data: username, error: usernameError } = await supabase
@@ -115,10 +132,9 @@ const Settings = () => {
 
         if (error) throw error;
         toast.success("Profile created successfully");
-        navigate("/");
+        setIsEditing(false);
+        fetchProfile();
       }
-
-      fetchProfile();
     } catch (error) {
       console.error('Error saving profile:', error);
       toast.error(profile ? "Failed to update profile" : "Failed to create profile");
@@ -226,118 +242,211 @@ const Settings = () => {
         </Card>
       )}
 
-      {/* Personal Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Personal Info</CardTitle>
-          <CardDescription>Your basic information</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              disabled
-              className="bg-muted"
-            />
-            <p className="text-caption text-muted-foreground">
-              🔒 Your email is managed through your account settings
-            </p>
-          </div>
+      {!isEditing ? (
+        /* View Mode */
+        <>
+          {/* Personal Info */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Personal Info</CardTitle>
+              <CardDescription>Your basic information</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <p className="text-body">{email}</p>
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
-            <Input
-              id="fullName"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Enter your full name"
-            />
-          </div>
+              <div className="space-y-2">
+                <Label>Full Name</Label>
+                <p className="text-body">{fullName || "Not set"}</p>
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="displayName">Display Name</Label>
-            <Input
-              id="displayName"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Enter your display name"
-            />
-          </div>
-        </CardContent>
-      </Card>
+              <div className="space-y-2">
+                <Label>Display Name</Label>
+                <p className="text-body">{displayName || "Not set"}</p>
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* Athletics */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Athletics</CardTitle>
-          <CardDescription>Your sport and team information</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Primary Sport</Label>
-            <SportSelector
-              value={primarySport}
-              onChange={setPrimarySport}
-            />
-          </div>
+          {/* Athletics */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Athletics</CardTitle>
+              <CardDescription>Your sport and team information</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Primary Sport</Label>
+                <p className="text-body">{primarySport || "Not set"}</p>
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="teamName">Team/Club</Label>
-            <Input
-              id="teamName"
-              value={teamName}
-              onChange={(e) => setTeamName(e.target.value)}
-              placeholder="Enter your team or club name"
-            />
-          </div>
-        </CardContent>
-      </Card>
+              <div className="space-y-2">
+                <Label>Team/Club</Label>
+                <p className="text-body">{teamName || "Not set"}</p>
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* About */}
-      <Card>
-        <CardHeader>
-          <CardTitle>About</CardTitle>
-          <CardDescription>Tell other athletes about yourself</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
-            <Textarea
-              id="bio"
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              placeholder="Tell us about yourself, your goals, achievements..."
-              rows={4}
-              className="resize-none"
-            />
-            <p className="text-caption text-muted-foreground">
-              {bio.length}/500 characters
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+          {/* About */}
+          <Card>
+            <CardHeader>
+              <CardTitle>About</CardTitle>
+              <CardDescription>Tell other athletes about yourself</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Bio</Label>
+                <p className="text-body whitespace-pre-wrap">{bio || "Not set"}</p>
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* Sticky Save Button */}
-      <div className="fixed bottom-16 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t md:relative md:bottom-auto md:left-auto md:right-auto md:p-0 md:bg-transparent md:backdrop-blur-none md:border-t-0">
-        <Button 
-          onClick={handleSave} 
-          disabled={saving} 
-          size="lg"
-          className="w-full max-w-2xl mx-auto"
-        >
-          {saving ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {profile ? "Saving..." : "Creating..."}
-            </>
-          ) : (
-            profile ? "Save Changes" : "Create Profile"
-          )}
-        </Button>
-      </div>
+          {/* Edit Button */}
+          <div className="fixed bottom-16 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t md:relative md:bottom-auto md:left-auto md:right-auto md:p-0 md:bg-transparent md:backdrop-blur-none md:border-t-0">
+            <Button 
+              onClick={() => setIsEditing(true)}
+              size="lg"
+              className="w-full max-w-2xl mx-auto"
+            >
+              Edit Profile
+            </Button>
+          </div>
+        </>
+      ) : (
+        /* Edit Mode */
+        <>
+          {/* Personal Info */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Personal Info</CardTitle>
+              <CardDescription>Your basic information</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  disabled
+                  className="bg-muted"
+                />
+                <p className="text-caption text-muted-foreground">
+                  🔒 Your email is managed through your account settings
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Enter your full name"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="displayName">Display Name</Label>
+                <Input
+                  id="displayName"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="Enter your display name"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Athletics */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Athletics</CardTitle>
+              <CardDescription>Your sport and team information</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Primary Sport</Label>
+                <SportSelector
+                  value={primarySport}
+                  onChange={setPrimarySport}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="teamName">Team/Club</Label>
+                <Input
+                  id="teamName"
+                  value={teamName}
+                  onChange={(e) => setTeamName(e.target.value)}
+                  placeholder="Enter your team or club name"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* About */}
+          <Card>
+            <CardHeader>
+              <CardTitle>About</CardTitle>
+              <CardDescription>Tell other athletes about yourself</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="bio">Bio</Label>
+                <Textarea
+                  id="bio"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  placeholder="Tell us about yourself, your goals, achievements..."
+                  rows={4}
+                  className="resize-none"
+                />
+                <p className="text-caption text-muted-foreground">
+                  {bio.length}/500 characters
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Save/Cancel Buttons */}
+          <div className="fixed bottom-16 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t md:relative md:bottom-auto md:left-auto md:right-auto md:p-0 md:bg-transparent md:backdrop-blur-none md:border-t-0">
+            <div className="flex gap-2 max-w-2xl mx-auto">
+              <Button 
+                onClick={handleSave} 
+                disabled={saving} 
+                size="lg"
+                className="flex-1"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
+              <Button 
+                onClick={() => {
+                  setFullName(originalValues.fullName);
+                  setDisplayName(originalValues.displayName);
+                  setPrimarySport(originalValues.primarySport);
+                  setTeamName(originalValues.teamName);
+                  setBio(originalValues.bio);
+                  setIsEditing(false);
+                }}
+                variant="outline"
+                size="lg"
+                disabled={saving}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

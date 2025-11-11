@@ -5,10 +5,11 @@ import { TeamHeader } from "@/components/teams/TeamHeader";
 import { TeamQuickStats } from "@/components/teams/TeamQuickStats";
 import { TeamAboutSection } from "@/components/teams/TeamAboutSection";
 import { EventsPreview } from "@/components/teams/EventsPreview";
-import { AnnouncementsPreview } from "@/components/teams/AnnouncementsPreview";
 import { MembersPreview } from "@/components/teams/MembersPreview";
 import { PerformancePreview } from "@/components/teams/PerformancePreview";
 import { InviteMemberDialog } from "@/components/teams/InviteMemberDialog";
+import { TeamAnnouncements } from "@/components/teams/TeamAnnouncements";
+import { TeamChat } from "@/components/teams/TeamChat";
 import { useTeam } from "@/hooks/useTeam";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useTeamInvitations } from "@/hooks/useTeamInvitations";
@@ -20,6 +21,8 @@ import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { isThisWeek } from "date-fns";
 import { PageContainer } from "@/components/mobile/PageContainer";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const TeamDetail = () => {
   const { teamId } = useParams<{ teamId: string }>();
@@ -140,16 +143,35 @@ const TeamDetail = () => {
             canRSVP={isMember}
           />
 
-          <AnnouncementsPreview
-            announcements={announcements}
-            canPost={isMember}
-            canManage={canManage}
-            currentUserId={currentUserId}
-            onPost={createAnnouncement}
-            onTogglePin={togglePin}
-            onDelete={deleteAnnouncement}
-            teamId={teamId || ""}
-          />
+          <Card>
+            <CardHeader>
+              <CardTitle>Team Communication</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="announcements" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="announcements">Announcements</TabsTrigger>
+                  <TabsTrigger value="chat">Chat</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="announcements" className="mt-4">
+                  <TeamAnnouncements
+                    announcements={announcements}
+                    canPost={isMember}
+                    canManage={canManage}
+                    currentUserId={currentUserId}
+                    onPost={createAnnouncement}
+                    onTogglePin={togglePin}
+                    onDelete={deleteAnnouncement}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="chat" className="mt-4">
+                  <TeamChat teamId={teamId || ""} />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
 
           <MembersPreview
             members={members}

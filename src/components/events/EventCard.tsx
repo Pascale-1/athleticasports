@@ -85,13 +85,18 @@ export const EventCard = ({
                   <span className="truncate">{formatEventDate(event.start_time)}</span>
                 </div>
                 
-                {event.location && (
-                  <div className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    <span className="truncate">{event.location}</span>
-                  </div>
-                )}
+              {event.location && (
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  <span className="truncate">{event.location}</span>
+                </div>
+              )}
+              
+              <div className="flex items-center gap-1">
+                <Users className="h-3 w-3" />
+                <span>{attendeeCount} attending</span>
               </div>
+            </div>
               
               {showInlineRSVP && onRSVPChange && (
                 <div className="flex gap-1 mt-2" onClick={(e) => e.preventDefault()}>
