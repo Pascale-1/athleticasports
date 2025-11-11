@@ -46,7 +46,6 @@ export const useEvents = (teamId?: string | null, filters?: {
           event: "*",
           schema: "public",
           table: "events",
-          filter: teamId ? `team_id=eq.${teamId}` : undefined,
         },
         () => {
           fetchEvents();

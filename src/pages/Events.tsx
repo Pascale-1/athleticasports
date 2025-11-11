@@ -183,6 +183,7 @@ const Events = () => {
           <EventsList
             events={filteredEvents}
             variant="compact"
+            showInlineRSVP={true}
             emptyTitle={
               filters.status === 'past'
                 ? 'No past events'

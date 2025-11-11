@@ -92,6 +92,35 @@ export const EventCard = ({
                   </div>
                 )}
               </div>
+              
+              {showInlineRSVP && onRSVPChange && (
+                <div className="flex gap-1 mt-2" onClick={(e) => e.preventDefault()}>
+                  <Button
+                    onClick={() => onRSVPChange('attending')}
+                    variant={userStatus === 'attending' ? 'default' : 'outline'}
+                    size="sm"
+                    className="flex-1 text-xs py-1 h-7"
+                  >
+                    Going
+                  </Button>
+                  <Button
+                    onClick={() => onRSVPChange('maybe')}
+                    variant={userStatus === 'maybe' ? 'default' : 'outline'}
+                    size="sm"
+                    className="flex-1 text-xs py-1 h-7"
+                  >
+                    Maybe
+                  </Button>
+                  <Button
+                    onClick={() => onRSVPChange('not_attending')}
+                    variant={userStatus === 'not_attending' ? 'default' : 'outline'}
+                    size="sm"
+                    className="flex-1 text-xs py-1 h-7"
+                  >
+                    No
+                  </Button>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
