@@ -125,73 +125,97 @@ const Events = () => {
           </FilterSheet>
         </div>
 
-        {/* Event Type Pills */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button
-            variant={activeEventType === 'all' ? "default" : "outline"}
-            size="sm"
-            onClick={() => {
-              setActiveEventType('all');
-              setTypeFilter('all');
-            }}
-          >
-            All Events ({events.length})
-          </Button>
-          <Button
-            variant={activeEventType === 'training' ? "default" : "outline"}
-            size="sm"
-            onClick={() => {
-              setActiveEventType('training');
-              setTypeFilter('training');
-            }}
-          >
-            <Trophy className="h-4 w-4 mr-1" />
-            Training ({events.filter(e => e.type === 'training').length})
-          </Button>
-          <Button
-            variant={activeEventType === 'meetup' ? "default" : "outline"}
-            size="sm"
-            onClick={() => {
-              setActiveEventType('meetup');
-              setTypeFilter('meetup');
-            }}
-          >
-            <Users className="h-4 w-4 mr-1" />
-            Meetup ({events.filter(e => e.type === 'meetup').length})
-          </Button>
-          <Button
-            variant={activeEventType === 'match' ? "default" : "outline"}
-            size="sm"
-            onClick={() => {
-              setActiveEventType('match');
-              setTypeFilter('match');
-            }}
-          >
-            <Zap className="h-4 w-4 mr-1" />
-            Match ({events.filter(e => e.type === 'match').length})
-          </Button>
-        </div>
+        {/* Event Type Pills + View Toggle */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-1 bg-muted p-1 rounded-lg">
+            <Button
+              variant={activeEventType === 'all' ? "default" : "ghost"}
+              size="sm"
+              onClick={() => {
+                setActiveEventType('all');
+                setTypeFilter('all');
+              }}
+              className="h-9 w-9 p-0 relative"
+            >
+              <LayoutGrid className="h-4 w-4" />
+              {events.length > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+                  {events.length}
+                </span>
+              )}
+            </Button>
+            
+            <Button
+              variant={activeEventType === 'training' ? "default" : "ghost"}
+              size="sm"
+              onClick={() => {
+                setActiveEventType('training');
+                setTypeFilter('training');
+              }}
+              className="h-9 w-9 p-0 relative"
+            >
+              <Trophy className="h-4 w-4" />
+              {events.filter(e => e.type === 'training').length > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+                  {events.filter(e => e.type === 'training').length}
+                </span>
+              )}
+            </Button>
+            
+            <Button
+              variant={activeEventType === 'meetup' ? "default" : "ghost"}
+              size="sm"
+              onClick={() => {
+                setActiveEventType('meetup');
+                setTypeFilter('meetup');
+              }}
+              className="h-9 w-9 p-0 relative"
+            >
+              <Users className="h-4 w-4" />
+              {events.filter(e => e.type === 'meetup').length > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+                  {events.filter(e => e.type === 'meetup').length}
+                </span>
+              )}
+            </Button>
+            
+            <Button
+              variant={activeEventType === 'match' ? "default" : "ghost"}
+              size="sm"
+              onClick={() => {
+                setActiveEventType('match');
+                setTypeFilter('match');
+              }}
+              className="h-9 w-9 p-0 relative"
+            >
+              <Zap className="h-4 w-4" />
+              {events.filter(e => e.type === 'match').length > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+                  {events.filter(e => e.type === 'match').length}
+                </span>
+              )}
+            </Button>
+          </div>
 
-        {/* View Toggle - Icon Only on Mobile */}
-        <div className="flex items-center gap-2">
-          <Button
-            variant={viewMode === 'list' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('list')}
-            className="flex-1 sm:flex-none"
-          >
-            <List className="h-4 w-4" />
-            <span className="ml-2 hidden sm:inline">List</span>
-          </Button>
-          <Button
-            variant={viewMode === 'calendar' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('calendar')}
-            className="flex-1 sm:flex-none"
-          >
-            <CalendarIcon className="h-4 w-4" />
-            <span className="ml-2 hidden sm:inline">Calendar</span>
-          </Button>
+          {/* View Toggle */}
+          <div className="flex items-center gap-1 bg-muted p-1 rounded-lg">
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+              className="h-9 px-3"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'calendar' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('calendar')}
+              className="h-9 px-3"
+            >
+              <CalendarIcon className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         {/* Content */}
@@ -207,25 +231,33 @@ const Events = () => {
           <div className="space-y-6">
             {groupedEvents.today.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-body-large font-semibold text-primary">Today</h3>
+                <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-2 -mx-4 px-4">
+                  <h3 className="text-lg font-bold text-primary">Today</h3>
+                </div>
                 <EventsList events={groupedEvents.today} showInlineRSVP />
               </div>
             )}
             {groupedEvents.tomorrow.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-body-large font-semibold">Tomorrow</h3>
+                <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-2 -mx-4 px-4">
+                  <h3 className="text-lg font-bold">Tomorrow</h3>
+                </div>
                 <EventsList events={groupedEvents.tomorrow} showInlineRSVP />
               </div>
             )}
             {groupedEvents.thisWeek.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-body-large font-semibold">This Week</h3>
+                <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-2 -mx-4 px-4">
+                  <h3 className="text-lg font-bold">This Week</h3>
+                </div>
                 <EventsList events={groupedEvents.thisWeek} showInlineRSVP />
               </div>
             )}
             {groupedEvents.later.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-body-large font-semibold">Coming Up</h3>
+                <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-2 -mx-4 px-4">
+                  <h3 className="text-lg font-bold">Coming Up</h3>
+                </div>
                 <EventsList events={groupedEvents.later} showInlineRSVP />
               </div>
             )}

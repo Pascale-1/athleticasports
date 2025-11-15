@@ -275,7 +275,7 @@ const Teams = () => {
               <h2 className="text-body-large font-semibold">
                 My Teams ({filteredMyTeams.length})
               </h2>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 {filteredMyTeams.map((team, index) => (
                   <AnimatedCard key={team.id} delay={0.35 + index * 0.05} hover={false}>
                     <SwipeableTeamCard
@@ -304,13 +304,13 @@ const Teams = () => {
               </h2>
             
             {loading ? (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 {[...Array(6)].map((_, i) => (
                   <TeamCardSkeleton key={i} />
                 ))}
               </div>
             ) : filteredPublicTeams.length > 0 ? (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 {filteredPublicTeams.map((team, index) => (
                   <AnimatedCard key={team.id} delay={0.45 + index * 0.05} hover={false}>
                     <SwipeableTeamCard

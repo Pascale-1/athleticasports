@@ -82,101 +82,91 @@ export const EventCard = memo(({
         className="hover:shadow-md transition-all border-l-4 active:scale-[0.99]" 
         style={{ borderLeftColor: getEventTypeAccentColor() }}
       >
-        <CardContent className="p-3 sm:p-4">
-          <div className="space-y-3">
-            {/* Header Row */}
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-2.5">
-                <div className={`p-2 rounded-lg ${getEventTypeColor()}`}>
-                  {getEventIcon()}
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-semibold text-base line-clamp-1">
-                    {event.title}
-                  </h3>
-                  <Badge className={`${getEventTypeColor()} mt-1 text-xs`}>
-                    {event.type}
-                  </Badge>
-                </div>
+        <CardContent className="p-3 space-y-2.5">
+          {/* Row 1: Icon + Title + Status */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div className={`p-1.5 rounded-lg ${getEventTypeColor()}`}>
+                {getEventIcon()}
               </div>
-              {getStatusBadge()}
+              <h3 className="font-semibold text-base truncate">
+                {event.title}
+              </h3>
             </div>
-
-            {/* Description */}
-            {event.description && (
-              <p className="text-sm text-muted-foreground line-clamp-2">
-                {event.description}
-              </p>
+            {getStatusBadge()}
+          </div>
+          
+          {/* Row 2: Date + Time (single line) */}
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <Calendar className="h-4 w-4" />
+              {formatEventDate(event.start_time)}
+            </span>
+            {event.end_time && (
+              <span className="flex items-center gap-1.5">
+                <Clock className="h-4 w-4" />
+                {new Date(event.start_time).toLocaleTimeString('en-US', { 
+                  hour: 'numeric', 
+                  minute: '2-digit',
+                  hour12: true 
+                })}
+              </span>
             )}
-
-            {/* Event Details */}
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Calendar className="h-4 w-4 shrink-0" />
-                <span className="truncate">{formatEventDate(event.start_time)}</span>
-              </div>
-              
-              {event.location && (
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <MapPin className="h-4 w-4 shrink-0" />
-                  <span className="truncate">{event.location}</span>
-                </div>
-              )}
-              
-              {event.end_time && (
-                <div className="flex items-center gap-2 text-muted-foreground col-span-2">
-                  <Clock className="h-4 w-4 shrink-0" />
-                  <span className="truncate">{formatEventDateRange(event.start_time, event.end_time)}</span>
-                </div>
-              )}
+          </div>
+          
+          {/* Row 3: Location (if exists) */}
+          {event.location && (
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <MapPin className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{event.location}</span>
+            </div>
+          )}
+          
+          {/* Row 4: Attendees + RSVP Pills */}
+          <div className="flex items-center justify-between pt-2 border-t">
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <Users className="h-4 w-4" />
+              <span>{attendeeCount} going</span>
             </div>
 
-            {/* Attendee Count */}
-            <div className="flex items-center justify-between pt-2 border-t">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Users className="h-4 w-4" />
-                <span>{attendeeCount} attending</span>
+            {/* Always visible RSVP buttons */}
+            {showInlineRSVP && onRSVPChange && (
+              <div className="flex gap-1">
+                <Button
+                  variant={userStatus === 'attending' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onRSVPChange('attending');
+                  }}
+                  className="h-7 w-7 p-0"
+                >
+                  <UserCheck className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant={userStatus === 'maybe' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onRSVPChange('maybe');
+                  }}
+                  className="h-7 w-7 p-0"
+                >
+                  ?
+                </Button>
+                <Button
+                  variant={userStatus === 'not_attending' ? 'destructive' : 'outline'}
+                  size="sm"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onRSVPChange('not_attending');
+                  }}
+                  className="h-7 w-7 p-0"
+                >
+                  ✕
+                </Button>
               </div>
-
-              {/* Always visible RSVP buttons */}
-              {showInlineRSVP && onRSVPChange && (
-                <div className="flex gap-1">
-                  <Button
-                    variant={userStatus === 'attending' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      onRSVPChange('attending');
-                    }}
-                    className="h-8 px-3"
-                  >
-                    <UserCheck className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    variant={userStatus === 'maybe' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      onRSVPChange('maybe');
-                    }}
-                    className="h-8 px-3"
-                  >
-                    ?
-                  </Button>
-                  <Button
-                    variant={userStatus === 'not_attending' ? 'destructive' : 'outline'}
-                    size="sm"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      onRSVPChange('not_attending');
-                    }}
-                    className="h-8 px-3"
-                  >
-                    ✕
-                  </Button>
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </CardContent>
       </Card>
