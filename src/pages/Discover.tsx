@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Search, Calendar, Users, Trophy, ArrowRight, Plus, MapPin, ChevronRight } from "lucide-react";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { EventsList } from "@/components/events/EventsList";
-import { format, isToday, isTomorrow, isThisWeek, startOfWeek, endOfWeek } from "date-fns";
+import { TeamCarousel } from "@/components/teams/TeamCarousel";
+import { format, isToday, isTomorrow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { formatEventDate, Event } from "@/lib/events";
 import { Link } from "react-router-dom";
@@ -34,6 +35,7 @@ const Discover = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
   const [people, setPeople] = useState<Profile[]>([]);
+  const [myTeamIds, setMyTeamIds] = useState<string[]>([]);
   const { selectedSport, setSelectedSport } = useSportFilter();
   const [activeTab, setActiveTab] = useState<'teams' | 'events'>('events');
   const [createEventDialogOpen, setCreateEventDialogOpen] = useState(false);
@@ -69,6 +71,7 @@ const Discover = () => {
       
       // Build OR filter: public events OR user's created events OR user's team events
       const orConditions = ['is_public.eq.true'];
+      let userTeamIds: string[] = [];
       
       if (user) {
         orConditions.push(`created_by.eq.${user.id}`);
@@ -81,6 +84,7 @@ const Discover = () => {
           .eq('status', 'active');
         
         const teamIds = (memberships || []).map(m => m.team_id).filter(Boolean);
+        userTeamIds = teamIds;
         
         if (teamIds.length > 0) {
           orConditions.push(`team_id.in.(${teamIds.join(',')})`);
@@ -114,6 +118,7 @@ const Discover = () => {
       setEvents(eventsData || []);
       setTeams(teamsData || []);
       setPeople(profilesData || []);
+      setMyTeamIds(userTeamIds);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -147,26 +152,32 @@ const Discover = () => {
     return matchesSearch && matchesSport;
   });
 
-  const groupEventsByTime = (events: Event[]) => {
-    const now = new Date();
-    const weekStart = startOfWeek(now);
-    const weekEnd = endOfWeek(now);
-
-    return {
-      today: events.filter(e => isToday(new Date(e.start_time))),
-      tomorrow: events.filter(e => isTomorrow(new Date(e.start_time))),
-      thisWeek: events.filter(e => {
-        const date = new Date(e.start_time);
-        return !isToday(date) && !isTomorrow(date) && isThisWeek(date);
-      }),
-      comingUp: events.filter(e => {
-        const date = new Date(e.start_time);
-        return date > weekEnd;
-      })
-    };
+  const groupEventsByActualDate = (events: Event[]) => {
+    const grouped: Record<string, Event[]> = {};
+    
+    events.forEach(event => {
+      const eventDate = parseISO(event.start_time);
+      
+      let key: string;
+      if (isToday(eventDate)) {
+        key = 'Today';
+      } else if (isTomorrow(eventDate)) {
+        key = 'Tomorrow';
+      } else {
+        // Format as "Wednesday, Nov 20"
+        key = format(eventDate, 'EEEE, MMM d');
+      }
+      
+      if (!grouped[key]) {
+        grouped[key] = [];
+      }
+      grouped[key].push(event);
+    });
+    
+    return grouped;
   };
 
-  const groupedEvents = groupEventsByTime(filteredEvents);
+  const groupedEvents = groupEventsByActualDate(filteredEvents);
 
   if (loading) {
     return (
@@ -252,48 +263,20 @@ const Discover = () => {
                 All Events
               </button>
             </div>
-            {activeTab === 'teams' && (
-              <Link to="/teams">
-                <Button variant="ghost" size="sm" className="text-primary">
-                  See all <ArrowRight className="h-4 w-4 ml-1" />
-                </Button>
-              </Link>
-            )}
           </div>
 
           {/* Teams Tab */}
           {activeTab === 'teams' && (
             <>
               {filteredTeams.length > 0 ? (
-                <div className="grid grid-cols-2 gap-3">
-                  {filteredTeams.slice(0, 6).map((team, index) => (
-                    <AnimatedCard key={team.id}>
-                      <Link to={`/teams/${team.id}`}>
-                        <Card className="hover:shadow-md transition-shadow h-full">
-                          <CardContent className="p-3">
-                            <div className="flex flex-col items-center text-center gap-2">
-                              <Avatar className="h-10 w-10">
-                                <AvatarImage src={team.logo_url} />
-                                <AvatarFallback>
-                                  {team.name.substring(0, 2).toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="w-full min-w-0">
-                                <h3 className="font-semibold text-sm truncate">{team.name}</h3>
-                                <p className="text-xs text-muted-foreground">
-                                  {team.team_members?.[0]?.count || 0} members
-                                </p>
-                                {team.sport && (
-                                  <Badge variant="outline" className="text-xs mt-1">{team.sport}</Badge>
-                                )}
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </Link>
-                    </AnimatedCard>
-                  ))}
-                </div>
+                <TeamCarousel
+                  teams={filteredTeams}
+                  memberCounts={filteredTeams.reduce((acc, team) => {
+                    acc[team.id] = team.team_members?.[0]?.count || 0;
+                    return acc;
+                  }, {} as Record<string, number>)}
+                  myTeamIds={myTeamIds}
+                />
               ) : (
                 <Card>
                   <CardContent className="p-8 text-center">
@@ -307,7 +290,6 @@ const Discover = () => {
                     {(searchQuery || selectedSport) && (
                       <Button 
                         variant="outline" 
-                        size="sm"
                         onClick={() => {
                           setSearchQuery('');
                           setSelectedSport(null);
@@ -335,57 +317,18 @@ const Discover = () => {
               
               {filteredEvents.length > 0 ? (
                 <div className="space-y-6">
-                  {groupedEvents.today.length > 0 && (
-                    <div className="space-y-2">
-                      <h3 className="text-body font-semibold text-foreground">Today</h3>
+                  {Object.entries(groupedEvents).map(([dateLabel, events]) => (
+                    <div key={dateLabel} className="space-y-2">
+                      <h3 className="text-body font-semibold text-foreground">{dateLabel}</h3>
                       <EventsList 
-                        events={groupedEvents.today}
+                        events={events}
                         variant="compact"
                         showInlineRSVP={true}
                         emptyTitle=""
                         emptyDescription=""
                       />
                     </div>
-                  )}
-
-                  {groupedEvents.tomorrow.length > 0 && (
-                    <div className="space-y-2">
-                      <h3 className="text-body font-semibold text-foreground">Tomorrow</h3>
-                      <EventsList 
-                        events={groupedEvents.tomorrow}
-                        variant="compact"
-                        showInlineRSVP={true}
-                        emptyTitle=""
-                        emptyDescription=""
-                      />
-                    </div>
-                  )}
-
-                  {groupedEvents.thisWeek.length > 0 && (
-                    <div className="space-y-2">
-                      <h3 className="text-body font-semibold text-foreground">This Week</h3>
-                      <EventsList 
-                        events={groupedEvents.thisWeek}
-                        variant="compact"
-                        showInlineRSVP={true}
-                        emptyTitle=""
-                        emptyDescription=""
-                      />
-                    </div>
-                  )}
-
-                  {groupedEvents.comingUp.length > 0 && (
-                    <div className="space-y-2">
-                      <h3 className="text-body font-semibold text-foreground">Coming Up</h3>
-                      <EventsList 
-                        events={groupedEvents.comingUp}
-                        variant="compact"
-                        showInlineRSVP={true}
-                        emptyTitle=""
-                        emptyDescription=""
-                      />
-                    </div>
-                  )}
+                  ))}
                 </div>
               ) : (
                 <Card className="p-8 text-center">
