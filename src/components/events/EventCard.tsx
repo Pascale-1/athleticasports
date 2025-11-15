@@ -52,6 +52,19 @@ export const EventCard = memo(({
     }
   };
 
+  const getEventTypeAccentColor = () => {
+    switch (event.type) {
+      case 'training':
+        return 'hsl(var(--primary))';
+      case 'match':
+        return 'hsl(var(--destructive))';
+      case 'meetup':
+        return 'hsl(var(--secondary))';
+      default:
+        return 'hsl(var(--muted))';
+    }
+  };
+
   const getStatusBadge = () => {
     if (!userStatus) return null;
     
@@ -68,7 +81,7 @@ export const EventCard = memo(({
   if (variant === 'compact') {
     return (
       <Link to={`/events/${event.id}`}>
-        <Card className={`hover:shadow-md transition-all ${getEventTypeColor()}`}>
+        <Card className="hover:shadow-md transition-all border-l-4" style={{ borderLeftColor: getEventTypeAccentColor() }}>
           <CardContent className="p-3">
             <div className="space-y-2">
               <div className="flex items-start justify-between gap-2">
@@ -136,7 +149,7 @@ export const EventCard = memo(({
 
   return (
     <Link to={`/events/${event.id}`}>
-      <Card className={`hover:shadow-md transition-all ${getEventTypeColor()}`}>
+      <Card className="hover:shadow-md transition-all border-l-4" style={{ borderLeftColor: getEventTypeAccentColor() }}>
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <div className={`p-2 rounded-lg ${getEventTypeColor()}`}>

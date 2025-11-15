@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Search, Calendar, Users, Trophy, ArrowRight, Plus, MapPin, ChevronRight } from "lucide-react";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { EventsList } from "@/components/events/EventsList";
-import { TeamCarousel } from "@/components/teams/TeamCarousel";
+import { FeaturedTeamCard } from "@/components/teams/FeaturedTeamCard";
 import { format, isToday, isTomorrow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { formatEventDate, Event } from "@/lib/events";
@@ -269,14 +269,16 @@ const Discover = () => {
           {activeTab === 'teams' && (
             <>
               {filteredTeams.length > 0 ? (
-                <TeamCarousel
-                  teams={filteredTeams}
-                  memberCounts={filteredTeams.reduce((acc, team) => {
-                    acc[team.id] = team.team_members?.[0]?.count || 0;
-                    return acc;
-                  }, {} as Record<string, number>)}
-                  myTeamIds={myTeamIds}
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-auto">
+                  {filteredTeams.map((team) => (
+                    <FeaturedTeamCard
+                      key={team.id}
+                      team={team}
+                      memberCount={team.team_members?.[0]?.count || 0}
+                      isMember={myTeamIds.includes(team.id)}
+                    />
+                  ))}
+                </div>
               ) : (
                 <Card>
                   <CardContent className="p-8 text-center">
