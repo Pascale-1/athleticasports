@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Team } from "@/lib/teams";
-import { SwipeableTeamCard } from "@/components/teams/SwipeableTeamCard";
+import { TeamCard } from "@/components/teams/TeamCard";
 import { TeamCarousel } from "@/components/teams/TeamCarousel";
 import { AnimatedCard } from "@/components/animations/AnimatedCard";
 import { EmptyState } from "@/components/EmptyState";
@@ -105,12 +105,10 @@ export const TeamsTab = ({
           <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
             {filteredMyTeams.map((team, index) => (
               <AnimatedCard key={team.id} delay={0.25 + index * 0.05} hover={false}>
-                <SwipeableTeamCard
+                <TeamCard
                   team={team}
                   memberCount={memberCounts[team.id] || 0}
                   isMember={true}
-                  onLeave={() => handleLeaveTeam(team.id)}
-                  onSettings={() => navigate(`/teams/${team.id}/settings`)}
                 />
               </AnimatedCard>
             ))}
@@ -133,12 +131,10 @@ export const TeamsTab = ({
           <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
             {filteredPublicTeams.map((team, index) => (
               <AnimatedCard key={team.id} delay={0.35 + index * 0.05} hover={false}>
-                <SwipeableTeamCard
+                <TeamCard
                   team={team}
                   memberCount={memberCounts[team.id] || 0}
                   isMember={false}
-                  onJoin={() => navigate(`/teams/${team.id}`)}
-                  onShare={() => handleShareTeam(team.id)}
                 />
               </AnimatedCard>
             ))}

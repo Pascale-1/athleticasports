@@ -87,11 +87,37 @@ export const EventCard = memo(({
 
   return (
     <Link to={`/events/${event.id}`}>
-      <Card 
-        className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border-l-[6px] active:scale-[0.99]" 
-        style={{ borderLeftColor: getEventTypeAccentColor() }}
-      >
-        <CardContent className="p-4 md:p-5 space-y-3">
+      <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border-l-[6px] active:scale-[0.99]" style={{ borderLeftColor: getEventTypeAccentColor() }}>
+        <CardContent className="p-3 sm:p-4 space-y-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5 flex-1 min-w-0">
+              <div className={`p-1.5 rounded-lg ${getEventTypeColor()}`}>{getEventIcon()}</div>
+              <h3 className="text-base font-heading font-semibold truncate">{event.title}</h3>
+            </div>
+            {getStatusBadge()}
+          </div>
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+            <Calendar className="h-4 w-4" />
+            <span className="font-semibold font-body">{new Date(event.start_time).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+            <span>•</span>
+            <Clock className="h-4 w-4" />
+            <span className="font-body">{new Date(event.start_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+          </div>
+          {event.location && (<div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground"><MapPin className="h-4 w-4" /><span className="font-body truncate">{event.location}</span></div>)}
+          <div className="flex items-center justify-between pt-2 border-t">
+            <span className="text-xs sm:text-sm font-body text-muted-foreground flex items-center gap-1.5"><Users className="h-4 w-4" />{attendeeCount} going</span>
+            {showInlineRSVP && onRSVPChange && (
+              <div className="flex gap-1.5">
+                <Button size="sm" variant={userStatus === 'attending' ? 'default' : 'outline'} className="h-10 px-3 gap-1.5" onClick={(e) => { e.preventDefault(); onRSVPChange('attending'); }}><UserCheck className="h-3.5 w-3.5" /><span className="hidden sm:inline text-xs">Going</span></Button>
+                <Button size="sm" variant={userStatus === 'maybe' ? 'default' : 'outline'} className="h-10 px-3 gap-1.5" onClick={(e) => { e.preventDefault(); onRSVPChange('maybe'); }}><HelpCircle className="h-3.5 w-3.5" /><span className="hidden sm:inline text-xs">Maybe</span></Button>
+                <Button size="sm" variant={userStatus === 'not_attending' ? 'default' : 'outline'} className="h-10 px-3 gap-1.5" onClick={(e) => { e.preventDefault(); onRSVPChange('not_attending'); }}><UserX className="h-3.5 w-3.5" /><span className="hidden sm:inline text-xs">Pass</span></Button>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
           {/* Row 1: Icon + Title + Status */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3 flex-1 min-w-0">
