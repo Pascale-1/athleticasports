@@ -45,6 +45,42 @@ const Community = () => {
 
   useEffect(() => {
     fetchData();
+    
+    // Subscribe to profiles changes
+    const profilesChannel = supabase
+      .channel('community-profiles')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'profiles' },
+        () => fetchProfiles()
+      )
+      .subscribe();
+      
+    // Subscribe to teams changes
+    const teamsChannel = supabase
+      .channel('community-teams')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'teams' },
+        () => fetchTeams()
+      )
+      .subscribe();
+      
+    // Subscribe to team_members changes
+    const membersChannel = supabase
+      .channel('community-members')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'team_members' },
+        () => fetchTeams()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(profilesChannel);
+      supabase.removeChannel(teamsChannel);
+      supabase.removeChannel(membersChannel);
+    };
   }, []);
 
   const fetchData = async () => {
