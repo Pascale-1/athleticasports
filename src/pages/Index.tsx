@@ -174,7 +174,7 @@ const Index = () => {
               {/* Compact Stats Row */}
               <div className="flex items-center justify-around border-t pt-3">
                 <button 
-                  onClick={() => navigate("/teams")}
+                  onClick={() => navigate("/discover?tab=teams&filter=my-teams")}
                   className="flex flex-col items-center gap-1 transition-all hover:text-primary active:scale-95 min-h-[44px] min-w-[44px]"
                 >
                   <Users className="h-4 w-4 text-primary" />
