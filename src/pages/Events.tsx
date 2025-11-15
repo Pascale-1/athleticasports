@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar as CalendarIcon, List, LayoutGrid, Trophy, Users, Zap } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, List, LayoutGrid, Trophy, Users, Zap, Coffee } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { useEventFilters } from "@/hooks/useEventFilters";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
@@ -15,6 +15,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { isToday, isTomorrow, isThisWeek, isFuture } from "date-fns";
 import type { Event } from "@/lib/events";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { FAB } from "@/components/mobile/FAB";
 
 const Events = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -127,7 +130,7 @@ const Events = () => {
 
         {/* Event Type Pills + View Toggle */}
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-1 bg-muted p-1 rounded-lg">
+          <div className="flex items-center gap-1 bg-muted p-1 rounded-lg flex-wrap">
             <Button
               variant={activeEventType === 'all' ? "default" : "ghost"}
               size="sm"
@@ -135,13 +138,17 @@ const Events = () => {
                 setActiveEventType('all');
                 setTypeFilter('all');
               }}
-              className="h-9 w-9 p-0 relative"
+              className="h-9 px-3 gap-1.5"
             >
               <LayoutGrid className="h-4 w-4" />
+              <span className="text-xs font-medium">All</span>
               {events.length > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+                <Badge 
+                  variant={activeEventType === 'all' ? "secondary" : "outline"}
+                  className="h-5 min-w-5 px-1.5 text-[10px]"
+                >
                   {events.length}
-                </span>
+                </Badge>
               )}
             </Button>
             
@@ -152,13 +159,17 @@ const Events = () => {
                 setActiveEventType('training');
                 setTypeFilter('training');
               }}
-              className="h-9 w-9 p-0 relative"
+              className="h-9 px-3 gap-1.5"
             >
-              <Trophy className="h-4 w-4" />
+              <Zap className="h-4 w-4" />
+              <span className="text-xs font-medium">Training</span>
               {events.filter(e => e.type === 'training').length > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+                <Badge 
+                  variant={activeEventType === 'training' ? "secondary" : "outline"}
+                  className="h-5 min-w-5 px-1.5 text-[10px]"
+                >
                   {events.filter(e => e.type === 'training').length}
-                </span>
+                </Badge>
               )}
             </Button>
             
@@ -169,13 +180,17 @@ const Events = () => {
                 setActiveEventType('meetup');
                 setTypeFilter('meetup');
               }}
-              className="h-9 w-9 p-0 relative"
+              className="h-9 px-3 gap-1.5"
             >
-              <Users className="h-4 w-4" />
+              <Coffee className="h-4 w-4" />
+              <span className="text-xs font-medium">Meetup</span>
               {events.filter(e => e.type === 'meetup').length > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+                <Badge 
+                  variant={activeEventType === 'meetup' ? "secondary" : "outline"}
+                  className="h-5 min-w-5 px-1.5 text-[10px]"
+                >
                   {events.filter(e => e.type === 'meetup').length}
-                </span>
+                </Badge>
               )}
             </Button>
             
@@ -186,13 +201,17 @@ const Events = () => {
                 setActiveEventType('match');
                 setTypeFilter('match');
               }}
-              className="h-9 w-9 p-0 relative"
+              className="h-9 px-3 gap-1.5"
             >
-              <Zap className="h-4 w-4" />
+              <Trophy className="h-4 w-4" />
+              <span className="text-xs font-medium">Match</span>
               {events.filter(e => e.type === 'match').length > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+                <Badge 
+                  variant={activeEventType === 'match' ? "secondary" : "outline"}
+                  className="h-5 min-w-5 px-1.5 text-[10px]"
+                >
                   {events.filter(e => e.type === 'match').length}
-                </span>
+                </Badge>
               )}
             </Button>
           </div>
@@ -217,6 +236,27 @@ const Events = () => {
             </Button>
           </div>
         </div>
+
+        {/* Create Event CTA Banner */}
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all border-dashed border-2 bg-primary/5 hover:bg-primary/10"
+          onClick={() => setCreateDialogOpen(true)}
+        >
+          <CardContent className="flex items-center justify-between p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Plus className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-base">Host an Event</h3>
+                <p className="text-xs text-muted-foreground">Create a match, training, or meetup</p>
+              </div>
+            </div>
+            <Button size="sm" className="hidden sm:flex">
+              Create
+            </Button>
+          </CardContent>
+        </Card>
 
         {/* Content */}
         {loading ? (
@@ -287,6 +327,13 @@ const Events = () => {
         onOpenChange={setCreateDialogOpen}
         createEvent={createEvent}
         onCreated={refetch}
+      />
+
+      {/* Mobile FAB */}
+      <FAB
+        icon={<Plus className="h-6 w-6" />}
+        label="Create Event"
+        onClick={() => setCreateDialogOpen(true)}
       />
     </PageContainer>
   );
