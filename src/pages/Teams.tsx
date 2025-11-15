@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2, Users, Search as SearchIcon } from "lucide-react";
 import { Team } from "@/lib/teams";
+import { Card, CardContent } from "@/components/ui/card";
 import { TeamSearchBar } from "@/components/teams/TeamSearchBar";
 
 import { SwipeableTeamCard } from "@/components/teams/SwipeableTeamCard";
@@ -265,7 +266,7 @@ const Teams = () => {
 
 
           {/* My Teams Section - 2 Column Grid */}
-          {!showAllTeams && filteredMyTeams.length > 0 && (
+          {!showAllTeams && (
             <motion.div 
               className="space-y-3 sm:space-y-4"
               initial={{ opacity: 0 }}
@@ -275,8 +276,26 @@ const Teams = () => {
               <h2 className="text-body-large font-semibold">
                 My Teams ({filteredMyTeams.length})
               </h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                {filteredMyTeams.map((team, index) => (
+
+              {/* Create Team CTA Card */}
+              <Card 
+                className="cursor-pointer hover:shadow-lg transition-all border-dashed border-2 bg-muted/30 hover:bg-muted/50"
+                onClick={() => navigate("/teams/create")}
+              >
+                <CardContent className="flex items-center gap-4 p-4">
+                  <div className="flex-shrink-0 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Plus className="h-8 w-8 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold">Create a New Team</h3>
+                    <p className="text-sm text-muted-foreground">Start building your sports community</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {filteredMyTeams.length > 0 && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                  {filteredMyTeams.map((team, index) => (
                   <AnimatedCard key={team.id} delay={0.35 + index * 0.05} hover={false}>
                     <SwipeableTeamCard
                       team={team}
@@ -288,8 +307,24 @@ const Teams = () => {
                   </AnimatedCard>
                 ))}
               </div>
+              )}
             </motion.div>
-            )}
+          )}
+
+          {/* Empty State for My Teams */}
+          {!showAllTeams && filteredMyTeams.length === 0 && (
+            <EmptyState
+              icon={Users}
+              title="No teams yet"
+              description="Create your first team to get started"
+              action={
+                <Button onClick={() => navigate("/teams/create")}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Team
+                </Button>
+              }
+            />
+          )}
 
           {/* All Teams Section */}
           {showAllTeams && (
