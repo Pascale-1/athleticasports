@@ -20,7 +20,7 @@ const Events = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'compact'>('list');
   
-  const { events, loading } = useEvents(undefined, { status: 'upcoming' });
+  const { events, loading, createEvent, refetch } = useEvents(undefined, { status: 'upcoming' });
   
   const {
     filters,
@@ -247,6 +247,8 @@ const Events = () => {
       <CreateEventDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
+        createEvent={createEvent}
+        onCreated={refetch}
       />
     </PageContainer>
   );

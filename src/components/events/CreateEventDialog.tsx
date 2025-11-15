@@ -12,24 +12,30 @@ interface CreateEventDialogProps {
   onOpenChange: (open: boolean) => void;
   teamId?: string;
   defaultType?: 'training' | 'meetup' | 'match';
+  createEvent?: (data: CreateEventData) => Promise<boolean>;
+  onCreated?: () => void;
 }
 
 export const CreateEventDialog = ({ 
   open, 
   onOpenChange, 
   teamId,
-  defaultType = 'training' 
+  defaultType = 'training',
+  createEvent: parentCreateEvent,
+  onCreated
 }: CreateEventDialogProps) => {
   const [activeTab, setActiveTab] = useState<string>(defaultType);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { createEvent } = useEvents(teamId);
+  const { createEvent: internalCreateEvent } = useEvents(teamId);
 
   const handleSubmit = async (data: CreateEventData) => {
     setIsSubmitting(true);
-    const success = await createEvent(data);
+    const createFn = parentCreateEvent ?? internalCreateEvent;
+    const success = await createFn(data);
     setIsSubmitting(false);
     
     if (success) {
+      onCreated?.();
       onOpenChange(false);
     }
   };

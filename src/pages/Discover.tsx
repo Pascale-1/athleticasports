@@ -385,6 +385,7 @@ const Discover = () => {
       <CreateEventDialog
         open={createEventDialogOpen}
         onOpenChange={setCreateEventDialogOpen}
+        onCreated={fetchData}
       />
     </PageContainer>
   );
