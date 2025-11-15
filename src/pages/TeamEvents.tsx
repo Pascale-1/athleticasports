@@ -20,7 +20,7 @@ const TeamEvents = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   
   const { team, isLoading: teamLoading } = useTeam(teamId || null);
-  const { events, loading: eventsLoading } = useEvents(teamId, { status: 'upcoming' });
+  const { events, loading: eventsLoading, createEvent, refetch } = useEvents(teamId, { status: 'upcoming' });
   
   const loading = teamLoading || eventsLoading;
 
@@ -174,6 +174,8 @@ const TeamEvents = () => {
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         teamId={teamId}
+        createEvent={createEvent}
+        onCreated={refetch}
       />
     </PageContainer>
   );
