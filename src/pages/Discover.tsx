@@ -35,7 +35,7 @@ const Discover = () => {
   const [teams, setTeams] = useState<any[]>([]);
   const [people, setPeople] = useState<Profile[]>([]);
   const { selectedSport, setSelectedSport } = useSportFilter();
-  const [activeTab, setActiveTab] = useState<'teams' | 'events'>('teams');
+  const [activeTab, setActiveTab] = useState<'teams' | 'events'>('events');
   const [createEventDialogOpen, setCreateEventDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -68,8 +68,7 @@ const Discover = () => {
         .select('*')
         .eq('is_public', true)
         .gte('start_time', new Date().toISOString())
-        .order('start_time', { ascending: true })
-        .limit(20);
+        .order('start_time', { ascending: true });
 
       // Fetch teams with member counts (excluding private teams)
       const { data: teamsData } = await supabase
@@ -229,11 +228,13 @@ const Discover = () => {
                 All Events
               </button>
             </div>
-            <Link to={activeTab === 'teams' ? '/teams' : '/events'}>
-              <Button variant="ghost" size="sm" className="text-primary">
-                See all <ArrowRight className="h-4 w-4 ml-1" />
-              </Button>
-            </Link>
+            {activeTab === 'teams' && (
+              <Link to="/teams">
+                <Button variant="ghost" size="sm" className="text-primary">
+                  See all <ArrowRight className="h-4 w-4 ml-1" />
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Teams Tab */}
