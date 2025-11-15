@@ -13,7 +13,7 @@ import { FeaturedTeamCard } from "@/components/teams/FeaturedTeamCard";
 import { format, isToday, isTomorrow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { formatEventDate, Event } from "@/lib/events";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FilterSheet } from "@/components/common/FilterSheet";
 import { useSportFilter } from "@/hooks/useSportFilter";
 import { FollowButton } from "@/components/FollowButton";
@@ -39,6 +39,8 @@ const Discover = () => {
   const { selectedSport, setSelectedSport } = useSportFilter();
   const [activeTab, setActiveTab] = useState<'teams' | 'events'>('events');
   const [createEventDialogOpen, setCreateEventDialogOpen] = useState(false);
+  const [showMyTeamsOnly, setShowMyTeamsOnly] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     fetchData();
@@ -59,6 +61,25 @@ const Discover = () => {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  // Handle URL parameters for navigation
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tabParam = params.get('tab');
+    const filterParam = params.get('filter');
+    
+    if (tabParam === 'teams') {
+      setActiveTab('teams');
+    }
+    if (filterParam === 'my-teams') {
+      setShowMyTeamsOnly(true);
+    }
+    
+    // Clean URL after reading params
+    if (tabParam || filterParam) {
+      window.history.replaceState({}, '', '/discover');
+    }
+  }, [location.search]);
 
   const fetchData = async () => {
     try {
@@ -139,7 +160,8 @@ const Discover = () => {
       team.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesSport = !selectedSport || selectedSport === 'All' || 
       team.sport?.toLowerCase() === selectedSport.toLowerCase();
-    return matchesSearch && matchesSport;
+    const matchesMyTeams = !showMyTeamsOnly || myTeamIds.includes(team.id);
+    return matchesSearch && matchesSport && matchesMyTeams;
   });
 
   const filteredPeople = people.filter(person => {
@@ -266,9 +288,28 @@ const Discover = () => {
           </div>
 
           {/* Teams Tab */}
-          {activeTab === 'teams' && (
-            <>
-              {filteredTeams.length > 0 ? (
+        {activeTab === 'teams' && (
+          <>
+            <div className="flex items-center gap-2 mb-4">
+              <Button
+                variant={showMyTeamsOnly ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowMyTeamsOnly(true)}
+                className="flex-1"
+              >
+                My Teams ({myTeamIds.length})
+              </Button>
+              <Button
+                variant={!showMyTeamsOnly ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowMyTeamsOnly(false)}
+                className="flex-1"
+              >
+                All Teams ({teams.length})
+              </Button>
+            </div>
+            
+            {filteredTeams.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 auto-rows-auto">
                   {filteredTeams.map((team) => (
                     <FeaturedTeamCard
