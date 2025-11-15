@@ -62,12 +62,38 @@ const Discover = () => {
     try {
       setLoading(true);
 
-      // Fetch public events
+      // Get current user and their team memberships
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const now = new Date().toISOString();
+      
+      // Build OR filter: public events OR user's created events OR user's team events
+      const orConditions = ['is_public.eq.true'];
+      
+      if (user) {
+        orConditions.push(`created_by.eq.${user.id}`);
+        
+        // Fetch user's team memberships
+        const { data: memberships } = await supabase
+          .from('team_members')
+          .select('team_id')
+          .eq('user_id', user.id)
+          .eq('status', 'active');
+        
+        const teamIds = (memberships || []).map(m => m.team_id).filter(Boolean);
+        
+        if (teamIds.length > 0) {
+          orConditions.push(`team_id.in.(${teamIds.join(',')})`);
+          orConditions.push(`opponent_team_id.in.(${teamIds.join(',')})`);
+        }
+      }
+      
+      // Fetch events with expanded visibility
       const { data: eventsData } = await supabase
         .from('events')
         .select('*')
-        .eq('is_public', true)
-        .gte('start_time', new Date().toISOString())
+        .or(orConditions.join(','))
+        .gte('start_time', now)
         .order('start_time', { ascending: true });
 
       // Fetch teams with member counts (excluding private teams)
@@ -99,9 +125,7 @@ const Discover = () => {
     const matchesSearch = searchQuery === '' || 
       event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesSport = !selectedSport || selectedSport === 'All' || 
-      event.type?.toLowerCase() === selectedSport.toLowerCase();
-    return matchesSearch && matchesSport;
+    return matchesSearch;
   });
 
   const filteredTeams = teams.filter(team => {
