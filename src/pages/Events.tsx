@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar as CalendarIcon, List, LayoutGrid, Trophy, Users, Zap, Coffee } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, List, LayoutGrid, Trophy, Users, Zap, Coffee, Search, Dumbbell } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { useEventFilters } from "@/hooks/useEventFilters";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
@@ -78,25 +78,28 @@ const Events = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-heading-2 font-bold">Events</h1>
-            <p className="text-caption text-muted-foreground">
+            <h1 className="text-2xl md:text-3xl font-heading font-bold">Events</h1>
+            <p className="text-sm font-body text-muted-foreground mt-1">
               Discover and manage training, meetups, and matches
             </p>
           </div>
-          <Button onClick={() => setCreateDialogOpen(true)} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Create</span>
+          <Button onClick={() => setCreateDialogOpen(true)} size="default" className="gap-2 font-heading font-semibold hidden md:flex">
+            <Plus className="h-4 w-4" />
+            Create Event
           </Button>
         </div>
 
         {/* Search and Filters */}
         <div className="flex gap-2">
-          <Input
-            placeholder="Search events..."
-            value={filters.searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1"
-          />
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search events..."
+              value={filters.searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
           <FilterSheet 
             activeCount={activeFilterCount}
             onApply={() => {}}
@@ -161,7 +164,7 @@ const Events = () => {
               }}
               className="h-9 px-3 gap-1.5"
             >
-              <Zap className="h-4 w-4" />
+              <Dumbbell className="h-4 w-4" />
               <span className="text-xs font-medium">Training</span>
               {events.filter(e => e.type === 'training').length > 0 && (
                 <Badge 
@@ -271,32 +274,89 @@ const Events = () => {
           <div className="space-y-6">
             {groupedEvents.today.length > 0 && (
               <div className="space-y-3">
-                <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-2 -mx-4 px-4">
-                  <h3 className="text-lg font-bold text-primary">Today</h3>
+                <div className="sticky top-0 z-20 -mt-6 pt-6 pb-3">
+                  <div className="bg-background/90 backdrop-blur-md border-b border-border/50 -mx-4 px-4 py-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg md:text-xl font-heading font-bold text-primary">
+                        Today
+                      </h3>
+                      <Badge variant="secondary" className="text-xs font-body">
+                        {groupedEvents.today.length}
+                      </Badge>
+                    </div>
+                  </div>
                 </div>
                 <EventsList events={groupedEvents.today} showInlineRSVP />
               </div>
             )}
+
+            {/* Inline CTA between Today and Tomorrow */}
+            {groupedEvents.today.length > 0 && groupedEvents.tomorrow.length > 0 && (
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-all border-dashed border-2 bg-primary/5 hover:bg-primary/10 mx-auto max-w-md"
+                onClick={() => setCreateDialogOpen(true)}
+              >
+                <CardContent className="flex items-center gap-3 p-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Plus className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-heading font-semibold text-sm">Create Your Event</h3>
+                    <p className="text-xs text-muted-foreground font-body">Host a match, training, or meetup</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {groupedEvents.tomorrow.length > 0 && (
               <div className="space-y-3">
-                <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-2 -mx-4 px-4">
-                  <h3 className="text-lg font-bold">Tomorrow</h3>
+                <div className="sticky top-0 z-20 -mt-6 pt-6 pb-3">
+                  <div className="bg-background/90 backdrop-blur-md border-b border-border/50 -mx-4 px-4 py-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg md:text-xl font-heading font-bold text-primary">
+                        Tomorrow
+                      </h3>
+                      <Badge variant="secondary" className="text-xs font-body">
+                        {groupedEvents.tomorrow.length}
+                      </Badge>
+                    </div>
+                  </div>
                 </div>
                 <EventsList events={groupedEvents.tomorrow} showInlineRSVP />
               </div>
             )}
+
             {groupedEvents.thisWeek.length > 0 && (
               <div className="space-y-3">
-                <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-2 -mx-4 px-4">
-                  <h3 className="text-lg font-bold">This Week</h3>
+                <div className="sticky top-0 z-20 -mt-6 pt-6 pb-3">
+                  <div className="bg-background/90 backdrop-blur-md border-b border-border/50 -mx-4 px-4 py-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg md:text-xl font-heading font-bold text-primary">
+                        This Week
+                      </h3>
+                      <Badge variant="secondary" className="text-xs font-body">
+                        {groupedEvents.thisWeek.length}
+                      </Badge>
+                    </div>
+                  </div>
                 </div>
                 <EventsList events={groupedEvents.thisWeek} showInlineRSVP />
               </div>
             )}
+
             {groupedEvents.later.length > 0 && (
               <div className="space-y-3">
-                <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-2 -mx-4 px-4">
-                  <h3 className="text-lg font-bold">Coming Up</h3>
+                <div className="sticky top-0 z-20 -mt-6 pt-6 pb-3">
+                  <div className="bg-background/90 backdrop-blur-md border-b border-border/50 -mx-4 px-4 py-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg md:text-xl font-heading font-bold text-primary">
+                        Coming Up
+                      </h3>
+                      <Badge variant="secondary" className="text-xs font-body">
+                        {groupedEvents.later.length}
+                      </Badge>
+                    </div>
+                  </div>
                 </div>
                 <EventsList events={groupedEvents.later} showInlineRSVP />
               </div>
