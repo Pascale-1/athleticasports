@@ -2,7 +2,7 @@ import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Users, Clock, Trophy, Coffee, UserCheck } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Trophy, Coffee, UserCheck, UserX, HelpCircle } from "lucide-react";
 import { Event } from "@/lib/events";
 import { formatEventDate, formatEventDateRange } from "@/lib/events";
 import { Link } from "react-router-dom";
@@ -27,13 +27,13 @@ export const EventCard = memo(({
   const getEventIcon = () => {
     switch (event.type) {
       case 'training':
-        return <Trophy className="h-4 w-4" />;
+        return <Trophy className="h-6 w-6" />;
       case 'match':
-        return <Trophy className="h-4 w-4" />;
+        return <Trophy className="h-6 w-6" />;
       case 'meetup':
-        return <Coffee className="h-4 w-4" />;
+        return <Coffee className="h-6 w-6" />;
       default:
-        return <Calendar className="h-4 w-4" />;
+        return <Calendar className="h-6 w-6" />;
     }
   };
 
@@ -67,103 +67,151 @@ export const EventCard = memo(({
     if (!userStatus) return null;
     
     const variants = {
-      attending: { label: 'Going', className: 'bg-green-500/10 text-green-700 dark:text-green-400' },
-      maybe: { label: 'Maybe', className: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400' },
-      not_attending: { label: 'Not Going', className: 'bg-red-500/10 text-red-700 dark:text-red-400' },
+      attending: { 
+        label: '✓ Going', 
+        className: 'bg-green-600 text-white border-0 font-body font-medium' 
+      },
+      maybe: { 
+        label: '? Maybe', 
+        className: 'bg-yellow-600 text-white border-0 font-body font-medium' 
+      },
+      not_attending: { 
+        label: '✕ Not Going', 
+        className: 'bg-red-600 text-white border-0 font-body font-medium' 
+      },
     };
 
-  const { label, className } = variants[userStatus];
+    const { label, className } = variants[userStatus];
     return <Badge className={className}>{label}</Badge>;
   };
 
   return (
     <Link to={`/events/${event.id}`}>
       <Card 
-        className="hover:shadow-md transition-all border-l-4 active:scale-[0.99]" 
+        className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border-l-[6px] active:scale-[0.99]" 
         style={{ borderLeftColor: getEventTypeAccentColor() }}
       >
-        <CardContent className="p-3 space-y-2.5">
+        <CardContent className="p-4 md:p-5 space-y-3">
           {/* Row 1: Icon + Title + Status */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div className={`p-1.5 rounded-lg ${getEventTypeColor()}`}>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3 flex-1 min-w-0">
+              <div className={`p-2 rounded-xl ${getEventTypeColor()}`}>
                 {getEventIcon()}
               </div>
-              <h3 className="font-semibold text-base truncate">
-                {event.title}
-              </h3>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-heading font-semibold truncate">
+                  {event.title}
+                </h3>
+                <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+                  <span className="font-semibold font-body">
+                    {new Date(event.start_time).toLocaleDateString('en-US', { 
+                      weekday: 'short', 
+                      month: 'short', 
+                      day: 'numeric' 
+                    })}
+                  </span>
+                  <span>•</span>
+                  <span className="font-body">
+                    {new Date(event.start_time).toLocaleTimeString('en-US', { 
+                      hour: 'numeric', 
+                      minute: '2-digit',
+                      hour12: true 
+                    })}
+                  </span>
+                </div>
+              </div>
             </div>
             {getStatusBadge()}
           </div>
           
-          {/* Row 2: Date + Time (single line) */}
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <Calendar className="h-4 w-4" />
-              {formatEventDate(event.start_time)}
-            </span>
-            {event.end_time && (
-              <span className="flex items-center gap-1.5">
-                <Clock className="h-4 w-4" />
-                {new Date(event.start_time).toLocaleTimeString('en-US', { 
-                  hour: 'numeric', 
-                  minute: '2-digit',
-                  hour12: true 
-                })}
-              </span>
-            )}
-          </div>
-          
-          {/* Row 3: Location (if exists) */}
+          {/* Row 2: Location */}
           {event.location && (
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">{event.location}</span>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin className="h-4.5 w-4.5 flex-shrink-0" />
+              <span className="truncate font-body">{event.location}</span>
             </div>
           )}
           
-          {/* Row 4: Attendees + RSVP Pills */}
-          <div className="flex items-center justify-between pt-2 border-t">
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Users className="h-4 w-4" />
+          {/* Row 3: Attendees + Enhanced RSVP */}
+          <div className="flex items-center justify-between pt-3 border-t mt-3">
+            <div className="flex items-center gap-2 text-sm font-body text-muted-foreground">
+              <Users className="h-4.5 w-4.5" />
               <span>{attendeeCount} going</span>
             </div>
-
-            {/* Always visible RSVP buttons */}
+            
             {showInlineRSVP && onRSVPChange && (
-              <div className="flex gap-1">
+              <div className="flex gap-2">
+                {/* Desktop: Icon + Label */}
                 <Button
-                  variant={userStatus === 'attending' ? 'default' : 'outline'}
                   size="sm"
+                  variant={userStatus === 'attending' ? 'default' : 'outline'}
+                  className="hidden sm:flex h-10 px-4 gap-2 hover:scale-105 active:scale-95 transition-transform"
                   onClick={(e) => {
                     e.preventDefault();
                     onRSVPChange('attending');
                   }}
-                  className="h-7 w-7 p-0"
                 >
-                  <UserCheck className="h-3.5 w-3.5" />
+                  <UserCheck className="h-4 w-4" />
+                  <span className="font-body font-medium">Going</span>
                 </Button>
                 <Button
-                  variant={userStatus === 'maybe' ? 'default' : 'outline'}
                   size="sm"
+                  variant={userStatus === 'maybe' ? 'default' : 'outline'}
+                  className="hidden sm:flex h-10 px-4 gap-2 hover:scale-105 active:scale-95 transition-transform"
                   onClick={(e) => {
                     e.preventDefault();
                     onRSVPChange('maybe');
                   }}
-                  className="h-7 w-7 p-0"
                 >
-                  ?
+                  <HelpCircle className="h-4 w-4" />
+                  <span className="font-body font-medium">Maybe</span>
                 </Button>
                 <Button
-                  variant={userStatus === 'not_attending' ? 'destructive' : 'outline'}
                   size="sm"
+                  variant={userStatus === 'not_attending' ? 'default' : 'outline'}
+                  className="hidden sm:flex h-10 px-4 gap-2 hover:scale-105 active:scale-95 transition-transform"
                   onClick={(e) => {
                     e.preventDefault();
                     onRSVPChange('not_attending');
                   }}
-                  className="h-7 w-7 p-0"
                 >
-                  ✕
+                  <UserX className="h-4 w-4" />
+                  <span className="font-body font-medium">Pass</span>
+                </Button>
+                
+                {/* Mobile: Icon only, larger */}
+                <Button
+                  size="sm"
+                  variant={userStatus === 'attending' ? 'default' : 'outline'}
+                  className="sm:hidden h-10 w-10 p-0"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onRSVPChange('attending');
+                  }}
+                >
+                  <UserCheck className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant={userStatus === 'maybe' ? 'default' : 'outline'}
+                  className="sm:hidden h-10 w-10 p-0"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onRSVPChange('maybe');
+                  }}
+                >
+                  <HelpCircle className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant={userStatus === 'not_attending' ? 'default' : 'outline'}
+                  className="sm:hidden h-10 w-10 p-0"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onRSVPChange('not_attending');
+                  }}
+                >
+                  <UserX className="h-4 w-4" />
                 </Button>
               </div>
             )}
