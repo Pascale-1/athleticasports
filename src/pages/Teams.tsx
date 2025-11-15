@@ -40,6 +40,31 @@ const Teams = () => {
 
   useEffect(() => {
     fetchTeams();
+    
+    // Subscribe to teams changes
+    const teamsChannel = supabase
+      .channel('teams-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'teams' },
+        () => fetchTeams()
+      )
+      .subscribe();
+      
+    // Subscribe to team_members changes (for myTeams)
+    const membersChannel = supabase
+      .channel('team-members-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'team_members' },
+        () => fetchTeams()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(teamsChannel);
+      supabase.removeChannel(membersChannel);
+    };
   }, []);
 
   const fetchTeams = async () => {
