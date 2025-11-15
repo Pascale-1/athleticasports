@@ -181,14 +181,15 @@ const Teams = () => {
             transition={{ delay: 0.1 }}
           >
             <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold break-words max-w-full">Teams</h1>
-              <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                {myTeams.length + publicTeams.length} teams • {Object.values(memberCounts).reduce((a, b) => a + b, 0)} members
+              <h1 className="text-2xl sm:text-3xl font-bold">Teams</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                {myTeams.length} team{myTeams.length !== 1 ? 's' : ''} • {publicTeams.length} available
               </p>
             </div>
             <Button 
               onClick={() => navigate("/teams/create")} 
               className="hidden sm:flex w-full sm:w-auto"
+              size="sm"
             >
               <Plus className="h-4 w-4 mr-2" />
               Create Team

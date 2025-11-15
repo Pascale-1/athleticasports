@@ -182,14 +182,17 @@ const Index = () => {
                   <p className="text-caption text-muted-foreground">Teams</p>
                 </button>
                 <div className="h-12 w-px bg-border" />
-                <div className="flex flex-col items-center gap-1">
+                <button
+                  onClick={() => navigate("/track")}
+                  className="flex flex-col items-center gap-1 transition-all hover:text-primary active:scale-95 min-h-[44px] min-w-[44px]"
+                >
                   <Activity className="h-4 w-4 text-primary" />
                   <p className="text-body-large font-bold">{stats.activities}</p>
                   <p className="text-caption text-muted-foreground">Activities</p>
-                </div>
+                </button>
                 <div className="h-12 w-px bg-border" />
                 <button
-                  onClick={() => navigate("/users")}
+                  onClick={() => navigate("/settings")}
                   className="flex flex-col items-center gap-1 transition-all hover:text-primary active:scale-95 min-h-[44px] min-w-[44px]"
                 >
                   <TrendingUp className="h-4 w-4 text-primary" />
