@@ -8,7 +8,6 @@ interface EventsListProps {
   events: Event[];
   emptyTitle?: string;
   emptyDescription?: string;
-  variant?: 'default' | 'compact';
   showInlineRSVP?: boolean;
 }
 
@@ -16,7 +15,6 @@ export const EventsList = ({
   events, 
   emptyTitle = "No events yet",
   emptyDescription = "Create your first event to get started",
-  variant = 'default',
   showInlineRSVP = false
 }: EventsListProps) => {
   if (events.length === 0) {
@@ -30,12 +28,11 @@ export const EventsList = ({
   }
 
   return (
-    <div className={variant === 'compact' ? 'grid grid-cols-1 sm:grid-cols-2 gap-3' : 'space-y-3'}>
+    <div className="space-y-3">
       {events.map((event) => (
         <EventCardWithAttendance 
           key={event.id} 
-          event={event} 
-          variant={variant}
+          event={event}
           showInlineRSVP={showInlineRSVP}
         />
       ))}
@@ -44,12 +41,10 @@ export const EventsList = ({
 };
 
 const EventCardWithAttendance = ({ 
-  event, 
-  variant,
+  event,
   showInlineRSVP 
 }: { 
   event: Event;
-  variant?: 'default' | 'compact';
   showInlineRSVP?: boolean;
 }) => {
   const { stats, userStatus, updateAttendance } = useEventAttendance(event.id);
@@ -59,7 +54,6 @@ const EventCardWithAttendance = ({
       event={event}
       attendeeCount={stats.attending}
       userStatus={userStatus as 'attending' | 'maybe' | 'not_attending' | null}
-      variant={variant}
       showInlineRSVP={showInlineRSVP}
       onRSVPChange={updateAttendance}
     />

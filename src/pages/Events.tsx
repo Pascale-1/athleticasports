@@ -18,7 +18,7 @@ import type { Event } from "@/lib/events";
 
 const Events = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'compact'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [activeEventType, setActiveEventType] = useState<'all' | 'training' | 'meetup' | 'match'>('all');
   
   const { events, loading, createEvent, refetch } = useEvents(undefined, { status: 'upcoming' });
@@ -184,15 +184,6 @@ const Events = () => {
             <span className="ml-2 hidden sm:inline">List</span>
           </Button>
           <Button
-            variant={viewMode === 'compact' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('compact')}
-            className="flex-1 sm:flex-none"
-          >
-            <LayoutGrid className="h-4 w-4" />
-            <span className="ml-2 hidden sm:inline">Compact</span>
-          </Button>
-          <Button
             variant={viewMode === 'calendar' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setViewMode('calendar')}
@@ -212,24 +203,6 @@ const Events = () => {
           </div>
         ) : viewMode === 'calendar' ? (
           <EventCalendar events={filteredEvents} />
-        ) : viewMode === 'compact' ? (
-          <EventsList
-            events={filteredEvents}
-            variant="compact"
-            showInlineRSVP={true}
-            emptyTitle={
-              filters.status === 'past'
-                ? 'No past events'
-                : filters.status === 'upcoming'
-                ? 'No upcoming events'
-                : 'No events found'
-            }
-            emptyDescription={
-              filters.searchQuery
-                ? 'Try adjusting your search or filters'
-                : 'Create your first event to get started'
-            }
-          />
         ) : (
           <div className="space-y-6">
             {groupedEvents.today.length > 0 && (

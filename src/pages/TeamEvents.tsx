@@ -16,7 +16,7 @@ import type { Event } from "@/lib/events";
 const TeamEvents = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'compact'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   
   const { team, isLoading: teamLoading } = useTeam(teamId || null);
@@ -91,15 +91,6 @@ const TeamEvents = () => {
             <span className="ml-2 hidden sm:inline">List</span>
           </Button>
           <Button
-            variant={viewMode === 'compact' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('compact')}
-            className="flex-1 sm:flex-none"
-          >
-            <LayoutGrid className="h-4 w-4" />
-            <span className="ml-2 hidden sm:inline">Compact</span>
-          </Button>
-          <Button
             variant={viewMode === 'calendar' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setViewMode('calendar')}
@@ -119,14 +110,6 @@ const TeamEvents = () => {
           </div>
         ) : viewMode === 'calendar' ? (
           <EventCalendar events={events} />
-        ) : viewMode === 'compact' ? (
-          <EventsList
-            events={events}
-            variant="compact"
-            showInlineRSVP
-            emptyTitle="No upcoming events"
-            emptyDescription="Check back later for new team events"
-          />
         ) : (
           <div className="space-y-6">
             {groupedEvents.today.length > 0 && (
