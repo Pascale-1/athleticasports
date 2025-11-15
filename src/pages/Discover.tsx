@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Search, Calendar, Users, Trophy, ArrowRight, Plus, MapPin, ChevronRight } from "lucide-react";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { EventsList } from "@/components/events/EventsList";
-import { format } from "date-fns";
+import { format, isToday, isTomorrow, isThisWeek, startOfWeek, endOfWeek } from "date-fns";
 import { cn } from "@/lib/utils";
 import { formatEventDate, Event } from "@/lib/events";
 import { Link } from "react-router-dom";
@@ -17,7 +17,6 @@ import { FilterSheet } from "@/components/common/FilterSheet";
 import { useSportFilter } from "@/hooks/useSportFilter";
 import { FollowButton } from "@/components/FollowButton";
 import { Button } from "@/components/ui/button";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface Profile {
   id: string;
@@ -125,6 +124,27 @@ const Discover = () => {
     return matchesSearch && matchesSport;
   });
 
+  const groupEventsByTime = (events: Event[]) => {
+    const now = new Date();
+    const weekStart = startOfWeek(now);
+    const weekEnd = endOfWeek(now);
+
+    return {
+      today: events.filter(e => isToday(new Date(e.start_time))),
+      tomorrow: events.filter(e => isTomorrow(new Date(e.start_time))),
+      thisWeek: events.filter(e => {
+        const date = new Date(e.start_time);
+        return !isToday(date) && !isTomorrow(date) && isThisWeek(date);
+      }),
+      comingUp: events.filter(e => {
+        const date = new Date(e.start_time);
+        return date > weekEnd;
+      })
+    };
+  };
+
+  const groupedEvents = groupEventsByTime(filteredEvents);
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -181,49 +201,75 @@ const Discover = () => {
           </FilterSheet>
         </div>
 
-        {/* Upcoming Events - Horizontal Scroll */}
+        {/* Upcoming Events - Grouped by Date */}
         {filteredEvents.length > 0 && (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-primary" />
                 <h2 className="text-body-large font-semibold">Upcoming Events</h2>
               </div>
-              <Link to="/events">
-                <Button variant="ghost" size="sm" className="text-primary">
-                  See all <ArrowRight className="h-4 w-4 ml-1" />
-                </Button>
-              </Link>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-primary"
+                onClick={() => setActiveTab('events')}
+              >
+                View all <ArrowRight className="h-4 w-4 ml-1" />
+              </Button>
             </div>
-            <ScrollArea className="w-full whitespace-nowrap">
-              <div className="flex gap-3 pb-2">
-                {filteredEvents.slice(0, 10).map((event) => (
-                  <Link key={event.id} to={`/events/${event.id}`} className="inline-block">
-                    <Card className="w-[280px] hover:shadow-md transition-shadow">
-                      <CardContent className="p-4">
-                        <div className="space-y-2">
-                          <div className="flex items-start justify-between gap-2">
-                            <h3 className="font-semibold text-body line-clamp-2">{event.title}</h3>
-                            <Badge variant="secondary" className="shrink-0 text-caption">
-                              {event.type}
-                            </Badge>
-                          </div>
-                          <p className="text-caption text-muted-foreground">
-                            {formatEventDate(event.start_time)}
-                          </p>
-                          {event.location && (
-                            <p className="text-caption text-muted-foreground truncate">
-                              📍 {event.location}
-                            </p>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
+
+            {groupedEvents.today.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-body font-semibold text-foreground">Today</h3>
+                <EventsList 
+                  events={groupedEvents.today.slice(0, 3)}
+                  variant="compact"
+                  showInlineRSVP={true}
+                  emptyTitle=""
+                  emptyDescription=""
+                />
               </div>
-              <ScrollBar orientation="horizontal" />
-            </ScrollArea>
+            )}
+
+            {groupedEvents.tomorrow.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-body font-semibold text-foreground">Tomorrow</h3>
+                <EventsList 
+                  events={groupedEvents.tomorrow.slice(0, 3)}
+                  variant="compact"
+                  showInlineRSVP={true}
+                  emptyTitle=""
+                  emptyDescription=""
+                />
+              </div>
+            )}
+
+            {groupedEvents.thisWeek.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-body font-semibold text-foreground">This Week</h3>
+                <EventsList 
+                  events={groupedEvents.thisWeek.slice(0, 3)}
+                  variant="compact"
+                  showInlineRSVP={true}
+                  emptyTitle=""
+                  emptyDescription=""
+                />
+              </div>
+            )}
+
+            {groupedEvents.comingUp.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-body font-semibold text-foreground">Coming Up</h3>
+                <EventsList 
+                  events={groupedEvents.comingUp.slice(0, 3)}
+                  variant="compact"
+                  showInlineRSVP={true}
+                  emptyTitle=""
+                  emptyDescription=""
+                />
+              </div>
+            )}
           </div>
         )}
 
@@ -326,7 +372,7 @@ const Discover = () => {
           {activeTab === 'events' && (
             <>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-body-large font-semibold">Discover Events</h3>
+                <h3 className="text-body-large font-semibold">All Events</h3>
                 <Button onClick={() => setCreateEventDialogOpen(true)} size="sm">
                   <Plus className="h-4 w-4 mr-2" />
                   Create Event
@@ -334,17 +380,59 @@ const Discover = () => {
               </div>
               
               {filteredEvents.length > 0 ? (
-                <EventsList
-                  events={filteredEvents}
-                  variant="compact"
-                  showInlineRSVP={true}
-                  emptyTitle="No Events Found"
-                  emptyDescription={
-                    searchQuery || selectedSport
-                      ? "Try adjusting your filters to find events."
-                      : "Be the first to create an event!"
-                  }
-                />
+                <div className="space-y-6">
+                  {groupedEvents.today.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="text-body font-semibold text-foreground">Today</h3>
+                      <EventsList 
+                        events={groupedEvents.today}
+                        variant="compact"
+                        showInlineRSVP={true}
+                        emptyTitle=""
+                        emptyDescription=""
+                      />
+                    </div>
+                  )}
+
+                  {groupedEvents.tomorrow.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="text-body font-semibold text-foreground">Tomorrow</h3>
+                      <EventsList 
+                        events={groupedEvents.tomorrow}
+                        variant="compact"
+                        showInlineRSVP={true}
+                        emptyTitle=""
+                        emptyDescription=""
+                      />
+                    </div>
+                  )}
+
+                  {groupedEvents.thisWeek.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="text-body font-semibold text-foreground">This Week</h3>
+                      <EventsList 
+                        events={groupedEvents.thisWeek}
+                        variant="compact"
+                        showInlineRSVP={true}
+                        emptyTitle=""
+                        emptyDescription=""
+                      />
+                    </div>
+                  )}
+
+                  {groupedEvents.comingUp.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="text-body font-semibold text-foreground">Coming Up</h3>
+                      <EventsList 
+                        events={groupedEvents.comingUp}
+                        variant="compact"
+                        showInlineRSVP={true}
+                        emptyTitle=""
+                        emptyDescription=""
+                      />
+                    </div>
+                  )}
+                </div>
               ) : (
                 <Card className="p-8 text-center">
                   <Calendar className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
