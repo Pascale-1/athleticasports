@@ -29,13 +29,13 @@ export const EventCard = memo(({
   const getEventIcon = () => {
     switch (event.type) {
       case 'training':
-        return <Trophy className="h-5 w-5" />;
+        return <Trophy className="h-4 w-4" />;
       case 'match':
-        return <Trophy className="h-5 w-5" />;
+        return <Trophy className="h-4 w-4" />;
       case 'meetup':
-        return <Coffee className="h-5 w-5" />;
+        return <Coffee className="h-4 w-4" />;
       default:
-        return <Calendar className="h-5 w-5" />;
+        return <Calendar className="h-4 w-4" />;
     }
   };
 
@@ -82,18 +82,18 @@ export const EventCard = memo(({
     return (
       <Link to={`/events/${event.id}`}>
         <Card className="hover:shadow-md transition-all border-l-4" style={{ borderLeftColor: getEventTypeAccentColor() }}>
-          <CardContent className="p-3">
+          <CardContent className="p-2.5">
             <div className="space-y-2">
               <div className="flex items-start justify-between gap-2">
-                <div className={`p-1.5 rounded-lg ${getEventTypeColor()} shrink-0`}>
+                <div className={`p-1 rounded-lg ${getEventTypeColor()} shrink-0`}>
                   {getEventIcon()}
                 </div>
                 {getStatusBadge()}
               </div>
               
-              <h3 className="font-semibold text-body line-clamp-2">{event.title}</h3>
+              <h3 className="font-semibold text-sm line-clamp-2">{event.title}</h3>
               
-              <div className="space-y-1 text-caption text-muted-foreground">
+              <div className="space-y-1 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
                   <span className="truncate">{formatEventDate(event.start_time)}</span>
@@ -150,18 +150,18 @@ export const EventCard = memo(({
   return (
     <Link to={`/events/${event.id}`}>
       <Card className="hover:shadow-md transition-all border-l-4" style={{ borderLeftColor: getEventTypeAccentColor() }}>
-        <CardContent className="p-4">
+        <CardContent className="p-3">
           <div className="flex items-start gap-3">
-            <div className={`p-2 rounded-lg ${getEventTypeColor()}`}>
+            <div className={`p-1 rounded-lg ${getEventTypeColor()}`}>
               {getEventIcon()}
             </div>
             
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-body mb-1 truncate">{event.title}</h3>
+                  <h3 className="font-semibold text-sm mb-1 truncate">{event.title}</h3>
                   {event.description && (
-                    <p className="text-caption text-muted-foreground line-clamp-2 mb-2">
+                    <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
                       {event.description}
                     </p>
                   )}
@@ -169,7 +169,7 @@ export const EventCard = memo(({
                 {getStatusBadge()}
               </div>
               
-              <div className="flex flex-wrap items-center gap-3 text-caption text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
                   <span>{formatEventDate(event.start_time)}</span>
@@ -201,7 +201,7 @@ export const EventCard = memo(({
                     onClick={() => onRSVPChange('attending')}
                     variant={userStatus === 'attending' ? 'default' : 'outline'}
                     size="sm"
-                    className="flex-1 text-caption"
+                    className="flex-1 text-xs"
                   >
                     Going
                   </Button>
@@ -209,7 +209,7 @@ export const EventCard = memo(({
                     onClick={() => onRSVPChange('maybe')}
                     variant={userStatus === 'maybe' ? 'default' : 'outline'}
                     size="sm"
-                    className="flex-1 text-caption"
+                    className="flex-1 text-xs"
                   >
                     Maybe
                   </Button>
@@ -217,7 +217,7 @@ export const EventCard = memo(({
                     onClick={() => onRSVPChange('not_attending')}
                     variant={userStatus === 'not_attending' ? 'default' : 'outline'}
                     size="sm"
-                    className="flex-1 text-caption"
+                    className="flex-1 text-xs"
                   >
                     No
                   </Button>
