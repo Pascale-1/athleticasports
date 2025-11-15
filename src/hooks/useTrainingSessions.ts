@@ -20,29 +20,29 @@ export const useTrainingSessions = (teamId: string | null) => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
+  const fetchSessions = async () => {
     if (!teamId) {
       setLoading(false);
       return;
     }
 
-    const fetchSessions = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("events")
-          .select("*")
-          .eq("team_id", teamId)
-          .order("start_time", { ascending: true });
+    try {
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .eq("team_id", teamId)
+        .order("start_time", { ascending: true });
 
-        if (error) throw error;
-        setSessions(data || []);
-      } catch (error) {
-        console.error("Error fetching training sessions:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      if (error) throw error;
+      setSessions(data || []);
+    } catch (error) {
+      console.error("Error fetching training sessions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchSessions();
 
     const channel = supabase
@@ -92,6 +92,9 @@ export const useTrainingSessions = (teamId: string | null) => {
         title: "Success",
         description: "Training session created",
       });
+
+      // Immediately refetch to show the new session
+      await fetchSessions();
     } catch (error: any) {
       console.error("Error creating session:", error);
       toast({
@@ -118,6 +121,9 @@ export const useTrainingSessions = (teamId: string | null) => {
         title: "Success",
         description: "Training session updated",
       });
+
+      // Immediately refetch to show the updates
+      await fetchSessions();
     } catch (error) {
       console.error("Error updating session:", error);
       toast({
@@ -141,6 +147,9 @@ export const useTrainingSessions = (teamId: string | null) => {
         title: "Success",
         description: "Training session deleted",
       });
+
+      // Immediately refetch to remove deleted session
+      await fetchSessions();
     } catch (error) {
       console.error("Error deleting session:", error);
       toast({

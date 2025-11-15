@@ -22,43 +22,43 @@ export const useTeamAnnouncements = (teamId: string | null) => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
+  const fetchAnnouncements = async () => {
     if (!teamId) {
       setLoading(false);
       return;
     }
 
-    const fetchAnnouncements = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("team_announcements")
-          .select(`
-            *,
-            profiles:posted_by (
-              username,
-              display_name,
-              avatar_url
-            )
-          `)
-          .eq("team_id", teamId)
-          .order("is_pinned", { ascending: false })
-          .order("created_at", { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from("team_announcements")
+        .select(`
+          *,
+          profiles:posted_by (
+            username,
+            display_name,
+            avatar_url
+          )
+        `)
+        .eq("team_id", teamId)
+        .order("is_pinned", { ascending: false })
+        .order("created_at", { ascending: false });
 
-        if (error) throw error;
-        
-        const formattedData = data.map(item => ({
-          ...item,
-          profile: Array.isArray(item.profiles) ? item.profiles[0] : item.profiles
-        }));
-        
-        setAnnouncements(formattedData as TeamAnnouncement[]);
-      } catch (error) {
-        console.error("Error fetching announcements:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      if (error) throw error;
+      
+      const formattedData = data.map(item => ({
+        ...item,
+        profile: Array.isArray(item.profiles) ? item.profiles[0] : item.profiles
+      }));
+      
+      setAnnouncements(formattedData as TeamAnnouncement[]);
+    } catch (error) {
+      console.error("Error fetching announcements:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchAnnouncements();
 
     const channel = supabase
@@ -101,6 +101,9 @@ export const useTeamAnnouncements = (teamId: string | null) => {
         title: "Success",
         description: "Announcement posted",
       });
+
+      // Immediately refetch to show the new announcement
+      await fetchAnnouncements();
     } catch (error: any) {
       console.error("Error creating announcement:", error);
       toast({
@@ -119,6 +122,9 @@ export const useTeamAnnouncements = (teamId: string | null) => {
         .eq("id", announcementId);
 
       if (error) throw error;
+
+      // Immediately refetch to update pin status and reorder
+      await fetchAnnouncements();
     } catch (error) {
       console.error("Error toggling pin:", error);
       toast({

@@ -104,6 +104,9 @@ export const useTeamChat = (teamId: string | null) => {
       });
 
       if (error) throw error;
+
+      // Immediately refetch to show the new message
+      await fetchMessages();
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error("Failed to send message");

@@ -8,55 +8,55 @@ export const useTeamMembers = (teamId: string | null) => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
+  const fetchMembers = async () => {
     if (!teamId) {
       setLoading(false);
       return;
     }
 
-    const fetchMembers = async () => {
-      try {
-        const { data: membersData, error } = await supabase
-          .from("team_members")
-          .select(`
-            *,
-            profiles:user_id (
-              username,
-              display_name,
-              avatar_url
-            )
-          `)
-          .eq("team_id", teamId)
-          .eq("status", "active");
+    try {
+      const { data: membersData, error } = await supabase
+        .from("team_members")
+        .select(`
+          *,
+          profiles:user_id (
+            username,
+            display_name,
+            avatar_url
+          )
+        `)
+        .eq("team_id", teamId)
+        .eq("status", "active");
 
-        if (error) throw error;
+      if (error) throw error;
 
-        const membersWithRoles = await Promise.all(
-          membersData.map(async (member) => {
-            const { data: roleData } = await supabase
-              .from("team_member_roles")
-              .select("role")
-              .eq("team_member_id", member.id)
-              .order("role", { ascending: true })
-              .limit(1)
-              .single();
+      const membersWithRoles = await Promise.all(
+        membersData.map(async (member) => {
+          const { data: roleData } = await supabase
+            .from("team_member_roles")
+            .select("role")
+            .eq("team_member_id", member.id)
+            .order("role", { ascending: true })
+            .limit(1)
+            .single();
 
-            return {
-              ...member,
-              profile: Array.isArray(member.profiles) ? member.profiles[0] : member.profiles,
-              role: roleData?.role || "member",
-            };
-          })
-        );
+          return {
+            ...member,
+            profile: Array.isArray(member.profiles) ? member.profiles[0] : member.profiles,
+            role: roleData?.role || "member",
+          };
+        })
+      );
 
-        setMembers(membersWithRoles as TeamMemberWithProfile[]);
-      } catch (error) {
-        console.error("Error fetching team members:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      setMembers(membersWithRoles as TeamMemberWithProfile[]);
+    } catch (error) {
+      console.error("Error fetching team members:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchMembers();
 
     const channel = supabase
@@ -104,6 +104,9 @@ export const useTeamMembers = (teamId: string | null) => {
         title: "Success",
         description: "Member removed from team",
       });
+
+      // Immediately refetch to update member list
+      await fetchMembers();
     } catch (error) {
       console.error("Error removing member:", error);
       toast({
@@ -137,6 +140,9 @@ export const useTeamMembers = (teamId: string | null) => {
         title: "Success",
         description: "Member role updated",
       });
+
+      // Immediately refetch to show updated role
+      await fetchMembers();
     } catch (error) {
       console.error("Error updating role:", error);
       toast({

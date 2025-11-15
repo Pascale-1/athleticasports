@@ -132,6 +132,9 @@ export const useEvents = (teamId?: string | null, filters?: {
         description: "Event created successfully",
       });
 
+      // Immediately refetch to show the new event
+      await fetchEvents();
+
       return true;
     } catch (error: any) {
       console.error("Error creating event:", error);
@@ -158,6 +161,9 @@ export const useEvents = (teamId?: string | null, filters?: {
         description: "Event updated successfully",
       });
 
+      // Immediately refetch to show the updates
+      await fetchEvents();
+
       return true;
     } catch (error: any) {
       console.error("Error updating event:", error);
@@ -183,6 +189,9 @@ export const useEvents = (teamId?: string | null, filters?: {
         title: "Success",
         description: "Event deleted successfully",
       });
+
+      // Immediately refetch to remove deleted event
+      await fetchEvents();
 
       return true;
     } catch (error: any) {
