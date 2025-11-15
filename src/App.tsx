@@ -14,7 +14,6 @@ import { Loader2 } from "lucide-react";
 const Index = lazy(() => import("./pages/Index"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Settings = lazy(() => import("./pages/Settings"));
-const Discover = lazy(() => import("./pages/Discover"));
 const Community = lazy(() => import("./pages/Community"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Track = lazy(() => import("./pages/Track"));
@@ -76,13 +75,6 @@ const App = () => (
             <ProtectedRoute>
               <AppLayout>
                 <Settings />
-              </AppLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/discover" element={
-            <ProtectedRoute>
-              <AppLayout>
-                <Discover />
               </AppLayout>
             </ProtectedRoute>
           } />
