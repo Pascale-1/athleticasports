@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Loader2, Users, Search as SearchIcon } from "lucide-react";
 import { Team } from "@/lib/teams";
 import { TeamSearchBar } from "@/components/teams/TeamSearchBar";
-import { TeamCarousel } from "@/components/teams/TeamCarousel";
+
 import { SwipeableTeamCard } from "@/components/teams/SwipeableTeamCard";
 import { TeamCardSkeleton } from "@/components/teams/TeamCardSkeleton";
 import { FAB } from "@/components/mobile/FAB";
@@ -208,24 +208,19 @@ const Teams = () => {
             </Button>
           </motion.div>
 
-          {/* Search Bar */}
+          {/* Unified Search & Filter Row */}
           <motion.div
+            className="flex gap-2"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
           >
-            <TeamSearchBar 
-              value={searchQuery} 
-              onChange={setSearchQuery}
-            />
-          </motion.div>
-
-          {/* Filter Button */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
+            <div className="flex-1">
+              <TeamSearchBar 
+                value={searchQuery} 
+                onChange={setSearchQuery}
+              />
+            </div>
             <FilterSheet 
               activeCount={activeSport !== "All" ? 1 : 0}
               onApply={() => {}}
@@ -243,45 +238,31 @@ const Teams = () => {
             </FilterSheet>
           </motion.div>
 
-          {/* Team View Toggle */}
+          {/* Team View Segmented Control */}
           <motion.div
-            className="flex items-center gap-2"
+            className="flex items-center gap-1 bg-muted p-1 rounded-lg w-full sm:w-auto"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.22 }}
+            transition={{ delay: 0.2 }}
           >
             <Button
-              variant={showAllTeams ? "outline" : "default"}
+              variant={showAllTeams ? "ghost" : "default"}
               size="sm"
               onClick={() => setShowAllTeams(false)}
+              className="flex-1 sm:flex-initial min-h-11"
             >
               My Teams ({myTeams.length})
             </Button>
             <Button
-              variant={showAllTeams ? "default" : "outline"}
+              variant={showAllTeams ? "default" : "ghost"}
               size="sm"
               onClick={() => setShowAllTeams(true)}
+              className="flex-1 sm:flex-initial min-h-11"
             >
               All Teams ({publicTeams.length})
             </Button>
           </motion.div>
 
-          {/* Featured Teams Carousel */}
-          {!showAllTeams && !searchQuery && featuredTeams.length > 0 && (
-            <motion.div 
-              className="space-y-3"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.25 }}
-            >
-              <h2 className="text-lg sm:text-xl font-semibold">Featured Teams</h2>
-              <TeamCarousel 
-                teams={featuredTeams}
-                memberCounts={memberCounts}
-                myTeamIds={myTeams.map(t => t.id)}
-              />
-            </motion.div>
-          )}
 
           {/* My Teams Section - 2 Column Grid */}
           {!showAllTeams && filteredMyTeams.length > 0 && (
