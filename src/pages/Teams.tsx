@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2, Users, Search as SearchIcon } from "lucide-react";
@@ -20,11 +20,13 @@ import { SportFilter } from "@/components/community/SportFilter";
 
 const Teams = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [myTeams, setMyTeams] = useState<Team[]>([]);
   const [publicTeams, setPublicTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [memberCounts, setMemberCounts] = useState<Record<string, number>>({});
+  const [showAllTeams, setShowAllTeams] = useState(false);
   
   const {
     searchQuery,
@@ -37,6 +39,16 @@ const Teams = () => {
   const {
     filteredTeams: filteredPublicTeams,
   } = useTeamFilters(publicTeams.filter(team => !myTeams.some(mt => mt.id === team.id)));
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const filter = params.get('filter');
+    
+    if (filter === 'my-teams') {
+      setShowAllTeams(false);
+      window.history.replaceState({}, '', location.pathname);
+    }
+  }, [location]);
 
   useEffect(() => {
     fetchTeams();
@@ -231,8 +243,31 @@ const Teams = () => {
             </FilterSheet>
           </motion.div>
 
+          {/* Team View Toggle */}
+          <motion.div
+            className="flex items-center gap-2"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22 }}
+          >
+            <Button
+              variant={showAllTeams ? "outline" : "default"}
+              size="sm"
+              onClick={() => setShowAllTeams(false)}
+            >
+              My Teams ({myTeams.length})
+            </Button>
+            <Button
+              variant={showAllTeams ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowAllTeams(true)}
+            >
+              All Teams ({publicTeams.length})
+            </Button>
+          </motion.div>
+
           {/* Featured Teams Carousel */}
-          {!searchQuery && featuredTeams.length > 0 && (
+          {!showAllTeams && !searchQuery && featuredTeams.length > 0 && (
             <motion.div 
               className="space-y-3"
               initial={{ opacity: 0 }}
@@ -249,7 +284,7 @@ const Teams = () => {
           )}
 
           {/* My Teams Section - 2 Column Grid */}
-          {filteredMyTeams.length > 0 && (
+          {!showAllTeams && filteredMyTeams.length > 0 && (
             <motion.div 
               className="space-y-3 sm:space-y-4"
               initial={{ opacity: 0 }}
@@ -273,18 +308,19 @@ const Teams = () => {
                 ))}
               </div>
             </motion.div>
-          )}
+            )}
 
-          {/* Discover Public Teams Section - 2 Column Grid */}
-          <motion.div 
-            className="space-y-3 sm:space-y-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            <h2 className="text-body-large font-semibold">
-              {searchQuery ? `Search Results (${filteredPublicTeams.length})` : "Discover Public Teams"}
-            </h2>
+          {/* All Teams Section */}
+          {showAllTeams && (
+            <motion.div 
+              className="space-y-3 sm:space-y-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <h2 className="text-body-large font-semibold">
+                {searchQuery ? `Search Results (${filteredPublicTeams.length})` : "Teams"}
+              </h2>
             
             {loading ? (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -324,8 +360,9 @@ const Teams = () => {
                   )
                 }
               />
-            )}
-          </motion.div>
+              )}
+            </motion.div>
+          )}
         </motion.div>
       </PullToRefresh>
 

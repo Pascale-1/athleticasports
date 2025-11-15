@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar as CalendarIcon, List, LayoutGrid } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, List, LayoutGrid, Trophy, Users, Zap } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { useEventFilters } from "@/hooks/useEventFilters";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
@@ -19,6 +19,7 @@ import type { Event } from "@/lib/events";
 const Events = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'compact'>('list');
+  const [activeEventType, setActiveEventType] = useState<'all' | 'training' | 'meetup' | 'match'>('all');
   
   const { events, loading, createEvent, refetch } = useEvents(undefined, { status: 'upcoming' });
   
@@ -32,15 +33,15 @@ const Events = () => {
   } = useEventFilters(events);
 
   const activeFilterCount = 
-    (filters.type !== 'all' ? 1 : 0) + 
     (filters.status !== 'upcoming' ? 1 : 0) + 
     (filters.isPublic !== undefined ? 1 : 0);
 
   const handleResetFilters = () => {
-    setTypeFilter('all');
     setStatusFilter('upcoming');
     setPublicFilter(undefined);
     setSearchQuery('');
+    setActiveEventType('all');
+    setTypeFilter('all');
   };
 
   // Group events by time period
@@ -100,21 +101,6 @@ const Events = () => {
           >
             <div className="space-y-4">
               <div>
-                <Label>Event Type</Label>
-                <Select value={filters.type} onValueChange={setTypeFilter}>
-                  <SelectTrigger className="mt-2">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="training">Training</SelectItem>
-                    <SelectItem value="match">Match</SelectItem>
-                    <SelectItem value="meetup">Meetup</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
                 <Label>Status</Label>
                 <Select value={filters.status} onValueChange={setStatusFilter}>
                   <SelectTrigger className="mt-2">
@@ -137,6 +123,53 @@ const Events = () => {
               </div>
             </div>
           </FilterSheet>
+        </div>
+
+        {/* Event Type Pills */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            variant={activeEventType === 'all' ? "default" : "outline"}
+            size="sm"
+            onClick={() => {
+              setActiveEventType('all');
+              setTypeFilter('all');
+            }}
+          >
+            All Events ({events.length})
+          </Button>
+          <Button
+            variant={activeEventType === 'training' ? "default" : "outline"}
+            size="sm"
+            onClick={() => {
+              setActiveEventType('training');
+              setTypeFilter('training');
+            }}
+          >
+            <Trophy className="h-4 w-4 mr-1" />
+            Training ({events.filter(e => e.type === 'training').length})
+          </Button>
+          <Button
+            variant={activeEventType === 'meetup' ? "default" : "outline"}
+            size="sm"
+            onClick={() => {
+              setActiveEventType('meetup');
+              setTypeFilter('meetup');
+            }}
+          >
+            <Users className="h-4 w-4 mr-1" />
+            Meetup ({events.filter(e => e.type === 'meetup').length})
+          </Button>
+          <Button
+            variant={activeEventType === 'match' ? "default" : "outline"}
+            size="sm"
+            onClick={() => {
+              setActiveEventType('match');
+              setTypeFilter('match');
+            }}
+          >
+            <Zap className="h-4 w-4 mr-1" />
+            Match ({events.filter(e => e.type === 'match').length})
+          </Button>
         </div>
 
         {/* View Toggle - Icon Only on Mobile */}

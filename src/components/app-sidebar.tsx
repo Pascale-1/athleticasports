@@ -17,13 +17,14 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-  const mainItems = [
-    { title: "Home", url: "/", icon: Home },
-    { title: "Track", url: "/track", icon: Activity },
-    { title: "Events", url: "/events", icon: Calendar },
-    { title: "Community", url: "/community", icon: Users },
-    { title: "Settings", url: "/settings", icon: Settings },
-  ];
+const mainItems = [
+  { title: "Home", url: "/", icon: Home },
+  { title: "Track", url: "/track", icon: Activity },
+  { title: "Teams", url: "/teams", icon: Users },
+  { title: "Events", url: "/events", icon: Calendar },
+  { title: "Community", url: "/community", icon: Users },
+  { title: "Settings", url: "/settings", icon: Settings },
+];
 
 export function AppSidebar() {
   const { open } = useSidebar();

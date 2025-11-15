@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { title: "Home", url: "/", icon: Home },
-  { title: "Discover", url: "/discover", icon: Users },
+  { title: "Teams", url: "/teams", icon: Users },
+  { title: "Events", url: "/events", icon: Calendar },
   { title: "Activity", url: "/track", icon: Plus },
   { title: "You", url: "/settings", icon: User },
 ];
