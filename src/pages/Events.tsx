@@ -74,7 +74,99 @@ const Events = () => {
 
   return (
     <PageContainer>
-      <div className="space-y-6 animate-fade-in">
+      <div className="pb-20 space-y-4 sm:space-y-6 animate-fade-in">
+        {/* Header - Consolidated */}
+        <div className="space-y-4">
+          {/* Row 1 - Mobile: Title + Dropdown, Desktop: Title + Pills + View + Create */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-heading font-bold">Events</h1>
+              
+              {/* Mobile: Event Type Dropdown */}
+              <Select 
+                value={activeEventType} 
+                onValueChange={(value: any) => {
+                  setActiveEventType(value);
+                  setTypeFilter(value);
+                }}
+              >
+                <SelectTrigger className="w-32 h-10 md:hidden">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="training">Training</SelectItem>
+                  <SelectItem value="meetup">Meetup</SelectItem>
+                  <SelectItem value="match">Match</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Desktop: Event Type Pills */}
+              <div className="hidden md:flex gap-1 bg-muted p-1 rounded-lg">
+                <Button size="sm" variant={activeEventType === 'all' ? 'default' : 'ghost'} className="h-10 px-3 text-xs" onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}>
+                  All
+                </Button>
+                <Button size="sm" variant={activeEventType === 'training' ? 'default' : 'ghost'} className="h-10 px-3 text-xs" onClick={() => { setActiveEventType('training'); setTypeFilter('training'); }}>
+                  Train
+                </Button>
+                <Button size="sm" variant={activeEventType === 'meetup' ? 'default' : 'ghost'} className="h-10 px-3 text-xs" onClick={() => { setActiveEventType('meetup'); setTypeFilter('meetup'); }}>
+                  Meet
+                </Button>
+                <Button size="sm" variant={activeEventType === 'match' ? 'default' : 'ghost'} className="h-10 px-3 text-xs" onClick={() => { setActiveEventType('match'); setTypeFilter('match'); }}>
+                  Match
+                </Button>
+              </div>
+            </div>
+
+            {/* View Toggle + Create (Desktop) */}
+            <div className="hidden md:flex items-center gap-3">
+              <div className="flex gap-1 bg-muted p-1 rounded-lg">
+                <Button size="sm" variant={viewMode === 'list' ? 'default' : 'ghost'} className="h-10 w-10 p-0" onClick={() => setViewMode('list')}>
+                  <List className="h-4 w-4" />
+                </Button>
+                <Button size="sm" variant={viewMode === 'calendar' ? 'default' : 'ghost'} className="h-10 w-10 p-0" onClick={() => setViewMode('calendar')}>
+                  <CalendarIcon className="h-4 w-4" />
+                </Button>
+              </div>
+              <Button onClick={() => setCreateDialogOpen(true)} size="default" className="gap-2">
+                <Plus className="h-4 w-4" />
+                Create
+              </Button>
+            </div>
+
+            {/* Mobile: View Toggle */}
+            <div className="flex md:hidden gap-1 bg-muted p-1 rounded-lg">
+              <Button size="sm" variant={viewMode === 'list' ? 'default' : 'ghost'} className="h-10 w-10 p-0" onClick={() => setViewMode('list')}>
+                <List className="h-4 w-4" />
+              </Button>
+              <Button size="sm" variant={viewMode === 'calendar' ? 'default' : 'ghost'} className="h-10 w-10 p-0" onClick={() => setViewMode('calendar')}>
+                <CalendarIcon className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Row 2 - Search + Filter */}
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input placeholder="Search..." value={filters.searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9" />
+            </div>
+            <FilterSheet activeCount={activeFilterCount} onApply={() => {}} onReset={handleResetFilters}>
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <Label>Status</Label>
+                  <Select value={filters.status} onValueChange={(value: any) => setStatusFilter(value)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="upcoming">Upcoming</SelectItem>
+                      <SelectItem value="past">Past</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </FilterSheet>
+          </div>
+        </div>
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>

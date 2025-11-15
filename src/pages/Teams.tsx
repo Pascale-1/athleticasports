@@ -7,7 +7,7 @@ import { Team } from "@/lib/teams";
 import { Card, CardContent } from "@/components/ui/card";
 import { TeamSearchBar } from "@/components/teams/TeamSearchBar";
 
-import { SwipeableTeamCard } from "@/components/teams/SwipeableTeamCard";
+import { TeamCard } from "@/components/teams/TeamCard";
 import { TeamCardSkeleton } from "@/components/teams/TeamCardSkeleton";
 import { FAB } from "@/components/mobile/FAB";
 import { EmptyState } from "@/components/EmptyState";
@@ -297,12 +297,10 @@ const Teams = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   {filteredMyTeams.map((team, index) => (
                   <AnimatedCard key={team.id} delay={0.35 + index * 0.05} hover={false}>
-                    <SwipeableTeamCard
+                    <TeamCard
                       team={team}
                       memberCount={memberCounts[team.id] || 0}
                       isMember={true}
-                      onLeave={() => handleLeaveTeam(team.id)}
-                      onSettings={() => navigate(`/teams/${team.id}/settings`)}
                     />
                   </AnimatedCard>
                 ))}
@@ -348,12 +346,10 @@ const Teams = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 {filteredPublicTeams.map((team, index) => (
                   <AnimatedCard key={team.id} delay={0.45 + index * 0.05} hover={false}>
-                    <SwipeableTeamCard
+                    <TeamCard
                       team={team}
                       memberCount={memberCounts[team.id] || 0}
                       isMember={false}
-                      onJoin={() => navigate(`/teams/${team.id}`)}
-                      onShare={() => handleShareTeam(team.id)}
                     />
                   </AnimatedCard>
                 ))}
