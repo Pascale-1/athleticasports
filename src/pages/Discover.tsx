@@ -17,6 +17,7 @@ import { Link, useLocation } from "react-router-dom";
 import { FilterSheet } from "@/components/common/FilterSheet";
 import { useSportFilter } from "@/hooks/useSportFilter";
 import { FollowButton } from "@/components/FollowButton";
+import { QuickTeamCreateDialog } from "@/components/teams/QuickTeamCreateDialog";
 import { Button } from "@/components/ui/button";
 
 interface Profile {
@@ -39,6 +40,7 @@ const Discover = () => {
   const { selectedSport, setSelectedSport } = useSportFilter();
   const [activeTab, setActiveTab] = useState<'teams' | 'events'>('events');
   const [createEventDialogOpen, setCreateEventDialogOpen] = useState(false);
+  const [createTeamDialogOpen, setCreateTeamDialogOpen] = useState(false);
   const [showMyTeamsOnly, setShowMyTeamsOnly] = useState(false);
   const location = useLocation();
 
@@ -290,6 +292,14 @@ const Discover = () => {
           {/* Teams Tab */}
         {activeTab === 'teams' && (
           <>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-body-large font-semibold">Teams</h3>
+              <Button onClick={() => setCreateTeamDialogOpen(true)} size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Team
+              </Button>
+            </div>
+            
             <div className="flex items-center gap-2 mb-4">
               <Button
                 variant={showMyTeamsOnly ? "default" : "outline"}
@@ -414,6 +424,15 @@ const Discover = () => {
         open={createEventDialogOpen}
         onOpenChange={setCreateEventDialogOpen}
         onCreated={fetchData}
+      />
+
+      <QuickTeamCreateDialog
+        open={createTeamDialogOpen}
+        onOpenChange={setCreateTeamDialogOpen}
+        onTeamCreated={() => {
+          fetchData();
+          setCreateTeamDialogOpen(false);
+        }}
       />
     </PageContainer>
   );
