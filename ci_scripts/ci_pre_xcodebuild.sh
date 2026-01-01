@@ -88,3 +88,17 @@ fi
 
 echo "✅ Pre-build script completed successfully"
 
+# Final verification: Check if workspace exists (required for CocoaPods)
+echo "🔍 Final verification..."
+if [ -f "ios/App/App.xcworkspace/contents.xcworkspacedata" ]; then
+  echo "✅ Workspace file exists - Xcode Cloud MUST build App.xcworkspace (not App.xcodeproj)"
+else
+  echo "⚠️  Warning: Workspace file not found!"
+fi
+
+echo ""
+echo "⚠️  IMPORTANT: Xcode Cloud workflow must be configured to build:"
+echo "   ✅ ios/App/App.xcworkspace (correct - includes Pods)"
+echo "   ❌ ios/App/App.xcodeproj (wrong - will fail)"
+echo ""
+
