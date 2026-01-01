@@ -176,13 +176,17 @@
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/../../package.json",
+				"${SRCROOT}/Podfile",
 			);
 			name = "[XC] Install Dependencies and Pods";
 			outputPaths = (
+				"${SRCROOT}/../../node_modules/.package-lock.json",
+				"${SRCROOT}/Pods/Manifest.lock",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Xcode Cloud: Install npm dependencies and Pods\nset -e\nREPO_ROOT=\"${SRCROOT}/../../..\"\ncd \"$REPO_ROOT\"\n\n# Install npm dependencies if node_modules doesn't exist\nif [ ! -d \"node_modules\" ]; then\n    echo \"📦 Installing npm dependencies...\"\n    if command -v npm &> /dev/null; then\n        npm ci || npm install\n    else\n        echo \"error: npm not found\" >&2\n        exit 1\n    fi\nfi\n\n# Build web app and sync Capacitor\nif [ ! -d \"dist\" ]; then\n    echo \"🏗️  Building web app...\"\n    npm run build\nfi\n\n# Sync Capacitor\nif command -v npx &> /dev/null; then\n    echo \"🔄 Syncing Capacitor...\"\n    npx cap sync ios || true\nfi\n\n# Install Pods\ncd \"${SRCROOT}\"\nif [ -f \"Podfile\" ]; then\n    echo \"📦 Installing Pods...\"\n    if command -v pod &> /dev/null; then\n        pod install || {\n            echo \"error: pod install failed\" >&2\n            exit 1\n        }\n    else\n        echo \"error: CocoaPods not found. Installing...\" >&2\n        gem install cocoapods\n        pod install || {\n            echo \"error: pod install failed\" >&2\n            exit 1\n        }\n    fi\nfi\n";
+			shellScript = "# Only run in Xcode Cloud or if Pods are missing\n# Skip if running locally and Pods already exist\nif [ -d \"${SRCROOT}/Pods\" ] && [ -f \"${SRCROOT}/Pods/Manifest.lock\" ] && [ \"${CI}\" != \"true\" ]; then\n    echo \"✅ Pods already installed, skipping...\"\n    exit 0\nfi\n\n# Xcode Cloud: Install npm dependencies and Pods\nset -e\nREPO_ROOT=\"${SRCROOT}/../../..\"\ncd \"$REPO_ROOT\" || cd \"${SRCROOT}/../..\"\n\n# Install npm dependencies if node_modules doesn't exist\nif [ ! -d \"node_modules\" ]; then\n    echo \"📦 Installing npm dependencies...\"\n    if command -v npm &> /dev/null; then\n        npm ci 2>&1 || npm install 2>&1\n    else\n        echo \"warning: npm not found, skipping npm install\" >&2\n    fi\nfi\n\n# Build web app and sync Capacitor (only if needed)\nif [ ! -d \"dist\" ] || [ \"${CI}\" = \"true\" ]; then\n    echo \"🏗️  Building web app...\"\n    npm run build 2>&1 || echo \"warning: build failed, continuing...\" >&2\n    \n    # Sync Capacitor\n    if command -v npx &> /dev/null; then\n        echo \"🔄 Syncing Capacitor...\"\n        npx cap sync ios 2>&1 || echo \"warning: cap sync failed\" >&2\n    fi\nfi\n\n# Install Pods\ncd \"${SRCROOT}\"\nif [ -f \"Podfile\" ]; then\n    echo \"📦 Installing Pods...\"\n    if command -v pod &> /dev/null; then\n        pod install 2>&1 || {\n            echo \"error: pod install failed\" >&2\n            exit 1\n        }\n    else\n        echo \"error: CocoaPods not found\" >&2\n        exit 1\n    fi\nelse\n    echo \"warning: Podfile not found\" >&2\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		6634F4EFEBD30273BCE97C65 /* [CP] Check Pods Manifest.lock */ = {
@@ -209,9 +213,12 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-App/Pods-App-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}/Pods_App.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Pods_App.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
