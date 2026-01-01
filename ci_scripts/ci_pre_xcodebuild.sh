@@ -3,12 +3,25 @@
 # Xcode Cloud Pre-Build Script
 # This script runs before Xcode builds your project
 # It builds the web app, syncs Capacitor, and installs CocoaPods
+# CRITICAL: This script has access to node/npm, build phases don't
 
-# Don't exit on error immediately - we want to see what's happening
 set -e
 
 echo "🔧 Running pre-build script for Xcode Cloud..."
 echo "📁 Current directory: $(pwd)"
+
+# Find repository root
+if [ -f "package.json" ]; then
+  REPO_ROOT="$(pwd)"
+elif [ -f "ios/App/Podfile" ]; then
+  REPO_ROOT="$(pwd)"
+else
+  echo "❌ Cannot find repository root"
+  exit 1
+fi
+
+cd "$REPO_ROOT"
+echo "📁 Repository root: $(pwd)"
 
 # Step 1: Install npm dependencies
 echo "📦 Step 1: Installing npm dependencies..."
@@ -20,21 +33,35 @@ if [ -f "package.json" ]; then
   echo "✅ npm dependencies installed"
 else
   echo "❌ package.json not found at $(pwd)/package.json!"
-  echo "📁 Listing current directory:"
-  ls -la
   exit 1
 fi
 
-# Step 2: Build the web app
-echo "🏗️  Step 2: Building web app..."
+# Step 2: Create .env file from Xcode Cloud environment variables
+# Vite needs these at BUILD TIME, not runtime
+echo "🔧 Creating .env file from Xcode Cloud environment variables..."
+if [ -n "${VITE_SUPABASE_URL}" ] && [ -n "${VITE_SUPABASE_PUBLISHABLE_KEY}" ]; then
+  cat > .env << EOF
+VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+VITE_SUPABASE_PUBLISHABLE_KEY=${VITE_SUPABASE_PUBLISHABLE_KEY}
+EOF
+  echo "✅ .env file created"
+else
+  echo "⚠️  WARNING: Environment variables not set in Xcode Cloud!"
+  echo "   VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:+SET}"
+  echo "   VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY:+SET}"
+  echo "   Build may fail or app may not work correctly."
+fi
+
+# Step 3: Build the web app
+echo "🏗️  Step 3: Building web app..."
 npm run build || {
   echo "❌ Build failed!"
   exit 1
 }
 echo "✅ Web app built"
 
-# Step 3: Sync Capacitor (copies dist to iOS)
-echo "🔄 Step 3: Syncing Capacitor..."
+# Step 4: Sync Capacitor (copies dist to iOS)
+echo "🔄 Step 4: Syncing Capacitor..."
 npx cap sync ios || {
   echo "❌ Capacitor sync failed!"
   exit 1
