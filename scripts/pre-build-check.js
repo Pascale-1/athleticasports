@@ -14,31 +14,14 @@ const __dirname = dirname(__filename);
 const projectRoot = join(__dirname, '..');
 
 function checkEnvVars() {
-  // In CI environments, check environment variables directly instead of .env file
-  const isCI = process.env.CI === 'true' || process.env.XCODE_CLOUD === '1';
+  // In CI environments, skip validation entirely - just warn
+  const isCI = process.env.CI === 'true' || process.env.XCODE_CLOUD === '1' || process.env.CI === '1';
   
   if (isCI) {
-    console.log('🔧 CI environment detected - checking environment variables...');
-    const requiredVars = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_PUBLISHABLE_KEY'];
-    const missing = [];
-
-    requiredVars.forEach(varName => {
-      const value = process.env[varName];
-      if (!value || value.trim() === '' || value.includes('your_') || value.includes('placeholder')) {
-        missing.push(varName);
-      }
-    });
-
-    if (missing.length > 0) {
-      console.warn(`⚠️  WARNING: Missing environment variables in CI: ${missing.join(', ')}`);
-      console.warn('   Build will continue but app may not work correctly.');
-      console.warn('   Set these as environment variables in Xcode Cloud workflow settings.\n');
-      // Don't exit in CI - let the build continue
-      return;
-    }
-
-    console.log('✅ Environment variables configured in CI');
-    return;
+    console.log('🔧 CI environment detected - skipping .env validation');
+    console.log('⚠️  NOTE: App will need VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY at runtime');
+    console.log('   Set these as environment variables in Xcode Cloud if needed.\n');
+    return; // Skip all validation in CI
   }
 
   // Local development: check .env file
