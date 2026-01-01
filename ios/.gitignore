@@ -1,5 +1,7 @@
 App/build
-App/Pods
+App/Pods/*
+!App/Pods/Target Support Files/Pods-App/Pods-App.release.xcconfig
+!App/Pods/Target Support Files/Pods-App/Pods-App.debug.xcconfig
 App/output
 App/App/public
 DerivedData
