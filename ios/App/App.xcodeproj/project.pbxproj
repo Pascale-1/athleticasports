@@ -186,7 +186,292 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Xcode Cloud: Install all dependencies and Pods\n# This runs BEFORE Pods check to ensure everything is ready\n# Don't use set -e - handle errors manually for better debugging\n\n# Skip if running locally and everything already exists\nif [ \"${CI}\" != \"true\" ] && [ -d \"${SRCROOT}/Pods\" ] && [ -f \"${SRCROOT}/Pods/Manifest.lock\" ] && [ -d \"${SRCROOT}/../../node_modules\" ]; then\n    echo \"✅ Dependencies already installed, skipping...\"\n    exit 0\nfi\n\necho \"🔧 Starting dependency installation...\"\necho \"📁 SRCROOT: ${SRCROOT}\"\necho \"📁 CI: ${CI}\"\n\n# Navigate to repo root\nREPO_ROOT=\"${SRCROOT}/../../..\"\nif [ ! -f \"$REPO_ROOT/package.json\" ]; then\n    REPO_ROOT=\"${SRCROOT}/../..\"\nfi\n\nif [ ! -f \"$REPO_ROOT/package.json\" ]; then\n    echo \"error: Cannot find package.json at $REPO_ROOT/package.json\" >&2\n    echo \"error: Tried: ${SRCROOT}/../../.. and ${SRCROOT}/../..\" >&2\n    exit 1\nfi\n\ncd \"$REPO_ROOT\" || {\n    echo \"error: Cannot cd to repository root: $REPO_ROOT\" >&2\n    exit 1\n}\n\necho \"📁 Repository root: $(pwd)\"\n\n# CRITICAL: Find npm - use multiple strategies\n# Strategy 1: Try to find npm in PATH\nNPM_CMD=\"\"\nif command -v npm &> /dev/null; then\n    NPM_CMD=\"npm\"\n    echo \"✅ Found npm in PATH: $(which npm)\"\n# Strategy 2: Use npm from node_modules (if it exists)\nelif [ -f \"node_modules/.bin/npm\" ]; then\n    NPM_CMD=\"node node_modules/.bin/npm\"\n    echo \"✅ Using npm from node_modules/.bin/npm\"\n# Strategy 3: Find node and use it to locate npm\nelif command -v node &> /dev/null; then\n    NODE_DIR=\"$(dirname $(which node))\"\n    if [ -f \"$NODE_DIR/npm\" ]; then\n        export PATH=\"$NODE_DIR:$PATH\"\n        NPM_CMD=\"npm\"\n        echo \"✅ Found npm via node at: $NODE_DIR/npm\"\n    else\n        # Use node to run npm scripts directly\n        NPM_CMD=\"node node_modules/.bin/npm\"\n        echo \"✅ Using node to run npm from node_modules\"\n    fi\n# Strategy 4: Check common installation paths\nelse\n    for NODE_PATH in \"/usr/local/bin\" \"/opt/homebrew/bin\" \"/usr/bin\" \"/opt/pmk/env/global/bin\"; do\n        if [ -f \"$NODE_PATH/node\" ] && [ -f \"$NODE_PATH/npm\" ]; then\n            export PATH=\"$NODE_PATH:$PATH\"\n            NPM_CMD=\"npm\"\n            echo \"✅ Found npm at: $NODE_PATH/npm\"\n            break\n        fi\n    done\nfi\n\n# Final fallback: use node_modules npm if available\nif [ -z \"$NPM_CMD\" ] && [ -f \"node_modules/.bin/npm\" ]; then\n    NPM_CMD=\"node node_modules/.bin/npm\"\n    echo \"✅ Fallback: Using npm from node_modules/.bin/npm\"\nfi\n\n# Verify we have a way to run npm\nif [ -z \"$NPM_CMD\" ]; then\n    echo \"error: Cannot find npm or node\" >&2\n    echo \"PATH: $PATH\" >&2\n    echo \"Checking for node:\" >&2\n    which node || echo \"node not found\" >&2\n    echo \"Checking for node_modules/.bin/npm:\" >&2\n    ls -la node_modules/.bin/npm 2>&1 || echo \"node_modules/.bin/npm not found\" >&2\n    exit 1\nfi\n\n# Install npm dependencies (if needed)\nif [ ! -d \"node_modules\" ]; then\n    echo \"📦 Installing npm dependencies...\"\n    if ! $NPM_CMD ci; then\n        echo \"⚠️  npm ci failed, trying npm install...\"\n        if ! $NPM_CMD install; then\n            echo \"error: Both npm ci and npm install failed\" >&2\n            exit 1\n        fi\n    fi\n    echo \"✅ npm dependencies installed\"\nelse\n    echo \"✅ node_modules already exists\"\nfi\n\n# CRITICAL: Create .env file from Xcode Cloud environment variables\n# Vite needs these at BUILD TIME, not runtime\nif [ \"${CI}\" = \"true\" ]; then\n    echo \"🔧 Creating .env file from Xcode Cloud environment variables...\"\n    \n    # Check if environment variables are set\n    if [ -z \"${VITE_SUPABASE_URL}\" ] || [ -z \"${VITE_SUPABASE_PUBLISHABLE_KEY}\" ]; then\n        echo \"⚠️  WARNING: Environment variables not set in Xcode Cloud!\" >&2\n        echo \"   VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:+SET}\" >&2\n        echo \"   VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY:+SET}\" >&2\n        echo \"   Build may fail or app may not work correctly.\" >&2\n    fi\n    \n    # Create .env file from environment variables\n    cat > .env << EOF\nVITE_SUPABASE_URL=${VITE_SUPABASE_URL:-}\nVITE_SUPABASE_PUBLISHABLE_KEY=${VITE_SUPABASE_PUBLISHABLE_KEY:-}\nEOF\n    \n    echo \"✅ .env file created\"\n    echo \"📋 Verifying .env file contents (URL only, key hidden):\"\n    if [ -f \".env\" ]; then\n        grep \"VITE_SUPABASE_URL\" .env | sed 's/=.*/=***/' || true\n        echo \"   VITE_SUPABASE_PUBLISHABLE_KEY=***\"\n    fi\nfi\n\n# Build web app\nif [ ! -d \"dist\" ] || [ \"${CI}\" = \"true\" ]; then\n    echo \"🏗️  Building web app...\"\n    \n    # Export environment variables to ensure they're available to npm\n    export VITE_SUPABASE_URL=\"${VITE_SUPABASE_URL:-}\"\n    export VITE_SUPABASE_PUBLISHABLE_KEY=\"${VITE_SUPABASE_PUBLISHABLE_KEY:-}\"\n    \n    # Try build with error handling\n    echo \"📦 Running: $NPM_CMD run build\"\n    if ! $NPM_CMD run build 2>&1; then\n        echo \"error: npm run build failed\" >&2\n        echo \"📋 Build script details:\"\n        cat package.json | grep -A 2 '\"build\"' || true\n        echo \"\"\n        echo \"💡 Troubleshooting:\"\n        echo \"   1. Check if .env file exists: $(test -f .env && echo 'YES' || echo 'NO')\"\n        if [ -f \".env\" ]; then\n            echo \"   2. .env file contents (first 100 chars):\"\n            head -c 100 .env || true\n        fi\n        echo \"   3. Environment variables in shell:\"\n        echo \"      VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:+SET}\"\n        echo \"      VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY:+SET}\"\n        echo \"   4. npm command used: $NPM_CMD\"\n        exit 1\n    fi\n    echo \"✅ Web app built\"\nelse\n    echo \"✅ dist already exists\"\nfi\n\n# Sync Capacitor - use npx from node_modules if needed\nif [ -f \"node_modules/.bin/npx\" ]; then\n    NPX_CMD=\"node node_modules/.bin/npx\"\nelif command -v npx &> /dev/null; then\n    NPX_CMD=\"npx\"\nelse\n    echo \"error: npx not found\" >&2\n    exit 1\nfi\n\necho \"🔄 Syncing Capacitor...\"\nif ! $NPX_CMD cap sync ios; then\n    echo \"error: Capacitor sync failed\" >&2\n    exit 1\nfi\necho \"✅ Capacitor synced\"\n\n# Install Pods\ncd \"${SRCROOT}\" || {\n    echo \"error: Cannot cd to ${SRCROOT}\" >&2\n    exit 1\n}\n\nif [ ! -f \"Podfile\" ]; then\n    echo \"error: Podfile not found at ${SRCROOT}/Podfile\" >&2\n    exit 1\nfi\n\necho \"📦 Installing Pods...\"\nif ! command -v pod &> /dev/null; then\n    echo \"error: CocoaPods (pod) not found in PATH\" >&2\n    echo \"PATH: $PATH\" >&2\n    exit 1\nfi\n\nif ! pod install; then\n    echo \"error: pod install failed\" >&2\n    echo \"📁 Current directory: $(pwd)\"\n    echo \"📁 Podfile location: $(pwd)/Podfile\"\n    exit 1\nfi\n\necho \"✅ All dependencies installed successfully\"\n";
+			shellScript = "# Xcode Cloud: Install all dependencies and Pods
+# This runs BEFORE Pods check to ensure everything is ready
+# Don't use set -e - handle errors manually for better debugging
+
+# Skip if running locally and everything already exists
+if [ \"${CI}\" != \"true\" ] && [ -d \"${SRCROOT}/Pods\" ] && [ -f \"${SRCROOT}/Pods/Manifest.lock\" ] && [ -d \"${SRCROOT}/../../node_modules\" ]; then
+    echo \"✅ Dependencies already installed, skipping...\"
+    exit 0
+fi
+
+echo \"🔧 Starting dependency installation...\"
+echo \"📁 SRCROOT: ${SRCROOT}\"
+echo \"📁 CI: ${CI}\"
+
+# Navigate to repo root
+REPO_ROOT=\"${SRCROOT}/../../..\"
+if [ ! -f \"$REPO_ROOT/package.json\" ]; then
+    REPO_ROOT=\"${SRCROOT}/../..\"
+fi
+
+if [ ! -f \"$REPO_ROOT/package.json\" ]; then
+    echo \"error: Cannot find package.json at $REPO_ROOT/package.json\" >&2
+    echo \"error: Tried: ${SRCROOT}/../../.. and ${SRCROOT}/../..\" >&2
+    exit 1
+fi
+
+cd \"$REPO_ROOT\" || {
+    echo \"error: Cannot cd to repository root: $REPO_ROOT\" >&2
+    exit 1
+}
+
+echo \"📁 Repository root: $(pwd)\"
+
+# CRITICAL: Find node first, then npm - use aggressive search
+# Since node_modules exists, node MUST be available somewhere
+NODE_CMD=\"\"
+NPM_CMD=\"\"
+
+# Strategy 1: Check PATH first
+if command -v node &> /dev/null; then
+    NODE_CMD=\"node\"
+    echo \"✅ Found node in PATH: $(which node)\"
+elif command -v npm &> /dev/null; then
+    # If npm is found, node should be nearby
+    NPM_DIR=\"$(dirname $(which npm))\"
+    if [ -f \"$NPM_DIR/node\" ]; then
+        export PATH=\"$NPM_DIR:$PATH\"
+        NODE_CMD=\"node\"
+        NPM_CMD=\"npm\"
+        echo \"✅ Found node via npm at: $NPM_DIR/node\"
+    fi
+fi
+
+# Strategy 2: Search common installation paths
+if [ -z \"$NODE_CMD\" ]; then
+    echo \"🔍 Searching for node in common locations...\"
+    for NODE_PATH in \"/usr/local/bin\" \"/opt/homebrew/bin\" \"/usr/bin\" \"/opt/pmk/env/global/bin\" \"/Users/local/Homebrew/bin\" \"/Library/Apple/usr/bin\"; do
+        if [ -f \"$NODE_PATH/node\" ] && [ -x \"$NODE_PATH/node\" ]; then
+            export PATH=\"$NODE_PATH:$PATH\"
+            NODE_CMD=\"node\"
+            echo \"✅ Found node at: $NODE_PATH/node\"
+            # Check for npm in same directory
+            if [ -f \"$NODE_PATH/npm\" ]; then
+                NPM_CMD=\"npm\"
+                echo \"✅ Found npm at: $NODE_PATH/npm\"
+            fi
+            break
+        fi
+    done
+fi
+
+# Strategy 3: Use find to locate node (aggressive search, but limited depth)
+if [ -z \"$NODE_CMD\" ] && [ \"${CI}\" = \"true\" ]; then
+    echo \"🔍 Using find to locate node (searching /usr, /opt, /Library)...\"
+    # Search with limited depth to avoid long searches
+    for SEARCH_ROOT in \"/usr\" \"/opt\" \"/Library\" \"/Users/local\"; do
+        if [ -d \"$SEARCH_ROOT\" ]; then
+            # Limit to depth 3 to avoid very long searches
+            FOUND_NODE=$(find \"$SEARCH_ROOT\" -maxdepth 3 -name \"node\" -type f -perm +111 2>/dev/null | grep -v \".git\" | head -1)
+            if [ -n \"$FOUND_NODE\" ] && [ -x \"$FOUND_NODE\" ]; then
+                NODE_DIR=\"$(dirname \"$FOUND_NODE\")\"
+                export PATH=\"$NODE_DIR:$PATH\"
+                NODE_CMD=\"node\"
+                echo \"✅ Found node via find at: $FOUND_NODE\"
+                # Check for npm in same directory
+                if [ -f \"$NODE_DIR/npm\" ]; then
+                    NPM_CMD=\"npm\"
+                    echo \"✅ Found npm at: $NODE_DIR/npm\"
+                fi
+                break
+            fi
+        fi
+    done
+fi
+
+# Strategy 4: Try to source common profile files that might set up PATH
+if [ -z \"$NODE_CMD\" ] && [ \"${CI}\" = \"true\" ]; then
+    echo \"🔍 Checking for profile files...\"
+    for PROFILE in \"$HOME/.bash_profile\" \"$HOME/.bashrc\" \"$HOME/.zshrc\" \"$HOME/.profile\" \"/etc/profile\"; do
+        if [ -f \"$PROFILE\" ]; then
+            # Source it and check for node
+            . \"$PROFILE\" 2>/dev/null || true
+            if command -v node &> /dev/null; then
+                NODE_CMD=\"node\"
+                echo \"✅ Found node after sourcing $PROFILE\"
+                if command -v npm &> /dev/null; then
+                    NPM_CMD=\"npm\"
+                fi
+                break
+            fi
+        fi
+    done
+fi
+
+# Strategy 5: If we have node but not npm, try npm from node_modules or use node directly
+if [ -n \"$NODE_CMD\" ] && [ -z \"$NPM_CMD\" ]; then
+    if [ -f \"node_modules/npm/bin/npm-cli.js\" ]; then
+        # npm is installed as a package
+        NPM_CMD=\"$NODE_CMD node_modules/npm/bin/npm-cli.js\"
+        echo \"✅ Found npm package, using: $NPM_CMD\"
+    elif [ -d \"node_modules/.bin\" ]; then
+        # We can use node to run scripts from node_modules/.bin
+        echo \"✅ Will use node to run scripts from node_modules/.bin\"
+        # NPM_CMD will be set when we need it
+    fi
+fi
+
+# Final verification - we MUST have node
+if [ -z \"$NODE_CMD\" ]; then
+    echo \"error: Cannot find node anywhere\" >&2
+    echo \"PATH: $PATH\" >&2
+    echo \"Searched in: /usr/local/bin, /opt/homebrew/bin, /usr/bin, /opt/pmk/env/global/bin, /Users/local/Homebrew/bin\" >&2
+    echo \"node_modules exists: $([ -d \"node_modules\" ] && echo \"YES\" || echo \"NO\")\" >&2
+    if [ -d \"node_modules\" ]; then
+        echo \"node_modules/.bin exists: $([ -d \"node_modules/.bin\" ] && echo \"YES\" || echo \"NO\")\" >&2
+        if [ -d \"node_modules/.bin\" ]; then
+            echo \"Contents of node_modules/.bin (first 10):\" >&2
+            ls -la node_modules/.bin | head -10 >&2
+        fi
+    fi
+    exit 1
+fi
+
+echo \"✅ Node found: $NODE_CMD\"
+if [ -n \"$NPM_CMD\" ]; then
+    echo \"✅ npm command: $NPM_CMD\"
+fi
+
+# Install npm dependencies (if needed)
+if [ ! -d \"node_modules\" ]; then
+    echo \"📦 Installing npm dependencies...\"
+    if [ -n \"$NPM_CMD\" ]; then
+        if ! $NPM_CMD ci; then
+            echo \"⚠️  npm ci failed, trying npm install...\"
+            if ! $NPM_CMD install; then
+                echo \"error: Both npm ci and npm install failed\" >&2
+                exit 1
+            fi
+        fi
+    else
+        echo \"error: Cannot install dependencies - npm not available\" >&2
+        exit 1
+    fi
+    echo \"✅ npm dependencies installed\"
+else
+    echo \"✅ node_modules already exists\"
+fi
+
+# CRITICAL: Create .env file from Xcode Cloud environment variables
+# Vite needs these at BUILD TIME, not runtime
+if [ \"${CI}\" = \"true\" ]; then
+    echo \"🔧 Creating .env file from Xcode Cloud environment variables...\"
+    
+    # Check if environment variables are set
+    if [ -z \"${VITE_SUPABASE_URL}\" ] || [ -z \"${VITE_SUPABASE_PUBLISHABLE_KEY}\" ]; then
+        echo \"⚠️  WARNING: Environment variables not set in Xcode Cloud!\" >&2
+        echo \"   VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:+SET}\" >&2
+        echo \"   VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY:+SET}\" >&2
+        echo \"   Build may fail or app may not work correctly.\" >&2
+    fi
+    
+    # Create .env file from environment variables
+    cat > .env << EOF
+VITE_SUPABASE_URL=${VITE_SUPABASE_URL:-}
+VITE_SUPABASE_PUBLISHABLE_KEY=${VITE_SUPABASE_PUBLISHABLE_KEY:-}
+EOF
+    
+    echo \"✅ .env file created\"
+    echo \"📋 Verifying .env file contents (URL only, key hidden):\"
+    if [ -f \".env\" ]; then
+        grep \"VITE_SUPABASE_URL\" .env | sed 's/=.*/=***/' || true
+        echo \"   VITE_SUPABASE_PUBLISHABLE_KEY=***\"
+    fi
+fi
+
+# Build web app
+if [ ! -d \"dist\" ] || [ \"${CI}\" = \"true\" ]; then
+    echo \"🏗️  Building web app...\"
+    
+    # Export environment variables to ensure they're available
+    export VITE_SUPABASE_URL=\"${VITE_SUPABASE_URL:-}\"
+    export VITE_SUPABASE_PUBLISHABLE_KEY=\"${VITE_SUPABASE_PUBLISHABLE_KEY:-}\"
+    
+    # Try build with error handling
+    if [ -n \"$NPM_CMD\" ]; then
+        echo \"📦 Running: $NPM_CMD run build\"
+        if ! $NPM_CMD run build 2>&1; then
+            echo \"error: npm run build failed\" >&2
+            exit 1
+        fi
+    elif [ -f \"node_modules/.bin/vite\" ]; then
+        # Fallback: run vite directly if npm is not available
+        echo \"📦 Running build directly with vite (npm not available)\"
+        # First run pre-build-check if it exists
+        if [ -f \"scripts/pre-build-check.js\" ]; then
+            echo \"📋 Running pre-build check...\"
+            $NODE_CMD scripts/pre-build-check.js || {
+                echo \"⚠️  Pre-build check failed, continuing anyway...\"
+            }
+        fi
+        # Run vite build
+        if ! $NODE_CMD node_modules/.bin/vite build 2>&1; then
+            echo \"error: vite build failed\" >&2
+            exit 1
+        fi
+    else
+        echo \"error: Cannot build - neither npm nor vite found\" >&2
+        exit 1
+    fi
+    echo \"✅ Web app built\"
+else
+    echo \"✅ dist already exists\"
+fi
+
+# Sync Capacitor - use npx from node_modules if needed
+if [ -z \"$NODE_CMD\" ]; then
+    echo \"error: node not available for Capacitor sync\" >&2
+    exit 1
+fi
+
+if [ -f \"node_modules/.bin/npx\" ]; then
+    NPX_CMD=\"$NODE_CMD node_modules/.bin/npx\"
+elif [ -f \"node_modules/.bin/cap\" ]; then
+    # Use cap directly if available
+    NPX_CMD=\"$NODE_CMD node_modules/.bin/cap\"
+elif command -v npx &> /dev/null; then
+    NPX_CMD=\"npx\"
+else
+    echo \"error: npx not found and cap binary not available\" >&2
+    exit 1
+fi
+
+echo \"🔄 Syncing Capacitor...\"
+if ! $NPX_CMD sync ios; then
+    echo \"error: Capacitor sync failed\" >&2
+    exit 1
+fi
+echo \"✅ Capacitor synced\"
+
+# Install Pods
+cd \"${SRCROOT}\" || {
+    echo \"error: Cannot cd to ${SRCROOT}\" >&2
+    exit 1
+}
+
+if [ ! -f \"Podfile\" ]; then
+    echo \"error: Podfile not found at ${SRCROOT}/Podfile\" >&2
+    exit 1
+fi
+
+echo \"📦 Installing Pods...\"
+if ! command -v pod &> /dev/null; then
+    echo \"error: CocoaPods (pod) not found in PATH\" >&2
+    echo \"PATH: $PATH\" >&2
+    exit 1
+fi
+
+if ! pod install; then
+    echo \"error: pod install failed\" >&2
+    echo \"📁 Current directory: $(pwd)\"
+    echo \"📁 Podfile location: $(pwd)/Podfile\"
+    exit 1
+fi
+
+echo \"✅ All dependencies installed successfully\"
+";
 			showEnvVarsInLog = 0;
 		};
 		6634F4EFEBD30273BCE97C65 /* [CP] Check Pods Manifest.lock */ = {
