@@ -34,9 +34,25 @@ echo "📦 Step 4: Installing CocoaPods dependencies..."
 if [ -f "ios/App/Podfile" ]; then
   cd ios/App
   echo "📁 Changed to: $(pwd)"
+  
+  # Ensure CocoaPods is available
   echo "🔍 Checking for CocoaPods..."
-  which pod || gem install cocoapods
-  pod install --repo-update
+  if ! command -v pod &> /dev/null; then
+    echo "📦 Installing CocoaPods gem..."
+    gem install cocoapods
+  fi
+  echo "✅ CocoaPods found: $(which pod)"
+  
+  # Install Pods
+  echo "📦 Running pod install..."
+  pod install --repo-update || {
+    echo "⚠️  pod install failed, trying without --repo-update..."
+    pod install || {
+      echo "❌ pod install failed!"
+      exit 1
+    }
+  }
+  
   cd ../..
   echo "✅ CocoaPods installed"
   
@@ -45,6 +61,24 @@ if [ -f "ios/App/Podfile" ]; then
     echo "✅ Pods directory exists"
   else
     echo "❌ Pods directory not found after installation!"
+    exit 1
+  fi
+  
+  # Verify critical xcconfig files exist
+  echo "🔍 Verifying Pods configuration files..."
+  if [ -f "ios/App/Pods/Target Support Files/Pods-App/Pods-App.release.xcconfig" ]; then
+    echo "✅ Pods-App.release.xcconfig exists"
+  else
+    echo "❌ Pods-App.release.xcconfig NOT found!"
+    echo "📁 Listing Pods directory:"
+    ls -la ios/App/Pods/Target\ Support\ Files/ 2>/dev/null || echo "Target Support Files directory not found"
+    exit 1
+  fi
+  
+  if [ -f "ios/App/Pods/Target Support Files/Pods-App/Pods-App.debug.xcconfig" ]; then
+    echo "✅ Pods-App.debug.xcconfig exists"
+  else
+    echo "❌ Pods-App.debug.xcconfig NOT found!"
     exit 1
   fi
 else
