@@ -296,6 +296,28 @@ if [ \"${CI}\" = \"true\" ] && [ -d \"dist\" ]; then
     fi
 fi
 
+# CRITICAL: Verify node_modules exists before installing Pods
+# The Podfile requires Capacitor from node_modules
+if [ ! -d \"node_modules\" ]; then
+    echo \"error: node_modules directory not found!\" >&2
+    echo \"   The Podfile requires Capacitor from node_modules.\" >&2
+    echo \"   Expected ci_pre_xcodebuild.sh or ci_post_clone.sh to install npm dependencies.\" >&2
+    echo \"   Please ensure CI scripts run before this build phase.\" >&2
+    echo \"   Current directory: $(pwd)\" >&2
+    echo \"   Expected node_modules at: $(pwd)/node_modules\" >&2
+    exit 1
+fi
+
+# Verify Capacitor is installed
+if [ ! -d \"node_modules/@capacitor/ios\" ]; then
+    echo \"error: Capacitor iOS not found in node_modules!\" >&2
+    echo \"   Expected: node_modules/@capacitor/ios\" >&2
+    echo \"   Please ensure npm dependencies are installed.\" >&2
+    exit 1
+fi
+
+echo \"✅ node_modules exists and Capacitor is installed\"
+
 # Install Pods
 cd \"${SRCROOT}\" || {
     echo \"error: Cannot cd to ${SRCROOT}\" >&2
@@ -318,6 +340,8 @@ if ! pod install; then
     echo \"error: pod install failed\" >&2
     echo \"📁 Current directory: $(pwd)\"
     echo \"📁 Podfile location: $(pwd)/Podfile\"
+    echo \"📁 Checking if Capacitor helpers exist:\"
+    ls -la \"${REPO_ROOT}/node_modules/@capacitor/ios/scripts/\" 2>&1 || echo \"   Capacitor scripts directory not found\" >&2
     exit 1
 fi
 
