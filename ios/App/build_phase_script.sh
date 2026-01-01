@@ -188,23 +188,72 @@ fi
 # CRITICAL: If node_modules exists, node MUST be available - try one more thing
 if [ -z "$NODE_CMD" ] && [ -d "node_modules" ]; then
     echo "⚠️  node_modules exists but node not found - trying to infer node location..."
-    # Check if we can find node by looking at package.json engines or checking npm config
-    # Or try to use which/whereis if available
-    if command -v which &> /dev/null; then
-        # Try which with expanded PATH
-        for EXTRA_PATH in "/usr/local/lib/node_modules/npm/bin" "/opt/homebrew/lib/node_modules/npm/bin"; do
-            if [ -f "$EXTRA_PATH/node-gyp" ]; then
-                # npm is here, node might be nearby
-                PARENT_DIR="$(dirname "$EXTRA_PATH")"
-                if [ -f "$PARENT_DIR/../bin/node" ]; then
-                    NODE_DIR="$(cd "$PARENT_DIR/../bin" && pwd)"
+    echo "🔍 Checking npm installation to find node..."
+    
+    # Method 1: Check npm's prefix (where npm thinks node is)
+    if command -v npm &> /dev/null; then
+        NPM_PREFIX=$(npm config get prefix 2>/dev/null || echo "")
+        if [ -n "$NPM_PREFIX" ] && [ -f "$NPM_PREFIX/bin/node" ]; then
+            export PATH="$NPM_PREFIX/bin:$PATH"
+            NODE_CMD="node"
+            echo "✅ Found node via npm prefix at: $NPM_PREFIX/bin/node"
+            if [ -f "$NPM_PREFIX/bin/npm" ]; then
+                NPM_CMD="npm"
+            fi
+        fi
+    fi
+    
+    # Method 2: Check common npm installation locations
+    if [ -z "$NODE_CMD" ]; then
+        for NPM_BASE in "/usr/local/lib/node_modules" "/opt/homebrew/lib/node_modules" "/usr/lib/node_modules"; do
+            if [ -d "$NPM_BASE/npm" ]; then
+                # npm is installed here, node should be in ../bin
+                NODE_CANDIDATE="$(dirname "$NPM_BASE")/bin/node"
+                if [ -f "$NODE_CANDIDATE" ] && [ -x "$NODE_CANDIDATE" ]; then
+                    NODE_DIR="$(dirname "$NODE_CANDIDATE")"
                     export PATH="$NODE_DIR:$PATH"
                     NODE_CMD="node"
-                    echo "✅ Found node via npm location at: $NODE_DIR/node"
+                    echo "✅ Found node via npm module location at: $NODE_CANDIDATE"
+                    if [ -f "$NODE_DIR/npm" ]; then
+                        NPM_CMD="npm"
+                    fi
                     break
                 fi
             fi
         done
+    fi
+    
+    # Method 3: Check if node is in node_modules itself (unlikely but possible)
+    if [ -z "$NODE_CMD" ] && [ -f "node_modules/.bin/node" ]; then
+        NODE_CMD="node_modules/.bin/node"
+        echo "✅ Found node in node_modules/.bin/node"
+    fi
+    
+    # Method 4: Try to use the node binary from npm's installation
+    if [ -z "$NODE_CMD" ]; then
+        # npm might have node bundled or know where it is
+        if command -v npm &> /dev/null; then
+            # Try to get node version (this will fail if node not available, but worth trying)
+            NODE_TRY=$(npm --version 2>&1 | head -1)
+            if [ $? -eq 0 ]; then
+                # npm works, so node must be somewhere - try harder
+                echo "🔍 npm works, searching more aggressively..."
+                # Check if there's a node in the same directory as npm
+                NPM_LOCATION=$(which npm 2>/dev/null || command -v npm 2>/dev/null)
+                if [ -n "$NPM_LOCATION" ]; then
+                    NPM_DIR="$(dirname "$NPM_LOCATION")"
+                    # Check parent directories
+                    for CHECK_DIR in "$NPM_DIR" "$(dirname "$NPM_DIR")" "$(dirname "$(dirname "$NPM_DIR")")"; do
+                        if [ -f "$CHECK_DIR/node" ] && [ -x "$CHECK_DIR/node" ]; then
+                            export PATH="$CHECK_DIR:$PATH"
+                            NODE_CMD="node"
+                            echo "✅ Found node near npm at: $CHECK_DIR/node"
+                            break
+                        fi
+                    done
+                fi
+            fi
+        fi
     fi
 fi
 
