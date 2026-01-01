@@ -220,6 +220,21 @@ cd \"$REPO_ROOT\" || {
 
 echo \"📁 Repository root: $(pwd)\"
 
+# CRITICAL: In CI, verify that CI scripts have run
+# If node_modules doesn't exist, CI scripts didn't run or failed
+if [ \"${CI}\" = \"true\" ]; then
+    if [ ! -d \"node_modules\" ]; then
+        echo \"error: node_modules not found in CI environment!\" >&2
+        echo \"   This means ci_post_clone.sh or ci_pre_xcodebuild.sh did not run or failed.\" >&2
+        echo \"   Expected CI scripts to install npm dependencies.\" >&2
+        echo \"   Please check CI script logs to see why they didn't run.\" >&2
+        echo \"   Current directory: $(pwd)\" >&2
+        echo \"   Expected node_modules at: $(pwd)/node_modules\" >&2
+        exit 1
+    fi
+    echo \"✅ node_modules exists (CI scripts ran successfully)\"
+fi
+
 # In CI, the pre-build script should have built the web app
 # Just verify dist exists - if not, that's a problem
 if [ \"${CI}\" = \"true\" ]; then
