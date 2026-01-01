@@ -184,7 +184,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Check if Pods xcconfig files are placeholders (need real Pods)\n# If they're placeholders, we need to install Pods, but only if node_modules exists\nXCCONFIG_RELEASE=\"${PODS_ROOT}/Target Support Files/Pods-App/Pods-App.release.xcconfig\"\nif [ -f \"$XCCONFIG_RELEASE\" ]; then\n    # Check if it's a placeholder (contains \"Placeholder xcconfig\")\n    if grep -q \"Placeholder xcconfig\" \"$XCCONFIG_RELEASE\" 2>/dev/null; then\n        echo \"⚠️  Placeholder xcconfig detected. Checking if we can install Pods...\"\n        # Check if node_modules exists (needed for Capacitor Pods)\n        if [ -d \"${SRCROOT}/../../node_modules\" ]; then\n            echo \"Installing Pods...\"\n            cd \"${PODS_PODFILE_DIR_PATH}\"\n            if command -v pod &> /dev/null; then\n                pod install || {\n                    echo \"warning: pod install failed, continuing with placeholder\" >&2\n                }\n            fi\n        else\n            echo \"warning: node_modules not found, skipping pod install (using placeholder)\" >&2\n        fi\n    fi\nfi\n# Check Pods Manifest.lock (only if it exists)\nif [ -f \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" ] && [ -f \"${PODS_ROOT}/Manifest.lock\" ]; then\n    diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\n    if [ $? != 0 ] ; then\n        echo \"warning: Podfile.lock and Manifest.lock are out of sync\" >&2\n    fi\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		9592DBEFFC6D2A0C8D5DEB22 /* [CP] Embed Pods Frameworks */ = {
@@ -347,10 +347,8 @@
 			baseConfigurationReference = FC68EB0AF532CFC21C3344DD /* Pods-App.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = KDZ4HYGYSX;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -358,7 +356,6 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.athletica.sports;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -370,17 +367,14 @@
 			baseConfigurationReference = AF51FD2D460BCFE21FA515B2 /* Pods-App.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = KDZ4HYGYSX;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.athletica.sports;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
