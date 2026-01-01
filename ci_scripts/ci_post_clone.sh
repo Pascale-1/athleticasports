@@ -20,6 +20,29 @@ fi
 
 cd "$REPO_ROOT"
 
+# CRITICAL: Find and export node/npm location for build phases
+# This ensures node is available in build phases
+echo "🔍 Locating node and npm..."
+NODE_PATH=""
+if command -v node &> /dev/null; then
+  NODE_PATH="$(dirname $(which node))"
+  echo "✅ Found node at: $(which node)"
+  echo "📦 Node directory: $NODE_PATH"
+  # Export to a file that build phases can read
+  echo "$NODE_PATH" > /tmp/xcode_cloud_node_path.txt
+  echo "export PATH=\"$NODE_PATH:\$PATH\"" > /tmp/xcode_cloud_node_env.sh
+  chmod +x /tmp/xcode_cloud_node_env.sh
+elif command -v npm &> /dev/null; then
+  NPM_DIR="$(dirname $(which npm))"
+  if [ -f "$NPM_DIR/node" ]; then
+    NODE_PATH="$NPM_DIR"
+    echo "✅ Found node via npm at: $NPM_DIR/node"
+    echo "$NODE_PATH" > /tmp/xcode_cloud_node_path.txt
+    echo "export PATH=\"$NODE_PATH:\$PATH\"" > /tmp/xcode_cloud_node_env.sh
+    chmod +x /tmp/xcode_cloud_node_env.sh
+  fi
+fi
+
 # Install CocoaPods if needed
 if ! command -v pod &> /dev/null; then
   echo "📦 Installing CocoaPods..."

@@ -36,11 +36,25 @@ echo "📁 Repository root: $(pwd)"
 NODE_CMD=""
 NPM_CMD=""
 
+# Strategy 0: Check if post-clone script saved node path
+if [ -z "$NODE_CMD" ] && [ -f "/tmp/xcode_cloud_node_path.txt" ]; then
+    SAVED_NODE_PATH="$(cat /tmp/xcode_cloud_node_path.txt)"
+    if [ -n "$SAVED_NODE_PATH" ] && [ -f "$SAVED_NODE_PATH/node" ] && [ -x "$SAVED_NODE_PATH/node" ]; then
+        export PATH="$SAVED_NODE_PATH:$PATH"
+        NODE_CMD="node"
+        echo "✅ Found node from post-clone script at: $SAVED_NODE_PATH/node"
+        if [ -f "$SAVED_NODE_PATH/npm" ]; then
+            NPM_CMD="npm"
+            echo "✅ Found npm at: $SAVED_NODE_PATH/npm"
+        fi
+    fi
+fi
+
 # Strategy 1: Check PATH first
-if command -v node &> /dev/null; then
+if [ -z "$NODE_CMD" ] && command -v node &> /dev/null; then
     NODE_CMD="node"
     echo "✅ Found node in PATH: $(which node)"
-elif command -v npm &> /dev/null; then
+elif [ -z "$NODE_CMD" ] && command -v npm &> /dev/null; then
     # If npm is found, node should be nearby
     NPM_DIR="$(dirname $(which npm))"
     if [ -f "$NPM_DIR/node" ]; then
@@ -51,9 +65,10 @@ elif command -v npm &> /dev/null; then
     fi
 fi
 
-# Strategy 2: Search common installation paths
+# Strategy 2: Search common installation paths AND version manager locations
 if [ -z "$NODE_CMD" ]; then
     echo "🔍 Searching for node in common locations..."
+    # Check standard paths
     for NODE_PATH in "/usr/local/bin" "/opt/homebrew/bin" "/usr/bin" "/opt/pmk/env/global/bin" "/Users/local/Homebrew/bin" "/Library/Apple/usr/bin"; do
         if [ -f "$NODE_PATH/node" ] && [ -x "$NODE_PATH/node" ]; then
             export PATH="$NODE_PATH:$PATH"
@@ -67,6 +82,55 @@ if [ -z "$NODE_CMD" ]; then
             break
         fi
     done
+    
+    # If still not found, check version manager locations
+    if [ -z "$NODE_CMD" ] && [ "${CI}" = "true" ]; then
+        echo "🔍 Checking version manager locations..."
+        # Check nvm locations
+        if [ -d "$HOME/.nvm" ]; then
+            # Try to find node in nvm
+            for NVM_NODE in "$HOME/.nvm/versions/node"/*/bin/node; do
+                if [ -f "$NVM_NODE" ] && [ -x "$NVM_NODE" ]; then
+                    NVM_DIR="$(dirname "$NVM_NODE")"
+                    export PATH="$NVM_DIR:$PATH"
+                    NODE_CMD="node"
+                    echo "✅ Found node via nvm at: $NVM_NODE"
+                    if [ -f "$NVM_DIR/npm" ]; then
+                        NPM_CMD="npm"
+                    fi
+                    break
+                fi
+            done
+        fi
+        
+        # Check asdf locations
+        if [ -z "$NODE_CMD" ] && [ -d "$HOME/.asdf" ]; then
+            ASDF_NODE="$HOME/.asdf/installs/nodejs/*/bin/node"
+            if ls $ASDF_NODE 2>/dev/null | head -1 | read FOUND; then
+                ASDF_DIR="$(dirname "$FOUND")"
+                export PATH="$ASDF_DIR:$PATH"
+                NODE_CMD="node"
+                echo "✅ Found node via asdf at: $FOUND"
+                if [ -f "$ASDF_DIR/npm" ]; then
+                    NPM_CMD="npm"
+                fi
+            fi
+        fi
+        
+        # Check fnm (Fast Node Manager)
+        if [ -z "$NODE_CMD" ] && [ -d "$HOME/.fnm" ]; then
+            FNM_NODE="$HOME/.fnm/node-versions/*/installation/bin/node"
+            if ls $FNM_NODE 2>/dev/null | head -1 | read FOUND; then
+                FNM_DIR="$(dirname "$FOUND")"
+                export PATH="$FNM_DIR:$PATH"
+                NODE_CMD="node"
+                echo "✅ Found node via fnm at: $FOUND"
+                if [ -f "$FNM_DIR/npm" ]; then
+                    NPM_CMD="npm"
+                fi
+            fi
+        fi
+    fi
 fi
 
 # Strategy 3: Check additional specific paths (skip find - too slow in CI)
@@ -121,6 +185,30 @@ if [ -n "$NODE_CMD" ] && [ -z "$NPM_CMD" ]; then
 fi
 
 # Final verification - we MUST have node
+# CRITICAL: If node_modules exists, node MUST be available - try one more thing
+if [ -z "$NODE_CMD" ] && [ -d "node_modules" ]; then
+    echo "⚠️  node_modules exists but node not found - trying to infer node location..."
+    # Check if we can find node by looking at package.json engines or checking npm config
+    # Or try to use which/whereis if available
+    if command -v which &> /dev/null; then
+        # Try which with expanded PATH
+        for EXTRA_PATH in "/usr/local/lib/node_modules/npm/bin" "/opt/homebrew/lib/node_modules/npm/bin"; do
+            if [ -f "$EXTRA_PATH/node-gyp" ]; then
+                # npm is here, node might be nearby
+                PARENT_DIR="$(dirname "$EXTRA_PATH")"
+                if [ -f "$PARENT_DIR/../bin/node" ]; then
+                    NODE_DIR="$(cd "$PARENT_DIR/../bin" && pwd)"
+                    export PATH="$NODE_DIR:$PATH"
+                    NODE_CMD="node"
+                    echo "✅ Found node via npm location at: $NODE_DIR/node"
+                    break
+                fi
+            fi
+        done
+    fi
+fi
+
+# If still no node, this is a critical error
 if [ -z "$NODE_CMD" ]; then
     echo "error: Cannot find node anywhere" >&2
     echo "PATH: $PATH" >&2
@@ -128,11 +216,13 @@ if [ -z "$NODE_CMD" ]; then
     echo "node_modules exists: $([ -d "node_modules" ] && echo "YES" || echo "NO")" >&2
     if [ -d "node_modules" ]; then
         echo "node_modules/.bin exists: $([ -d "node_modules/.bin" ] && echo "YES" || echo "NO")" >&2
-        if [ -d "node_modules/.bin" ]; then
-            echo "Contents of node_modules/.bin (first 10):" >&2
-            ls -la node_modules/.bin | head -10 >&2
-        fi
+        echo "node_modules structure (first level):" >&2
+        ls -la node_modules | head -20 >&2
     fi
+    echo "" >&2
+    echo "💡 Since node_modules exists, node WAS available during npm install." >&2
+    echo "   The issue is that node is not in PATH during build phase." >&2
+    echo "   Please check Xcode Cloud post-clone script to ensure node is in PATH." >&2
     exit 1
 fi
 
