@@ -101,6 +101,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 504EC3161FED79650016851F /* Build configuration list for PBXNativeTarget "App" */;
 			buildPhases = (
+				B1C2D3E4F5A6B7C8D9E0F1A2 /* [XC] Install Dependencies and Pods */,
 				6634F4EFEBD30273BCE97C65 /* [CP] Check Pods Manifest.lock */,
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
@@ -169,6 +170,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		B1C2D3E4F5A6B7C8D9E0F1A2 /* [XC] Install Dependencies and Pods */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/../../package.json",
+				"${SRCROOT}/Podfile",
+			);
+			name = "[XC] Install Dependencies and Pods";
+			outputPaths = (
+				"${SRCROOT}/../../node_modules/.package-lock.json",
+				"${SRCROOT}/Pods/Manifest.lock",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Xcode Cloud: Install all dependencies and Pods\n# This runs BEFORE Pods check to ensure everything is ready\nset -e\n\n# Skip if running locally and everything already exists\nif [ \"${CI}\" != \"true\" ] && [ -d \"${SRCROOT}/Pods\" ] && [ -f \"${SRCROOT}/Pods/Manifest.lock\" ] && [ -d \"${SRCROOT}/../../node_modules\" ]; then\n    echo \"✅ Dependencies already installed, skipping...\"\n    exit 0\nfi\n\n# Navigate to repo root\nREPO_ROOT=\"${SRCROOT}/../../..\"\nif [ ! -f \"$REPO_ROOT/package.json\" ]; then\n    REPO_ROOT=\"${SRCROOT}/../..\"\nfi\ncd \"$REPO_ROOT\" || {\n    echo \"error: Cannot find repository root\" >&2\n    exit 1\n}\n\n# Install npm dependencies\nif [ ! -d \"node_modules\" ]; then\n    echo \"📦 Installing npm dependencies...\"\n    if command -v npm &> /dev/null; then\n        npm ci || npm install || {\n            echo \"error: npm install failed\" >&2\n            exit 1\n        }\n    else\n        echo \"error: npm not found\" >&2\n        exit 1\n    fi\nfi\n\n# Build web app\nif [ ! -d \"dist\" ] || [ \"${CI}\" = \"true\" ]; then\n    echo \"🏗️  Building web app...\"\n    npm run build || {\n        echo \"error: Build failed\" >&2\n        exit 1\n    }\nfi\n\n# Sync Capacitor\nif command -v npx &> /dev/null; then\n    echo \"🔄 Syncing Capacitor...\"\n    npx cap sync ios || {\n        echo \"error: Capacitor sync failed\" >&2\n        exit 1\n    }\nfi\n\n# Install Pods\ncd \"${SRCROOT}\"\nif [ -f \"Podfile\" ]; then\n    echo \"📦 Installing Pods...\"\n    if command -v pod &> /dev/null; then\n        pod install || {\n            echo \"error: pod install failed\" >&2\n            exit 1\n        }\n    else\n        echo \"error: CocoaPods not found\" >&2\n        exit 1\n    fi\nelse\n    echo \"error: Podfile not found\" >&2\n    exit 1\nfi\n\necho \"✅ All dependencies installed successfully\"\n";
+			showEnvVarsInLog = 0;
+		};
 		6634F4EFEBD30273BCE97C65 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
