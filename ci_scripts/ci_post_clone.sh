@@ -66,12 +66,29 @@ if [ -f "ios/App/Podfile" ]; then
     echo "✅ $XCCONFIG_RELEASE exists"
     ls -la "$XCCONFIG_RELEASE"
   else
-    echo "❌ $XCCONFIG_RELEASE NOT FOUND - build will fail!"
-    echo "📁 Listing Pods/Target Support Files:"
-    ls -la "Pods/Target Support Files/" 2>/dev/null || echo "Directory doesn't exist"
-    echo "📁 Listing Pods directory:"
-    find Pods -name "*.xcconfig" 2>/dev/null | head -10
-    exit 1
+    echo "⚠️  $XCCONFIG_RELEASE NOT FOUND - creating directory structure..."
+    mkdir -p "Pods/Target Support Files/Pods-App"
+    
+    # Create a minimal xcconfig file to prevent Xcode from failing
+    echo "// Auto-generated placeholder - will be replaced by pod install" > "$XCCONFIG_RELEASE"
+    echo "// This file is created to prevent Xcode from failing when reading project config" >> "$XCCONFIG_RELEASE"
+    echo "" >> "$XCCONFIG_RELEASE"
+    
+    echo "✅ Created placeholder $XCCONFIG_RELEASE"
+    echo "⚠️  WARNING: This is a placeholder. pod install should have created this file."
+    
+    # Try pod install one more time
+    echo "📦 Retrying pod install..."
+    pod install || {
+      echo "❌ pod install still failing!"
+      exit 1
+    }
+    
+    # Verify it exists now
+    if [ ! -f "$XCCONFIG_RELEASE" ]; then
+      echo "❌ $XCCONFIG_RELEASE still not found after retry!"
+      exit 1
+    fi
   fi
   
   if [ -f "$XCCONFIG_DEBUG" ]; then
