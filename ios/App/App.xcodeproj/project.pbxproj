@@ -257,26 +257,21 @@ if [ -z \"$NODE_CMD\" ]; then
     done
 fi
 
-# Strategy 3: Use find to locate node (aggressive search, but limited depth)
+# Strategy 3: Check additional specific paths (skip find - too slow in CI)
 if [ -z \"$NODE_CMD\" ] && [ \"${CI}\" = \"true\" ]; then
-    echo \"🔍 Using find to locate node (searching /usr, /opt, /Library)...\"
-    # Search with limited depth to avoid long searches
-    for SEARCH_ROOT in \"/usr\" \"/opt\" \"/Library\" \"/Users/local\"; do
-        if [ -d \"$SEARCH_ROOT\" ]; then
-            # Limit to depth 3 to avoid very long searches
-            FOUND_NODE=$(find \"$SEARCH_ROOT\" -maxdepth 3 -name \"node\" -type f -perm +111 2>/dev/null | grep -v \".git\" | head -1)
-            if [ -n \"$FOUND_NODE\" ] && [ -x \"$FOUND_NODE\" ]; then
-                NODE_DIR=\"$(dirname \"$FOUND_NODE\")\"
-                export PATH=\"$NODE_DIR:$PATH\"
-                NODE_CMD=\"node\"
-                echo \"✅ Found node via find at: $FOUND_NODE\"
-                # Check for npm in same directory
-                if [ -f \"$NODE_DIR/npm\" ]; then
-                    NPM_CMD=\"npm\"
-                    echo \"✅ Found npm at: $NODE_DIR/npm\"
-                fi
-                break
+    echo \"🔍 Checking additional specific paths...\"
+    # Check more specific paths without using find (faster)
+    for NODE_PATH in \"/usr/local/node/bin\" \"/opt/nodejs/bin\" \"/usr/local/nodejs/bin\" \"/var/folders\" \"/tmp\" \"/Users/local/bin\"; do
+        if [ -f \"$NODE_PATH/node\" ] && [ -x \"$NODE_PATH/node\" ]; then
+            export PATH=\"$NODE_PATH:$PATH\"
+            NODE_CMD=\"node\"
+            echo \"✅ Found node at: $NODE_PATH/node\"
+            # Check for npm in same directory
+            if [ -f \"$NODE_PATH/npm\" ]; then
+                NPM_CMD=\"npm\"
+                echo \"✅ Found npm at: $NODE_PATH/npm\"
             fi
+            break
         fi
     done
 fi
