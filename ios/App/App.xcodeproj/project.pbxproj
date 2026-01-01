@@ -170,7 +170,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		AA0000000000000000000001 /* [XC] Install Dependencies and Pods */ = {
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* [XC] Install Dependencies and Pods */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
