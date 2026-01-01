@@ -8,6 +8,7 @@ set -e
 
 echo "🔧 Running post-clone script..."
 echo "📁 Working directory: $(pwd)"
+echo "📁 Repository root: $(pwd)"
 
 # Install CocoaPods if not available
 if ! command -v pod &> /dev/null; then
@@ -15,6 +16,7 @@ if ! command -v pod &> /dev/null; then
   gem install cocoapods
 fi
 echo "✅ CocoaPods available: $(which pod)"
+pod --version
 
 # Install npm dependencies first (needed for Capacitor Pods)
 echo "📦 Installing npm dependencies..."
@@ -22,7 +24,8 @@ if [ -f "package.json" ]; then
   npm ci || npm install
   echo "✅ npm dependencies installed"
 else
-  echo "⚠️  package.json not found, skipping npm install"
+  echo "❌ package.json not found at $(pwd)/package.json"
+  exit 1
 fi
 
 # Install CocoaPods dependencies EARLY - CRITICAL!
@@ -61,10 +64,13 @@ if [ -f "ios/App/Podfile" ]; then
   
   if [ -f "$XCCONFIG_RELEASE" ]; then
     echo "✅ $XCCONFIG_RELEASE exists"
+    ls -la "$XCCONFIG_RELEASE"
   else
     echo "❌ $XCCONFIG_RELEASE NOT FOUND - build will fail!"
     echo "📁 Listing Pods/Target Support Files:"
     ls -la "Pods/Target Support Files/" 2>/dev/null || echo "Directory doesn't exist"
+    echo "📁 Listing Pods directory:"
+    find Pods -name "*.xcconfig" 2>/dev/null | head -10
     exit 1
   fi
   
@@ -82,4 +88,4 @@ else
   exit 1
 fi
 
-echo "✅ Post-clone script completed"
+echo "✅ Post-clone script completed successfully"
