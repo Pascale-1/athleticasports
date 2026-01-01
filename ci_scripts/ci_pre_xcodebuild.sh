@@ -41,48 +41,34 @@ npx cap sync ios || {
 }
 echo "✅ Capacitor synced"
 
-# Step 4: Install CocoaPods dependencies
-echo "📦 Step 4: Installing CocoaPods dependencies..."
+# Step 4: Verify/Reinstall CocoaPods dependencies (should already be installed in post-clone)
+echo "📦 Step 4: Verifying CocoaPods dependencies..."
 if [ -f "ios/App/Podfile" ]; then
   cd ios/App
   echo "📁 Changed to: $(pwd)"
   
-  # Ensure CocoaPods is available
-  echo "🔍 Checking for CocoaPods..."
-  if ! command -v pod &> /dev/null; then
-    echo "📦 Installing CocoaPods gem..."
-    gem install cocoapods
-  fi
-  echo "✅ CocoaPods found: $(which pod)"
-  
-  # Install Pods
-  echo "📦 Running pod install..."
-  echo "📁 Current directory before pod install: $(pwd)"
-  echo "📁 Podfile location: $(pwd)/Podfile"
-  
-  # Try pod install with verbose output
-  pod install --repo-update --verbose || {
-    echo "⚠️  pod install with --repo-update failed, trying without..."
+  # Check if Pods already exist (installed in post-clone)
+  if [ -d "Pods" ] && [ -f "Pods/Target Support Files/Pods-App/Pods-App.release.xcconfig" ]; then
+    echo "✅ Pods already installed (from post-clone script)"
+  else
+    echo "⚠️  Pods not found, installing now..."
+    # Ensure CocoaPods is available
+    if ! command -v pod &> /dev/null; then
+      echo "📦 Installing CocoaPods gem..."
+      gem install cocoapods
+    fi
+    
+    # Install Pods
+    echo "📦 Running pod install..."
     pod install --verbose || {
       echo "❌ pod install failed!"
       echo "📁 Listing directory contents:"
       ls -la
-      echo "📁 Checking Podfile:"
-      cat Podfile || echo "Cannot read Podfile"
       exit 1
     }
-  }
+  fi
   
   cd ../..
-  echo "✅ CocoaPods installed"
-  
-  # Verify Pods were installed
-  if [ -d "ios/App/Pods" ]; then
-    echo "✅ Pods directory exists"
-  else
-    echo "❌ Pods directory not found after installation!"
-    exit 1
-  fi
   
   # Verify critical xcconfig files exist
   echo "🔍 Verifying Pods configuration files..."
