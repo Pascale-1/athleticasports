@@ -6,9 +6,12 @@
 
 set -e
 
+# Create a marker file to prove this script ran
 echo "🔧 Running post-clone script..."
 echo "📁 Working directory: $(pwd)"
 echo "📁 Repository root: $(pwd)"
+echo "POST_CLONE_SCRIPT_RAN" > /tmp/post_clone_marker.txt
+echo "✅ Marker file created to prove script execution"
 
 # Install CocoaPods if not available
 if ! command -v pod &> /dev/null; then
