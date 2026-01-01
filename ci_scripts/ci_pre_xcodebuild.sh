@@ -4,6 +4,7 @@
 # This script runs before Xcode builds your project
 # It builds the web app, syncs Capacitor, and installs CocoaPods
 
+# Don't exit on error immediately - we want to see what's happening
 set -e
 
 echo "🔧 Running pre-build script for Xcode Cloud..."
@@ -12,21 +13,32 @@ echo "📁 Current directory: $(pwd)"
 # Step 1: Install npm dependencies
 echo "📦 Step 1: Installing npm dependencies..."
 if [ -f "package.json" ]; then
-  npm ci
+  npm ci || {
+    echo "⚠️  npm ci failed, trying npm install..."
+    npm install
+  }
   echo "✅ npm dependencies installed"
 else
-  echo "❌ package.json not found!"
+  echo "❌ package.json not found at $(pwd)/package.json!"
+  echo "📁 Listing current directory:"
+  ls -la
   exit 1
 fi
 
 # Step 2: Build the web app
 echo "🏗️  Step 2: Building web app..."
-npm run build
+npm run build || {
+  echo "❌ Build failed!"
+  exit 1
+}
 echo "✅ Web app built"
 
 # Step 3: Sync Capacitor (copies dist to iOS)
 echo "🔄 Step 3: Syncing Capacitor..."
-npx cap sync ios
+npx cap sync ios || {
+  echo "❌ Capacitor sync failed!"
+  exit 1
+}
 echo "✅ Capacitor synced"
 
 # Step 4: Install CocoaPods dependencies
@@ -45,10 +57,18 @@ if [ -f "ios/App/Podfile" ]; then
   
   # Install Pods
   echo "📦 Running pod install..."
-  pod install --repo-update || {
-    echo "⚠️  pod install failed, trying without --repo-update..."
-    pod install || {
+  echo "📁 Current directory before pod install: $(pwd)"
+  echo "📁 Podfile location: $(pwd)/Podfile"
+  
+  # Try pod install with verbose output
+  pod install --repo-update --verbose || {
+    echo "⚠️  pod install with --repo-update failed, trying without..."
+    pod install --verbose || {
       echo "❌ pod install failed!"
+      echo "📁 Listing directory contents:"
+      ls -la
+      echo "📁 Checking Podfile:"
+      cat Podfile || echo "Cannot read Podfile"
       exit 1
     }
   }
