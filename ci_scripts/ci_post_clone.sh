@@ -25,35 +25,61 @@ else
   echo "⚠️  package.json not found, skipping npm install"
 fi
 
-# Install CocoaPods dependencies EARLY
+# Install CocoaPods dependencies EARLY - CRITICAL!
 # This ensures Pods exist before Xcode tries to read project configuration
-echo "📦 Installing CocoaPods dependencies (early install)..."
+echo "📦 Installing CocoaPods dependencies (MUST happen before Xcode reads project)..."
 if [ -f "ios/App/Podfile" ]; then
   cd ios/App
   echo "📁 Changed to: $(pwd)"
   echo "📁 Podfile location: $(pwd)/Podfile"
   
-  echo "📦 Running pod install..."
-  pod install --verbose || {
-    echo "⚠️  pod install failed, will retry in pre-build script"
-    cd ../..
-  }
-  
-  # Verify Pods were installed
-  if [ -d "Pods" ]; then
-    echo "✅ Pods directory exists"
-    if [ -f "Pods/Target Support Files/Pods-App/Pods-App.release.xcconfig" ]; then
-      echo "✅ Pods-App.release.xcconfig exists"
-    else
-      echo "⚠️  Pods xcconfig files not found yet (will be created in pre-build)"
-    fi
+  # CRITICAL: Install Pods - this MUST succeed
+  echo "📦 Running pod install (CRITICAL STEP)..."
+  if pod install --verbose; then
+    echo "✅ pod install succeeded"
   else
-    echo "⚠️  Pods directory not found (will be created in pre-build)"
+    echo "❌ pod install FAILED - this will cause build to fail!"
+    echo "📁 Listing directory:"
+    ls -la
+    echo "📁 Checking Podfile:"
+    cat Podfile || echo "Cannot read Podfile"
+    echo "❌ EXITING - Pods must be installed"
+    exit 1
   fi
   
+  # CRITICAL: Verify Pods were installed and xcconfig files exist
+  if [ ! -d "Pods" ]; then
+    echo "❌ Pods directory NOT created - build will fail!"
+    exit 1
+  fi
+  
+  echo "✅ Pods directory exists"
+  
+  # Verify the exact file that Xcode is looking for
+  XCCONFIG_RELEASE="Pods/Target Support Files/Pods-App/Pods-App.release.xcconfig"
+  XCCONFIG_DEBUG="Pods/Target Support Files/Pods-App/Pods-App.debug.xcconfig"
+  
+  if [ -f "$XCCONFIG_RELEASE" ]; then
+    echo "✅ $XCCONFIG_RELEASE exists"
+  else
+    echo "❌ $XCCONFIG_RELEASE NOT FOUND - build will fail!"
+    echo "📁 Listing Pods/Target Support Files:"
+    ls -la "Pods/Target Support Files/" 2>/dev/null || echo "Directory doesn't exist"
+    exit 1
+  fi
+  
+  if [ -f "$XCCONFIG_DEBUG" ]; then
+    echo "✅ $XCCONFIG_DEBUG exists"
+  else
+    echo "❌ $XCCONFIG_DEBUG NOT FOUND - build will fail!"
+    exit 1
+  fi
+  
+  echo "✅ All Pods xcconfig files verified"
   cd ../..
 else
-  echo "⚠️  Podfile not found at ios/App/Podfile"
+  echo "❌ Podfile not found at ios/App/Podfile - build will fail!"
+  exit 1
 fi
 
 echo "✅ Post-clone script completed"
