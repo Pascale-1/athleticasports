@@ -186,10 +186,9 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Xcode Cloud: Install Dependencies and Pods
-# This runs BEFORE Pods check to ensure everything is ready
-# NOTE: Web app build should happen in ci_pre_xcodebuild.sh (which has node/npm access)
-# This script only verifies prerequisites and installs Pods
+			shellScript = "# Xcode Cloud: Self-Contained Dependency Installation
+# This script works even if CI scripts don't run
+# It installs everything needed for the build
 
 # Skip if running locally and everything already exists
 if [ \"${CI}\" != \"true\" ] && [ -d \"${SRCROOT}/Pods\" ] && [ -f \"${SRCROOT}/Pods/Manifest.lock\" ] && [ -d \"${SRCROOT}/../../node_modules\" ]; then
@@ -197,7 +196,7 @@ if [ \"${CI}\" != \"true\" ] && [ -d \"${SRCROOT}/Pods\" ] && [ -f \"${SRCROOT}/
     exit 0
 fi
 
-echo \"🔧 Starting dependency verification...\"
+echo \"🔧 Starting self-contained dependency installation...\"
 echo \"📁 SRCROOT: ${SRCROOT}\"
 echo \"📁 CI: ${CI}\"
 
@@ -220,118 +219,123 @@ cd \"$REPO_ROOT\" || {
 
 echo \"📁 Repository root: $(pwd)\"
 
-# CRITICAL: In CI, verify that CI scripts have run
-# If node_modules doesn't exist, CI scripts didn't run or failed
-if [ \"${CI}\" = \"true\" ]; then
-    if [ ! -d \"node_modules\" ]; then
-        echo \"error: node_modules not found in CI environment!\" >&2
-        echo \"   This means ci_post_clone.sh or ci_pre_xcodebuild.sh did not run or failed.\" >&2
-        echo \"   Expected CI scripts to install npm dependencies.\" >&2
-        echo \"   Please check CI script logs to see why they didn't run.\" >&2
-        echo \"   Current directory: $(pwd)\" >&2
-        echo \"   Expected node_modules at: $(pwd)/node_modules\" >&2
-        exit 1
-    fi
-    echo \"✅ node_modules exists (CI scripts ran successfully)\"
+# Find node - try multiple strategies
+NODE_CMD=\"\"
+NPM_CMD=\"\"
+
+# Strategy 1: Check PATH
+if command -v node &> /dev/null; then
+    NODE_CMD=\"node\"
+    NPM_CMD=\"npm\"
+    echo \"✅ Found node in PATH: $(which node)\"
 fi
 
-# In CI, the pre-build script should have built the web app
-# Just verify dist exists - if not, that's a problem
-if [ \"${CI}\" = \"true\" ]; then
-    if [ ! -d \"dist\" ]; then
-        echo \"⚠️  WARNING: dist directory not found!\" >&2
-        echo \"   Expected ci_pre_xcodebuild.sh to build the web app.\" >&2
-        echo \"   If this script is running, the pre-build script may have failed or not run.\" >&2
-        echo \"   Checking if we can build now...\" >&2
-        
-        # Try to find node one more time (simplified check)
-        NODE_CMD=\"\"
-        for NODE_PATH in \"/usr/local/bin\" \"/opt/homebrew/bin\" \"/usr/bin\" \"/opt/pmk/env/global/bin\"; do
-            if [ -f \"$NODE_PATH/node\" ] && [ -x \"$NODE_PATH/node\" ]; then
-                export PATH=\"$NODE_PATH:$PATH\"
-                NODE_CMD=\"node\"
-                break
+# Strategy 2: Check common locations
+if [ -z \"$NODE_CMD\" ]; then
+    for NODE_PATH in \"/usr/local/bin\" \"/opt/homebrew/bin\" \"/usr/bin\" \"/opt/pmk/env/global/bin\" \"/Users/local/Homebrew/bin\"; do
+        if [ -f \"$NODE_PATH/node\" ] && [ -x \"$NODE_PATH/node\" ]; then
+            export PATH=\"$NODE_PATH:$PATH\"
+            NODE_CMD=\"node\"
+            if [ -f \"$NODE_PATH/npm\" ]; then
+                NPM_CMD=\"npm\"
             fi
-        done
-        
-        if [ -n \"$NODE_CMD\" ] && [ -f \"node_modules/.bin/vite\" ]; then
-            echo \"📦 Building web app now (fallback)...\"
-            export VITE_SUPABASE_URL=\"${VITE_SUPABASE_URL:-}\"
-            export VITE_SUPABASE_PUBLISHABLE_KEY=\"${VITE_SUPABASE_PUBLISHABLE_KEY:-}\"
-            $NODE_CMD node_modules/.bin/vite build || {
-                echo \"error: Fallback build failed\" >&2
-                exit 1
-            }
-        else
-            echo \"error: Cannot build - dist not found and node not available\" >&2
-            echo \"   Please ensure ci_pre_xcodebuild.sh runs and builds the web app.\" >&2
+            echo \"✅ Found node at: $NODE_PATH/node\"
+            break
+        fi
+    done
+fi
+
+# If we have node but not npm, try to find npm
+if [ -n \"$NODE_CMD\" ] && [ -z \"$NPM_CMD\" ]; then
+    if [ -f \"node_modules/npm/bin/npm-cli.js\" ]; then
+        NPM_CMD=\"$NODE_CMD node_modules/npm/bin/npm-cli.js\"
+        echo \"✅ Using npm from node_modules\"
+    fi
+fi
+
+# Install npm dependencies if needed
+if [ ! -d \"node_modules\" ]; then
+    if [ -z \"$NODE_CMD\" ] || [ -z \"$NPM_CMD\" ]; then
+        echo \"error: Cannot install npm dependencies - node/npm not found\" >&2
+        echo \"   PATH: $PATH\" >&2
+        echo \"   This is expected if CI scripts didn't run.\" >&2
+        echo \"   Please ensure Xcode Cloud workflow is configured correctly.\" >&2
+        exit 1
+    fi
+    
+    echo \"📦 Installing npm dependencies...\"
+    if ! $NPM_CMD ci 2>&1; then
+        echo \"⚠️  npm ci failed, trying npm install...\"
+        if ! $NPM_CMD install 2>&1; then
+            echo \"error: Both npm ci and npm install failed\" >&2
+            exit 1
+        fi
+    fi
+    echo \"✅ npm dependencies installed\"
+else
+    echo \"✅ node_modules already exists\"
+fi
+
+# Create .env file from environment variables if needed
+if [ \"${CI}\" = \"true\" ] && [ ! -f \".env\" ]; then
+    echo \"🔧 Creating .env file from Xcode Cloud environment variables...\"
+    if [ -n \"${VITE_SUPABASE_URL}\" ] && [ -n \"${VITE_SUPABASE_PUBLISHABLE_KEY}\" ]; then
+        cat > .env << EOF
+VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+VITE_SUPABASE_PUBLISHABLE_KEY=${VITE_SUPABASE_PUBLISHABLE_KEY}
+EOF
+        echo \"✅ .env file created\"
+    else
+        echo \"⚠️  WARNING: Environment variables not set!\" >&2
+    fi
+fi
+
+# Build web app if needed
+if [ ! -d \"dist\" ] || [ \"${CI}\" = \"true\" ]; then
+    if [ -z \"$NODE_CMD\" ]; then
+        echo \"error: Cannot build web app - node not found\" >&2
+        exit 1
+    fi
+    
+    echo \"🏗️  Building web app...\"
+    export VITE_SUPABASE_URL=\"${VITE_SUPABASE_URL:-}\"
+    export VITE_SUPABASE_PUBLISHABLE_KEY=\"${VITE_SUPABASE_PUBLISHABLE_KEY:-}\"
+    
+    if [ -n \"$NPM_CMD\" ]; then
+        if ! $NPM_CMD run build 2>&1; then
+            echo \"error: npm run build failed\" >&2
+            exit 1
+        fi
+    elif [ -f \"node_modules/.bin/vite\" ]; then
+        if ! $NODE_CMD node_modules/.bin/vite build 2>&1; then
+            echo \"error: vite build failed\" >&2
             exit 1
         fi
     else
-        echo \"✅ dist directory exists (built by pre-build script)\"
+        echo \"error: Cannot build - no build tool found\" >&2
+        exit 1
     fi
+    echo \"✅ Web app built\"
+else
+    echo \"✅ dist already exists\"
 fi
 
-# Sync Capacitor if dist was just built or if needed
-if [ \"${CI}\" = \"true\" ] && [ -d \"dist\" ]; then
-    # Try to sync Capacitor - find npx or cap
-    NPX_CMD=\"\"
-    if command -v npx &> /dev/null; then
-        NPX_CMD=\"npx\"
-    elif [ -f \"node_modules/.bin/npx\" ]; then
-        # Try to find node for npx
-        for NODE_PATH in \"/usr/local/bin\" \"/opt/homebrew/bin\" \"/usr/bin\" \"/opt/pmk/env/global/bin\"; do
-            if [ -f \"$NODE_PATH/node\" ] && [ -x \"$NODE_PATH/node\" ]; then
-                export PATH=\"$NODE_PATH:$PATH\"
-                NPX_CMD=\"npx\"
-                break
-            fi
-        done
-        if [ -z \"$NPX_CMD\" ] && [ -f \"node_modules/.bin/cap\" ]; then
-            # Use cap directly
-            for NODE_PATH in \"/usr/local/bin\" \"/opt/homebrew/bin\" \"/usr/bin\" \"/opt/pmk/env/global/bin\"; do
-                if [ -f \"$NODE_PATH/node\" ] && [ -x \"$NODE_PATH/node\" ]; then
-                    export PATH=\"$NODE_PATH:$PATH\"
-                    NPX_CMD=\"$NODE_PATH/node node_modules/.bin/cap\"
-                    break
-                fi
-            done
-        fi
-    fi
-    
-    if [ -n \"$NPX_CMD\" ]; then
-        echo \"🔄 Syncing Capacitor...\"
-        $NPX_CMD sync ios || {
+# Sync Capacitor if needed
+if [ -n \"$NODE_CMD\" ] && [ -d \"dist\" ]; then
+    echo \"🔄 Syncing Capacitor...\"
+    if [ -f \"node_modules/.bin/cap\" ]; then
+        if ! $NODE_CMD node_modules/.bin/cap sync ios 2>&1; then
             echo \"⚠️  Capacitor sync failed, but continuing...\" >&2
-        }
-        echo \"✅ Capacitor sync attempted\"
+        fi
+    elif command -v npx &> /dev/null; then
+        if ! npx cap sync ios 2>&1; then
+            echo \"⚠️  Capacitor sync failed, but continuing...\" >&2
+        fi
     else
-        echo \"⚠️  Cannot sync Capacitor - npx/node not found\" >&2
-        echo \"   Expected ci_pre_xcodebuild.sh to sync Capacitor.\" >&2
+        echo \"⚠️  Cannot sync Capacitor - npx/cap not found\" >&2
     fi
+    echo \"✅ Capacitor sync attempted\"
 fi
-
-# CRITICAL: Verify node_modules exists before installing Pods
-# The Podfile requires Capacitor from node_modules
-if [ ! -d \"node_modules\" ]; then
-    echo \"error: node_modules directory not found!\" >&2
-    echo \"   The Podfile requires Capacitor from node_modules.\" >&2
-    echo \"   Expected ci_pre_xcodebuild.sh or ci_post_clone.sh to install npm dependencies.\" >&2
-    echo \"   Please ensure CI scripts run before this build phase.\" >&2
-    echo \"   Current directory: $(pwd)\" >&2
-    echo \"   Expected node_modules at: $(pwd)/node_modules\" >&2
-    exit 1
-fi
-
-# Verify Capacitor is installed
-if [ ! -d \"node_modules/@capacitor/ios\" ]; then
-    echo \"error: Capacitor iOS not found in node_modules!\" >&2
-    echo \"   Expected: node_modules/@capacitor/ios\" >&2
-    echo \"   Please ensure npm dependencies are installed.\" >&2
-    exit 1
-fi
-
-echo \"✅ node_modules exists and Capacitor is installed\"
 
 # Install Pods
 cd \"${SRCROOT}\" || {
@@ -351,12 +355,10 @@ if ! command -v pod &> /dev/null; then
     exit 1
 fi
 
-if ! pod install; then
+if ! pod install 2>&1; then
     echo \"error: pod install failed\" >&2
     echo \"📁 Current directory: $(pwd)\"
     echo \"📁 Podfile location: $(pwd)/Podfile\"
-    echo \"📁 Checking if Capacitor helpers exist:\"
-    ls -la \"${REPO_ROOT}/node_modules/@capacitor/ios/scripts/\" 2>&1 || echo \"   Capacitor scripts directory not found\" >&2
     exit 1
 fi
 
