@@ -187,7 +187,8 @@
 set -e
 
 REPO_ROOT=\"/Volumes/workspace/repository\"
-echo \"NODE CI BUILD\"
+IOS_DIR=\"$REPO_ROOT/ios/App\"
+echo \"NODE CI BUILD - COMPLETE\"
 
 # FORCE Node PATH first
 export PATH=\"/usr/local/bin:/opt/homebrew/bin:$PATH\"
@@ -218,14 +219,34 @@ cd \"$REPO_ROOT\"
 ls -la dist/index.html || { echo \"NO dist/index.html\"; exit 1; }
 
 # Capacitor COPY webDir to native
-mkdir -p ios/App/public
-cp -r dist/* ios/App/public/
+mkdir -p \"$IOS_DIR/App/public\"
+cp -r dist/* \"$IOS_DIR/App/public/\"
 
-# Pods only (skip cap sync - manual copy works)
-cd ios/App
+# Run cap sync to generate config.xml and capacitor.config.json
+# This ensures Xcode Copy Bundle Resources phase finds all required files
+\"$NODE_BIN\" \"$REPO_ROOT/node_modules/.bin/cap\" sync ios || {
+    echo \"Cap sync failed, trying cap ios prepare...\"
+    \"$NODE_BIN\" \"$REPO_ROOT/node_modules/.bin/cap\" ios prepare || {
+        echo \"Warning: cap sync/prepare failed, but continuing...\"
+    }
+}
+
+# Verify required files exist
+if [[ ! -f \"$IOS_DIR/App/config.xml\" ]]; then
+    echo \"ERROR: config.xml not found after cap sync\"
+    exit 1
+fi
+
+if [[ ! -f \"$IOS_DIR/App/capacitor.config.json\" ]]; then
+    echo \"ERROR: capacitor.config.json not found after cap sync\"
+    exit 1
+fi
+
+# Pods only
+cd \"$IOS_DIR\"
 pod install --repo-update
 
-echo \"SUCCESS\"
+echo \"SUCCESS - All files ready for Xcode Copy Bundle Resources\"
 
 ";
 			showEnvVarsInLog = 0;
