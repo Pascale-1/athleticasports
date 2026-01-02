@@ -187,8 +187,7 @@
 set -euo pipefail
 
 # Fixed paths for Xcode Cloud Archive (Release)
-WORKSPACE_DIR=\"/Volumes/workspace/repository\"
-REPO_ROOT=\"$WORKSPACE_DIR\"
+REPO_ROOT=\"/Volumes/workspace/repository\"
 IOS_DIR=\"$REPO_ROOT/ios/App\"
 
 echo \"=== FINAL CI FIX: $REPO_ROOT -> $IOS_DIR ===\"
@@ -202,12 +201,17 @@ brew install node yarn cocoapods >/dev/null 2>&1 || true
 cd \"$REPO_ROOT\"
 rm -rf node_modules yarn.lock package-lock.json
 
-# NPM install first (avoids yarn/npx conflict)
-npm clean-install --no-audit --no-fund --network-timeout 600000
+# NPM install (generates lock file, avoids yarn/npx conflict)
+npm install --network-timeout=600000 --no-audit --no-fund
 npm install @capacitor/ios @capacitor/core @capacitor/cli --save-dev --no-audit
 
 # Manual Capacitor sync (no npx)
-node_modules/.bin/cap sync ios
+if [ -f \"./node_modules/.bin/cap\" ]; then
+    ./node_modules/.bin/cap sync ios || ./node_modules/.bin/cap ios prepare
+else
+    echo \"error: Capacitor CLI not found\" >&2
+    exit 1
+fi
 
 # Pods
 cd \"$IOS_DIR\"
