@@ -187,8 +187,8 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# Xcode Cloud: Install Dependencies and Pods
-# This script runs AFTER ci_post_clone.sh has installed everything
-# It only verifies and builds the web app if needed
+# This script runs AFTER ci_post_clone.sh should have installed everything
+# If post-clone didn't run, this script tries to handle it gracefully
 
 # Skip if running locally and everything already exists
 if [ \"${CI}\" != \"true\" ] && [ -d \"${SRCROOT}/Pods\" ] && [ -f \"${SRCROOT}/Pods/Manifest.lock\" ] && [ -d \"${SRCROOT}/../../node_modules\" ]; then
@@ -218,17 +218,16 @@ cd \"$REPO_ROOT\" || {
 
 echo \"📁 Repository root: $(pwd)\"
 
-# In CI, post-clone script should have installed everything
-# Just verify and build if needed
+# In CI, check if post-clone script ran successfully
 if [ \"${CI}\" = \"true\" ]; then
     echo \"🔍 Verifying post-clone script results...\"
     
-    # Check if node_modules/.bin exists (post-clone should have created it)
-    if [ ! -d \"node_modules/.bin\" ]; then
-        echo \"⚠️  WARNING: node_modules/.bin missing - post-clone may have failed\" >&2
-        echo \"   Attempting to fix...\" >&2
+    # Check if node_modules exists and has content
+    if [ ! -d \"node_modules\" ] || [ ! -d \"node_modules/@capacitor\" ]; then
+        echo \"⚠️  WARNING: node_modules missing or incomplete - post-clone may not have run\" >&2
+        echo \"   Attempting to install dependencies...\" >&2
         
-        # Try to find node and fix it
+        # Try to find node
         NODE_CMD=\"\"
         if command -v node &> /dev/null; then
             NODE_CMD=\"node\"
@@ -240,20 +239,56 @@ if [ \"${CI}\" = \"true\" ]; then
             NODE_CMD=\"node\"
         fi
         
-        if [ -n \"$NODE_CMD\" ]; then
-            echo \"📦 Fixing node_modules/.bin...\"
-            if command -v yarn &> /dev/null; then
-                yarn install --frozen-lockfile || yarn install || true
-            elif command -v npm &> /dev/null; then
-                npm ci || npm install || true
-            fi
-        else
-            echo \"error: Cannot fix node_modules/.bin - node not found\" >&2
+        if [ -z \"$NODE_CMD\" ]; then
+            echo \"error: node not found and node_modules incomplete\" >&2
+            echo \"   Post-clone script should have installed node and dependencies.\" >&2
+            echo \"   Please check Xcode Cloud workflow configuration.\" >&2
+            echo \"   Expected ci_scripts/ci_post_clone.sh at repository root.\" >&2
             exit 1
+        fi
+        
+        echo \"✅ Found node: $(which node)\"
+        
+        # Install dependencies
+        if command -v yarn &> /dev/null; then
+            echo \"📦 Installing dependencies with yarn...\"
+            yarn install --frozen-lockfile || yarn install || {
+                echo \"error: yarn install failed\" >&2
+                exit 1
+            }
+        elif command -v npm &> /dev/null; then
+            echo \"📦 Installing dependencies with npm...\"
+            npm ci || npm install || {
+                echo \"error: npm install failed\" >&2
+                exit 1
+            }
+        else
+            echo \"error: Neither yarn nor npm found\" >&2
+            exit 1
+        fi
+        
+        # Verify Capacitor is installed
+        if [ ! -d \"node_modules/@capacitor/ios\" ]; then
+            echo \"error: Capacitor iOS not installed\" >&2
+            exit 1
+        fi
+        
+        echo \"✅ Dependencies installed\"
+    else
+        echo \"✅ node_modules exists and has Capacitor\"
+    fi
+    
+    # Verify node_modules/.bin exists
+    if [ ! -d \"node_modules/.bin\" ]; then
+        echo \"⚠️  node_modules/.bin missing, fixing...\"
+        if command -v yarn &> /dev/null; then
+            yarn install --frozen-lockfile || yarn install || true
+        elif command -v npm &> /dev/null; then
+            npm install || true
         fi
     fi
     
-    # Find node (should be available after post-clone)
+    # Find node (should be available after post-clone or our install)
     NODE_CMD=\"\"
     if command -v node &> /dev/null; then
         NODE_CMD=\"node\"
@@ -266,7 +301,7 @@ if [ \"${CI}\" = \"true\" ]; then
     fi
     
     if [ -z \"$NODE_CMD\" ]; then
-        echo \"error: node not found - post-clone script should have installed it\" >&2
+        echo \"error: node not found - cannot build web app\" >&2
         echo \"PATH: $PATH\" >&2
         exit 1
     fi
@@ -341,6 +376,16 @@ cd \"${SRCROOT}\" || {
 
 if [ ! -f \"Podfile\" ]; then
     echo \"error: Podfile not found at ${SRCROOT}/Podfile\" >&2
+    exit 1
+fi
+
+# CRITICAL: Verify node_modules/@capacitor/ios exists before installing Pods
+# The Podfile requires it
+if [ ! -d \"${REPO_ROOT}/node_modules/@capacitor/ios\" ]; then
+    echo \"error: Capacitor iOS not found in node_modules!\" >&2
+    echo \"   Expected: ${REPO_ROOT}/node_modules/@capacitor/ios\" >&2
+    echo \"   The Podfile requires Capacitor from node_modules.\" >&2
+    echo \"   Post-clone script should have installed dependencies.\" >&2
     exit 1
 fi
 
