@@ -9,6 +9,9 @@ set -e
 
 echo "🔧 Running pre-build script for Xcode Cloud..."
 echo "📁 Current directory: $(pwd)"
+echo "📁 Script location: $0"
+echo "📁 Repository structure:"
+ls -la . 2>/dev/null | head -10 || echo "Cannot list directory"
 
 # Find repository root
 if [ -f "package.json" ]; then

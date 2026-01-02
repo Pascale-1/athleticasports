@@ -7,6 +7,10 @@
 set -e
 
 echo "🔧 Xcode Cloud Post-Clone: Installing dependencies..."
+echo "📁 Current working directory: $(pwd)"
+echo "📁 Script location: $0"
+echo "📁 Repository structure:"
+ls -la . 2>/dev/null | head -10 || echo "Cannot list directory"
 
 # Find repository root
 if [ -f "package.json" ]; then
