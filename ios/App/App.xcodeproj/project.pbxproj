@@ -185,26 +185,43 @@
 			shellPath = /bin/sh;
 			shellScript = "#!/bin/bash
 set -euo pipefail
-SCRIPT_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\"
-REPO_ROOT=\"$(dirname \"$(dirname \"$SCRIPT_DIR\")\")\"
+
+# Fixed paths for Xcode Cloud Archive (Release)
+WORKSPACE_DIR=\"/Volumes/workspace/repository\"
+REPO_ROOT=\"$WORKSPACE_DIR\"
 IOS_DIR=\"$REPO_ROOT/ios/App\"
-echo \"CI Build: $REPO_ROOT -> $IOS_DIR\"
+
+echo \"=== FINAL CI FIX: $REPO_ROOT -> $IOS_DIR ===\"
+
 export HOMEBREW_NO_INSTALL_CLEANUP=1
-export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"
+export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH:/Users/local/bin\"
+
+# Tools (quiet)
+brew install node yarn cocoapods >/dev/null 2>&1 || true
+
 cd \"$REPO_ROOT\"
-brew install node yarn cocoapods || true
-rm -rf node_modules yarn.lock
-yarn install --frozen-lockfile --network-timeout 600000
-npx cap sync ios --verbose
+rm -rf node_modules yarn.lock package-lock.json
+
+# NPM install first (avoids yarn/npx conflict)
+npm clean-install --no-audit --no-fund --network-timeout 600000
+npm install @capacitor/ios @capacitor/core @capacitor/cli --save-dev --no-audit
+
+# Manual Capacitor sync (no npx)
+node_modules/.bin/cap sync ios
+
+# Pods
 cd \"$IOS_DIR\"
 rm -rf Pods Podfile.lock ~/Library/Developer/Xcode/DerivedData
-pod deintegrate
-pod repo update
-pod install --repo-update --clean-install
-# Clean Swift caches
-rm -rf ~/Library/Caches/org.swift.swiftpm /tmp/org.swift.swiftmodulecache
+pod deintegrate >/dev/null 2>&1 || true
+pod repo update >/dev/null 2>&1
+pod install --repo-update --clean-install --no-integrate-services
+
+# Clean everything
+rm -rf ~/Library/Caches/org.swift.swiftpm
+rm -rf /tmp/org.swift.swiftmodulecache
 rm -rf $(getconf DARWIN_USER_CACHE_DIR)/org.swift.*
-echo \"Dependencies + Capacitor sync COMPLETE\"
+
+echo \"=== BUILD READY ===\"
 
 ";
 			showEnvVarsInLog = 0;
@@ -423,18 +440,18 @@ echo \"Dependencies + Capacitor sync COMPLETE\"
 				CURRENT_PROJECT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/../node_modules/@capacitor/ios",
+					"$(SRCROOT)/../node_modules/@capacitor/ios",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/../node_modules/@capacitor/ios",
+					"$(SRCROOT)/../node_modules/@capacitor/ios",
 				);
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/../node_modules/@capacitor/ios",
+					"$(SRCROOT)/../node_modules/@capacitor/ios",
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.athletica.sports;
