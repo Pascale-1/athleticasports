@@ -431,21 +431,18 @@ echo \"SUCCESS - All files ready for Xcode Copy Bundle Resources\"
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../node_modules/@capacitor/ios",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../node_modules/@capacitor/ios",
-				);
+			FRAMEWORK_SEARCH_PATHS = (
+				"$(inherited)",
+			);
+			HEADER_SEARCH_PATHS = (
+				"$(inherited)",
+			);
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../node_modules/@capacitor/ios",
-				);
+			LIBRARY_SEARCH_PATHS = (
+				"$(inherited)",
+			);
 				MARKETING_VERSION = 1.0;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.athletica.sports;
@@ -463,21 +460,18 @@ echo \"SUCCESS - All files ready for Xcode Copy Bundle Resources\"
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../node_modules/@capacitor/ios",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../node_modules/@capacitor/ios",
-				);
+			FRAMEWORK_SEARCH_PATHS = (
+				"$(inherited)",
+			);
+			HEADER_SEARCH_PATHS = (
+				"$(inherited)",
+			);
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../node_modules/@capacitor/ios",
-				);
+			LIBRARY_SEARCH_PATHS = (
+				"$(inherited)",
+			);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.athletica.sports;
 				PRODUCT_NAME = "$(TARGET_NAME)";
