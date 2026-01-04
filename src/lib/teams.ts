@@ -37,7 +37,8 @@ export const createTeam = async (data: {
   description?: string;
   is_private: boolean;
   avatar_url?: string;
-}) => {
+  sport: string;
+}): Promise<Team> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
@@ -48,6 +49,7 @@ export const createTeam = async (data: {
       description: data.description || null,
       is_private: data.is_private,
       avatar_url: data.avatar_url || null,
+      sport: data.sport,
       created_by: user.id,
     })
     .select()

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,15 +10,19 @@ import { Switch } from "@/components/ui/switch";
 import { createTeam } from "@/lib/teams";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft } from "lucide-react";
+import { SportQuickSelector } from "@/components/events/SportQuickSelector";
 
 const TeamCreate = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t, i18n } = useTranslation('teams');
+  const lang = (i18n.language?.split('-')[0] || 'en') as 'en' | 'fr';
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     is_private: false,
+    sport: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,14 +32,23 @@ const TeamCreate = () => {
     try {
       // Validate form data
       if (!formData.name || formData.name.trim().length < 2) {
-        throw new Error("Team name must be at least 2 characters long");
+        throw new Error(t('form.nameMinLength'));
       }
 
       if (formData.name.length > 100) {
-        throw new Error("Team name must be less than 100 characters");
+        throw new Error(t('form.nameMaxLength'));
       }
 
-      const team = await createTeam(formData);
+      if (!formData.sport) {
+        throw new Error(t('form.sportRequired'));
+      }
+
+      const team = await createTeam({
+        name: formData.name,
+        description: formData.description,
+        is_private: formData.is_private,
+        sport: formData.sport,
+      });
       toast({
         title: "Success",
         description: "Team created successfully",
@@ -66,42 +80,50 @@ const TeamCreate = () => {
 
       <Card>
         <CardHeader className="p-4 sm:p-6">
-          <CardTitle className="text-xl sm:text-2xl">Create New Team</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl">{t('create.title')}</CardTitle>
           <CardDescription className="text-sm">
-            Set up a new team to organize training sessions and communicate with members
+            {t('create.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Team Name *</Label>
+              <Label htmlFor="name">{t('form.name')} *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Enter team name"
+                placeholder={t('form.namePlaceholder')}
                 required
                 minLength={2}
                 maxLength={100}
               />
             </div>
 
+            <SportQuickSelector
+              value={formData.sport || null}
+              onChange={(sport) => setFormData({ ...formData, sport: sport || "" })}
+              label={t('form.sport')}
+              lang={lang}
+              required
+            />
+
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('form.description')}</Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Tell others about your team..."
+                placeholder={t('form.descriptionPlaceholder')}
                 rows={4}
               />
             </div>
 
             <div className="flex items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
-                <Label htmlFor="private">Private Team</Label>
+                <Label htmlFor="private">{t('form.privateTeam')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Only members can see and join this team
+                  {t('form.privateTeamDesc')}
                 </p>
               </div>
               <Switch
@@ -120,10 +142,10 @@ const TeamCreate = () => {
                 onClick={() => navigate("/teams")}
                 className="flex-1"
               >
-                Cancel
+                {t('actions.cancel', { ns: 'common' })}
               </Button>
               <Button type="submit" disabled={loading} className="flex-1">
-                {loading ? "Creating..." : "Create Team"}
+                {loading ? t('actions.loading', { ns: 'common' }) : t('create.submit')}
               </Button>
             </div>
           </form>

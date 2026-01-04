@@ -3,6 +3,7 @@
   "createTeam": "Créer une équipe",
   "joinTeam": "Rejoindre une équipe",
   "myTeams": "Mes équipes",
+  "allTeams": "Toutes les équipes",
   "discover": "Découvrir",
   "noTeams": "Aucune équipe",
   "noTeamsDesc": "Vous n'avez pas encore rejoint d'équipe.",
@@ -16,6 +17,11 @@
   "chat": "Discussion",
   "settings": "Paramètres",
   "performance": "Performance",
+  "create": {
+    "title": "Créer une nouvelle équipe",
+    "description": "Configurez une équipe pour organiser des entraînements et communiquer avec les membres",
+    "submit": "Créer l'équipe"
+  },
   "search": {
     "placeholder": "Rechercher des équipes..."
   },
@@ -84,12 +90,17 @@
     "name": "Nom de l'équipe",
     "namePlaceholder": "Mon équipe de foot",
     "description": "Description",
-    "descriptionPlaceholder": "Décrivez votre équipe...",
+    "descriptionPlaceholder": "Parlez de votre équipe...",
     "sport": "Sport",
     "sportPlaceholder": "Sélectionnez un sport",
+    "sportRequired": "Veuillez sélectionner un sport pour votre équipe",
+    "privateTeam": "Équipe privée",
+    "privateTeamDesc": "Seuls les membres peuvent voir et rejoindre cette équipe",
     "isPrivate": "Équipe privée",
     "isPrivateDesc": "Seuls les membres invités peuvent rejoindre",
-    "avatar": "Photo de l'équipe"
+    "avatar": "Photo de l'équipe",
+    "nameMinLength": "Le nom de l'équipe doit contenir au moins 2 caractères",
+    "nameMaxLength": "Le nom de l'équipe doit contenir moins de 100 caractères"
   },
   "invite": {
     "title": "Inviter des membres",
