@@ -1,4 +1,28 @@
 {
+  "feedback": {
+    "title": "Give Feedback",
+    "subtitle": "Help us improve the app",
+    "category": "Feedback type",
+    "categories": {
+      "bug": "Report a bug",
+      "suggestion": "Suggestion",
+      "question": "Question",
+      "praise": "Praise"
+    },
+    "categoryDescriptions": {
+      "bug": "Something isn't working",
+      "suggestion": "An idea to improve the app",
+      "question": "Need help or information",
+      "praise": "Tell us what you love"
+    },
+    "message": "Your message",
+    "messagePlaceholder": "Describe your feedback in detail...",
+    "submit": "Send",
+    "success": "Thank you for your feedback!",
+    "successDescription": "We've received your message.",
+    "error": "Failed to send feedback",
+    "required": "This field is required"
+  },
   "nav": {
     "home": "Home",
     "teams": "Teams",
