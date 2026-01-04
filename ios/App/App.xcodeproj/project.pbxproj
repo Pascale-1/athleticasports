@@ -186,9 +186,23 @@
 			shellScript = "#!/bin/bash
 set -e
 
-REPO_ROOT=\"/Volumes/workspace/repository\"
+# Detect environment: Xcode Cloud vs Local Xcode
+if [ -d \"/Volumes/workspace/repository\" ]; then
+    # Xcode Cloud
+    REPO_ROOT=\"/Volumes/workspace/repository\"
+    echo \"🌩️  Xcode Cloud detected\"
+else
+    # Local Xcode - find repo root from SRCROOT
+    # SRCROOT is typically ios/App, so go up two levels
+    REPO_ROOT=\"${SRCROOT}/../..\"
+    # Resolve to absolute path
+    REPO_ROOT=\"$(cd \"$REPO_ROOT\" && pwd)\"
+    echo \"💻 Local Xcode detected\"
+fi
+
 IOS_DIR=\"$REPO_ROOT/ios/App\"
 echo \"NODE CI BUILD - COMPLETE\"
+echo \"📁 Repository root: $REPO_ROOT\"
 
 # FORCE Node PATH first
 export PATH=\"/usr/local/bin:/opt/homebrew/bin:$PATH\"
@@ -206,6 +220,12 @@ fi
 
 echo \"Using Node: $NODE_BIN\"
 echo \"Using NPM: $NPM_BIN\"
+
+# Verify repo root exists
+if [ ! -f \"$REPO_ROOT/package.json\" ]; then
+    echo \"error: Cannot find package.json at $REPO_ROOT/package.json\" >&2
+    exit 1
+fi
 
 cd \"$REPO_ROOT\"
 
