@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@supabase/supabase-js";
-import { Trophy, Users, TrendingUp, Swords, UserPlus, Search, Sparkles } from "lucide-react";
+import { Trophy, Users, TrendingUp, Swords, UserPlus, Search, Sparkles, Plus, CalendarCheck } from "lucide-react";
 import { ActivityCard } from "@/components/feed/ActivityCard";
 import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
@@ -238,16 +238,25 @@ const Index = () => {
             variant="tip"
           />
 
-          {/* Quick Actions - Simplified to 2 buttons */}
+          {/* Quick Actions - 3 buttons: Availability, Organize, Create Team */}
           <AnimatedCard delay={0.2}>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
+              <Button 
+                variant="default"
+                className="flex flex-col items-center justify-center gap-2 h-16 px-2 bg-green-600 hover:bg-green-700"
+                onClick={() => setFindMatchSheetOpen(true)}
+              >
+                <CalendarCheck className="h-5 w-5" />
+                <span className="text-xs font-medium text-center">{t('home.findGame')}</span>
+              </Button>
+              
               <Button 
                 variant="outline"
                 className="flex flex-col items-center justify-center gap-2 h-16 px-2"
-                onClick={() => setFindMatchSheetOpen(true)}
+                onClick={() => setCreateMatchSheetOpen(true)}
               >
-                <Search className="h-5 w-5 text-primary" />
-                <span className="text-xs font-medium text-center">{t('home.findGame')}</span>
+                <Plus className="h-5 w-5 text-primary" />
+                <span className="text-xs font-medium text-center">{t('home.organizeGame')}</span>
               </Button>
               
               <Button 
@@ -348,13 +357,32 @@ const Index = () => {
               ) : !pendingProposals.length && !availability ? (
                 <div className="text-center py-6">
                   <Swords className="h-10 w-10 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground mb-3">{t('home.noUpcomingGames')}</p>
-                  <Button 
-                    size="sm"
-                    onClick={() => setCreateMatchSheetOpen(true)}
-                  >
-                    {t('home.createGame')}
-                  </Button>
+                  <p className="text-sm text-muted-foreground mb-4">{t('home.noUpcomingGames')}</p>
+                  <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground mb-1">{t('home.lookingToPlay')}</p>
+                      <Button 
+                        size="sm"
+                        variant="default"
+                        className="bg-green-600 hover:bg-green-700"
+                        onClick={() => setFindMatchSheetOpen(true)}
+                      >
+                        <CalendarCheck className="h-4 w-4 mr-1" />
+                        {t('home.setAvailability')}
+                      </Button>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground mb-1">{t('home.wantToOrganize')}</p>
+                      <Button 
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setCreateMatchSheetOpen(true)}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        {t('home.createGame')}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               ) : null}
             </Card>

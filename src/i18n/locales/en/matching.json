@@ -1,7 +1,7 @@
 {
   "findGame": {
-    "title": "Find a Game",
-    "subtitle": "Find available players to play with",
+    "title": "Set My Availability",
+    "subtitle": "Tell us when and where you can play. We'll notify you when a matching game is found.",
     "sport": "Sport",
     "sportPlaceholder": "Select a sport",
     "location": "Location",
@@ -11,7 +11,8 @@
     "searching": "Searching...",
     "noResults": "No players available",
     "noResultsDesc": "Try broadening your search criteria",
-    "distance": "{{distance}} km away"
+    "distance": "{{distance}} km away",
+    "makeAvailable": "Make Me Available"
   },
   "createGame": {
     "title": "Create a Game",
@@ -35,10 +36,10 @@
     "youProposed": "You proposed a game"
   },
   "availability": {
-    "title": "Availability",
+    "title": "My Availability",
     "setAvailable": "Set Available",
     "notAvailable": "Not Available",
-    "available": "Available",
+    "available": "Available for games",
     "activeUntil": "Active until",
     "cancel": "Cancel Availability"
   },
