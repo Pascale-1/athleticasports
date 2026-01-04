@@ -97,7 +97,7 @@ export const EventCard = memo(({
   return (
     <Link to={`/events/${event.id}`}>
       <Card 
-        className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border-l-[6px] active:scale-[0.99]" 
+        className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border-l-4 active:scale-[0.99]" 
         style={{ borderLeftColor: getEventTypeAccentColor() }}
       >
         <CardContent className="p-3 sm:p-4 space-y-2.5">

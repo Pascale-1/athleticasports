@@ -156,10 +156,10 @@ const Index = () => {
   }
 
   return (
-    <PageContainer>
+    <PageContainer bottomPadding={false}>
       <PullToRefresh onRefresh={handleRefresh}>
         <motion.div 
-          className="space-y-6"
+          className="space-y-6 pb-20"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
@@ -219,7 +219,7 @@ const Index = () => {
             <div className="grid grid-cols-3 gap-2">
               <Button 
                 variant="default"
-                className="flex flex-col items-center justify-center gap-2 h-auto py-4 px-2"
+                className="flex flex-col items-center justify-center gap-2 h-16 px-2"
                 onClick={() => setCreateMatchSheetOpen(true)}
               >
                 <Swords className="h-5 w-5" />
@@ -229,7 +229,7 @@ const Index = () => {
               <Button 
                 type="button"
                 variant="outline"
-                className="flex flex-col items-center justify-center gap-2 h-auto py-4 px-2"
+                className="flex flex-col items-center justify-center gap-2 h-16 px-2"
                 onClick={() => navigate("/teams/create")}
               >
                 <Users className="h-5 w-5 text-primary" />
@@ -238,7 +238,7 @@ const Index = () => {
               
               <Button 
                 variant="outline"
-                className="flex flex-col items-center justify-center gap-2 h-auto py-4 px-2"
+                className="flex flex-col items-center justify-center gap-2 h-16 px-2"
                 onClick={() => setFindMatchSheetOpen(true)}
               >
                 <Search className="h-5 w-5 text-primary" />
