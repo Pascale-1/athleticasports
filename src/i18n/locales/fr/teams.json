@@ -148,5 +148,21 @@
     "transferError": "Échec du transfert de propriété",
     "nameError": "Le nom de l'équipe ne correspond pas",
     "selectOwnerError": "Veuillez sélectionner un nouveau propriétaire"
+  },
+  "quickCreate": {
+    "description": "Créez l'équipe adverse pour suivre les parties et inviter des membres plus tard"
+  },
+  "generateTeams": {
+    "title": "Générer des équipes équilibrées",
+    "description": "Créez des équipes d'entraînement équilibrées selon les niveaux de performance",
+    "playersAvailable": "{{count}} joueurs disponibles",
+    "activePlayers": "Membres actifs de l'équipe",
+    "numberOfTeams": "Nombre d'équipes",
+    "teams": "{{count}} équipes",
+    "playersEach": "~{{count}} joueurs chacune",
+    "smartBalancing": "Équilibrage intelligent",
+    "balancingDescription": "Les équipes seront automatiquement équilibrées par niveau de performance pour des parties d'entraînement équitables",
+    "generating": "Génération...",
+    "generate": "Générer les équipes"
   }
 }

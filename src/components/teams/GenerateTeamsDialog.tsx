@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +28,7 @@ export const GenerateTeamsDialog = ({
   totalPlayers,
   generating,
 }: GenerateTeamsDialogProps) => {
+  const { t } = useTranslation('teams');
   const [numTeams, setNumTeams] = useState("2");
 
   const playersPerTeam = Math.floor(totalPlayers / parseInt(numTeams));
@@ -40,9 +42,9 @@ export const GenerateTeamsDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Generate Balanced Teams</DialogTitle>
+          <DialogTitle>{t('generateTeams.title')}</DialogTitle>
           <DialogDescription>
-            Create balanced practice teams based on player performance levels
+            {t('generateTeams.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -51,25 +53,25 @@ export const GenerateTeamsDialog = ({
           <div className="flex items-center gap-3 p-4 rounded-lg bg-muted">
             <Users className="h-5 w-5 text-primary" />
             <div>
-              <p className="font-medium">{totalPlayers} Players Available</p>
+              <p className="font-medium">{t('generateTeams.playersAvailable', { count: totalPlayers })}</p>
               <p className="text-sm text-muted-foreground">
-                Active team members
+                {t('generateTeams.activePlayers')}
               </p>
             </div>
           </div>
 
           {/* Number of teams */}
           <div className="space-y-3">
-            <Label>Number of Teams</Label>
+            <Label>{t('generateTeams.numberOfTeams')}</Label>
             <RadioGroup value={numTeams} onValueChange={setNumTeams}>
               {[2, 3, 4, 5, 6].map((num) => (
                 <div key={num} className="flex items-center space-x-3">
                   <RadioGroupItem value={num.toString()} id={`teams-${num}`} />
                   <Label htmlFor={`teams-${num}`} className="flex-1 cursor-pointer font-normal">
                     <div className="flex items-center justify-between">
-                      <span>{num} Teams</span>
+                      <span>{t('generateTeams.teams', { count: num })}</span>
                       <span className="text-sm text-muted-foreground">
-                        ~{Math.floor(totalPlayers / num)} players each
+                        {t('generateTeams.playersEach', { count: Math.floor(totalPlayers / num) })}
                       </span>
                     </div>
                   </Label>
@@ -82,9 +84,9 @@ export const GenerateTeamsDialog = ({
           <div className="flex items-start gap-3 p-4 rounded-lg border bg-card">
             <TrendingUp className="h-5 w-5 text-green-600 mt-0.5" />
             <div className="flex-1">
-              <p className="font-medium text-sm">Smart Balancing</p>
+              <p className="font-medium text-sm">{t('generateTeams.smartBalancing')}</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Teams will be automatically balanced by average performance level to ensure fair practice matches
+                {t('generateTeams.balancingDescription')}
               </p>
             </div>
           </div>
@@ -92,10 +94,10 @@ export const GenerateTeamsDialog = ({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={generating}>
-            Cancel
+            {t('actions.cancel', { ns: 'common' })}
           </Button>
           <Button onClick={handleGenerate} disabled={generating}>
-            {generating ? "Generating..." : "Generate Teams"}
+            {generating ? t('generateTeams.generating') : t('generateTeams.generate')}
           </Button>
         </DialogFooter>
       </DialogContent>
