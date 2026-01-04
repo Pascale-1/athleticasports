@@ -23,7 +23,7 @@ interface TeamChatProps {
 }
 
 export const TeamChat = ({ teamId }: TeamChatProps) => {
-  const { messages, loading, sendMessage, deleteMessage } = useTeamChat(teamId);
+  const { messages, loading, loadingMore, hasMore, loadMoreMessages, sendMessage, deleteMessage } = useTeamChat(teamId);
   const [input, setInput] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
@@ -67,13 +67,27 @@ export const TeamChat = ({ teamId }: TeamChatProps) => {
 
   return (
     <div className="space-y-4">
-      <ScrollArea className="h-[500px] pr-4" ref={scrollRef}>
+      <ScrollArea className="min-h-[200px] max-h-[400px] pr-4" ref={scrollRef}>
         {messages.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <p>No messages yet. Start the conversation!</p>
           </div>
         ) : (
           <div className="space-y-4">
+            {hasMore && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={loadMoreMessages}
+                disabled={loadingMore}
+                className="w-full mb-2"
+              >
+                {loadingMore ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : null}
+                Load earlier messages
+              </Button>
+            )}
             {messages.map((msg) => (
               <div key={msg.id} className="flex items-start gap-3 group">
                 <Avatar className="h-8 w-8">
