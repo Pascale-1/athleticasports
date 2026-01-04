@@ -8,9 +8,26 @@
   "noEventsDesc": "No events scheduled at the moment.",
   "createFirst": "Create your first event",
   "types": {
+    "all": "All",
     "training": "Training",
-    "match": "Match",
+    "game": "Game",
     "meetup": "Meetup"
+  },
+  "timeGroups": {
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "thisWeek": "This Week",
+    "comingUp": "Coming Up"
+  },
+  "search": {
+    "placeholder": "Search events..."
+  },
+  "empty": {
+    "noUpcoming": "No upcoming events",
+    "noPast": "No past events",
+    "noResults": "No events found",
+    "tryAdjusting": "Try adjusting your search or filters",
+    "createFirst": "Create your first event to get started"
   },
   "details": {
     "when": "When",
@@ -25,9 +42,12 @@
     "going": "Going",
     "notGoing": "Not Going",
     "maybe": "Maybe",
-    "respond": "Respond",
+    "respond": "RSVP",
     "attending": "Attending",
-    "notAttending": "Not Attending"
+    "notAttending": "Not Attending",
+    "pass": "Pass",
+    "committed": "Committed",
+    "count": "{{count}} going"
   },
   "form": {
     "title": "Title",
@@ -44,16 +64,17 @@
     "isPublic": "Public Event",
     "isPublicDesc": "Visible to all users"
   },
-  "match": {
+  "game": {
     "opponent": "Opponent",
     "opponentPlaceholder": "Opponent team name",
     "homeAway": "Home/Away",
     "home": "Home",
     "away": "Away",
     "neutral": "Neutral",
-    "format": "Match Format",
+    "format": "Game Format",
     "lookingForPlayers": "Looking for Players",
-    "playersNeeded": "Players Needed"
+    "playersNeeded": "Players Needed",
+    "needPlayers": "Need {{count}}"
   },
   "filters": {
     "eventType": "Event Type",

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -18,12 +19,13 @@ import { EmptyState } from "@/components/EmptyState";
 import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
 
 const EVENT_TYPE_LEGEND = [
-  { type: 'training', label: 'Training', icon: Trophy, color: 'text-primary' },
-  { type: 'match', label: 'Match', icon: Swords, color: 'text-destructive' },
-  { type: 'meetup', label: 'Meetup', icon: Coffee, color: 'text-muted-foreground' },
+  { type: 'training', labelKey: 'types.training', icon: Trophy },
+  { type: 'match', labelKey: 'types.game', icon: Swords },
+  { type: 'meetup', labelKey: 'types.meetup', icon: Coffee },
 ] as const;
 
 const Events = () => {
+  const { t } = useTranslation('events');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [activeEventType, setActiveEventType] = useState<'all' | 'training' | 'meetup' | 'match'>('all');
@@ -34,12 +36,10 @@ const Events = () => {
     filters,
     filteredEvents,
     setTypeFilter,
-    setStatusFilter,
     setSearchQuery,
   } = useEventFilters(events);
 
   const handleResetFilters = () => {
-    setStatusFilter('upcoming');
     setSearchQuery('');
     setActiveEventType('all');
     setTypeFilter('all');
@@ -75,12 +75,12 @@ const Events = () => {
       <div className="space-y-6 animate-fade-in">
         {/* Header */}
         <PageHeader
-          title="Events"
-          subtitle={`${events.length} event${events.length !== 1 ? 's' : ''} available`}
+          title={t('title')}
+          subtitle={`${events.length} ${t('title').toLowerCase()}`}
           rightAction={
             <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
               <Plus className="h-4 w-4" />
-              Create Event
+              {t('createEvent')}
             </Button>
           }
         />
@@ -96,7 +96,7 @@ const Events = () => {
 
         {/* Controls Row */}
         <div className="space-y-3">
-          {/* Row 1: Type Filters + View Toggle + Status Toggle */}
+          {/* Row 1: Type Filters + View Toggle */}
           <div className="flex items-center gap-2 flex-wrap">
             {/* Event Type Legend Buttons */}
             <div className="flex items-center gap-1 bg-muted p-1 rounded-lg">
@@ -106,24 +106,24 @@ const Events = () => {
                 className="h-10 px-3 text-xs" 
                 onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
               >
-                All
+                {t('types.all')}
               </Button>
-              {EVENT_TYPE_LEGEND.map(({ type, label, icon: Icon }) => (
+              {EVENT_TYPE_LEGEND.map(({ type, labelKey, icon: Icon }) => (
                 <Button 
                   key={type}
                   size="sm" 
                   variant={activeEventType === type ? 'default' : 'ghost'} 
-                  className="h-10 px-2 text-xs gap-1" 
+                  className="h-10 px-3 text-xs gap-1.5" 
                   onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
                 >
                   <Icon className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">{label}</span>
+                  {t(labelKey)}
                 </Button>
               ))}
             </div>
 
             {/* View Toggle */}
-            <div className="flex gap-1 bg-muted p-1 rounded-lg">
+            <div className="flex gap-1 bg-muted p-1 rounded-lg ml-auto">
               <Button 
                 size="sm" 
                 variant={viewMode === 'list' ? 'default' : 'ghost'} 
@@ -141,33 +141,13 @@ const Events = () => {
                 <CalendarIcon className="h-4 w-4" />
               </Button>
             </div>
-
-            {/* Status Toggle - Inline */}
-            <div className="flex gap-1 bg-muted p-1 rounded-lg ml-auto">
-              <Button 
-                size="sm" 
-                variant={filters.status === 'upcoming' ? 'default' : 'ghost'} 
-                className="h-10 px-3 text-xs" 
-                onClick={() => setStatusFilter('upcoming')}
-              >
-                Upcoming
-              </Button>
-              <Button 
-                size="sm" 
-                variant={filters.status === 'past' ? 'default' : 'ghost'} 
-                className="h-10 px-3 text-xs" 
-                onClick={() => setStatusFilter('past')}
-              >
-                Past
-              </Button>
-            </div>
           </div>
 
           {/* Row 2: Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input 
-              placeholder="Search events..." 
+              placeholder={t('search.placeholder')} 
               value={filters.searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
               className="pl-9 h-10" 
@@ -189,7 +169,7 @@ const Events = () => {
             {groupedEvents.today.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-h3 font-heading font-semibold text-primary">Today</h3>
+                  <h3 className="text-h3 font-heading font-semibold text-primary">{t('timeGroups.today')}</h3>
                   <Badge variant="secondary" className="text-xs">{groupedEvents.today.length}</Badge>
                 </div>
                 <EventsList events={groupedEvents.today} showInlineRSVP />
@@ -199,7 +179,7 @@ const Events = () => {
             {groupedEvents.tomorrow.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-h3 font-heading font-semibold text-primary">Tomorrow</h3>
+                  <h3 className="text-h3 font-heading font-semibold text-primary">{t('timeGroups.tomorrow')}</h3>
                   <Badge variant="secondary" className="text-xs">{groupedEvents.tomorrow.length}</Badge>
                 </div>
                 <EventsList events={groupedEvents.tomorrow} showInlineRSVP />
@@ -209,7 +189,7 @@ const Events = () => {
             {groupedEvents.thisWeek.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-h3 font-heading font-semibold text-primary">This Week</h3>
+                  <h3 className="text-h3 font-heading font-semibold text-primary">{t('timeGroups.thisWeek')}</h3>
                   <Badge variant="secondary" className="text-xs">{groupedEvents.thisWeek.length}</Badge>
                 </div>
                 <EventsList events={groupedEvents.thisWeek} showInlineRSVP />
@@ -219,7 +199,7 @@ const Events = () => {
             {groupedEvents.later.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-h3 font-heading font-semibold text-primary">Coming Up</h3>
+                  <h3 className="text-h3 font-heading font-semibold text-primary">{t('timeGroups.comingUp')}</h3>
                   <Badge variant="secondary" className="text-xs">{groupedEvents.later.length}</Badge>
                 </div>
                 <EventsList events={groupedEvents.later} showInlineRSVP />
@@ -229,23 +209,17 @@ const Events = () => {
             {filteredEvents.length === 0 && (
               <EmptyState
                 icon={CalendarIcon}
-                title={
-                  filters.status === 'past'
-                    ? 'No past events'
-                    : filters.status === 'upcoming'
-                    ? 'No upcoming events'
-                    : 'No events found'
-                }
+                title={t('empty.noUpcoming')}
                 description={
                   filters.searchQuery
-                    ? 'Try adjusting your search or filters'
-                    : 'Create your first event to get started'
+                    ? t('empty.tryAdjusting')
+                    : t('empty.createFirst')
                 }
                 action={
                   !filters.searchQuery && (
                     <Button onClick={() => setCreateDialogOpen(true)}>
                       <Plus className="h-4 w-4 mr-2" />
-                      Create Event
+                      {t('createEvent')}
                     </Button>
                   )
                 }
@@ -265,7 +239,7 @@ const Events = () => {
       {/* Mobile FAB */}
       <FAB
         icon={<Plus className="h-5 w-5" />}
-        label="Create Event"
+        label={t('createEvent')}
         onClick={() => setCreateDialogOpen(true)}
       />
     </PageContainer>

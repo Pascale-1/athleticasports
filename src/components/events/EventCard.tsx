@@ -1,4 +1,5 @@
 import { memo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,12 +23,6 @@ interface EventCardProps {
   isCommitted?: boolean;
 }
 
-const RSVP_OPTIONS = [
-  { value: 'attending', label: 'Going', icon: UserCheck, className: 'text-green-600' },
-  { value: 'maybe', label: 'Maybe', icon: HelpCircle, className: 'text-yellow-600' },
-  { value: 'not_attending', label: 'Pass', icon: UserX, className: 'text-red-600' },
-] as const;
-
 export const EventCard = memo(({ 
   event, 
   onAttendanceClick,
@@ -37,7 +32,15 @@ export const EventCard = memo(({
   onRSVPChange,
   isCommitted = false
 }: EventCardProps) => {
+  const { t, i18n } = useTranslation('events');
   const [isHovered, setIsHovered] = useState(false);
+  const lang = i18n.language?.startsWith('fr') ? 'fr-FR' : 'en-US';
+
+  const RSVP_OPTIONS = [
+    { value: 'attending', label: t('rsvp.going'), icon: UserCheck, className: 'text-green-600' },
+    { value: 'maybe', label: t('rsvp.maybe'), icon: HelpCircle, className: 'text-yellow-600' },
+    { value: 'not_attending', label: t('rsvp.pass'), icon: UserX, className: 'text-red-600' },
+  ] as const;
 
   const getEventIcon = () => {
     switch (event.type) {
@@ -120,7 +123,7 @@ export const EventCard = memo(({
                     ) : (
                       <>
                         <UserCheck className="h-3.5 w-3.5" />
-                        <span>RSVP</span>
+                        <span>{t('rsvp.respond')}</span>
                       </>
                     )}
                     <ChevronDown className="h-3 w-3 opacity-50" />
@@ -144,7 +147,7 @@ export const EventCard = memo(({
               </DropdownMenu>
             ) : isCommitted && userStatus === 'attending' ? (
               <Badge className="bg-amber-600 text-white border-0 text-xs">
-                ⭐ Committed
+                ⭐ {t('rsvp.committed')}
               </Badge>
             ) : userStatus ? (
               <Badge 
@@ -154,8 +157,8 @@ export const EventCard = memo(({
                   'bg-red-600'
                 }`}
               >
-                {userStatus === 'attending' ? '✓ Going' : 
-                 userStatus === 'maybe' ? '? Maybe' : '✕ Pass'}
+                {userStatus === 'attending' ? `✓ ${t('rsvp.going')}` : 
+                 userStatus === 'maybe' ? `? ${t('rsvp.maybe')}` : `✕ ${t('rsvp.pass')}`}
               </Badge>
             ) : null}
           </div>
@@ -164,7 +167,7 @@ export const EventCard = memo(({
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-wrap">
             <Calendar className="h-3.5 w-3.5 shrink-0" />
             <span className="font-medium">
-              {new Date(event.start_time).toLocaleDateString('en-US', { 
+              {new Date(event.start_time).toLocaleDateString(lang, { 
                 weekday: 'short', 
                 month: 'short', 
                 day: 'numeric' 
@@ -173,7 +176,7 @@ export const EventCard = memo(({
             <span className="text-muted-foreground/50">•</span>
             <Clock className="h-3.5 w-3.5 shrink-0" />
             <span>
-              {new Date(event.start_time).toLocaleTimeString('en-US', { 
+              {new Date(event.start_time).toLocaleTimeString(lang, { 
                 hour: 'numeric', 
                 minute: '2-digit' 
               })}
@@ -190,7 +193,7 @@ export const EventCard = memo(({
           {/* Row 3: Attendee count + Looking for players (shown on hover or always if active) */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Users className="h-3.5 w-3.5" />
-            <span>{attendeeCount} going</span>
+            <span>{t('rsvp.count', { count: attendeeCount })}</span>
             
             {event.looking_for_players && (isHovered || event.players_needed) && (
               <Badge 
@@ -198,7 +201,7 @@ export const EventCard = memo(({
                 className="text-[10px] px-1.5 py-0 h-5 border-primary/40 text-primary animate-in fade-in duration-200"
               >
                 <UserPlus className="h-3 w-3 mr-0.5" />
-                {event.players_needed ? `Need ${event.players_needed}` : 'Open'}
+                {event.players_needed ? t('game.needPlayers', { count: event.players_needed }) : t('common:home.open')}
               </Badge>
             )}
           </div>

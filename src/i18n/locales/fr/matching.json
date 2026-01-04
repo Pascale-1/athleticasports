@@ -1,6 +1,6 @@
 {
-  "findMatch": {
-    "title": "Trouver un match",
+  "findGame": {
+    "title": "Trouver une partie",
     "subtitle": "Trouvez des joueurs disponibles pour jouer",
     "sport": "Sport",
     "sportPlaceholder": "Sélectionnez un sport",
@@ -13,9 +13,9 @@
     "noResultsDesc": "Essayez d'élargir vos critères de recherche",
     "distance": "à {{distance}} km"
   },
-  "createMatch": {
-    "title": "Créer un match",
-    "subtitle": "Organisez votre propre match",
+  "createGame": {
+    "title": "Créer une partie",
+    "subtitle": "Organisez votre propre partie",
     "setAvailability": "Définir ma disponibilité",
     "availabilitySet": "Disponibilité enregistrée !",
     "availableFrom": "Disponible de",
@@ -23,7 +23,7 @@
     "lookingFor": "Je cherche à jouer au"
   },
   "proposal": {
-    "title": "Proposition de match",
+    "title": "Proposition de partie",
     "accept": "Accepter",
     "decline": "Refuser",
     "pending": "En attente",
@@ -32,7 +32,7 @@
     "expired": "Expirée",
     "sentAt": "Envoyée",
     "wantsToPlay": "{{name}} veut jouer avec vous",
-    "youProposed": "Vous avez proposé un match"
+    "youProposed": "Vous avez proposé une partie"
   },
   "availability": {
     "title": "Disponibilité",
