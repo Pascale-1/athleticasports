@@ -156,7 +156,7 @@ const EventDetail = () => {
   const shouldTruncateDescription = descriptionLength > 150;
 
   return (
-    <PageContainer className="pb-24 md:pb-8">
+    <PageContainer className="pb-36 lg:pb-8">
       <motion.div 
         className="space-y-6"
         initial={{ opacity: 0, y: 20 }}
@@ -164,7 +164,7 @@ const EventDetail = () => {
         transition={{ duration: 0.3 }}
       >
         {/* Hero Header */}
-        <div className="relative -mx-4 -mt-4 px-4 pt-4 pb-6" style={{ backgroundColor: eventConfig.bgColor }}>
+        <div className="relative -mx-4 -mt-4 px-4 pt-4 pb-6 bg-muted/30">
           {/* Top bar */}
           <div className="flex items-center justify-between mb-4">
             <Button 
