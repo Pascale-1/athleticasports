@@ -1,6 +1,14 @@
 {
   "title": "Événements",
   "createEvent": "Créer un événement",
+  "create": {
+    "title": "Créer un événement",
+    "chooseType": "Choisir le type d'événement",
+    "selectTypeDesc": "Sélectionnez le type d'événement à créer",
+    "trainingDesc": "Séances d'entraînement",
+    "meetupDesc": "Rencontres sociales",
+    "gameDesc": "Parties compétitives"
+  },
   "upcoming": "À venir",
   "past": "Passés",
   "all": "Tous",

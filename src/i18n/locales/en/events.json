@@ -1,6 +1,14 @@
 {
   "title": "Events",
   "createEvent": "Create Event",
+  "create": {
+    "title": "Create New Event",
+    "chooseType": "Choose Event Type",
+    "selectTypeDesc": "Select the type of event you want to create",
+    "trainingDesc": "Practice sessions",
+    "meetupDesc": "Social gatherings",
+    "gameDesc": "Competitive games"
+  },
   "upcoming": "Upcoming",
   "past": "Past",
   "all": "All",
