@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@supabase/supabase-js";
-import { Trophy, Users, Activity, TrendingUp, Calendar } from "lucide-react";
+import { Trophy, Users, TrendingUp, Calendar, Swords, UserPlus } from "lucide-react";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { ActivityCard } from "@/components/feed/ActivityCard";
 import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
@@ -13,7 +13,9 @@ import { useActivityFeed } from "@/hooks/useActivityFeed";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PullToRefresh } from "@/components/animations/PullToRefresh";
 import { AnimatedCard } from "@/components/animations/AnimatedCard";
+import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { useEvents } from "@/hooks/useEvents";
 
 interface Profile {
   id: string;
@@ -27,7 +29,7 @@ interface Profile {
 
 interface Stats {
   teams: number;
-  activities: number;
+  upcomingMatches: number;
   followers: number;
 }
 
@@ -35,10 +37,14 @@ const Index = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [stats, setStats] = useState<Stats>({ teams: 0, activities: 0, followers: 0 });
+  const [stats, setStats] = useState<Stats>({ teams: 0, upcomingMatches: 0, followers: 0 });
   const [loading, setLoading] = useState(true);
   const [createEventDialogOpen, setCreateEventDialogOpen] = useState(false);
   const { activities, loading: feedLoading, loadingMore, hasMore, loadMore } = useActivityFeed();
+  
+  // Fetch upcoming matches
+  const { events: allMatches, loading: matchesLoading } = useEvents(undefined, { status: 'upcoming' });
+  const upcomingMatches = allMatches.filter(e => e.type === 'match').slice(0, 3);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -96,14 +102,16 @@ const Index = () => {
         .select('*', { count: 'exact', head: true })
         .eq('following_id', userId);
 
-      const { count: activitiesCount } = await supabase
-        .from('activities')
+      // Count upcoming matches
+      const { count: matchesCount } = await supabase
+        .from('events')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
+        .eq('type', 'match')
+        .gte('start_time', new Date().toISOString());
 
       setStats({
         teams: teamsCount || 0,
-        activities: activitiesCount || 0,
+        upcomingMatches: matchesCount || 0,
         followers: followersCount || 0,
       });
     } catch (error) {
@@ -167,7 +175,7 @@ const Index = () => {
                   <h1 className="text-heading-2 font-bold break-words max-w-full">
                     Welcome back, {profile.display_name || profile.username}!
                   </h1>
-                  <p className="text-body text-muted-foreground">Ready to conquer today?</p>
+                  <p className="text-body text-muted-foreground">Ready to find your next match?</p>
                 </div>
               </div>
 
@@ -183,12 +191,12 @@ const Index = () => {
                 </button>
                 <div className="h-12 w-px bg-border" />
                 <button
-                  onClick={() => navigate("/track")}
+                  onClick={() => navigate("/events?type=match")}
                   className="flex flex-col items-center gap-1 transition-all hover:text-primary active:scale-95 min-h-[44px] min-w-[44px]"
                 >
-                  <Activity className="h-4 w-4 text-primary" />
-                  <p className="text-body-large font-bold">{stats.activities}</p>
-                  <p className="text-caption text-muted-foreground">Activities</p>
+                  <Swords className="h-4 w-4 text-primary" />
+                  <p className="text-body-large font-bold">{stats.upcomingMatches}</p>
+                  <p className="text-caption text-muted-foreground">Matches</p>
                 </button>
                 <div className="h-12 w-px bg-border" />
                 <button
@@ -203,9 +211,18 @@ const Index = () => {
             </Card>
           </AnimatedCard>
 
-          {/* Quick Actions */}
+          {/* Quick Actions - Match Focused */}
           <AnimatedCard delay={0.2}>
             <div className="grid grid-cols-3 gap-2">
+              <Button 
+                variant="default"
+                className="flex flex-col items-center justify-center gap-2 h-auto py-4 px-2"
+                onClick={() => setCreateEventDialogOpen(true)}
+              >
+                <Swords className="h-5 w-5" />
+                <span className="text-xs font-medium text-center">Create Match</span>
+              </Button>
+              
               <Button 
                 type="button"
                 variant="outline"
@@ -217,23 +234,85 @@ const Index = () => {
               </Button>
               
               <Button 
-                variant="default"
-                className="flex flex-col items-center justify-center gap-2 h-auto py-4 px-2"
-                onClick={() => setCreateEventDialogOpen(true)}
-              >
-                <Calendar className="h-5 w-5" />
-                <span className="text-xs font-medium text-center">Create Event</span>
-              </Button>
-              
-              <Button 
                 variant="outline"
                 className="flex flex-col items-center justify-center gap-2 h-auto py-4 px-2"
-                onClick={() => navigate("/track")}
+                onClick={() => navigate("/events?type=match")}
               >
-                <Trophy className="h-5 w-5 text-primary" />
-                <span className="text-xs font-medium text-center">Log Activity</span>
+                <Calendar className="h-5 w-5 text-primary" />
+                <span className="text-xs font-medium text-center">Find Match</span>
               </Button>
             </div>
+          </AnimatedCard>
+
+          {/* Upcoming Matches Section */}
+          <AnimatedCard delay={0.25}>
+            <Card className="p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Swords className="h-5 w-5 text-primary" />
+                  <h2 className="text-heading-3 font-semibold">Upcoming Matches</h2>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-primary min-h-[44px]"
+                  onClick={() => navigate("/events?type=match")}
+                >
+                  View All
+                </Button>
+              </div>
+              
+              {matchesLoading ? (
+                <div className="space-y-2">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="h-16 bg-muted animate-pulse rounded-lg" />
+                  ))}
+                </div>
+              ) : upcomingMatches.length > 0 ? (
+                <div className="space-y-2">
+                  {upcomingMatches.map((match) => (
+                    <div 
+                      key={match.id}
+                      onClick={() => navigate(`/events/${match.id}`)}
+                      className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted cursor-pointer transition-colors"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Trophy className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{match.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(match.start_time).toLocaleDateString(undefined, {
+                            weekday: 'short',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                      {match.max_participants && (
+                        <Badge variant="secondary" className="flex-shrink-0">
+                          <UserPlus className="h-3 w-3 mr-1" />
+                          Open
+                        </Badge>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <Swords className="h-10 w-10 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground mb-3">No upcoming matches</p>
+                  <Button 
+                    size="sm"
+                    onClick={() => setCreateEventDialogOpen(true)}
+                  >
+                    Create a Match
+                  </Button>
+                </div>
+              )}
+            </Card>
           </AnimatedCard>
 
           {/* Activity Feed */}
@@ -274,13 +353,13 @@ const Index = () => {
               </div>
             ) : (
               <Card className="p-8 text-center">
-                <Activity className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+                <Users className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
                 <h3 className="font-semibold mb-2">No Activities Yet</h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Start following athletes or join teams to see their activities here.
                 </p>
-                <Button onClick={() => navigate("/users")} variant="outline">
-                  Find Athletes
+                <Button onClick={() => navigate("/teams")} variant="outline">
+                  Browse Teams
                 </Button>
               </Card>
             )}

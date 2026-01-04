@@ -1,14 +1,13 @@
-import { Home, Users, Calendar, Plus, User } from "lucide-react";
+import { Home, Users, Calendar, User } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { title: "Home", url: "/", icon: Home },
-  { title: "Teams", url: "/teams", icon: Users },
   { title: "Events", url: "/events", icon: Calendar },
-  { title: "Activity", url: "/track", icon: Plus },
-  { title: "You", url: "/settings", icon: User },
+  { title: "Teams", url: "/teams", icon: Users },
+  { title: "Profile", url: "/settings", icon: User },
 ];
 
 export const BottomNavigation = () => {
@@ -26,7 +25,7 @@ export const BottomNavigation = () => {
               key={item.url}
               to={item.url}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-all duration-150 active:scale-95 min-w-[56px]",
+                "flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-all duration-150 active:scale-95 min-w-[64px]",
                 isActive
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"

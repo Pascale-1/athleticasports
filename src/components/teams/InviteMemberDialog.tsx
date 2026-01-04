@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,9 +13,16 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { useUserSearch } from "@/hooks/useUserSearch";
+import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Search, UserPlus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface SearchedUser {
+  user_id: string;
+  username: string;
+  display_name: string | null;
+  avatar_url: string | null;
+}
 
 interface InviteMemberDialogProps {
   open: boolean;
@@ -28,7 +35,56 @@ interface InviteMemberDialogProps {
 export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canManage }: InviteMemberDialogProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState("member");
-  const { users, loading } = useUserSearch(searchQuery, teamId);
+  const [users, setUsers] = useState<SearchedUser[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!searchQuery.trim() || searchQuery.length < 2 || !teamId) {
+      setUsers([]);
+      return;
+    }
+
+    const searchUsers = async () => {
+      setLoading(true);
+      try {
+        // Get current team members to exclude them
+        const { data: teamMembers } = await supabase
+          .from("team_members")
+          .select("user_id")
+          .eq("team_id", teamId)
+          .eq("status", "active");
+
+        const excludedUserIds = teamMembers?.map(m => m.user_id) || [];
+
+        // Sanitize query to prevent SQL injection
+        const sanitizedQuery = searchQuery.replace(/[%_]/g, '\\$&');
+        
+        // Search for users by username or display name
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("user_id, username, display_name, avatar_url")
+          .or(`username.ilike.%${sanitizedQuery}%,display_name.ilike.%${sanitizedQuery}%`)
+          .limit(5);
+
+        if (error) throw error;
+
+        // Filter out existing team members
+        const filteredUsers = data?.filter(
+          user => !excludedUserIds.includes(user.user_id)
+        ) || [];
+
+        setUsers(filteredUsers);
+      } catch (error) {
+        console.error("Error searching users:", error);
+        setUsers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const debounce = setTimeout(searchUsers, 300);
+    return () => clearTimeout(debounce);
+  }, [searchQuery, teamId]);
 
   const handleSelectUser = (userId: string) => {
     onInvite(userId, true, selectedRole);
