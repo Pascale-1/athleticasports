@@ -218,11 +218,11 @@ const Index = () => {
           <AnimatedCard delay={0.2}>
             <div className="grid grid-cols-3 gap-2">
               <Button 
-                variant="default"
+                variant="outline"
                 className="flex flex-col items-center justify-center gap-2 h-16 px-2"
                 onClick={() => setCreateMatchSheetOpen(true)}
               >
-                <Swords className="h-5 w-5" />
+                <Swords className="h-5 w-5 text-primary" />
                 <span className="text-xs font-medium text-center">Create Match</span>
               </Button>
               
