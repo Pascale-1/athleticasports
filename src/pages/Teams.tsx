@@ -26,7 +26,7 @@ import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
 const Teams = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation('teams');
   const [myTeams, setMyTeams] = useState<Team[]>([]);
   const [publicTeams, setPublicTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
@@ -153,12 +153,12 @@ const Teams = () => {
         >
           {/* Header */}
           <PageHeader
-            title={t('teams.title')}
-            subtitle={`${myTeams.length} ${myTeams.length !== 1 ? t('teams.memberPlural') : t('teams.member')} • ${publicTeams.length} ${t('status.active').toLowerCase()}`}
+            title={t('title')}
+            subtitle={`${myTeams.length} ${myTeams.length !== 1 ? t('memberPlural') : t('member')} • ${publicTeams.length} ${t('common:status.active').toLowerCase()}`}
             rightAction={
               <Button onClick={() => navigate("/teams/create")} className="gap-2">
                 <Plus className="h-4 w-4" />
-                {t('teams.createTeam')}
+                {t('createTeam')}
               </Button>
             }
           />
@@ -168,11 +168,11 @@ const Teams = () => {
             <OnboardingHint
               id="hint-teams"
               icon={Users}
-              titleKey="onboarding.teams.title"
-              descriptionKey="onboarding.teams.description"
+              titleKey="common:onboarding.teams.title"
+              descriptionKey="common:onboarding.teams.description"
               variant="info"
               action={{
-                labelKey: "onboarding.showMe",
+                labelKey: "common:onboarding.showMe",
                 onClick: () => navigate("/teams/create"),
               }}
             />
@@ -195,10 +195,10 @@ const Teams = () => {
             >
                 <div className="space-y-4">
                 <div>
-                  <Label className="text-sm font-medium mb-3 block">{t('teams.filters.sport')}</Label>
+                  <Label className="text-sm font-medium mb-3 block">{t('filters.sport')}</Label>
                   <Select value={activeSport} onValueChange={setActiveSport}>
                     <SelectTrigger>
-                      <SelectValue placeholder={t('teams.form.sportPlaceholder')} />
+                      <SelectValue placeholder={t('form.sportPlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="All">{i18n.language?.startsWith('fr') ? 'Tous' : 'All'}</SelectItem>
@@ -238,7 +238,7 @@ const Teams = () => {
               onClick={() => setShowAllTeams(false)}
               className="flex-1 h-10"
             >
-              {t('teams.myTeams')} ({myTeams.length})
+              {t('myTeams')} ({myTeams.length})
             </Button>
             <Button
               variant={showAllTeams ? "default" : "ghost"}
@@ -246,7 +246,7 @@ const Teams = () => {
               onClick={() => setShowAllTeams(true)}
               className="flex-1 h-10"
             >
-              {t('teams.filters.all')} ({publicTeams.length})
+              {t('filters.all')} ({publicTeams.length})
             </Button>
           </motion.div>
 
@@ -259,7 +259,7 @@ const Teams = () => {
               transition={{ delay: 0.2 }}
             >
               <h2 className="text-h3 font-heading font-semibold">
-                {t('teams.myTeams')} ({filteredMyTeams.length})
+                {t('myTeams')} ({filteredMyTeams.length})
               </h2>
 
               {filteredMyTeams.length > 0 ? (
@@ -277,12 +277,12 @@ const Teams = () => {
               ) : (
                 <EmptyState
                   icon={Users}
-                  title={t('teams.noTeams')}
-                  description={t('teams.noTeamsDesc')}
+                  title={t('noTeams')}
+                  description={t('noTeamsDesc')}
                   action={
                     <Button onClick={() => navigate("/teams/create")}>
                       <Plus className="h-4 w-4 mr-2" />
-                      {t('teams.createTeam')}
+                      {t('createTeam')}
                     </Button>
                   }
                 />
@@ -299,7 +299,7 @@ const Teams = () => {
               transition={{ delay: 0.2 }}
             >
               <h2 className="text-h3 font-heading font-semibold">
-                {searchQuery ? `${t('actions.search')} (${filteredPublicTeams.length})` : t('teams.filters.all')}
+                {searchQuery ? `${t('common:actions.search')} (${filteredPublicTeams.length})` : t('filters.all')}
               </h2>
             
               {loading ? (
@@ -323,17 +323,17 @@ const Teams = () => {
               ) : (
                 <EmptyState
                   icon={searchQuery ? SearchIcon : Users}
-                  title={searchQuery ? t('empty.title') : activeSport !== "All" ? `${t('teams.noTeams')} - ${activeSport}` : t('teams.noTeams')}
-                  description={searchQuery ? t('empty.description') : t('teams.noTeamsDesc')}
+                  title={searchQuery ? t('common:empty.title') : activeSport !== "All" ? `${t('noTeams')} - ${activeSport}` : t('noTeams')}
+                  description={searchQuery ? t('common:empty.description') : t('noTeamsDesc')}
                   action={
                     searchQuery ? (
                       <Button onClick={() => setSearchQuery("")} variant="outline">
-                        {t('teams.filters.clearFilters')}
+                        {t('filters.clearFilters')}
                       </Button>
                     ) : (
                       <Button onClick={() => navigate("/teams/create")}>
                         <Plus className="h-4 w-4 mr-2" />
-                        {t('teams.createTeam')}
+                        {t('createTeam')}
                       </Button>
                     )
                   }
@@ -347,7 +347,7 @@ const Teams = () => {
       {/* FAB */}
       <FAB
         icon={<Plus className="h-5 w-5" />}
-        label={t('teams.createTeam')}
+        label={t('createTeam')}
         onClick={() => navigate("/teams/create")}
       />
     </PageContainer>
