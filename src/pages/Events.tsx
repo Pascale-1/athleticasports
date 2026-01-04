@@ -15,6 +15,7 @@ import type { Event } from "@/lib/events";
 import { Badge } from "@/components/ui/badge";
 import { FAB } from "@/components/mobile/FAB";
 import { EmptyState } from "@/components/EmptyState";
+import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
 
 const EVENT_TYPE_LEGEND = [
   { type: 'training', label: 'Training', icon: Trophy, color: 'text-primary' },
@@ -82,6 +83,15 @@ const Events = () => {
               Create Event
             </Button>
           }
+        />
+
+        {/* Events Onboarding Hint */}
+        <OnboardingHint
+          id="hint-events"
+          icon={CalendarIcon}
+          titleKey="onboarding.events.title"
+          descriptionKey="onboarding.events.description"
+          variant="info"
         />
 
         {/* Controls Row */}

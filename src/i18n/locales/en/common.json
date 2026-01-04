@@ -144,5 +144,25 @@
   "empty": {
     "title": "Nothing to show",
     "description": "No items found"
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to Athletica!",
+      "description": "Find a match or create a team to start playing with others."
+    },
+    "events": {
+      "title": "Your Events Hub",
+      "description": "This is where you'll find matches, training sessions, and meetups."
+    },
+    "teams": {
+      "title": "Build Your Squad",
+      "description": "Join an existing team or create your own to organize matches."
+    },
+    "teamMembers": {
+      "title": "Grow Your Team",
+      "description": "Invite friends using the share link in team settings."
+    },
+    "gotIt": "Got it!",
+    "showMe": "Show me"
   }
 }
