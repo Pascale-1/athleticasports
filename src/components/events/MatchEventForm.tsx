@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -16,6 +17,8 @@ import { cn } from "@/lib/utils";
 import { CreateEventData } from "@/hooks/useEvents";
 import { TeamSelector } from "@/components/teams/TeamSelector";
 import { useTeam } from "@/hooks/useTeam";
+import { DistrictSelector } from "@/components/location/DistrictSelector";
+import { getDistrictLabel } from "@/lib/parisDistricts";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(100),
@@ -26,7 +29,6 @@ const formSchema = z.object({
   homeAway: z.enum(['home', 'away', 'neutral']),
   matchFormat: z.string().max(100).optional(),
   description: z.string().max(500).optional(),
-  location: z.string().max(200).optional(),
   date: z.date({ required_error: "Date is required" }),
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "End time is required"),
@@ -48,11 +50,14 @@ interface MatchEventFormProps {
 }
 
 export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: MatchEventFormProps) => {
+  const { i18n, t } = useTranslation();
+  const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
   const [useTeamSelector, setUseTeamSelector] = useState(true);
   const [homeTeamId, setHomeTeamId] = useState<string | undefined>(teamId);
   const [opponentTeamId, setOpponentTeamId] = useState<string | null>(null);
   const [opponentTeamName, setOpponentTeamName] = useState<string>("");
   const [opponentLogoUrl, setOpponentLogoUrl] = useState<string>("");
+  const [location, setLocation] = useState<{ district: string; venueName?: string }>({ district: '', venueName: '' });
   
   const { team: homeTeam } = useTeam(teamId);
 
@@ -67,7 +72,6 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
       homeAway: 'home',
       matchFormat: "",
       description: "",
-      location: "",
       startTime: "15:00",
       endTime: "17:00",
     },
@@ -82,6 +86,10 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
     const [endHour, endMinute] = values.endTime.split(':');
     endDateTime.setHours(parseInt(endHour), parseInt(endMinute));
 
+    const locationString = location.district 
+      ? `${getDistrictLabel(location.district, lang)}${location.venueName ? ` - ${location.venueName}` : ''}`
+      : undefined;
+
     onSubmit({
       team_id: homeTeamId || null,
       opponent_team_id: opponentTeamId || null,
@@ -92,8 +100,8 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
       opponent_logo_url: opponentLogoUrl || values.opponentLogoUrl || undefined,
       home_away: values.homeAway,
       match_format: values.matchFormat || undefined,
-      location: values.location || undefined,
-      location_type: values.location ? 'physical' : 'tbd',
+      location: locationString,
+      location_type: locationString ? 'physical' : 'tbd',
       start_time: startDateTime.toISOString(),
       end_time: endDateTime.toISOString(),
       is_public: !homeTeamId,
@@ -108,9 +116,9 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Match Title</FormLabel>
+              <FormLabel>{lang === 'fr' ? 'Titre du match' : 'Match Title'}</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Championship Final" {...field} />
+                <Input placeholder={lang === 'fr' ? 'ex: Finale du championnat' : 'e.g., Championship Final'} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -120,8 +128,8 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
         {/* Home Team Selection */}
         <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-sm">Your Team (Home)</h3>
-            {homeTeamId && <Badge variant="secondary">✓ Selected</Badge>}
+            <h3 className="font-semibold text-sm">{lang === 'fr' ? 'Votre équipe (Domicile)' : 'Your Team (Home)'}</h3>
+            {homeTeamId && <Badge variant="secondary">✓ {lang === 'fr' ? 'Sélectionné' : 'Selected'}</Badge>}
           </div>
           
           {teamId && homeTeam ? (
@@ -139,13 +147,13 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
                   form.setValue("homeTeamId", id);
                 }}
                 selectedTeamId={homeTeamId}
-                placeholder="Select your team"
-                label="Which team are you organizing this match for?"
+                placeholder={lang === 'fr' ? 'Sélectionner votre équipe' : 'Select your team'}
+                label={lang === 'fr' ? 'Pour quelle équipe organisez-vous ce match ?' : 'Which team are you organizing this match for?'}
                 showCreateButton={true}
               />
               {!homeTeamId && (
                 <p className="text-xs text-muted-foreground">
-                  💡 Creating a team helps organize matches and grow your community!
+                  💡 {lang === 'fr' ? 'Créer une équipe aide à organiser les matchs et développer votre communauté !' : 'Creating a team helps organize matches and grow your community!'}
                 </p>
               )}
             </>
@@ -155,7 +163,7 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
         {/* Opponent Team Selection */}
         <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-sm">Opponent Team</h3>
+            <h3 className="font-semibold text-sm">{lang === 'fr' ? 'Équipe adverse' : 'Opponent Team'}</h3>
             <div className="flex gap-2">
               <Button
                 type="button"
@@ -163,7 +171,7 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
                 variant={useTeamSelector ? "default" : "outline"}
                 onClick={() => setUseTeamSelector(true)}
               >
-                Select Team
+                {lang === 'fr' ? 'Sélectionner' : 'Select Team'}
               </Button>
               <Button
                 type="button"
@@ -171,7 +179,7 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
                 variant={!useTeamSelector ? "default" : "outline"}
                 onClick={() => setUseTeamSelector(false)}
               >
-                Enter Manually
+                {lang === 'fr' ? 'Saisir' : 'Enter Manually'}
               </Button>
             </div>
           </div>
@@ -188,13 +196,13 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
                 }}
                 selectedTeamId={opponentTeamId || undefined}
                 excludeTeamId={homeTeamId}
-                placeholder="Search opponent teams..."
-                label="Select opponent from existing teams"
+                placeholder={lang === 'fr' ? 'Rechercher équipes adverses...' : 'Search opponent teams...'}
+                label={lang === 'fr' ? 'Sélectionner une équipe existante' : 'Select opponent from existing teams'}
                 sportFilter={homeTeam?.sport || undefined}
                 showCreateButton={true}
               />
               <p className="text-xs text-muted-foreground">
-                🎯 Recommended: Select a team to notify their members and track matches
+                🎯 {lang === 'fr' ? 'Recommandé : Sélectionner une équipe pour notifier ses membres et suivre les matchs' : 'Recommended: Select a team to notify their members and track matches'}
               </p>
             </div>
           ) : (
@@ -204,10 +212,10 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
                 name="opponentName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Opponent Name</FormLabel>
+                    <FormLabel>{lang === 'fr' ? "Nom de l'adversaire" : 'Opponent Name'}</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="e.g., City Rivals FC" 
+                        placeholder={lang === 'fr' ? 'ex: FC City Rivals' : 'e.g., City Rivals FC'} 
                         {...field}
                         onChange={(e) => {
                           field.onChange(e);
@@ -220,7 +228,7 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
                 )}
               />
               <p className="text-xs text-muted-foreground">
-                💡 Help them create a team account to join your match!
+                💡 {lang === 'fr' ? 'Aidez-les à créer un compte équipe pour rejoindre votre match !' : 'Help them create a team account to join your match!'}
               </p>
             </div>
           )}
@@ -231,7 +239,7 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
           name="homeAway"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Match Location</FormLabel>
+              <FormLabel>{lang === 'fr' ? 'Lieu du match' : 'Match Location'}</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -239,9 +247,9 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="home">Home</SelectItem>
-                  <SelectItem value="away">Away</SelectItem>
-                  <SelectItem value="neutral">Neutral Venue</SelectItem>
+                  <SelectItem value="home">{lang === 'fr' ? 'Domicile' : 'Home'}</SelectItem>
+                  <SelectItem value="away">{lang === 'fr' ? 'Extérieur' : 'Away'}</SelectItem>
+                  <SelectItem value="neutral">{lang === 'fr' ? 'Terrain neutre' : 'Neutral Venue'}</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -254,9 +262,9 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
           name="matchFormat"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Match Format (Optional)</FormLabel>
+              <FormLabel>{lang === 'fr' ? 'Format du match (optionnel)' : 'Match Format (Optional)'}</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., 11v11, 5v5, Best of 3" {...field} />
+                <Input placeholder={lang === 'fr' ? 'ex: 11v11, 5v5, Best of 3' : 'e.g., 11v11, 5v5, Best of 3'} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -268,10 +276,10 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description (Optional)</FormLabel>
+              <FormLabel>{lang === 'fr' ? 'Description (optionnel)' : 'Description (Optional)'}</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Additional match details" 
+                  placeholder={lang === 'fr' ? 'Détails supplémentaires du match' : 'Additional match details'} 
                   className="resize-none" 
                   {...field} 
                 />
@@ -286,7 +294,7 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
           name="date"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>Date</FormLabel>
+              <FormLabel>{lang === 'fr' ? 'Date' : 'Date'}</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -297,7 +305,7 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
                         !field.value && "text-muted-foreground"
                       )}
                     >
-                      {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                      {field.value ? format(field.value, "PPP") : <span>{lang === 'fr' ? 'Choisir une date' : 'Pick a date'}</span>}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </FormControl>
@@ -324,7 +332,7 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
             name="startTime"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Kickoff Time</FormLabel>
+                <FormLabel>{lang === 'fr' ? 'Coup d\'envoi' : 'Kickoff Time'}</FormLabel>
                 <FormControl>
                   <Input type="time" {...field} />
                 </FormControl>
@@ -338,7 +346,7 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
             name="endTime"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>End Time</FormLabel>
+                <FormLabel>{lang === 'fr' ? 'Heure de fin' : 'End Time'}</FormLabel>
                 <FormControl>
                   <Input type="time" {...field} />
                 </FormControl>
@@ -348,26 +356,21 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="location"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Venue (Optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., Central Stadium" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        {/* Location - District Selector */}
+        <DistrictSelector
+          value={location}
+          onChange={setLocation}
+          label={lang === 'fr' ? 'Stade/Terrain (optionnel)' : 'Venue (Optional)'}
+          venueLabel={lang === 'fr' ? 'Nom du stade' : 'Stadium name'}
+          venuePlaceholder={lang === 'fr' ? 'ex: Stade Central' : 'e.g., Central Stadium'}
         />
 
         <div className="flex gap-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
-            Cancel
+            {t('actions.cancel')}
           </Button>
           <Button type="submit" disabled={isSubmitting} className="flex-1">
-            {isSubmitting ? "Creating..." : "Create Match"}
+            {isSubmitting ? t('actions.loading') : (lang === 'fr' ? 'Créer le match' : 'Create Match')}
           </Button>
         </div>
       </form>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -23,12 +24,15 @@ import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { getSportsForDropdown, getFeaturedSports, getRegularSports } from "@/lib/sports";
 
 const formSchema = z.object({
   name: z.string().min(1, "Team name is required").max(50),
@@ -45,19 +49,6 @@ interface QuickTeamCreateDialogProps {
   defaultSport?: string;
 }
 
-const SPORTS = [
-  "Football",
-  "Basketball",
-  "Soccer",
-  "Volleyball",
-  "Tennis",
-  "Hockey",
-  "Baseball",
-  "Rugby",
-  "Cricket",
-  "Other",
-];
-
 export const QuickTeamCreateDialog = ({
   open,
   onOpenChange,
@@ -66,6 +57,11 @@ export const QuickTeamCreateDialog = ({
 }: QuickTeamCreateDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { i18n, t } = useTranslation();
+  const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
+  
+  const featuredSports = getFeaturedSports();
+  const regularSports = getRegularSports();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -83,7 +79,6 @@ export const QuickTeamCreateDialog = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Create the team
       const { data: team, error: teamError } = await supabase
         .from("teams")
         .insert({
@@ -99,8 +94,8 @@ export const QuickTeamCreateDialog = ({
       if (teamError) throw teamError;
 
       toast({
-        title: "Team created!",
-        description: `${values.name} has been created successfully.`,
+        title: t('teams.createTeam'),
+        description: `${values.name} ${lang === 'fr' ? 'a été créée avec succès.' : 'has been created successfully.'}`,
       });
 
       onTeamCreated(team.id, team.name, team.avatar_url || undefined);
@@ -108,7 +103,7 @@ export const QuickTeamCreateDialog = ({
     } catch (error: any) {
       console.error("Error creating team:", error);
       toast({
-        title: "Error",
+        title: t('errors.generic'),
         description: error.message || "Failed to create team",
         variant: "destructive",
       });
@@ -121,9 +116,12 @@ export const QuickTeamCreateDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create Team</DialogTitle>
+          <DialogTitle>{t('teams.createTeam')}</DialogTitle>
           <DialogDescription>
-            Create your opponent's team to track matches and invite members later
+            {lang === 'fr' 
+              ? "Créez l'équipe adverse pour suivre les matchs et inviter des membres plus tard"
+              : "Create your opponent's team to track matches and invite members later"
+            }
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -133,9 +131,9 @@ export const QuickTeamCreateDialog = ({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Team Name</FormLabel>
+                  <FormLabel>{t('teams.form.name')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Warriors FC" {...field} />
+                    <Input placeholder={lang === 'fr' ? "ex: FC Warriors" : "e.g., Warriors FC"} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -147,19 +145,32 @@ export const QuickTeamCreateDialog = ({
               name="sport"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Sport</FormLabel>
+                  <FormLabel>{t('teams.form.sport')}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a sport" />
+                        <SelectValue placeholder={t('teams.form.sportPlaceholder')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {SPORTS.map((sport) => (
-                        <SelectItem key={sport} value={sport}>
-                          {sport}
-                        </SelectItem>
-                      ))}
+                      {/* Featured sports first */}
+                      <SelectGroup>
+                        <SelectLabel>{lang === 'fr' ? '⭐ Populaires' : '⭐ Popular'}</SelectLabel>
+                        {featuredSports.map((sport) => (
+                          <SelectItem key={sport.id} value={sport.id}>
+                            {sport.emoji} {sport.label[lang]}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                      {/* Other sports */}
+                      <SelectGroup>
+                        <SelectLabel>{lang === 'fr' ? 'Autres sports' : 'Other sports'}</SelectLabel>
+                        {regularSports.map((sport) => (
+                          <SelectItem key={sport.id} value={sport.id}>
+                            {sport.emoji} {sport.label[lang]}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -172,10 +183,10 @@ export const QuickTeamCreateDialog = ({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description (Optional)</FormLabel>
+                  <FormLabel>{t('teams.form.description')}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Brief team description"
+                      placeholder={lang === 'fr' ? "Brève description de l'équipe" : "Brief team description"}
                       className="resize-none"
                       maxLength={200}
                       {...field}
@@ -194,10 +205,10 @@ export const QuickTeamCreateDialog = ({
                 className="flex-1"
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('actions.cancel')}
               </Button>
               <Button type="submit" disabled={isSubmitting} className="flex-1">
-                {isSubmitting ? "Creating..." : "Create Team"}
+                {isSubmitting ? t('actions.loading') : t('teams.createTeam')}
               </Button>
             </div>
           </form>

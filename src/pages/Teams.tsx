@@ -19,14 +19,13 @@ import { AnimatedCard } from "@/components/animations/AnimatedCard";
 import { motion } from "framer-motion";
 import { FilterSheet } from "@/components/common/FilterSheet";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const SPORTS = ["All", "Football", "Basketball", "Tennis", "Running", "Cycling", "Swimming", "Other"];
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getActiveSports, getFeaturedSports, getRegularSports } from "@/lib/sports";
 
 const Teams = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [myTeams, setMyTeams] = useState<Team[]>([]);
   const [publicTeams, setPublicTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
@@ -178,7 +177,7 @@ const Teams = () => {
               onApply={() => {}}
               onReset={() => setActiveSport("All")}
             >
-              <div className="space-y-4">
+                <div className="space-y-4">
                 <div>
                   <Label className="text-sm font-medium mb-3 block">{t('teams.filters.sport')}</Label>
                   <Select value={activeSport} onValueChange={setActiveSport}>
@@ -186,9 +185,23 @@ const Teams = () => {
                       <SelectValue placeholder={t('teams.form.sportPlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
-                      {SPORTS.map((sport) => (
-                        <SelectItem key={sport} value={sport}>{sport}</SelectItem>
-                      ))}
+                      <SelectItem value="All">{i18n.language?.startsWith('fr') ? 'Tous' : 'All'}</SelectItem>
+                      <SelectGroup>
+                        <SelectLabel>{i18n.language?.startsWith('fr') ? '⭐ Populaires' : '⭐ Popular'}</SelectLabel>
+                        {getFeaturedSports().map((sport) => (
+                          <SelectItem key={sport.id} value={sport.id}>
+                            {sport.emoji} {sport.label[i18n.language?.startsWith('fr') ? 'fr' : 'en']}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                      <SelectGroup>
+                        <SelectLabel>{i18n.language?.startsWith('fr') ? 'Autres' : 'Others'}</SelectLabel>
+                        {getRegularSports().map((sport) => (
+                          <SelectItem key={sport.id} value={sport.id}>
+                            {sport.emoji} {sport.label[i18n.language?.startsWith('fr') ? 'fr' : 'en']}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
                 </div>

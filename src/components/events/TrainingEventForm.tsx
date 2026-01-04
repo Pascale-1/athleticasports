@@ -1,4 +1,5 @@
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -11,11 +12,13 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CreateEventData } from "@/hooks/useEvents";
+import { DistrictSelector } from "@/components/location/DistrictSelector";
+import { getDistrictLabel } from "@/lib/parisDistricts";
+import { useState } from "react";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(100),
   description: z.string().max(500).optional(),
-  location: z.string().max(200).optional(),
   date: z.date({ required_error: "Date is required" }),
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "End time is required"),
@@ -32,12 +35,15 @@ interface TrainingEventFormProps {
 }
 
 export const TrainingEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: TrainingEventFormProps) => {
+  const { i18n, t } = useTranslation();
+  const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
+  const [location, setLocation] = useState<{ district: string; venueName?: string }>({ district: '', venueName: '' });
+  
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       description: "",
-      location: "",
       startTime: "18:00",
       endTime: "20:00",
     },
@@ -52,13 +58,17 @@ export const TrainingEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: 
     const [endHour, endMinute] = values.endTime.split(':');
     endDateTime.setHours(parseInt(endHour), parseInt(endMinute));
 
+    const locationString = location.district 
+      ? `${getDistrictLabel(location.district, lang)}${location.venueName ? ` - ${location.venueName}` : ''}`
+      : undefined;
+
     onSubmit({
       team_id: teamId || null,
       type: 'training',
       title: values.title,
       description: values.description || undefined,
-      location: values.location || undefined,
-      location_type: values.location ? 'physical' : 'tbd',
+      location: locationString,
+      location_type: locationString ? 'physical' : 'tbd',
       start_time: startDateTime.toISOString(),
       end_time: endDateTime.toISOString(),
       max_participants: values.maxParticipants ? parseInt(values.maxParticipants) : undefined,
@@ -74,9 +84,9 @@ export const TrainingEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: 
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Training Title</FormLabel>
+              <FormLabel>{lang === 'fr' ? "Titre de l'entraînement" : 'Training Title'}</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Tuesday Practice Session" {...field} />
+                <Input placeholder={lang === 'fr' ? 'ex: Entraînement du mardi' : 'e.g., Tuesday Practice Session'} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -88,10 +98,10 @@ export const TrainingEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: 
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description (Optional)</FormLabel>
+              <FormLabel>{lang === 'fr' ? 'Description (optionnel)' : 'Description (Optional)'}</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="What will you be working on?" 
+                  placeholder={lang === 'fr' ? 'Sur quoi allez-vous travailler ?' : 'What will you be working on?'} 
                   className="resize-none" 
                   {...field} 
                 />
@@ -106,7 +116,7 @@ export const TrainingEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: 
           name="date"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>Date</FormLabel>
+              <FormLabel>{lang === 'fr' ? 'Date' : 'Date'}</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -117,7 +127,7 @@ export const TrainingEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: 
                         !field.value && "text-muted-foreground"
                       )}
                     >
-                      {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                      {field.value ? format(field.value, "PPP") : <span>{lang === 'fr' ? 'Choisir une date' : 'Pick a date'}</span>}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </FormControl>
@@ -144,7 +154,7 @@ export const TrainingEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: 
             name="startTime"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Start Time</FormLabel>
+                <FormLabel>{lang === 'fr' ? 'Heure de début' : 'Start Time'}</FormLabel>
                 <FormControl>
                   <Input type="time" {...field} />
                 </FormControl>
@@ -158,7 +168,7 @@ export const TrainingEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: 
             name="endTime"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>End Time</FormLabel>
+                <FormLabel>{lang === 'fr' ? 'Heure de fin' : 'End Time'}</FormLabel>
                 <FormControl>
                   <Input type="time" {...field} />
                 </FormControl>
@@ -168,18 +178,13 @@ export const TrainingEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: 
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="location"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Location (Optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., Main Field, Gym A" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        {/* Location - District Selector */}
+        <DistrictSelector
+          value={location}
+          onChange={setLocation}
+          label={lang === 'fr' ? 'Lieu (optionnel)' : 'Location (Optional)'}
+          venueLabel={lang === 'fr' ? 'Nom du lieu' : 'Venue name'}
+          venuePlaceholder={lang === 'fr' ? 'ex: Gymnase A, Terrain principal' : 'e.g., Main Field, Gym A'}
         />
 
         <FormField
@@ -187,9 +192,9 @@ export const TrainingEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: 
           name="maxParticipants"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Max Participants (Optional)</FormLabel>
+              <FormLabel>{lang === 'fr' ? 'Nombre max de participants (optionnel)' : 'Max Participants (Optional)'}</FormLabel>
               <FormControl>
-                <Input type="number" min="1" placeholder="No limit" {...field} />
+                <Input type="number" min="1" placeholder={lang === 'fr' ? 'Illimité' : 'No limit'} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -198,10 +203,10 @@ export const TrainingEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: 
 
         <div className="flex gap-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
-            Cancel
+            {t('actions.cancel')}
           </Button>
           <Button type="submit" disabled={isSubmitting} className="flex-1">
-            {isSubmitting ? "Creating..." : "Create Training"}
+            {isSubmitting ? t('actions.loading') : (lang === 'fr' ? "Créer l'entraînement" : 'Create Training')}
           </Button>
         </div>
       </form>
