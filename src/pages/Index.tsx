@@ -215,7 +215,7 @@ const Index = () => {
                 >
                   <Swords className="h-4 w-4 text-primary" />
                   <p className="text-body-large font-bold">{stats.upcomingMatches}</p>
-                  <p className="text-caption text-muted-foreground">{t('home.matches')}</p>
+                  <p className="text-caption text-muted-foreground">{t('home.games')}</p>
                 </button>
                 <button
                   onClick={() => navigate("/settings")}
@@ -247,7 +247,7 @@ const Index = () => {
                 onClick={() => setFindMatchSheetOpen(true)}
               >
                 <Search className="h-5 w-5 text-primary" />
-                <span className="text-xs font-medium text-center">{t('home.findMatch')}</span>
+                <span className="text-xs font-medium text-center">{t('home.findGame')}</span>
               </Button>
               
               <Button 
@@ -268,7 +268,7 @@ const Index = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Swords className="h-5 w-5 text-primary" />
-                  <h2 className="text-heading-3 font-semibold">{t('home.matches')}</h2>
+                  <h2 className="text-heading-3 font-semibold">{t('home.games')}</h2>
                 </div>
                 <Button 
                   variant="ghost" 
@@ -348,12 +348,12 @@ const Index = () => {
               ) : !pendingProposals.length && !availability ? (
                 <div className="text-center py-6">
                   <Swords className="h-10 w-10 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground mb-3">{t('home.noUpcomingMatches')}</p>
+                  <p className="text-sm text-muted-foreground mb-3">{t('home.noUpcomingGames')}</p>
                   <Button 
                     size="sm"
                     onClick={() => setCreateMatchSheetOpen(true)}
                   >
-                    {t('home.createMatch')}
+                    {t('home.createGame')}
                   </Button>
                 </div>
               ) : null}
