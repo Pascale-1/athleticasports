@@ -47,7 +47,9 @@
     "notAttending": "Not Attending",
     "pass": "Pass",
     "committed": "Committed",
-    "count": "{{count}} going"
+    "count": "{{count}} going",
+    "countWithMax": "{{count}}/{{max}} going",
+    "full": "Full"
   },
   "form": {
     "title": "Title",

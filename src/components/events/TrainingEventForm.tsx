@@ -22,7 +22,7 @@ const formSchema = z.object({
   date: z.date({ required_error: "Date is required" }),
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "End time is required"),
-  maxParticipants: z.string().optional(),
+  maxParticipants: z.string().min(1, "Number of participants is required"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -192,9 +192,9 @@ export const TrainingEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: 
           name="maxParticipants"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{lang === 'fr' ? 'Nombre max de participants (optionnel)' : 'Max Participants (Optional)'}</FormLabel>
+              <FormLabel>{lang === 'fr' ? 'Nombre de participants' : 'Number of Participants'}</FormLabel>
               <FormControl>
-                <Input type="number" min="1" placeholder={lang === 'fr' ? 'Illimité' : 'No limit'} {...field} />
+                <Input type="number" min="1" placeholder={lang === 'fr' ? 'ex: 10' : 'e.g., 10'} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

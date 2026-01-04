@@ -47,7 +47,9 @@
     "notAttending": "Ne participent pas",
     "pass": "Passe",
     "committed": "Engagé",
-    "count": "{{count}} inscrit(s)"
+    "count": "{{count}} inscrit(s)",
+    "countWithMax": "{{count}}/{{max}} inscrits",
+    "full": "Complet"
   },
   "form": {
     "title": "Titre",
