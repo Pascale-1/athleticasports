@@ -64,5 +64,10 @@
     "title": "Invite Participants",
     "shareLink": "Share Link",
     "linkCopied": "Link copied!"
+  },
+  "edit": {
+    "title": "Edit Event",
+    "success": "Event updated!",
+    "error": "Failed to update event"
   }
 }

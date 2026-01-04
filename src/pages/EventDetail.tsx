@@ -1,10 +1,12 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EventInviteLink } from "@/components/events/EventInviteLink";
 import { EventRSVPBar } from "@/components/events/EventRSVPBar";
 import { EventAttendees } from "@/components/events/EventAttendees";
+import { EditEventDialog } from "@/components/events/EditEventDialog";
 import { 
   ArrowLeft, 
   Calendar, 
@@ -13,6 +15,7 @@ import {
   Users, 
   Trophy,
   Trash2,
+  Pencil,
   ExternalLink,
   Home,
   Shield,
@@ -51,14 +54,16 @@ import {
 const EventDetail = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation('events');
   const { toast } = useToast();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [canEdit, setCanEdit] = useState(false);
   const [teamName, setTeamName] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
 
-  const { events, loading, deleteEvent } = useEvents();
+  const { events, loading, deleteEvent, updateEvent } = useEvents();
   const event = events.find(e => e.id === eventId);
   const { stats, attendees, userStatus, isCommitted, updateAttendance, removeAttendance, loading: attendanceLoading } = useEventAttendance(eventId || '');
 
@@ -185,9 +190,14 @@ const EventDetail = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
+                    <Pencil className="h-4 w-4 mr-2" />
+                    {t('edit.title')}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => setShowDeleteDialog(true)} className="text-destructive">
                     <Trash2 className="h-4 w-4 mr-2" />
-                    Delete Event
+                    {t('common:actions.delete')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -350,19 +360,29 @@ const EventDetail = () => {
         loading={attendanceLoading}
       />
 
+      {/* Edit Event Dialog */}
+      {event && (
+        <EditEventDialog
+          open={showEditDialog}
+          onOpenChange={setShowEditDialog}
+          event={event}
+          onUpdate={updateEvent}
+        />
+      )}
+
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Event</AlertDialogTitle>
+            <AlertDialogTitle>{t('common:actions.delete')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{event.title}"? This action cannot be undone.
+              {t('common:confirm.deleteMessage', { name: event.title })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+              {t('common:actions.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
