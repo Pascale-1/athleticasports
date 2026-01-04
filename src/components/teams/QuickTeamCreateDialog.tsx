@@ -118,10 +118,7 @@ export const QuickTeamCreateDialog = ({
         <DialogHeader>
           <DialogTitle>{t('teams.createTeam')}</DialogTitle>
           <DialogDescription>
-            {lang === 'fr' 
-              ? "Créez l'équipe adverse pour suivre les matchs et inviter des membres plus tard"
-              : "Create your opponent's team to track matches and invite members later"
-            }
+            {t('teams.quickCreate.description')}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

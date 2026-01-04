@@ -148,5 +148,21 @@
     "transferError": "Failed to transfer ownership",
     "nameError": "Team name doesn't match",
     "selectOwnerError": "Please select a new owner"
+  },
+  "quickCreate": {
+    "description": "Create your opponent's team to track games and invite members later"
+  },
+  "generateTeams": {
+    "title": "Generate Balanced Teams",
+    "description": "Create balanced practice teams based on player performance levels",
+    "playersAvailable": "{{count}} Players Available",
+    "activePlayers": "Active team members",
+    "numberOfTeams": "Number of Teams",
+    "teams": "{{count}} Teams",
+    "playersEach": "~{{count}} players each",
+    "smartBalancing": "Smart Balancing",
+    "balancingDescription": "Teams will be automatically balanced by average performance level to ensure fair practice games",
+    "generating": "Generating...",
+    "generate": "Generate Teams"
   }
 }

@@ -148,15 +148,15 @@
   "onboarding": {
     "welcome": {
       "title": "Welcome to Athletica!",
-      "description": "Find a match or create a team to start playing with others."
+      "description": "Find a game or create a team to start playing with others."
     },
     "events": {
       "title": "Your Events Hub",
-      "description": "This is where you'll find matches, training sessions, and meetups."
+      "description": "This is where you'll find games, training sessions, and meetups."
     },
     "teams": {
       "title": "Build Your Squad",
-      "description": "Join an existing team or create your own to organize matches."
+      "description": "Join an existing team or create your own to organize games."
     },
     "teamMembers": {
       "title": "Grow Your Team",

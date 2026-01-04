@@ -148,15 +148,15 @@
   "onboarding": {
     "welcome": {
       "title": "Bienvenue sur Athletica !",
-      "description": "Trouve un match ou crée une équipe pour commencer à jouer."
+      "description": "Trouve une partie ou crée une équipe pour commencer à jouer."
     },
     "events": {
       "title": "Tes événements",
-      "description": "Ici tu trouveras tes matchs, entraînements et rencontres."
+      "description": "Ici tu trouveras tes parties, entraînements et rencontres."
     },
     "teams": {
       "title": "Construis ton équipe",
-      "description": "Rejoins une équipe existante ou crée la tienne pour organiser des matchs."
+      "description": "Rejoins une équipe existante ou crée la tienne pour organiser des parties."
     },
     "teamMembers": {
       "title": "Agrandis ton équipe",
