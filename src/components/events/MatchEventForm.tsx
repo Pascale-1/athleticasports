@@ -32,6 +32,7 @@ const formSchema = z.object({
   date: z.date({ required_error: "Date is required" }),
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "End time is required"),
+  maxParticipants: z.string().min(1, "Number of participants is required"),
 }).refine(
   (data) => data.opponentTeamId || data.opponentName,
   { 
@@ -74,6 +75,7 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
       description: "",
       startTime: "15:00",
       endTime: "17:00",
+      maxParticipants: "",
     },
   });
 
@@ -104,6 +106,7 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
       location_type: locationString ? 'physical' : 'tbd',
       start_time: startDateTime.toISOString(),
       end_time: endDateTime.toISOString(),
+      max_participants: parseInt(values.maxParticipants),
       is_public: !homeTeamId,
     });
   };
@@ -363,6 +366,20 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
           label={lang === 'fr' ? 'Stade/Terrain (optionnel)' : 'Venue (Optional)'}
           venueLabel={lang === 'fr' ? 'Nom du stade' : 'Stadium name'}
           venuePlaceholder={lang === 'fr' ? 'ex: Stade Central' : 'e.g., Central Stadium'}
+        />
+
+        <FormField
+          control={form.control}
+          name="maxParticipants"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{lang === 'fr' ? 'Nombre de joueurs' : 'Number of Players'}</FormLabel>
+              <FormControl>
+                <Input type="number" min="1" placeholder={lang === 'fr' ? 'ex: 22' : 'e.g., 22'} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
 
         <div className="flex gap-2 pt-4">

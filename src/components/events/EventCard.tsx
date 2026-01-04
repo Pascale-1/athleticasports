@@ -190,10 +190,23 @@ export const EventCard = memo(({
             )}
           </div>
 
-          {/* Row 3: Attendee count + Looking for players (shown on hover or always if active) */}
+          {/* Row 3: Attendee count vs capacity + Looking for players */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Users className="h-3.5 w-3.5" />
-            <span>{t('rsvp.count', { count: attendeeCount })}</span>
+            {event.max_participants ? (
+              <>
+                <span className={attendeeCount >= event.max_participants ? 'text-amber-600 font-medium' : ''}>
+                  {t('rsvp.countWithMax', { count: attendeeCount, max: event.max_participants })}
+                </span>
+                {attendeeCount >= event.max_participants && (
+                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-5 bg-amber-100 text-amber-700 border-0">
+                    {t('rsvp.full')}
+                  </Badge>
+                )}
+              </>
+            ) : (
+              <span>{t('rsvp.count', { count: attendeeCount })}</span>
+            )}
             
             {event.looking_for_players && (isHovered || event.players_needed) && (
               <Badge 
