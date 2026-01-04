@@ -1,11 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { EventInviteLink } from "@/components/events/EventInviteLink";
+import { EventRSVPBar } from "@/components/events/EventRSVPBar";
+import { EventAttendees } from "@/components/events/EventAttendees";
 import { 
   ArrowLeft, 
   Calendar, 
@@ -13,24 +12,41 @@ import {
   MapPin, 
   Users, 
   Trophy,
-  Edit,
   Trash2,
-  CheckCircle2,
-  XCircle,
-  HelpCircle,
   ExternalLink,
   Home,
-  Shield
+  Shield,
+  MoreVertical,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { useEventAttendance } from "@/hooks/useEventAttendance";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { formatEventDate, formatEventDateRange, getEventStatus } from "@/lib/events";
+import { format, isSameDay } from "date-fns";
 import { EVENT_CONFIG } from "@/lib/eventConfig";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const EventDetail = () => {
   const { eventId } = useParams();
@@ -39,6 +55,8 @@ const EventDetail = () => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [canEdit, setCanEdit] = useState(false);
   const [teamName, setTeamName] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
 
   const { events, loading, deleteEvent } = useEvents();
   const event = events.find(e => e.id === eventId);
@@ -54,12 +72,10 @@ const EventDetail = () => {
 
   useEffect(() => {
     if (event && currentUserId) {
-      // Check if user can edit (creator or team admin)
       const isCreator = event.created_by === currentUserId;
       if (isCreator) {
         setCanEdit(true);
       } else if (event.team_id) {
-        // Check if user is team admin
         supabase.rpc('can_manage_team', { 
           _user_id: currentUserId, 
           _team_id: event.team_id 
@@ -84,8 +100,7 @@ const EventDetail = () => {
   }, [event?.team_id]);
 
   const handleDelete = async () => {
-    if (!eventId || !confirm('Are you sure you want to delete this event?')) return;
-    
+    if (!eventId) return;
     await deleteEvent(eventId);
     navigate('/events');
   };
@@ -124,313 +139,234 @@ const EventDetail = () => {
 
   const eventConfig = EVENT_CONFIG[event.type];
   const EventIcon = eventConfig.icon;
-  const status = getEventStatus(event);
+  const startDate = new Date(event.start_time);
+  const endDate = new Date(event.end_time);
+  const now = new Date();
+  const isPast = endDate < now;
+  const isOngoing = startDate <= now && endDate >= now;
+
+  // Format date/time
+  const dateStr = format(startDate, "EEEE, MMMM d, yyyy");
+  const timeStr = isSameDay(startDate, endDate)
+    ? `${format(startDate, "h:mm a")} - ${format(endDate, "h:mm a")}`
+    : `${format(startDate, "MMM d, h:mm a")} - ${format(endDate, "MMM d, h:mm a")}`;
+
+  // Check if description needs truncation
+  const descriptionLength = event.description?.length || 0;
+  const shouldTruncateDescription = descriptionLength > 150;
 
   return (
-    <PageContainer>
+    <PageContainer className="pb-24 md:pb-8">
       <motion.div 
-        className="space-y-6 pb-8"
+        className="space-y-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => navigate(-1)}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          
-          {canEdit && (
+        {/* Hero Header */}
+        <div className="relative -mx-4 -mt-4 px-4 pt-4 pb-6" style={{ backgroundColor: eventConfig.bgColor }}>
+          {/* Top bar */}
+          <div className="flex items-center justify-between mb-4">
             <Button 
-              variant="destructive" 
-              size="sm"
-              onClick={handleDelete}
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate(-1)}
+              className="h-9 -ml-2"
             >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Back
             </Button>
+            
+            {canEdit && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-9 w-9">
+                    <MoreVertical className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setShowDeleteDialog(true)} className="text-destructive">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Event
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+
+          {/* Event type + status */}
+          <div className="flex items-center gap-2 mb-3">
+            <Badge 
+              variant="secondary"
+              className={cn("text-sm", eventConfig.color)}
+              style={{ backgroundColor: eventConfig.bgColor }}
+            >
+              <EventIcon className="h-3.5 w-3.5 mr-1" />
+              {eventConfig.label}
+            </Badge>
+            {isPast && <Badge variant="outline" className="bg-background/50">Past</Badge>}
+            {isOngoing && <Badge variant="default">Happening Now</Badge>}
+            {event.is_public && <Badge variant="outline" className="bg-background/50">Public</Badge>}
+          </div>
+
+          {/* Title */}
+          <h1 className="text-h1 font-heading font-bold mb-2">{event.title}</h1>
+
+          {/* Date & Time prominent */}
+          <div className="flex items-center gap-2 text-sm">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <span>{dateStr}</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm mt-1">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <span>{timeStr}</span>
+          </div>
+
+          {/* Team badge */}
+          {teamName && (
+            <Badge variant="outline" className="mt-3 bg-background/50">
+              {teamName}
+            </Badge>
           )}
         </div>
 
-        {/* Main Event Card */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 space-y-3">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Badge 
-                    variant="secondary"
-                    className={eventConfig.color}
+        {/* Details Section */}
+        <div className="space-y-4">
+          {/* Location */}
+          {event.location && (
+            <div className="flex items-start gap-3">
+              <MapPin className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm">{event.location}</p>
+                {event.location_url && (
+                  <a 
+                    href={event.location_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline inline-flex items-center gap-1 mt-0.5"
                   >
-                    <EventIcon className="h-3 w-3 mr-1" />
-                    {eventConfig.label}
-                  </Badge>
-                  <Badge variant={status === 'upcoming' ? 'default' : status === 'ongoing' ? 'secondary' : 'outline'}>
-                    {status}
-                  </Badge>
-                  {event.is_public && <Badge variant="outline">Public</Badge>}
-                  {teamName && <Badge variant="outline">{teamName}</Badge>}
-                </div>
-                
-                <CardTitle className="text-2xl">{event.title}</CardTitle>
+                    View Map <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
               </div>
             </div>
-          </CardHeader>
-          
-          <CardContent className="space-y-6">
-            {/* Description */}
-            {event.description && (
-              <div>
-                <p className="text-muted-foreground whitespace-pre-wrap">{event.description}</p>
-              </div>
-            )}
+          )}
 
-            <Separator />
+          {/* Capacity */}
+          {event.max_participants && (
+            <div className="flex items-center gap-3">
+              <Users className="h-5 w-5 text-muted-foreground shrink-0" />
+              <p className="text-sm">
+                {stats.attending} / {event.max_participants} spots filled
+              </p>
+            </div>
+          )}
 
-            {/* Event Details */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="flex items-start gap-3">
-                <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="font-medium">Date & Time</p>
-                  <p className="text-sm text-muted-foreground">
-                    {formatEventDateRange(event.start_time, event.end_time)}
-                  </p>
-                </div>
-              </div>
-
-              {event.location && (
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="font-medium">Location</p>
-                    <p className="text-sm text-muted-foreground">{event.location}</p>
-                    {event.location_url && (
-                      <a 
-                        href={event.location_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-sm text-primary hover:underline inline-flex items-center gap-1 mt-1"
-                      >
-                        View Map <ExternalLink className="h-3 w-3" />
-                      </a>
-                    )}
-                  </div>
+          {/* Match-specific: Opponent, Venue, Format */}
+          {event.type === 'match' && (
+            <>
+              {event.opponent_name && (
+                <div className="flex items-center gap-3">
+                  <Shield className="h-5 w-5 text-muted-foreground shrink-0" />
+                  <p className="text-sm">vs {event.opponent_name}</p>
                 </div>
               )}
-
-              {event.max_participants && (
-                <div className="flex items-start gap-3">
-                  <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="font-medium">Capacity</p>
-                    <p className="text-sm text-muted-foreground">
-                      {stats.attending} / {event.max_participants} participants
-                    </p>
-                  </div>
+              {event.home_away && (
+                <div className="flex items-center gap-3">
+                  <Home className="h-5 w-5 text-muted-foreground shrink-0" />
+                  <p className="text-sm capitalize">{event.home_away} game</p>
                 </div>
+              )}
+              {event.match_format && (
+                <div className="flex items-center gap-3">
+                  <Trophy className="h-5 w-5 text-muted-foreground shrink-0" />
+                  <p className="text-sm">{event.match_format}</p>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Meetup category */}
+          {event.type === 'meetup' && event.meetup_category && (
+            <div className="flex items-center gap-3">
+              <Users className="h-5 w-5 text-muted-foreground shrink-0" />
+              <p className="text-sm capitalize">{event.meetup_category.replace('_', ' ')}</p>
+            </div>
+          )}
+
+          {/* Description */}
+          {event.description && (
+            <div className="pt-2">
+              <p className={cn(
+                "text-sm text-muted-foreground whitespace-pre-wrap",
+                !descriptionExpanded && shouldTruncateDescription && "line-clamp-3"
+              )}>
+                {event.description}
+              </p>
+              {shouldTruncateDescription && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 px-0 text-primary"
+                  onClick={() => setDescriptionExpanded(!descriptionExpanded)}
+                >
+                  {descriptionExpanded ? (
+                    <>Show less <ChevronUp className="h-4 w-4 ml-1" /></>
+                  ) : (
+                    <>Read more <ChevronDown className="h-4 w-4 ml-1" /></>
+                  )}
+                </Button>
               )}
             </div>
+          )}
+        </div>
 
-            {/* Match-specific details */}
-            {event.type === 'match' && (
-              <>
-                <Separator />
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {event.opponent_name && (
-                    <div className="flex items-start gap-3">
-                      <Shield className="h-5 w-5 text-muted-foreground mt-0.5" />
-                      <div>
-                        <p className="font-medium">Opponent</p>
-                        <p className="text-sm text-muted-foreground">{event.opponent_name}</p>
-                      </div>
-                    </div>
-                  )}
-                  {event.home_away && (
-                    <div className="flex items-start gap-3">
-                      <Home className="h-5 w-5 text-muted-foreground mt-0.5" />
-                      <div>
-                        <p className="font-medium">Venue Type</p>
-                        <p className="text-sm text-muted-foreground capitalize">{event.home_away}</p>
-                      </div>
-                    </div>
-                  )}
-                  {event.match_format && (
-                    <div className="flex items-start gap-3">
-                      <Trophy className="h-5 w-5 text-muted-foreground mt-0.5" />
-                      <div>
-                        <p className="font-medium">Format</p>
-                        <p className="text-sm text-muted-foreground">{event.match_format}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-
-            {/* Meetup-specific details */}
-            {event.type === 'meetup' && event.meetup_category && (
-              <>
-                <Separator />
-                <div className="flex items-start gap-3">
-                  <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="font-medium">Category</p>
-                    <p className="text-sm text-muted-foreground capitalize">{event.meetup_category.replace('_', ' ')}</p>
-                  </div>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Share Event Section */}
+        {/* Share Section (Admin only) */}
         {canEdit && event.invite_code && (
-          <EventInviteLink
-            eventId={event.id}
-            inviteCode={event.invite_code}
-            allowPublicJoin={event.allow_public_join ?? true}
-            eventTitle={event.title}
-          />
+          <div className="border-t pt-4">
+            <EventInviteLink
+              eventId={event.id}
+              inviteCode={event.invite_code}
+              allowPublicJoin={event.allow_public_join ?? true}
+              eventTitle={event.title}
+            />
+          </div>
         )}
 
-        {/* Attendance Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>RSVP</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Commitment Warning */}
-            {isCommitted && (
-              <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                <p className="text-sm font-medium text-amber-600 flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4" />
-                  You are committed to this match
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Cancellations are not allowed for committed attendance.
-                </p>
-              </div>
-            )}
-
-            {/* Attendance Stats */}
-            <div className="grid grid-cols-3 gap-3">
-              <div className="text-center p-3 bg-success/10 rounded-lg">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <CheckCircle2 className="h-4 w-4 text-success" />
-                  <p className="font-semibold text-success">{stats.attending}</p>
-                </div>
-                <p className="text-xs text-muted-foreground">Attending</p>
-              </div>
-              <div className="text-center p-3 bg-warning/10 rounded-lg">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <HelpCircle className="h-4 w-4 text-warning" />
-                  <p className="font-semibold text-warning">{stats.maybe}</p>
-                </div>
-                <p className="text-xs text-muted-foreground">Maybe</p>
-              </div>
-              <div className="text-center p-3 bg-destructive/10 rounded-lg">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <XCircle className="h-4 w-4 text-destructive" />
-                  <p className="font-semibold text-destructive">{stats.not_attending}</p>
-                </div>
-                <p className="text-xs text-muted-foreground">Can't Go</p>
-              </div>
-            </div>
-
-            {/* RSVP Buttons - Hide if committed */}
-            {!isCommitted && (
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Button
-                  variant={userStatus === 'attending' ? 'default' : 'outline'}
-                  className="flex-1"
-                  onClick={() => userStatus === 'attending' ? handleRemoveAttendance() : handleAttendanceUpdate('attending')}
-                >
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  {userStatus === 'attending' ? 'Going' : 'I\'m Going'}
-                </Button>
-                <Button
-                  variant={userStatus === 'maybe' ? 'default' : 'outline'}
-                  className="flex-1"
-                  onClick={() => userStatus === 'maybe' ? handleRemoveAttendance() : handleAttendanceUpdate('maybe')}
-                >
-                  <HelpCircle className="h-4 w-4 mr-2" />
-                  {userStatus === 'maybe' ? 'Maybe' : 'Maybe'}
-                </Button>
-                <Button
-                  variant={userStatus === 'not_attending' ? 'destructive' : 'outline'}
-                  className="flex-1"
-                  onClick={() => userStatus === 'not_attending' ? handleRemoveAttendance() : handleAttendanceUpdate('not_attending')}
-                >
-                  <XCircle className="h-4 w-4 mr-2" />
-                  {userStatus === 'not_attending' ? 'Not Going' : 'Can\'t Go'}
-                </Button>
-              </div>
-            )}
-
-            {/* Attendees List */}
-            {attendees.length > 0 && (
-              <>
-                <Separator />
-                <div>
-                  <h4 className="font-medium mb-3">Attendees ({attendees.length})</h4>
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {attendees.map((attendee) => (
-                      <div 
-                        key={attendee.user_id}
-                        className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={attendee.profiles?.avatar_url || ''} />
-                            <AvatarFallback>
-                              {attendee.profiles?.display_name?.[0] || attendee.profiles?.username?.[0] || '?'}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="text-sm font-medium">
-                              {attendee.profiles?.display_name || attendee.profiles?.username || 'Unknown'}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {attendee.responded_at ? new Date(attendee.responded_at).toLocaleDateString() : ''}
-                            </p>
-                          </div>
-                        </div>
-                        <Badge 
-                          variant={
-                            attendee.status === 'attending' ? 'default' : 
-                            attendee.status === 'maybe' ? 'secondary' : 
-                            'outline'
-                          }
-                          className={`text-xs ${attendee.is_committed ? 'bg-amber-600 hover:bg-amber-600' : ''}`}
-                        >
-                          {attendee.is_committed ? (
-                            <>⭐ Committed</>
-                          ) : (
-                            <>
-                              {attendee.status === 'attending' && <CheckCircle2 className="h-3 w-3 mr-1" />}
-                              {attendee.status === 'maybe' && <HelpCircle className="h-3 w-3 mr-1" />}
-                              {attendee.status === 'not_attending' && <XCircle className="h-3 w-3 mr-1" />}
-                              {attendee.status === 'attending' ? 'Going' : 
-                               attendee.status === 'maybe' ? 'Maybe' : 
-                               'Can\'t Go'}
-                            </>
-                          )}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+        {/* Attendees Section */}
+        <div className="border-t pt-4">
+          <h2 className="text-base font-heading font-semibold mb-3">Who's Coming</h2>
+          <EventAttendees attendees={attendees} currentUserId={currentUserId} />
+        </div>
       </motion.div>
+
+      {/* Sticky RSVP Bar */}
+      <EventRSVPBar
+        userStatus={userStatus}
+        isCommitted={isCommitted}
+        stats={stats}
+        onUpdateAttendance={handleAttendanceUpdate}
+        onRemoveAttendance={handleRemoveAttendance}
+        loading={attendanceLoading}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Event</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{event.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </PageContainer>
   );
 };
