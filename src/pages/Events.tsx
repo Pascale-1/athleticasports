@@ -131,7 +131,7 @@ const Events = () => {
                         <span className="hidden sm:inline">{t(labelKey)}</span>
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" className="sm:hidden z-50">
+                    <TooltipContent side="bottom">
                       {t(labelKey)}
                     </TooltipContent>
                   </Tooltip>
