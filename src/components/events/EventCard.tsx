@@ -2,17 +2,18 @@ import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Users, Clock, Trophy, Coffee, UserCheck, UserX, HelpCircle } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Trophy, Coffee, UserCheck, UserX, HelpCircle, UserPlus } from "lucide-react";
 import { Event } from "@/lib/events";
 import { Link } from "react-router-dom";
 
 interface EventCardProps {
-  event: Event;
+  event: Event & { looking_for_players?: boolean; players_needed?: number | null };
   onAttendanceClick?: () => void;
   attendeeCount?: number;
   userStatus?: 'attending' | 'maybe' | 'not_attending' | null;
   showInlineRSVP?: boolean;
   onRSVPChange?: (status: 'attending' | 'maybe' | 'not_attending') => void;
+  isCommitted?: boolean;
 }
 
 export const EventCard = memo(({ 
@@ -21,7 +22,8 @@ export const EventCard = memo(({
   attendeeCount = 0,
   userStatus,
   showInlineRSVP = false,
-  onRSVPChange
+  onRSVPChange,
+  isCommitted = false
 }: EventCardProps) => {
   const getEventIcon = () => {
     switch (event.type) {
@@ -64,6 +66,14 @@ export const EventCard = memo(({
 
   const getStatusBadge = () => {
     if (!userStatus) return null;
+    
+    if (isCommitted && userStatus === 'attending') {
+      return (
+        <Badge className="bg-amber-600 text-white border-0 font-body font-medium">
+          ⭐ Committed
+        </Badge>
+      );
+    }
     
     const variants = {
       attending: { 
@@ -130,10 +140,18 @@ export const EventCard = memo(({
           )}
 
           <div className="flex items-center justify-between pt-2 border-t">
-            <span className="text-xs sm:text-sm font-body text-muted-foreground flex items-center gap-1.5">
-              <Users className="h-4 w-4" />
-              {attendeeCount} going
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs sm:text-sm font-body text-muted-foreground flex items-center gap-1.5">
+                <Users className="h-4 w-4" />
+                {attendeeCount} going
+              </span>
+              {event.looking_for_players && (
+                <Badge variant="outline" className="text-xs border-primary/50 text-primary">
+                  <UserPlus className="h-3 w-3 mr-1" />
+                  Looking for players
+                </Badge>
+              )}
+            </div>
 
             {showInlineRSVP && onRSVPChange && (
               <div className="flex gap-1.5">

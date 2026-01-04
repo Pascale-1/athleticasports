@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@supabase/supabase-js";
-import { Trophy, Users, TrendingUp, Calendar, Swords, UserPlus } from "lucide-react";
-import { CreateEventDialog } from "@/components/events/CreateEventDialog";
+import { Trophy, Users, TrendingUp, Swords, UserPlus, Search } from "lucide-react";
 import { ActivityCard } from "@/components/feed/ActivityCard";
 import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
@@ -16,6 +15,9 @@ import { AnimatedCard } from "@/components/animations/AnimatedCard";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { useEvents } from "@/hooks/useEvents";
+import { CreateMatchSheet } from "@/components/matching/CreateMatchSheet";
+import { FindMatchSheet } from "@/components/matching/FindMatchSheet";
+import { MyMatchStatus } from "@/components/matching/MyMatchStatus";
 
 interface Profile {
   id: string;
@@ -39,7 +41,8 @@ const Index = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState<Stats>({ teams: 0, upcomingMatches: 0, followers: 0 });
   const [loading, setLoading] = useState(true);
-  const [createEventDialogOpen, setCreateEventDialogOpen] = useState(false);
+  const [createMatchSheetOpen, setCreateMatchSheetOpen] = useState(false);
+  const [findMatchSheetOpen, setFindMatchSheetOpen] = useState(false);
   const { activities, loading: feedLoading, loadingMore, hasMore, loadMore } = useActivityFeed();
   
   // Fetch upcoming matches
@@ -217,7 +220,7 @@ const Index = () => {
               <Button 
                 variant="default"
                 className="flex flex-col items-center justify-center gap-2 h-auto py-4 px-2"
-                onClick={() => setCreateEventDialogOpen(true)}
+                onClick={() => setCreateMatchSheetOpen(true)}
               >
                 <Swords className="h-5 w-5" />
                 <span className="text-xs font-medium text-center">Create Match</span>
@@ -236,12 +239,17 @@ const Index = () => {
               <Button 
                 variant="outline"
                 className="flex flex-col items-center justify-center gap-2 h-auto py-4 px-2"
-                onClick={() => navigate("/events?type=match")}
+                onClick={() => setFindMatchSheetOpen(true)}
               >
-                <Calendar className="h-5 w-5 text-primary" />
+                <Search className="h-5 w-5 text-primary" />
                 <span className="text-xs font-medium text-center">Find Match</span>
               </Button>
             </div>
+          </AnimatedCard>
+
+          {/* Match Status Section */}
+          <AnimatedCard delay={0.25}>
+            <MyMatchStatus onFindMatchClick={() => setFindMatchSheetOpen(true)} />
           </AnimatedCard>
 
           {/* Upcoming Matches Section */}
@@ -306,7 +314,7 @@ const Index = () => {
                   <p className="text-sm text-muted-foreground mb-3">No upcoming matches</p>
                   <Button 
                     size="sm"
-                    onClick={() => setCreateEventDialogOpen(true)}
+                    onClick={() => setCreateMatchSheetOpen(true)}
                   >
                     Create a Match
                   </Button>
@@ -367,9 +375,14 @@ const Index = () => {
         </motion.div>
       </PullToRefresh>
 
-      <CreateEventDialog
-        open={createEventDialogOpen}
-        onOpenChange={setCreateEventDialogOpen}
+      <CreateMatchSheet
+        open={createMatchSheetOpen}
+        onOpenChange={setCreateMatchSheetOpen}
+      />
+      
+      <FindMatchSheet
+        open={findMatchSheetOpen}
+        onOpenChange={setFindMatchSheetOpen}
       />
     </PageContainer>
   );

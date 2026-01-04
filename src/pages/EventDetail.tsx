@@ -42,7 +42,7 @@ const EventDetail = () => {
 
   const { events, loading, deleteEvent } = useEvents();
   const event = events.find(e => e.id === eventId);
-  const { stats, attendees, userStatus, updateAttendance, removeAttendance, loading: attendanceLoading } = useEventAttendance(eventId || '');
+  const { stats, attendees, userStatus, isCommitted, updateAttendance, removeAttendance, loading: attendanceLoading } = useEventAttendance(eventId || '');
 
   useEffect(() => {
     const getUser = async () => {
@@ -305,6 +305,19 @@ const EventDetail = () => {
             <CardTitle>RSVP</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Commitment Warning */}
+            {isCommitted && (
+              <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <p className="text-sm font-medium text-amber-600 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4" />
+                  You are committed to this match
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Cancellations are not allowed for committed attendance.
+                </p>
+              </div>
+            )}
+
             {/* Attendance Stats */}
             <div className="grid grid-cols-3 gap-3">
               <div className="text-center p-3 bg-success/10 rounded-lg">
@@ -330,33 +343,35 @@ const EventDetail = () => {
               </div>
             </div>
 
-            {/* RSVP Buttons */}
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Button
-                variant={userStatus === 'attending' ? 'default' : 'outline'}
-                className="flex-1"
-                onClick={() => userStatus === 'attending' ? handleRemoveAttendance() : handleAttendanceUpdate('attending')}
-              >
-                <CheckCircle2 className="h-4 w-4 mr-2" />
-                {userStatus === 'attending' ? 'Going' : 'I\'m Going'}
-              </Button>
-              <Button
-                variant={userStatus === 'maybe' ? 'default' : 'outline'}
-                className="flex-1"
-                onClick={() => userStatus === 'maybe' ? handleRemoveAttendance() : handleAttendanceUpdate('maybe')}
-              >
-                <HelpCircle className="h-4 w-4 mr-2" />
-                {userStatus === 'maybe' ? 'Maybe' : 'Maybe'}
-              </Button>
-              <Button
-                variant={userStatus === 'not_attending' ? 'destructive' : 'outline'}
-                className="flex-1"
-                onClick={() => userStatus === 'not_attending' ? handleRemoveAttendance() : handleAttendanceUpdate('not_attending')}
-              >
-                <XCircle className="h-4 w-4 mr-2" />
-                {userStatus === 'not_attending' ? 'Not Going' : 'Can\'t Go'}
-              </Button>
-            </div>
+            {/* RSVP Buttons - Hide if committed */}
+            {!isCommitted && (
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button
+                  variant={userStatus === 'attending' ? 'default' : 'outline'}
+                  className="flex-1"
+                  onClick={() => userStatus === 'attending' ? handleRemoveAttendance() : handleAttendanceUpdate('attending')}
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  {userStatus === 'attending' ? 'Going' : 'I\'m Going'}
+                </Button>
+                <Button
+                  variant={userStatus === 'maybe' ? 'default' : 'outline'}
+                  className="flex-1"
+                  onClick={() => userStatus === 'maybe' ? handleRemoveAttendance() : handleAttendanceUpdate('maybe')}
+                >
+                  <HelpCircle className="h-4 w-4 mr-2" />
+                  {userStatus === 'maybe' ? 'Maybe' : 'Maybe'}
+                </Button>
+                <Button
+                  variant={userStatus === 'not_attending' ? 'destructive' : 'outline'}
+                  className="flex-1"
+                  onClick={() => userStatus === 'not_attending' ? handleRemoveAttendance() : handleAttendanceUpdate('not_attending')}
+                >
+                  <XCircle className="h-4 w-4 mr-2" />
+                  {userStatus === 'not_attending' ? 'Not Going' : 'Can\'t Go'}
+                </Button>
+              </div>
+            )}
 
             {/* Attendees List */}
             {attendees.length > 0 && (
@@ -392,14 +407,20 @@ const EventDetail = () => {
                             attendee.status === 'maybe' ? 'secondary' : 
                             'outline'
                           }
-                          className="text-xs"
+                          className={`text-xs ${attendee.is_committed ? 'bg-amber-600 hover:bg-amber-600' : ''}`}
                         >
-                          {attendee.status === 'attending' && <CheckCircle2 className="h-3 w-3 mr-1" />}
-                          {attendee.status === 'maybe' && <HelpCircle className="h-3 w-3 mr-1" />}
-                          {attendee.status === 'not_attending' && <XCircle className="h-3 w-3 mr-1" />}
-                          {attendee.status === 'attending' ? 'Going' : 
-                           attendee.status === 'maybe' ? 'Maybe' : 
-                           'Can\'t Go'}
+                          {attendee.is_committed ? (
+                            <>⭐ Committed</>
+                          ) : (
+                            <>
+                              {attendee.status === 'attending' && <CheckCircle2 className="h-3 w-3 mr-1" />}
+                              {attendee.status === 'maybe' && <HelpCircle className="h-3 w-3 mr-1" />}
+                              {attendee.status === 'not_attending' && <XCircle className="h-3 w-3 mr-1" />}
+                              {attendee.status === 'attending' ? 'Going' : 
+                               attendee.status === 'maybe' ? 'Maybe' : 
+                               'Can\'t Go'}
+                            </>
+                          )}
                         </Badge>
                       </div>
                     ))}
