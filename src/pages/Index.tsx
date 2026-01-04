@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,6 +21,7 @@ import { FindMatchSheet } from "@/components/matching/FindMatchSheet";
 import { usePlayerAvailability } from "@/hooks/usePlayerAvailability";
 import { useMatchProposals } from "@/hooks/useMatchProposals";
 import { MatchProposalCard } from "@/components/matching/MatchProposalCard";
+import { formatDateTimeShort } from "@/lib/dateUtils";
 
 interface Profile {
   id: string;
@@ -39,6 +41,7 @@ interface Stats {
 
 const Index = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState<Stats>({ teams: 0, upcomingMatches: 0, followers: 0 });
@@ -150,12 +153,12 @@ const Index = () => {
       <PageContainer>
         <Card className="max-w-md mx-auto p-6 text-center space-y-4">
           <Trophy className="h-12 w-12 mx-auto text-primary" />
-          <h2 className="text-xl font-bold">Complete Your Profile</h2>
+          <h2 className="text-xl font-bold">{t('home.completeProfile')}</h2>
           <p className="text-muted-foreground text-sm">
-            Set up your athlete profile to get started and connect with the community.
+            {t('home.completeProfileDesc')}
           </p>
           <Button onClick={() => navigate("/settings")} className="w-full">
-            Create Profile
+            {t('home.createProfile')}
           </Button>
         </Card>
       </PageContainer>
@@ -183,9 +186,9 @@ const Index = () => {
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <h1 className="text-heading-2 font-bold break-words max-w-full">
-                    Welcome back, {profile.display_name || profile.username}!
+                    {t('home.welcome', { name: profile.display_name || profile.username })}
                   </h1>
-                  <p className="text-body text-muted-foreground">Ready to find your next match?</p>
+                  <p className="text-body text-muted-foreground">{t('home.readyToPlay')}</p>
                 </div>
               </div>
 
@@ -197,7 +200,7 @@ const Index = () => {
                 >
                   <Users className="h-4 w-4 text-primary" />
                   <p className="text-body-large font-bold">{stats.teams}</p>
-                  <p className="text-caption text-muted-foreground">Teams</p>
+                  <p className="text-caption text-muted-foreground">{t('home.teams')}</p>
                 </button>
                 <button
                   onClick={() => navigate("/events?type=match")}
@@ -205,7 +208,7 @@ const Index = () => {
                 >
                   <Swords className="h-4 w-4 text-primary" />
                   <p className="text-body-large font-bold">{stats.upcomingMatches}</p>
-                  <p className="text-caption text-muted-foreground">Matches</p>
+                  <p className="text-caption text-muted-foreground">{t('home.matches')}</p>
                 </button>
                 <button
                   onClick={() => navigate("/settings")}
@@ -213,7 +216,7 @@ const Index = () => {
                 >
                   <TrendingUp className="h-4 w-4 text-primary" />
                   <p className="text-body-large font-bold">{stats.followers}</p>
-                  <p className="text-caption text-muted-foreground">Followers</p>
+                  <p className="text-caption text-muted-foreground">{t('home.followers')}</p>
                 </button>
               </div>
             </Card>
@@ -228,7 +231,7 @@ const Index = () => {
                 onClick={() => setFindMatchSheetOpen(true)}
               >
                 <Search className="h-5 w-5 text-primary" />
-                <span className="text-xs font-medium text-center">Find Match</span>
+                <span className="text-xs font-medium text-center">{t('home.findMatch')}</span>
               </Button>
               
               <Button 
@@ -238,7 +241,7 @@ const Index = () => {
                 onClick={() => navigate("/teams/create")}
               >
                 <Users className="h-5 w-5 text-primary" />
-                <span className="text-xs font-medium text-center">Create Team</span>
+                <span className="text-xs font-medium text-center">{t('home.createTeam')}</span>
               </Button>
             </div>
           </AnimatedCard>
@@ -249,7 +252,7 @@ const Index = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Swords className="h-5 w-5 text-primary" />
-                  <h2 className="text-heading-3 font-semibold">Matches</h2>
+                  <h2 className="text-heading-3 font-semibold">{t('home.matches')}</h2>
                 </div>
                 <Button 
                   variant="ghost" 
@@ -257,7 +260,7 @@ const Index = () => {
                   className="text-primary min-h-[44px]"
                   onClick={() => navigate("/events?type=match")}
                 >
-                  View All
+                  {t('actions.viewAll')}
                 </Button>
               </div>
               
@@ -285,10 +288,10 @@ const Index = () => {
                 <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm">
                   <div className="flex items-center gap-2">
                     <Search className="h-4 w-4 text-primary" />
-                    <span className="font-medium">Looking for {availability.sport} matches</span>
+                    <span className="font-medium">{t('home.lookingFor', { sport: availability.sport })}</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {availability.location || 'Any location'}
+                    {availability.location || t('home.anyLocation')}
                   </p>
                 </div>
               )}
@@ -314,19 +317,13 @@ const Index = () => {
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm truncate">{match.title}</p>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(match.start_time).toLocaleDateString(undefined, {
-                            weekday: 'short',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: 'numeric',
-                            minute: '2-digit'
-                          })}
+                          {formatDateTimeShort(match.start_time)}
                         </p>
                       </div>
                       {match.max_participants && (
                         <Badge variant="secondary" className="flex-shrink-0">
                           <UserPlus className="h-3 w-3 mr-1" />
-                          Open
+                          {t('home.open')}
                         </Badge>
                       )}
                     </div>
@@ -335,12 +332,12 @@ const Index = () => {
               ) : !pendingProposals.length && !availability ? (
                 <div className="text-center py-6">
                   <Swords className="h-10 w-10 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground mb-3">No upcoming matches</p>
+                  <p className="text-sm text-muted-foreground mb-3">{t('home.noUpcomingMatches')}</p>
                   <Button 
                     size="sm"
                     onClick={() => setCreateMatchSheetOpen(true)}
                   >
-                    Create a Match
+                    {t('home.createMatch')}
                   </Button>
                 </div>
               ) : null}
@@ -354,7 +351,7 @@ const Index = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <h2 className="text-heading-3 font-semibold">Activity Feed</h2>
+            <h2 className="text-heading-3 font-semibold">{t('home.activityFeed')}</h2>
 
             {feedLoading ? (
               <FeedSkeleton />
@@ -373,7 +370,7 @@ const Index = () => {
                       disabled={loadingMore}
                       className="min-h-[44px]"
                     >
-                      {loadingMore ? "Loading..." : "Load More"}
+                      {loadingMore ? t('actions.loading') : t('actions.loadMore')}
                     </Button>
                   </div>
                 )}
@@ -381,12 +378,12 @@ const Index = () => {
             ) : (
               <Card className="p-8 text-center">
                 <Users className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-                <h3 className="font-semibold mb-2">No Activities Yet</h3>
+                <h3 className="font-semibold mb-2">{t('home.noActivities')}</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Start following athletes or join teams to see their activities here.
+                  {t('home.noActivitiesDesc')}
                 </p>
                 <Button onClick={() => navigate("/teams")} variant="outline">
-                  Browse Teams
+                  {t('home.browseTeams')}
                 </Button>
               </Card>
             )}

@@ -1,13 +1,16 @@
+import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trophy, Users, User, Mail, Calendar, Swords } from "lucide-react";
+import { Trophy, Users, User, Mail, Calendar, Swords, Globe } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { SportSelector } from "./SportSelector";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useNavigate } from "react-router-dom";
+import { formatMonthYear } from "@/lib/dateUtils";
 
 interface ProfileTabsProps {
   profile: any;
@@ -37,42 +40,41 @@ export const ProfileTabs = ({
   setTempValues,
 }: ProfileTabsProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <Tabs defaultValue="overview" className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="overview">Overview</TabsTrigger>
-        <TabsTrigger value="about">About</TabsTrigger>
+      <TabsList className="grid w-full grid-cols-3">
+        <TabsTrigger value="overview">{t('profile.title')}</TabsTrigger>
+        <TabsTrigger value="about">{t('teams.about')}</TabsTrigger>
+        <TabsTrigger value="settings">{t('profile.settings')}</TabsTrigger>
       </TabsList>
 
       <TabsContent value="overview" className="space-y-4">
         <Card>
           <CardContent className="pt-6 space-y-4">
-            <h3 className="font-semibold text-lg">Quick Info</h3>
+            <h3 className="font-semibold text-lg">{t('profile.title')}</h3>
             
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Email:</span>
+                <span className="text-sm text-muted-foreground">{t('profile.email')}:</span>
                 <span className="text-sm">{email}</span>
               </div>
 
               {profile?.primary_sport && (
                 <div className="flex items-center gap-3">
                   <Trophy className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Primary Sport:</span>
+                  <span className="text-sm text-muted-foreground">{t('profile.sport')}:</span>
                   <Badge variant="secondary">{profile.primary_sport}</Badge>
                 </div>
               )}
 
               <div className="flex items-center gap-3">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Member since:</span>
+                <span className="text-sm text-muted-foreground">{t('time.ago')}:</span>
                 <span className="text-sm">
-                  {new Date(profile?.created_at).toLocaleDateString('en-US', {
-                    month: 'long',
-                    year: 'numeric',
-                  })}
+                  {formatMonthYear(profile?.created_at)}
                 </span>
               </div>
             </div>
@@ -82,7 +84,7 @@ export const ProfileTabs = ({
         {/* Quick Actions */}
         <Card>
           <CardContent className="pt-6 space-y-4">
-            <h3 className="font-semibold text-lg">Quick Actions</h3>
+            <h3 className="font-semibold text-lg">{t('actions.search')}</h3>
             <div className="grid grid-cols-2 gap-3">
               <Button 
                 variant="outline" 
@@ -90,7 +92,7 @@ export const ProfileTabs = ({
                 onClick={() => navigate("/events?type=match")}
               >
                 <Swords className="h-5 w-5 text-primary" />
-                <span className="text-xs">Find Matches</span>
+                <span className="text-xs">{t('home.findMatch')}</span>
               </Button>
               <Button 
                 variant="outline" 
@@ -98,7 +100,7 @@ export const ProfileTabs = ({
                 onClick={() => navigate("/teams")}
               >
                 <Users className="h-5 w-5 text-primary" />
-                <span className="text-xs">My Teams</span>
+                <span className="text-xs">{t('teams.myTeams')}</span>
               </Button>
             </div>
           </CardContent>
@@ -109,19 +111,19 @@ export const ProfileTabs = ({
         <Card>
           <CardContent className="pt-6 space-y-4">
             <div className="space-y-2">
-              <Label>Full Name</Label>
+              <Label>{t('profile.fullName')}</Label>
               {editingField === 'fullName' ? (
                 <div className="flex gap-2">
                   <Input
                     value={tempValues.fullName}
                     onChange={(e) => setTempValues({ ...tempValues, fullName: e.target.value })}
                   />
-                  <Button onClick={onSaveField} size="sm">Save</Button>
-                  <Button onClick={() => setEditingField(null)} size="sm" variant="outline">Cancel</Button>
+                  <Button onClick={onSaveField} size="sm">{t('actions.save')}</Button>
+                  <Button onClick={() => setEditingField(null)} size="sm" variant="outline">{t('actions.cancel')}</Button>
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
-                  <p className="text-sm">{profile?.full_name || 'Not set'}</p>
+                  <p className="text-sm">{profile?.full_name || t('empty.description')}</p>
                   <Button
                     onClick={() => {
                       setEditingField('fullName');
@@ -130,26 +132,26 @@ export const ProfileTabs = ({
                     size="sm"
                     variant="ghost"
                   >
-                    Edit
+                    {t('actions.edit')}
                   </Button>
                 </div>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label>Display Name</Label>
+              <Label>{t('profile.displayName')}</Label>
               {editingField === 'displayName' ? (
                 <div className="flex gap-2">
                   <Input
                     value={tempValues.displayName}
                     onChange={(e) => setTempValues({ ...tempValues, displayName: e.target.value })}
                   />
-                  <Button onClick={onSaveField} size="sm">Save</Button>
-                  <Button onClick={() => setEditingField(null)} size="sm" variant="outline">Cancel</Button>
+                  <Button onClick={onSaveField} size="sm">{t('actions.save')}</Button>
+                  <Button onClick={() => setEditingField(null)} size="sm" variant="outline">{t('actions.cancel')}</Button>
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
-                  <p className="text-sm">{profile?.display_name || 'Not set'}</p>
+                  <p className="text-sm">{profile?.display_name || t('empty.description')}</p>
                   <Button
                     onClick={() => {
                       setEditingField('displayName');
@@ -158,14 +160,14 @@ export const ProfileTabs = ({
                     size="sm"
                     variant="ghost"
                   >
-                    Edit
+                    {t('actions.edit')}
                   </Button>
                 </div>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label>Primary Sport</Label>
+              <Label>{t('profile.sport')}</Label>
               {editingField === 'primarySport' ? (
                 <div className="space-y-2">
                   <SportSelector
@@ -173,13 +175,13 @@ export const ProfileTabs = ({
                     onChange={(value) => setTempValues({ ...tempValues, primarySport: value })}
                   />
                   <div className="flex gap-2">
-                    <Button onClick={onSaveField} size="sm">Save</Button>
-                    <Button onClick={() => setEditingField(null)} size="sm" variant="outline">Cancel</Button>
+                    <Button onClick={onSaveField} size="sm">{t('actions.save')}</Button>
+                    <Button onClick={() => setEditingField(null)} size="sm" variant="outline">{t('actions.cancel')}</Button>
                   </div>
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
-                  <p className="text-sm">{profile?.primary_sport || 'Not set'}</p>
+                  <p className="text-sm">{profile?.primary_sport || t('empty.description')}</p>
                   <Button
                     onClick={() => {
                       setEditingField('primarySport');
@@ -188,26 +190,26 @@ export const ProfileTabs = ({
                     size="sm"
                     variant="ghost"
                   >
-                    Edit
+                    {t('actions.edit')}
                   </Button>
                 </div>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label>Team/Club</Label>
+              <Label>{t('profile.team')}</Label>
               {editingField === 'teamName' ? (
                 <div className="flex gap-2">
                   <Input
                     value={tempValues.teamName}
                     onChange={(e) => setTempValues({ ...tempValues, teamName: e.target.value })}
                   />
-                  <Button onClick={onSaveField} size="sm">Save</Button>
-                  <Button onClick={() => setEditingField(null)} size="sm" variant="outline">Cancel</Button>
+                  <Button onClick={onSaveField} size="sm">{t('actions.save')}</Button>
+                  <Button onClick={() => setEditingField(null)} size="sm" variant="outline">{t('actions.cancel')}</Button>
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
-                  <p className="text-sm">{profile?.team_name || 'Not set'}</p>
+                  <p className="text-sm">{profile?.team_name || t('empty.description')}</p>
                   <Button
                     onClick={() => {
                       setEditingField('teamName');
@@ -216,14 +218,14 @@ export const ProfileTabs = ({
                     size="sm"
                     variant="ghost"
                   >
-                    Edit
+                    {t('actions.edit')}
                   </Button>
                 </div>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label>Bio</Label>
+              <Label>{t('profile.bio')}</Label>
               {editingField === 'bio' ? (
                 <div className="space-y-2">
                   <Textarea
@@ -232,13 +234,13 @@ export const ProfileTabs = ({
                     rows={4}
                   />
                   <div className="flex gap-2">
-                    <Button onClick={onSaveField} size="sm">Save</Button>
-                    <Button onClick={() => setEditingField(null)} size="sm" variant="outline">Cancel</Button>
+                    <Button onClick={onSaveField} size="sm">{t('actions.save')}</Button>
+                    <Button onClick={() => setEditingField(null)} size="sm" variant="outline">{t('actions.cancel')}</Button>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <p className="text-sm">{profile?.bio || 'Not set'}</p>
+                  <p className="text-sm">{profile?.bio || t('empty.description')}</p>
                   <Button
                     onClick={() => {
                       setEditingField('bio');
@@ -247,10 +249,24 @@ export const ProfileTabs = ({
                     size="sm"
                     variant="ghost"
                   >
-                    Edit
+                    {t('actions.edit')}
                   </Button>
                 </div>
               )}
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="settings" className="space-y-4">
+        <Card>
+          <CardContent className="pt-6 space-y-4">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Globe className="h-4 w-4" />
+                {t('profile.language')}
+              </Label>
+              <LanguageSwitcher />
             </div>
           </CardContent>
         </Card>

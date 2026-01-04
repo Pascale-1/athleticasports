@@ -1,0 +1,68 @@
+{
+  "title": "Events",
+  "createEvent": "Create Event",
+  "upcoming": "Upcoming",
+  "past": "Past",
+  "all": "All",
+  "noEvents": "No Events",
+  "noEventsDesc": "No events scheduled at the moment.",
+  "createFirst": "Create your first event",
+  "types": {
+    "training": "Training",
+    "match": "Match",
+    "meetup": "Meetup"
+  },
+  "details": {
+    "when": "When",
+    "where": "Where",
+    "participants": "Participants",
+    "maxParticipants": "Available spots",
+    "description": "Description",
+    "organizer": "Organizer",
+    "team": "Team"
+  },
+  "rsvp": {
+    "going": "Going",
+    "notGoing": "Not Going",
+    "maybe": "Maybe",
+    "respond": "Respond",
+    "attending": "Attending",
+    "notAttending": "Not Attending"
+  },
+  "form": {
+    "title": "Title",
+    "titlePlaceholder": "Event name",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe your event...",
+    "date": "Date",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "location": "Location",
+    "locationPlaceholder": "Address or venue name",
+    "type": "Event Type",
+    "maxParticipants": "Max Participants",
+    "isPublic": "Public Event",
+    "isPublicDesc": "Visible to all users"
+  },
+  "match": {
+    "opponent": "Opponent",
+    "opponentPlaceholder": "Opponent team name",
+    "homeAway": "Home/Away",
+    "home": "Home",
+    "away": "Away",
+    "neutral": "Neutral",
+    "format": "Match Format",
+    "lookingForPlayers": "Looking for Players",
+    "playersNeeded": "Players Needed"
+  },
+  "filters": {
+    "eventType": "Event Type",
+    "dateRange": "Date Range",
+    "clearFilters": "Clear Filters"
+  },
+  "invite": {
+    "title": "Invite Participants",
+    "shareLink": "Share Link",
+    "linkCopied": "Link copied!"
+  }
+}

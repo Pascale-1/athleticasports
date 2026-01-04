@@ -1,0 +1,52 @@
+{
+  "findMatch": {
+    "title": "Find a Match",
+    "subtitle": "Find available players to play with",
+    "sport": "Sport",
+    "sportPlaceholder": "Select a sport",
+    "location": "Location",
+    "locationPlaceholder": "Enter a location",
+    "when": "When",
+    "skillLevel": "Skill Level",
+    "searching": "Searching...",
+    "noResults": "No players available",
+    "noResultsDesc": "Try broadening your search criteria",
+    "distance": "{{distance}} km away"
+  },
+  "createMatch": {
+    "title": "Create a Match",
+    "subtitle": "Organize your own match",
+    "setAvailability": "Set My Availability",
+    "availabilitySet": "Availability saved!",
+    "availableFrom": "Available from",
+    "availableUntil": "Until",
+    "lookingFor": "Looking to play"
+  },
+  "proposal": {
+    "title": "Match Proposal",
+    "accept": "Accept",
+    "decline": "Decline",
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "declined": "Declined",
+    "expired": "Expired",
+    "sentAt": "Sent",
+    "wantsToPlay": "{{name}} wants to play with you",
+    "youProposed": "You proposed a match"
+  },
+  "availability": {
+    "title": "Availability",
+    "setAvailable": "Set Available",
+    "notAvailable": "Not Available",
+    "available": "Available",
+    "activeUntil": "Active until",
+    "cancel": "Cancel Availability"
+  },
+  "skillLevels": {
+    "1": "Beginner",
+    "2": "Intermediate",
+    "3": "Advanced",
+    "4": "Expert",
+    "5": "Professional"
+  }
+}

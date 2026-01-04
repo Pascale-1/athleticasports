@@ -1,0 +1,68 @@
+{
+  "title": "Événements",
+  "createEvent": "Créer un événement",
+  "upcoming": "À venir",
+  "past": "Passés",
+  "all": "Tous",
+  "noEvents": "Aucun événement",
+  "noEventsDesc": "Aucun événement prévu pour le moment.",
+  "createFirst": "Créer votre premier événement",
+  "types": {
+    "training": "Entraînement",
+    "match": "Match",
+    "meetup": "Rencontre"
+  },
+  "details": {
+    "when": "Quand",
+    "where": "Où",
+    "participants": "Participants",
+    "maxParticipants": "Places disponibles",
+    "description": "Description",
+    "organizer": "Organisateur",
+    "team": "Équipe"
+  },
+  "rsvp": {
+    "going": "J'y vais",
+    "notGoing": "Je n'y vais pas",
+    "maybe": "Peut-être",
+    "respond": "Répondre",
+    "attending": "Participants",
+    "notAttending": "Ne participent pas"
+  },
+  "form": {
+    "title": "Titre",
+    "titlePlaceholder": "Nom de l'événement",
+    "description": "Description",
+    "descriptionPlaceholder": "Décrivez votre événement...",
+    "date": "Date",
+    "startTime": "Heure de début",
+    "endTime": "Heure de fin",
+    "location": "Lieu",
+    "locationPlaceholder": "Adresse ou nom du lieu",
+    "type": "Type d'événement",
+    "maxParticipants": "Nombre max de participants",
+    "isPublic": "Événement public",
+    "isPublicDesc": "Visible par tous les utilisateurs"
+  },
+  "match": {
+    "opponent": "Adversaire",
+    "opponentPlaceholder": "Nom de l'équipe adverse",
+    "homeAway": "Domicile/Extérieur",
+    "home": "Domicile",
+    "away": "Extérieur",
+    "neutral": "Neutre",
+    "format": "Format du match",
+    "lookingForPlayers": "Recherche de joueurs",
+    "playersNeeded": "Joueurs recherchés"
+  },
+  "filters": {
+    "eventType": "Type d'événement",
+    "dateRange": "Période",
+    "clearFilters": "Effacer les filtres"
+  },
+  "invite": {
+    "title": "Inviter des participants",
+    "shareLink": "Partager le lien",
+    "linkCopied": "Lien copié !"
+  }
+}

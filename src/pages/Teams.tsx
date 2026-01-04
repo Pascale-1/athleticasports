@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2, Users, Search as SearchIcon } from "lucide-react";
@@ -25,6 +26,7 @@ const SPORTS = ["All", "Football", "Basketball", "Tennis", "Running", "Cycling",
 const Teams = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const [myTeams, setMyTeams] = useState<Team[]>([]);
   const [publicTeams, setPublicTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
@@ -151,12 +153,12 @@ const Teams = () => {
         >
           {/* Header */}
           <PageHeader
-            title="Teams"
-            subtitle={`${myTeams.length} team${myTeams.length !== 1 ? 's' : ''} • ${publicTeams.length} available`}
+            title={t('teams.title')}
+            subtitle={`${myTeams.length} ${myTeams.length !== 1 ? t('teams.memberPlural') : t('teams.member')} • ${publicTeams.length} ${t('status.active').toLowerCase()}`}
             rightAction={
               <Button onClick={() => navigate("/teams/create")} className="gap-2">
                 <Plus className="h-4 w-4" />
-                Create Team
+                {t('teams.createTeam')}
               </Button>
             }
           />
@@ -178,10 +180,10 @@ const Teams = () => {
             >
               <div className="space-y-4">
                 <div>
-                  <Label className="text-sm font-medium mb-3 block">Sport</Label>
+                  <Label className="text-sm font-medium mb-3 block">{t('teams.filters.sport')}</Label>
                   <Select value={activeSport} onValueChange={setActiveSport}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select sport" />
+                      <SelectValue placeholder={t('teams.form.sportPlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       {SPORTS.map((sport) => (
@@ -207,7 +209,7 @@ const Teams = () => {
               onClick={() => setShowAllTeams(false)}
               className="flex-1 h-10"
             >
-              My Teams ({myTeams.length})
+              {t('teams.myTeams')} ({myTeams.length})
             </Button>
             <Button
               variant={showAllTeams ? "default" : "ghost"}
@@ -215,7 +217,7 @@ const Teams = () => {
               onClick={() => setShowAllTeams(true)}
               className="flex-1 h-10"
             >
-              All Teams ({publicTeams.length})
+              {t('teams.filters.all')} ({publicTeams.length})
             </Button>
           </motion.div>
 
@@ -228,7 +230,7 @@ const Teams = () => {
               transition={{ delay: 0.2 }}
             >
               <h2 className="text-h3 font-heading font-semibold">
-                My Teams ({filteredMyTeams.length})
+                {t('teams.myTeams')} ({filteredMyTeams.length})
               </h2>
 
               {filteredMyTeams.length > 0 ? (
@@ -246,12 +248,12 @@ const Teams = () => {
               ) : (
                 <EmptyState
                   icon={Users}
-                  title="No teams yet"
-                  description="Create your first team to get started"
+                  title={t('teams.noTeams')}
+                  description={t('teams.noTeamsDesc')}
                   action={
                     <Button onClick={() => navigate("/teams/create")}>
                       <Plus className="h-4 w-4 mr-2" />
-                      Create Team
+                      {t('teams.createTeam')}
                     </Button>
                   }
                 />
@@ -268,7 +270,7 @@ const Teams = () => {
               transition={{ delay: 0.2 }}
             >
               <h2 className="text-h3 font-heading font-semibold">
-                {searchQuery ? `Search Results (${filteredPublicTeams.length})` : "All Teams"}
+                {searchQuery ? `${t('actions.search')} (${filteredPublicTeams.length})` : t('teams.filters.all')}
               </h2>
             
               {loading ? (
@@ -292,17 +294,17 @@ const Teams = () => {
               ) : (
                 <EmptyState
                   icon={searchQuery ? SearchIcon : Users}
-                  title={searchQuery ? "No teams found" : activeSport !== "All" ? `No ${activeSport} teams yet` : "No public teams available"}
-                  description={searchQuery ? "Try adjusting your search terms or filters" : activeSport !== "All" ? "Be the first to create one!" : "Create the first team for your community"}
+                  title={searchQuery ? t('empty.title') : activeSport !== "All" ? `${t('teams.noTeams')} - ${activeSport}` : t('teams.noTeams')}
+                  description={searchQuery ? t('empty.description') : t('teams.noTeamsDesc')}
                   action={
                     searchQuery ? (
                       <Button onClick={() => setSearchQuery("")} variant="outline">
-                        Clear Search
+                        {t('teams.filters.clearFilters')}
                       </Button>
                     ) : (
                       <Button onClick={() => navigate("/teams/create")}>
                         <Plus className="h-4 w-4 mr-2" />
-                        Create Team
+                        {t('teams.createTeam')}
                       </Button>
                     )
                   }
@@ -316,7 +318,7 @@ const Teams = () => {
       {/* FAB */}
       <FAB
         icon={<Plus className="h-5 w-5" />}
-        label="Create Team"
+        label={t('teams.createTeam')}
         onClick={() => navigate("/teams/create")}
       />
     </PageContainer>

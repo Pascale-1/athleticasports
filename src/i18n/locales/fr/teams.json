@@ -1,0 +1,83 @@
+{
+  "title": "Équipes",
+  "createTeam": "Créer une équipe",
+  "joinTeam": "Rejoindre une équipe",
+  "myTeams": "Mes équipes",
+  "discover": "Découvrir",
+  "noTeams": "Aucune équipe",
+  "noTeamsDesc": "Vous n'avez pas encore rejoint d'équipe.",
+  "createFirst": "Créer votre première équipe",
+  "members": "Membres",
+  "member": "membre",
+  "memberPlural": "membres",
+  "about": "À propos",
+  "events": "Événements",
+  "announcements": "Annonces",
+  "chat": "Discussion",
+  "settings": "Paramètres",
+  "performance": "Performance",
+  "roles": {
+    "owner": "Propriétaire",
+    "admin": "Administrateur",
+    "coach": "Entraîneur",
+    "member": "Membre"
+  },
+  "form": {
+    "name": "Nom de l'équipe",
+    "namePlaceholder": "Mon équipe de foot",
+    "description": "Description",
+    "descriptionPlaceholder": "Décrivez votre équipe...",
+    "sport": "Sport",
+    "sportPlaceholder": "Sélectionnez un sport",
+    "isPrivate": "Équipe privée",
+    "isPrivateDesc": "Seuls les membres invités peuvent rejoindre",
+    "avatar": "Photo de l'équipe"
+  },
+  "invite": {
+    "title": "Inviter des membres",
+    "email": "Adresse email",
+    "emailPlaceholder": "joueur@exemple.com",
+    "role": "Rôle",
+    "send": "Envoyer l'invitation",
+    "sent": "Invitation envoyée !",
+    "pending": "Invitations en attente",
+    "shareLink": "Lien d'invitation",
+    "linkCopied": "Lien copié !",
+    "allowLinkJoining": "Autoriser l'inscription via lien",
+    "regenerateLink": "Régénérer le lien"
+  },
+  "actions": {
+    "leave": "Quitter l'équipe",
+    "leaveConfirm": "Êtes-vous sûr de vouloir quitter cette équipe ?",
+    "delete": "Supprimer l'équipe",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette équipe ? Cette action est irréversible.",
+    "removeMember": "Retirer le membre",
+    "changeRole": "Changer le rôle"
+  },
+  "filters": {
+    "all": "Toutes",
+    "myTeams": "Mes équipes",
+    "sport": "Sport",
+    "clearFilters": "Effacer les filtres"
+  },
+  "session": {
+    "title": "Séance d'entraînement",
+    "createSession": "Créer une séance",
+    "attendance": "Présence",
+    "present": "Présent",
+    "absent": "Absent",
+    "unknown": "Non répondu"
+  },
+  "announcement": {
+    "createAnnouncement": "Nouvelle annonce",
+    "pin": "Épingler",
+    "unpin": "Désépingler",
+    "postedBy": "Publié par"
+  },
+  "performanceLevel": {
+    "title": "Niveau de performance",
+    "assign": "Attribuer un niveau",
+    "level": "Niveau",
+    "notes": "Notes"
+  }
+}
