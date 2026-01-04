@@ -44,8 +44,8 @@ export const EVENT_CONFIG: Record<EventType, EventTypeConfig> = {
   },
   match: {
     icon: Trophy,
-    color: 'hsl(var(--destructive))',
-    bgColor: 'hsl(var(--destructive) / 0.1)',
+    color: 'hsl(var(--match))',
+    bgColor: 'hsl(var(--match) / 0.1)',
     label: 'Match',
     description: 'Schedule competitive matches against other teams',
     features: ['opponent', 'attendance', 'teamOnly', 'homeAway'],

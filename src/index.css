@@ -50,6 +50,10 @@ All colors MUST be HSL.
     --info: 207 90% 54%;
     --info-foreground: 0 0% 100%;
 
+    /* Match - Gold/Amber (#F5A623) */
+    --match: 40 91% 55%;
+    --match-foreground: 0 0% 10%;
+
     /* Border & Input */
     --border: 0 0% 90%;
     --input: 0 0% 90%;
@@ -154,6 +158,10 @@ All colors MUST be HSL.
     /* Info - Blue (Dark Mode) */
     --info: 207 90% 60%;
     --info-foreground: 0 0% 100%;
+
+    /* Match - Gold/Amber (Dark Mode) */
+    --match: 40 91% 60%;
+    --match-foreground: 0 0% 10%;
 
     /* Border & Input */
     --border: 0 0% 20%;
