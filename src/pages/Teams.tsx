@@ -4,9 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2, Users, Search as SearchIcon } from "lucide-react";
 import { Team } from "@/lib/teams";
-import { Card, CardContent } from "@/components/ui/card";
+import { PageContainer } from "@/components/mobile/PageContainer";
+import { PageHeader } from "@/components/mobile/PageHeader";
 import { TeamSearchBar } from "@/components/teams/TeamSearchBar";
-
 import { TeamCard } from "@/components/teams/TeamCard";
 import { TeamCardSkeleton } from "@/components/teams/TeamCardSkeleton";
 import { FAB } from "@/components/mobile/FAB";
@@ -57,24 +57,14 @@ const Teams = () => {
   useEffect(() => {
     fetchTeams();
     
-    // Subscribe to teams changes
     const teamsChannel = supabase
       .channel('teams-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'teams' },
-        () => fetchTeams()
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'teams' }, () => fetchTeams())
       .subscribe();
       
-    // Subscribe to team_members changes (for myTeams)
     const membersChannel = supabase
       .channel('team-members-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'team_members' },
-        () => fetchTeams()
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'team_members' }, () => fetchTeams())
       .subscribe();
 
     return () => {
@@ -112,7 +102,6 @@ const Teams = () => {
       setPublicTeams(publicTeamsData || []);
       allTeamIds.push(...(publicTeamsData || []).map((t: any) => t.id));
 
-      // Batch fetch all member counts in parallel
       if (allTeamIds.length > 0) {
         const countPromises = allTeamIds.map(teamId =>
           supabase.rpc("get_team_member_count", { _team_id: teamId })
@@ -143,87 +132,44 @@ const Teams = () => {
     await fetchTeams();
   };
 
-  const handleLeaveTeam = async (teamId: string) => {
-    if (!userId) return;
-    try {
-      await supabase
-        .from("team_members")
-        .delete()
-        .eq("team_id", teamId)
-        .eq("user_id", userId);
-      
-      setMyTeams(prev => prev.filter(t => t.id !== teamId));
-      toast.success("Left team successfully");
-    } catch (error) {
-      console.error("Error leaving team:", error);
-      toast.error("Failed to leave team");
-    }
-  };
-
-  const handleShareTeam = (teamId: string) => {
-    const url = `${window.location.origin}/teams/${teamId}`;
-    if (navigator.share) {
-      navigator.share({ url });
-    } else {
-      navigator.clipboard.writeText(url);
-      toast.success("Team link copied to clipboard");
-    }
-  };
-
-  const featuredTeams = publicTeams.slice(0, 5);
-
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <PageContainer className="flex items-center justify-center min-h-[50vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="w-full max-w-[100vw] overflow-x-hidden mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-6xl pb-24">
+    <PageContainer>
       <PullToRefresh onRefresh={handleRefresh}>
         <motion.div 
-          className="space-y-4 sm:space-y-6"
+          className="space-y-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
           {/* Header */}
-          <motion.div 
-            className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold">Teams</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {myTeams.length} team{myTeams.length !== 1 ? 's' : ''} • {publicTeams.length} available
-              </p>
-            </div>
-            <Button 
-              onClick={() => navigate("/teams/create")} 
-              className="hidden sm:flex w-full sm:w-auto"
-              size="sm"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Create Team
-            </Button>
-          </motion.div>
+          <PageHeader
+            title="Teams"
+            subtitle={`${myTeams.length} team${myTeams.length !== 1 ? 's' : ''} • ${publicTeams.length} available`}
+            rightAction={
+              <Button onClick={() => navigate("/teams/create")} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Create Team
+              </Button>
+            }
+          />
 
-          {/* Unified Search & Filter Row */}
+          {/* Search & Filter */}
           <motion.div
             className="flex gap-2"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
+            transition={{ delay: 0.1 }}
           >
             <div className="flex-1">
-              <TeamSearchBar 
-                value={searchQuery} 
-                onChange={setSearchQuery}
-              />
+              <TeamSearchBar value={searchQuery} onChange={setSearchQuery} />
             </div>
             <FilterSheet 
               activeCount={activeSport !== "All" ? 1 : 0}
@@ -239,9 +185,7 @@ const Teams = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {SPORTS.map((sport) => (
-                        <SelectItem key={sport} value={sport}>
-                          {sport}
-                        </SelectItem>
+                        <SelectItem key={sport} value={sport}>{sport}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -250,18 +194,18 @@ const Teams = () => {
             </FilterSheet>
           </motion.div>
 
-          {/* Team View Segmented Control */}
+          {/* View Toggle */}
           <motion.div
-            className="flex items-center gap-1 bg-muted p-1 rounded-lg w-full sm:w-auto"
+            className="flex items-center gap-1 bg-muted p-1 rounded-lg"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.15 }}
           >
             <Button
               variant={showAllTeams ? "ghost" : "default"}
               size="sm"
               onClick={() => setShowAllTeams(false)}
-              className="flex-1 sm:flex-initial min-h-11"
+              className="flex-1 h-10"
             >
               My Teams ({myTeams.length})
             </Button>
@@ -269,133 +213,113 @@ const Teams = () => {
               variant={showAllTeams ? "default" : "ghost"}
               size="sm"
               onClick={() => setShowAllTeams(true)}
-              className="flex-1 sm:flex-initial min-h-11"
+              className="flex-1 h-10"
             >
               All Teams ({publicTeams.length})
             </Button>
           </motion.div>
 
-
-          {/* My Teams Section - 2 Column Grid */}
+          {/* My Teams Section */}
           {!showAllTeams && (
             <motion.div 
-              className="space-y-3 sm:space-y-4"
+              className="space-y-3"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.2 }}
             >
-              <h2 className="text-body-large font-semibold">
+              <h2 className="text-h3 font-heading font-semibold">
                 My Teams ({filteredMyTeams.length})
               </h2>
 
-              {/* Create Team CTA Card */}
-              <Card 
-                className="cursor-pointer hover:shadow-lg transition-all border-dashed border-2 bg-muted/30 hover:bg-muted/50"
-                onClick={() => navigate("/teams/create")}
-              >
-                <CardContent className="flex items-center gap-4 p-4">
-                  <div className="flex-shrink-0 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Plus className="h-8 w-8 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold">Create a New Team</h3>
-                    <p className="text-sm text-muted-foreground">Start building your sports community</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {filteredMyTeams.length > 0 && (
+              {filteredMyTeams.length > 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   {filteredMyTeams.map((team, index) => (
-                  <AnimatedCard key={team.id} delay={0.35 + index * 0.05} hover={false}>
-                    <TeamCard
-                      team={team}
-                      memberCount={memberCounts[team.id] || 0}
-                      isMember={true}
-                    />
-                  </AnimatedCard>
-                ))}
-              </div>
+                    <AnimatedCard key={team.id} delay={0.25 + index * 0.05} hover={false}>
+                      <TeamCard
+                        team={team}
+                        memberCount={memberCounts[team.id] || 0}
+                        isMember={true}
+                      />
+                    </AnimatedCard>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  icon={Users}
+                  title="No teams yet"
+                  description="Create your first team to get started"
+                  action={
+                    <Button onClick={() => navigate("/teams/create")}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Team
+                    </Button>
+                  }
+                />
               )}
             </motion.div>
-          )}
-
-          {/* Empty State for My Teams */}
-          {!showAllTeams && filteredMyTeams.length === 0 && (
-            <EmptyState
-              icon={Users}
-              title="No teams yet"
-              description="Create your first team to get started"
-              action={
-                <Button onClick={() => navigate("/teams/create")}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Team
-                </Button>
-              }
-            />
           )}
 
           {/* All Teams Section */}
           {showAllTeams && (
             <motion.div 
-              className="space-y-3 sm:space-y-4"
+              className="space-y-3"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.2 }}
             >
-              <h2 className="text-body-large font-semibold">
-                {searchQuery ? `Search Results (${filteredPublicTeams.length})` : "Teams"}
+              <h2 className="text-h3 font-heading font-semibold">
+                {searchQuery ? `Search Results (${filteredPublicTeams.length})` : "All Teams"}
               </h2>
             
-            {loading ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                {[...Array(6)].map((_, i) => (
-                  <TeamCardSkeleton key={i} />
-                ))}
-              </div>
-            ) : filteredPublicTeams.length > 0 ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                {filteredPublicTeams.map((team, index) => (
-                  <AnimatedCard key={team.id} delay={0.45 + index * 0.05} hover={false}>
-                    <TeamCard
-                      team={team}
-                      memberCount={memberCounts[team.id] || 0}
-                      isMember={false}
-                    />
-                  </AnimatedCard>
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                icon={searchQuery ? SearchIcon : Users}
-                title={searchQuery ? "No teams found" : activeSport !== "All" ? `No ${activeSport} teams yet` : "No public teams available"}
-                description={searchQuery ? "Try adjusting your search terms or filters" : activeSport !== "All" ? "Be the first to create one!" : "Create the first team for your community"}
-                action={
-                  searchQuery ? (
-                    <Button onClick={() => setSearchQuery("")} variant="outline">
-                      Clear Search
-                    </Button>
-                  ) : (
-                    <Button onClick={() => navigate("/teams/create")}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create Team
-                    </Button>
-                  )
-                }
-              />
+              {loading ? (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                  {[...Array(6)].map((_, i) => (
+                    <TeamCardSkeleton key={i} />
+                  ))}
+                </div>
+              ) : filteredPublicTeams.length > 0 ? (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                  {filteredPublicTeams.map((team, index) => (
+                    <AnimatedCard key={team.id} delay={0.25 + index * 0.05} hover={false}>
+                      <TeamCard
+                        team={team}
+                        memberCount={memberCounts[team.id] || 0}
+                        isMember={false}
+                      />
+                    </AnimatedCard>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  icon={searchQuery ? SearchIcon : Users}
+                  title={searchQuery ? "No teams found" : activeSport !== "All" ? `No ${activeSport} teams yet` : "No public teams available"}
+                  description={searchQuery ? "Try adjusting your search terms or filters" : activeSport !== "All" ? "Be the first to create one!" : "Create the first team for your community"}
+                  action={
+                    searchQuery ? (
+                      <Button onClick={() => setSearchQuery("")} variant="outline">
+                        Clear Search
+                      </Button>
+                    ) : (
+                      <Button onClick={() => navigate("/teams/create")}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create Team
+                      </Button>
+                    )
+                  }
+                />
               )}
             </motion.div>
           )}
         </motion.div>
       </PullToRefresh>
 
-      {/* Floating Action Button (Mobile) */}
+      {/* FAB */}
       <FAB
         icon={<Plus className="h-5 w-5" />}
         label="Create Team"
         onClick={() => navigate("/teams/create")}
       />
-    </div>
+    </PageContainer>
   );
 };
 

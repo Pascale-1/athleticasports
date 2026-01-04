@@ -149,7 +149,7 @@ export const CreateMatchSheet = ({ open, onOpenChange, onSuccess }: CreateMatchS
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
+      <SheetContent side="bottom" className="h-[85vh] overflow-y-auto">
         <SheetHeader className="mb-6">
           <SheetTitle className="flex items-center gap-2">
             <Swords className="h-5 w-5 text-primary" />

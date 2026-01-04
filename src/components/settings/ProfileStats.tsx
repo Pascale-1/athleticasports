@@ -61,10 +61,10 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
   }
 
   return (
-    <div className="flex gap-6 justify-center py-4 text-sm border-y border-border">
+    <div className="flex gap-4 justify-center py-4 text-sm border-y border-border">
       <button
         onClick={() => navigate("/community")}
-        className="flex items-center gap-2 hover:text-primary transition-colors"
+        className="flex items-center gap-2 hover:text-primary transition-colors min-h-[44px] px-2"
       >
         <Users className="h-4 w-4" />
         <span className="font-semibold">{stats.followers}</span>
@@ -72,7 +72,7 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
       </button>
       <button
         onClick={() => navigate("/community")}
-        className="flex items-center gap-2 hover:text-primary transition-colors"
+        className="flex items-center gap-2 hover:text-primary transition-colors min-h-[44px] px-2"
       >
         <UserPlus className="h-4 w-4" />
         <span className="font-semibold">{stats.following}</span>
@@ -80,7 +80,7 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
       </button>
       <button
         onClick={() => navigate("/teams")}
-        className="flex items-center gap-2 hover:text-primary transition-colors"
+        className="flex items-center gap-2 hover:text-primary transition-colors min-h-[44px] px-2"
       >
         <Trophy className="h-4 w-4" />
         <span className="font-semibold">{stats.teams}</span>

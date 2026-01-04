@@ -4,10 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Loader2, Upload, Share2, ArrowLeft } from "lucide-react";
+import { Loader2, Upload, Share2 } from "lucide-react";
 import { ProfileStats } from "@/components/settings/ProfileStats";
 import { ProfileTabs } from "@/components/settings/ProfileTabs";
 import { PageContainer } from "@/components/mobile/PageContainer";
+import { PageHeader } from "@/components/mobile/PageHeader";
 
 interface Profile {
   id: string;
@@ -173,20 +174,16 @@ const Settings = () => {
 
   return (
     <PageContainer>
-      <div className="max-w-4xl mx-auto">
-        {/* Back Button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate("/")}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Header */}
+        <PageHeader
+          title="Profile"
+          showBackButton
+          backPath="/"
+        />
 
         {/* Hero Section */}
-        <div className="bg-card rounded-lg border border-border p-6 mb-6">
+        <div className="bg-card rounded-lg border border-border p-6">
           <div className="flex flex-col items-center text-center space-y-4">
             {/* Avatar */}
             <div className="relative group">
