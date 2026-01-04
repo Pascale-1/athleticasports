@@ -33,7 +33,7 @@ export const EventRSVPBar = ({
 
   if (loading) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t p-3 md:relative md:border md:rounded-lg md:bg-card">
+      <div className="fixed bottom-16 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t p-3 lg:bottom-0 lg:relative lg:border lg:rounded-lg lg:bg-card">
         <div className="flex items-center justify-center h-11">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
@@ -44,7 +44,7 @@ export const EventRSVPBar = ({
   // Committed users can't change their status
   if (isCommitted) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t p-3 md:relative md:border md:rounded-lg md:bg-card">
+      <div className="fixed bottom-16 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t p-3 lg:bottom-0 lg:relative lg:border lg:rounded-lg lg:bg-card">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-center gap-2 h-11 bg-amber-500/10 rounded-lg border border-amber-500/20">
             <CheckCircle2 className="h-4 w-4 text-amber-600" />
@@ -59,7 +59,7 @@ export const EventRSVPBar = ({
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t p-3 md:relative md:border md:rounded-lg md:bg-card">
+    <div className="fixed bottom-16 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t p-3 lg:bottom-0 lg:relative lg:border lg:rounded-lg lg:bg-card">
       <div className="max-w-lg mx-auto space-y-2">
         {/* Toggle buttons */}
         <div className="flex gap-1 bg-muted/50 rounded-lg p-1">
