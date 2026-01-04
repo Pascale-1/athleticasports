@@ -22,6 +22,7 @@ import { usePlayerAvailability } from "@/hooks/usePlayerAvailability";
 import { useMatchProposals } from "@/hooks/useMatchProposals";
 import { MatchProposalCard } from "@/components/matching/MatchProposalCard";
 import { formatDateTimeShort } from "@/lib/dateUtils";
+import { LanguageToggle } from "@/components/settings/LanguageToggle";
 
 interface Profile {
   id: string;
@@ -176,7 +177,12 @@ const Index = () => {
         >
           {/* Hero Section with Merged Stats */}
           <AnimatedCard delay={0.1}>
-            <Card className="p-4 space-y-3">
+            <Card className="p-4 space-y-3 relative">
+              {/* Language Toggle */}
+              <div className="absolute top-2 right-2">
+                <LanguageToggle />
+              </div>
+              
               <div className="flex items-center gap-3">
                 <Avatar size="xl" ring="coral">
                   <AvatarImage src={profile.avatar_url || undefined} />
