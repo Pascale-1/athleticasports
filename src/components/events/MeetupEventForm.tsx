@@ -171,7 +171,7 @@ export const MeetupEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Me
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t('form.meetup.category')}</FormLabel>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {CATEGORIES.map((cat) => (
                   <Button
                     key={cat.value}

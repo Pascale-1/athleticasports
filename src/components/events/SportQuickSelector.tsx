@@ -1,7 +1,14 @@
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { getFeaturedSports, getRegularSports, getSportLabel, Sport } from "@/lib/sports";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getFeaturedSports, getRegularSports, getSportLabel, getSportById } from "@/lib/sports";
 import { cn } from "@/lib/utils";
 
 interface SportQuickSelectorProps {
@@ -23,23 +30,7 @@ export const SportQuickSelector = ({
 }: SportQuickSelectorProps) => {
   const featuredSports = getFeaturedSports();
   const regularSports = getRegularSports();
-
-  const renderSportButton = (sport: Sport) => (
-    <Button
-      key={sport.id}
-      type="button"
-      size="sm"
-      variant={value === sport.id ? "default" : "outline"}
-      onClick={() => onChange(sport.id)}
-      className={cn(
-        "flex items-center gap-1.5 whitespace-nowrap shrink-0",
-        value === sport.id && "ring-2 ring-primary ring-offset-2"
-      )}
-    >
-      <span>{sport.emoji}</span>
-      <span>{getSportLabel(sport.id, lang)}</span>
-    </Button>
-  );
+  const selectedSport = value ? getSportById(value) : null;
 
   return (
     <div className={cn("space-y-2", className)}>
@@ -49,21 +40,48 @@ export const SportQuickSelector = ({
         </Label>
       )}
       
-      <ScrollArea className="w-full">
-        <div className="flex gap-2 pb-2">
-          {/* Featured sports first */}
-          {featuredSports.map(renderSportButton)}
-          
-          {/* Divider */}
+      <Select value={value || undefined} onValueChange={onChange}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder={lang === 'fr' ? 'Sélectionner un sport' : 'Select a sport'}>
+            {selectedSport && (
+              <span className="flex items-center gap-2">
+                <span>{selectedSport.emoji}</span>
+                <span>{getSportLabel(selectedSport.id, lang)}</span>
+              </span>
+            )}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent className="bg-background">
+          <SelectGroup>
+            <SelectLabel className="text-xs text-muted-foreground">
+              {lang === 'fr' ? 'Populaires' : 'Featured'}
+            </SelectLabel>
+            {featuredSports.map((sport) => (
+              <SelectItem key={sport.id} value={sport.id}>
+                <span className="flex items-center gap-2">
+                  <span>{sport.emoji}</span>
+                  <span>{getSportLabel(sport.id, lang)}</span>
+                </span>
+              </SelectItem>
+            ))}
+          </SelectGroup>
           {regularSports.length > 0 && (
-            <div className="h-8 w-px bg-border shrink-0" />
+            <SelectGroup>
+              <SelectLabel className="text-xs text-muted-foreground">
+                {lang === 'fr' ? 'Autres sports' : 'All Sports'}
+              </SelectLabel>
+              {regularSports.map((sport) => (
+                <SelectItem key={sport.id} value={sport.id}>
+                  <span className="flex items-center gap-2">
+                    <span>{sport.emoji}</span>
+                    <span>{getSportLabel(sport.id, lang)}</span>
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectGroup>
           )}
-          
-          {/* Regular sports */}
-          {regularSports.map(renderSportButton)}
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+        </SelectContent>
+      </Select>
       
       {required && !value && (
         <p className="text-xs text-destructive">
