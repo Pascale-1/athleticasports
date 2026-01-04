@@ -9,10 +9,7 @@ import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { EventsList } from "@/components/events/EventsList";
 import { EventCalendar } from "@/components/events/EventCalendar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FilterSheet } from "@/components/common/FilterSheet";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { isToday, isTomorrow, isThisWeek, isFuture } from "date-fns";
 import type { Event } from "@/lib/events";
 import { Badge } from "@/components/ui/badge";
@@ -38,16 +35,10 @@ const Events = () => {
     setTypeFilter,
     setStatusFilter,
     setSearchQuery,
-    setPublicFilter,
   } = useEventFilters(events);
-
-  const activeFilterCount = 
-    (filters.status !== 'upcoming' ? 1 : 0) + 
-    (filters.isPublic !== undefined ? 1 : 0);
 
   const handleResetFilters = () => {
     setStatusFilter('upcoming');
-    setPublicFilter(undefined);
     setSearchQuery('');
     setActiveEventType('all');
     setTypeFilter('all');
@@ -95,64 +86,30 @@ const Events = () => {
 
         {/* Controls Row */}
         <div className="space-y-3">
-          {/* Type Filter + View Toggle */}
-          <div className="flex items-center justify-between gap-3">
-            {/* Mobile: Event Type Dropdown */}
-            <Select 
-              value={activeEventType} 
-              onValueChange={(value: any) => {
-                setActiveEventType(value);
-                setTypeFilter(value);
-              }}
-            >
-              <SelectTrigger className="w-36 h-10 md:hidden">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="training">Training</SelectItem>
-                <SelectItem value="meetup">Meetup</SelectItem>
-                <SelectItem value="match">Match</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Desktop: Event Type Pills */}
-            <div className="hidden md:flex gap-1 bg-muted p-1 rounded-lg">
+          {/* Row 1: Type Filters + View Toggle + Status Toggle */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Event Type Legend Buttons */}
+            <div className="flex items-center gap-1 bg-muted p-1 rounded-lg">
               <Button 
                 size="sm" 
                 variant={activeEventType === 'all' ? 'default' : 'ghost'} 
                 className="h-10 px-3 text-xs" 
                 onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
               >
-                All Types
+                All
               </Button>
-              <Button 
-                size="sm" 
-                variant={activeEventType === 'training' ? 'default' : 'ghost'} 
-                className="h-10 px-3 text-xs gap-1.5" 
-                onClick={() => { setActiveEventType('training'); setTypeFilter('training'); }}
-              >
-                <Trophy className="h-3.5 w-3.5" />
-                Training
-              </Button>
-              <Button 
-                size="sm" 
-                variant={activeEventType === 'meetup' ? 'default' : 'ghost'} 
-                className="h-10 px-3 text-xs gap-1.5" 
-                onClick={() => { setActiveEventType('meetup'); setTypeFilter('meetup'); }}
-              >
-                <Coffee className="h-3.5 w-3.5" />
-                Meetup
-              </Button>
-              <Button 
-                size="sm" 
-                variant={activeEventType === 'match' ? 'default' : 'ghost'} 
-                className="h-10 px-3 text-xs gap-1.5" 
-                onClick={() => { setActiveEventType('match'); setTypeFilter('match'); }}
-              >
-                <Swords className="h-3.5 w-3.5" />
-                Match
-              </Button>
+              {EVENT_TYPE_LEGEND.map(({ type, label, icon: Icon }) => (
+                <Button 
+                  key={type}
+                  size="sm" 
+                  variant={activeEventType === type ? 'default' : 'ghost'} 
+                  className="h-10 px-2 text-xs gap-1" 
+                  onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">{label}</span>
+                </Button>
+              ))}
             </div>
 
             {/* View Toggle */}
@@ -175,50 +132,36 @@ const Events = () => {
               </Button>
             </div>
 
-            {/* Event Type Legend - Mobile only */}
-            <div className="flex items-center gap-3 md:hidden">
-              {EVENT_TYPE_LEGEND.map(({ type, label, icon: Icon, color }) => (
-                <button
-                  key={type}
-                  onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
-                  className={`flex items-center gap-1.5 text-xs transition-opacity ${
-                    activeEventType === 'all' || activeEventType === type 
-                      ? 'opacity-100' 
-                      : 'opacity-50'
-                  }`}
-                >
-                  <Icon className={`h-3.5 w-3.5 ${color}`} />
-                  <span className="text-muted-foreground">{label}</span>
-                </button>
-              ))}
+            {/* Status Toggle - Inline */}
+            <div className="flex gap-1 bg-muted p-1 rounded-lg ml-auto">
+              <Button 
+                size="sm" 
+                variant={filters.status === 'upcoming' ? 'default' : 'ghost'} 
+                className="h-10 px-3 text-xs" 
+                onClick={() => setStatusFilter('upcoming')}
+              >
+                Upcoming
+              </Button>
+              <Button 
+                size="sm" 
+                variant={filters.status === 'past' ? 'default' : 'ghost'} 
+                className="h-10 px-3 text-xs" 
+                onClick={() => setStatusFilter('past')}
+              >
+                Past
+              </Button>
             </div>
           </div>
 
-          {/* Search + Filter */}
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search events..." 
-                value={filters.searchQuery} 
-                onChange={(e) => setSearchQuery(e.target.value)} 
-                className="pl-9 h-10" 
-              />
-            </div>
-            <FilterSheet activeCount={activeFilterCount} onApply={() => {}} onReset={handleResetFilters}>
-              <div className="space-y-4">
-                <div className="space-y-3">
-                  <Label>Status</Label>
-                  <Select value={filters.status} onValueChange={(value: any) => setStatusFilter(value)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="upcoming">Upcoming</SelectItem>
-                      <SelectItem value="past">Past</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </FilterSheet>
+          {/* Row 2: Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Search events..." 
+              value={filters.searchQuery} 
+              onChange={(e) => setSearchQuery(e.target.value)} 
+              className="pl-9 h-10" 
+            />
           </div>
         </div>
 
