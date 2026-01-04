@@ -12,6 +12,8 @@ import teamsFr from './locales/fr/teams.json';
 import teamsEn from './locales/en/teams.json';
 import matchingFr from './locales/fr/matching.json';
 import matchingEn from './locales/en/matching.json';
+import onboardingFr from './locales/fr/onboarding.json';
+import onboardingEn from './locales/en/onboarding.json';
 
 const resources = {
   fr: {
@@ -20,6 +22,7 @@ const resources = {
     events: eventsFr,
     teams: teamsFr,
     matching: matchingFr,
+    onboarding: onboardingFr,
   },
   en: {
     common: commonEn,
@@ -27,6 +30,7 @@ const resources = {
     events: eventsEn,
     teams: teamsEn,
     matching: matchingEn,
+    onboarding: onboardingEn,
   },
 };
 
@@ -38,7 +42,7 @@ i18n
     fallbackLng: 'fr', // French as default for France launch
     supportedLngs: ['fr', 'en'],
     defaultNS: 'common',
-    ns: ['common', 'auth', 'events', 'teams', 'matching'],
+    ns: ['common', 'auth', 'events', 'teams', 'matching', 'onboarding'],
     interpolation: {
       escapeValue: false,
     },

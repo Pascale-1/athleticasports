@@ -9,6 +9,7 @@ import { ProfileStats } from "@/components/settings/ProfileStats";
 import { ProfileTabs } from "@/components/settings/ProfileTabs";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
+import { FoundingMemberBadge } from "@/components/profile/FoundingMemberBadge";
 
 interface Profile {
   id: string;
@@ -21,6 +22,7 @@ interface Profile {
   primary_sport: string | null;
   team_name: string | null;
   created_at: string;
+  is_founding_member?: boolean | null;
 }
 
 const Settings = () => {
@@ -214,11 +216,14 @@ const Settings = () => {
             </div>
 
             {/* Name and Username */}
-            <div>
+            <div className="space-y-2">
               <h1 className="text-2xl font-bold">
                 {profile.display_name || profile.username}
               </h1>
               <p className="text-muted-foreground">@{profile.username}</p>
+              {profile.is_founding_member && (
+                <FoundingMemberBadge size="sm" />
+              )}
             </div>
 
             {/* Bio */}

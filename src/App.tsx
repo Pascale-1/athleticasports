@@ -30,6 +30,7 @@ const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
 const InvitationHelp = lazy(() => import("./pages/InvitationHelp"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const JoinEvent = lazy(() => import("./pages/JoinEvent"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -61,6 +62,11 @@ const App = () => (
           <Suspense fallback={<PageLoader />}>
             <Routes>
           <Route path="/auth" element={<Auth />} />
+          <Route path="/onboarding" element={
+            <ProtectedRoute skipOnboardingCheck>
+              <Onboarding />
+            </ProtectedRoute>
+          } />
           <Route path="/" element={
             <ProtectedRoute>
               <AppLayout>
