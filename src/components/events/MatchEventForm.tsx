@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Home, Plane, Scale } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CreateEventData } from "@/hooks/useEvents";
@@ -19,39 +20,33 @@ import { TeamSelector } from "@/components/teams/TeamSelector";
 import { useTeam } from "@/hooks/useTeam";
 import { DistrictSelector } from "@/components/location/DistrictSelector";
 import { getDistrictLabel } from "@/lib/parisDistricts";
+import { DurationPicker } from "./DurationPicker";
+import { SportQuickSelector } from "./SportQuickSelector";
+import { getSportDefaults, getPlayersForFormat } from "@/lib/sportDefaults";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(100),
-  homeTeamId: z.string().optional(),
-  opponentTeamId: z.string().optional(),
   opponentName: z.string().max(100).optional(),
-  opponentLogoUrl: z.string().url().optional().or(z.literal("")),
   homeAway: z.enum(['home', 'away', 'neutral']),
   matchFormat: z.string().max(100).optional(),
   description: z.string().max(500).optional(),
   date: z.date({ required_error: "Date is required" }),
   startTime: z.string().min(1, "Start time is required"),
-  endTime: z.string().min(1, "End time is required"),
-  maxParticipants: z.string().min(1, "Number of participants is required"),
-}).refine(
-  (data) => data.opponentTeamId || data.opponentName,
-  { 
-    message: "Select opponent team or enter name manually",
-    path: ["opponentTeamId"]
-  }
-);
+  maxParticipants: z.string().optional(),
+});
 
 type FormData = z.infer<typeof formSchema>;
 
 interface MatchEventFormProps {
   teamId?: string;
+  sport?: string;
   onSubmit: (data: CreateEventData) => void;
   onCancel: () => void;
   isSubmitting?: boolean;
 }
 
-export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: MatchEventFormProps) => {
-  const { i18n, t } = useTranslation();
+export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel, isSubmitting }: MatchEventFormProps) => {
+  const { i18n, t } = useTranslation('events');
   const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
   const [useTeamSelector, setUseTeamSelector] = useState(true);
   const [homeTeamId, setHomeTeamId] = useState<string | undefined>(teamId);
@@ -59,34 +54,60 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
   const [opponentTeamName, setOpponentTeamName] = useState<string>("");
   const [opponentLogoUrl, setOpponentLogoUrl] = useState<string>("");
   const [location, setLocation] = useState<{ district: string; venueName?: string }>({ district: '', venueName: '' });
+  const [selectedSport, setSelectedSport] = useState<string | null>(initialSport || null);
+  const [duration, setDuration] = useState(90);
   
   const { team: homeTeam } = useTeam(teamId);
+  const sportDefaults = getSportDefaults(selectedSport || homeTeam?.sport);
+  const effectiveSport = selectedSport || homeTeam?.sport;
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      homeTeamId: teamId || undefined,
-      opponentTeamId: undefined,
       opponentName: "",
-      opponentLogoUrl: "",
       homeAway: 'home',
       matchFormat: "",
       description: "",
       startTime: "15:00",
-      endTime: "17:00",
       maxParticipants: "",
     },
   });
+
+  const selectedFormat = form.watch('matchFormat');
+
+  // Update duration and players when sport/format changes
+  useEffect(() => {
+    if (effectiveSport) {
+      setDuration(sportDefaults.duration);
+    }
+  }, [effectiveSport, sportDefaults.duration]);
+
+  // Auto-fill players when format is selected
+  useEffect(() => {
+    if (selectedFormat && effectiveSport) {
+      const players = getPlayersForFormat(effectiveSport, selectedFormat);
+      if (players) {
+        form.setValue('maxParticipants', String(players));
+      }
+    }
+  }, [selectedFormat, effectiveSport, form]);
+
+  // Auto-generate title when teams are selected
+  useEffect(() => {
+    const currentTitle = form.getValues('title');
+    if (!currentTitle && homeTeam && opponentTeamName) {
+      form.setValue('title', `${homeTeam.name} vs ${opponentTeamName}`);
+    }
+  }, [homeTeam, opponentTeamName, form]);
 
   const handleSubmit = (values: FormData) => {
     const startDateTime = new Date(values.date);
     const [startHour, startMinute] = values.startTime.split(':');
     startDateTime.setHours(parseInt(startHour), parseInt(startMinute));
 
-    const endDateTime = new Date(values.date);
-    const [endHour, endMinute] = values.endTime.split(':');
-    endDateTime.setHours(parseInt(endHour), parseInt(endMinute));
+    const endDateTime = new Date(startDateTime);
+    endDateTime.setMinutes(endDateTime.getMinutes() + duration);
 
     const locationString = location.district 
       ? `${getDistrictLabel(location.district, lang)}${location.venueName ? ` - ${location.venueName}` : ''}`
@@ -99,179 +120,293 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
       title: values.title,
       description: values.description || undefined,
       opponent_name: opponentTeamId ? undefined : (opponentTeamName || values.opponentName),
-      opponent_logo_url: opponentLogoUrl || values.opponentLogoUrl || undefined,
+      opponent_logo_url: opponentLogoUrl || undefined,
       home_away: values.homeAway,
       match_format: values.matchFormat || undefined,
       location: locationString,
       location_type: locationString ? 'physical' : 'tbd',
       start_time: startDateTime.toISOString(),
       end_time: endDateTime.toISOString(),
-      max_participants: parseInt(values.maxParticipants),
+      max_participants: values.maxParticipants ? parseInt(values.maxParticipants) : undefined,
       is_public: !homeTeamId,
     });
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
+        {/* Sport selector - only show if no team context */}
+        {!teamId && (
+          <SportQuickSelector
+            value={selectedSport}
+            onChange={setSelectedSport}
+            label={t('form.sport')}
+            lang={lang}
+          />
+        )}
+
         <FormField
           control={form.control}
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{lang === 'fr' ? 'Titre de la partie' : 'Game Title'}</FormLabel>
+              <FormLabel>{t('form.game.title')}</FormLabel>
               <FormControl>
-                <Input placeholder={lang === 'fr' ? 'ex: Finale du championnat' : 'e.g., Championship Final'} {...field} />
+                <Input placeholder={t('form.game.titlePlaceholder')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Home Team Selection */}
-        <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-sm">{lang === 'fr' ? 'Votre équipe (Domicile)' : 'Your Team (Home)'}</h3>
-            {homeTeamId && <Badge variant="secondary">✓ {lang === 'fr' ? 'Sélectionné' : 'Selected'}</Badge>}
-          </div>
+        {/* Teams section - compact layout */}
+        <div className="space-y-3 p-4 rounded-lg bg-muted/30 border">
+          <h4 className="text-sm font-medium text-muted-foreground">{lang === 'fr' ? 'Équipes' : 'Teams'}</h4>
           
-          {teamId && homeTeam ? (
-            <div className="flex items-center gap-2 p-2 bg-background rounded border">
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold">
-                {homeTeam.name.substring(0, 2).toUpperCase()}
+          {/* Home Team - inline display if pre-selected */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">{t('form.game.yourTeam')}</label>
+            {teamId && homeTeam ? (
+              <div className="flex items-center gap-3 p-2 bg-background rounded-md border">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="text-xs bg-primary/10">
+                    {homeTeam.name.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-medium flex-1">{homeTeam.name}</span>
+                <Badge variant="outline" className="text-xs">
+                  <Home className="h-3 w-3 mr-1" />
+                  {t('form.game.home')}
+                </Badge>
               </div>
-              <span className="text-sm font-medium">{homeTeam.name}</span>
-            </div>
-          ) : (
-            <>
+            ) : (
               <TeamSelector
-                onSelect={(id, name, logo) => {
+                onSelect={(id, name) => {
                   setHomeTeamId(id);
-                  form.setValue("homeTeamId", id);
                 }}
                 selectedTeamId={homeTeamId}
-                placeholder={lang === 'fr' ? 'Sélectionner votre équipe' : 'Select your team'}
-                label={lang === 'fr' ? 'Pour quelle équipe organisez-vous ce match ?' : 'Which team are you organizing this match for?'}
+                placeholder={t('form.game.selectTeam')}
                 showCreateButton={true}
               />
-              {!homeTeamId && (
-                <p className="text-xs text-muted-foreground">
-                  💡 {lang === 'fr' ? 'Créer une équipe aide à organiser les matchs et développer votre communauté !' : 'Creating a team helps organize matches and grow your community!'}
-                </p>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* Opponent Team Selection */}
-        <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-sm">{lang === 'fr' ? 'Équipe adverse' : 'Opponent Team'}</h3>
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant={useTeamSelector ? "default" : "outline"}
-                onClick={() => setUseTeamSelector(true)}
-              >
-                {lang === 'fr' ? 'Sélectionner' : 'Select Team'}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant={!useTeamSelector ? "default" : "outline"}
-                onClick={() => setUseTeamSelector(false)}
-              >
-                {lang === 'fr' ? 'Saisir' : 'Enter Manually'}
-              </Button>
-            </div>
+            )}
           </div>
 
-          {useTeamSelector ? (
-            <div className="space-y-2">
+          {/* Opponent - toggle between selector and manual */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">{t('form.game.opponentTeam')}</label>
+              <div className="flex gap-1">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={useTeamSelector ? "default" : "ghost"}
+                  onClick={() => setUseTeamSelector(true)}
+                  className="h-7 px-2 text-xs"
+                >
+                  {t('form.game.selectTeam')}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={!useTeamSelector ? "default" : "ghost"}
+                  onClick={() => setUseTeamSelector(false)}
+                  className="h-7 px-2 text-xs"
+                >
+                  {t('form.game.enterManually')}
+                </Button>
+              </div>
+            </div>
+
+            {useTeamSelector ? (
               <TeamSelector
                 onSelect={(id, name, logo) => {
                   setOpponentTeamId(id);
                   setOpponentTeamName(name);
                   setOpponentLogoUrl(logo || "");
-                  form.setValue("opponentTeamId", id);
                   form.setValue("opponentName", name);
                 }}
                 selectedTeamId={opponentTeamId || undefined}
                 excludeTeamId={homeTeamId}
-                placeholder={lang === 'fr' ? 'Rechercher équipes adverses...' : 'Search opponent teams...'}
-                label={lang === 'fr' ? 'Sélectionner une équipe existante' : 'Select opponent from existing teams'}
-                sportFilter={homeTeam?.sport || undefined}
+                placeholder={lang === 'fr' ? 'Rechercher...' : 'Search...'}
+                sportFilter={effectiveSport || undefined}
                 showCreateButton={true}
               />
-              <p className="text-xs text-muted-foreground">
-                🎯 {lang === 'fr' ? 'Recommandé : Sélectionner une équipe pour notifier ses membres et suivre les matchs' : 'Recommended: Select a team to notify their members and track matches'}
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <FormField
-                control={form.control}
-                name="opponentName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{lang === 'fr' ? "Nom de l'adversaire" : 'Opponent Name'}</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder={lang === 'fr' ? 'ex: FC City Rivals' : 'e.g., City Rivals FC'} 
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e);
-                          setOpponentTeamName(e.target.value);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            ) : (
+              <Input 
+                placeholder={t('form.game.opponentPlaceholder')}
+                value={opponentTeamName}
+                onChange={(e) => {
+                  setOpponentTeamName(e.target.value);
+                  form.setValue("opponentName", e.target.value);
+                }}
               />
-              <p className="text-xs text-muted-foreground">
-                💡 {lang === 'fr' ? 'Aidez-les à créer un compte équipe pour rejoindre votre match !' : 'Help them create a team account to join your match!'}
-              </p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
+        {/* Home/Away toggle - compact inline */}
         <FormField
           control={form.control}
           name="homeAway"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{lang === 'fr' ? 'Lieu du match' : 'Match Location'}</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="home">{lang === 'fr' ? 'Domicile' : 'Home'}</SelectItem>
-                  <SelectItem value="away">{lang === 'fr' ? 'Extérieur' : 'Away'}</SelectItem>
-                  <SelectItem value="neutral">{lang === 'fr' ? 'Terrain neutre' : 'Neutral Venue'}</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
+              <FormLabel>{t('form.game.location')}</FormLabel>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={field.value === 'home' ? "default" : "outline"}
+                  onClick={() => field.onChange('home')}
+                  className="flex-1"
+                >
+                  <Home className="h-4 w-4 mr-1" />
+                  {t('form.game.home')}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={field.value === 'away' ? "default" : "outline"}
+                  onClick={() => field.onChange('away')}
+                  className="flex-1"
+                >
+                  <Plane className="h-4 w-4 mr-1" />
+                  {t('form.game.away')}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={field.value === 'neutral' ? "default" : "outline"}
+                  onClick={() => field.onChange('neutral')}
+                  className="flex-1"
+                >
+                  <Scale className="h-4 w-4 mr-1" />
+                  {t('form.game.neutral')}
+                </Button>
+              </div>
             </FormItem>
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="matchFormat"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{lang === 'fr' ? 'Format du match (optionnel)' : 'Match Format (Optional)'}</FormLabel>
-              <FormControl>
-                <Input placeholder={lang === 'fr' ? 'ex: 11v11, 5v5, Best of 3' : 'e.g., 11v11, 5v5, Best of 3'} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        {/* When section */}
+        <div className="space-y-4 p-4 rounded-lg bg-muted/30 border">
+          <h4 className="text-sm font-medium text-muted-foreground">{lang === 'fr' ? 'Quand' : 'When'}</h4>
+          
+          <FormField
+            control={form.control}
+            name="date"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>{t('form.date')}</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? format(field.value, "PPP") : <span>{t('form.pickDate')}</span>}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="startTime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{sportDefaults.timeLabel[lang]}</FormLabel>
+                  <FormControl>
+                    <Input type="time" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <DurationPicker
+              value={duration}
+              onChange={setDuration}
+              label={t('form.duration')}
+              presets={[60, 90, 120]}
+            />
+          </div>
+        </div>
+
+        {/* Format & Players - horizontal */}
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="matchFormat"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('form.game.format')}</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder={lang === 'fr' ? 'Sélectionner' : 'Select'} />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {sportDefaults.formats.map((fmt) => (
+                      <SelectItem key={fmt.value} value={fmt.value}>
+                        {fmt.label[lang]}
+                        {fmt.players && ` (${fmt.players})`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="maxParticipants"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('form.game.players')}</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    min="1" 
+                    placeholder={String(sportDefaults.players)}
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Venue */}
+        <DistrictSelector
+          value={location}
+          onChange={setLocation}
+          label={t('form.game.venue')}
+          venueLabel={lang === 'fr' ? 'Nom du stade' : 'Stadium name'}
+          venuePlaceholder={t('form.game.venuePlaceholder')}
         />
 
         <FormField
@@ -279,11 +414,11 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{lang === 'fr' ? 'Description (optionnel)' : 'Description (Optional)'}</FormLabel>
+              <FormLabel>{t('form.descriptionOptional')}</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder={lang === 'fr' ? 'Détails supplémentaires du match' : 'Additional match details'} 
-                  className="resize-none" 
+                  placeholder={lang === 'fr' ? 'Détails supplémentaires' : 'Additional details'} 
+                  className="resize-none h-16" 
                   {...field} 
                 />
               </FormControl>
@@ -292,102 +427,12 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="date"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>{lang === 'fr' ? 'Date' : 'Date'}</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? format(field.value, "PPP") : <span>{lang === 'fr' ? 'Choisir une date' : 'Pick a date'}</span>}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                    initialFocus
-                    className="pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="startTime"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{lang === 'fr' ? 'Coup d\'envoi' : 'Kickoff Time'}</FormLabel>
-                <FormControl>
-                  <Input type="time" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="endTime"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{lang === 'fr' ? 'Heure de fin' : 'End Time'}</FormLabel>
-                <FormControl>
-                  <Input type="time" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Location - District Selector */}
-        <DistrictSelector
-          value={location}
-          onChange={setLocation}
-          label={lang === 'fr' ? 'Stade/Terrain (optionnel)' : 'Venue (Optional)'}
-          venueLabel={lang === 'fr' ? 'Nom du stade' : 'Stadium name'}
-          venuePlaceholder={lang === 'fr' ? 'ex: Stade Central' : 'e.g., Central Stadium'}
-        />
-
-        <FormField
-          control={form.control}
-          name="maxParticipants"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{lang === 'fr' ? 'Nombre de joueurs' : 'Number of Players'}</FormLabel>
-              <FormControl>
-                <Input type="number" min="1" placeholder={lang === 'fr' ? 'ex: 22' : 'e.g., 22'} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <div className="flex gap-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
-            {t('actions.cancel')}
+            {t('actions.cancel', { ns: 'common' })}
           </Button>
           <Button type="submit" disabled={isSubmitting} className="flex-1">
-            {isSubmitting ? t('actions.loading') : (lang === 'fr' ? 'Créer la partie' : 'Create Game')}
+            {isSubmitting ? t('actions.loading', { ns: 'common' }) : t('form.game.create')}
           </Button>
         </div>
       </form>
