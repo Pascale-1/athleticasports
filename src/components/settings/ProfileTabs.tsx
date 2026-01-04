@@ -49,7 +49,7 @@ export const ProfileTabs = ({
     <Tabs defaultValue="overview" className="w-full">
       <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="overview">{t('profile.title')}</TabsTrigger>
-        <TabsTrigger value="about">{t('teams.about')}</TabsTrigger>
+        <TabsTrigger value="about">{t('profile.about')}</TabsTrigger>
         <TabsTrigger value="settings">{t('profile.settings')}</TabsTrigger>
       </TabsList>
 
@@ -103,7 +103,7 @@ export const ProfileTabs = ({
                 onClick={() => navigate("/teams")}
               >
                 <Users className="h-5 w-5 text-primary" />
-                <span className="text-xs">{t('teams.myTeams')}</span>
+                <span className="text-xs">{t('nav.teams')}</span>
               </Button>
             </div>
           </CardContent>

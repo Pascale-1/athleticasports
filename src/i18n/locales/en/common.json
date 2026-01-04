@@ -104,6 +104,7 @@
   },
   "profile": {
     "title": "Profile",
+    "about": "About",
     "shareProfile": "Share Profile",
     "settings": "Settings",
     "language": "Language",
