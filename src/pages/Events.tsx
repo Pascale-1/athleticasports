@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar as CalendarIcon, List, Search } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, List, Search, Trophy, Coffee, Swords } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { useEventFilters } from "@/hooks/useEventFilters";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
@@ -18,6 +18,12 @@ import type { Event } from "@/lib/events";
 import { Badge } from "@/components/ui/badge";
 import { FAB } from "@/components/mobile/FAB";
 import { EmptyState } from "@/components/EmptyState";
+
+const EVENT_TYPE_LEGEND = [
+  { type: 'training', label: 'Training', icon: Trophy, color: 'text-primary' },
+  { type: 'match', label: 'Match', icon: Swords, color: 'text-destructive' },
+  { type: 'meetup', label: 'Meetup', icon: Coffee, color: 'text-muted-foreground' },
+] as const;
 
 const Events = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -99,11 +105,11 @@ const Events = () => {
                 setTypeFilter(value);
               }}
             >
-              <SelectTrigger className="w-32 h-10 md:hidden">
+              <SelectTrigger className="w-36 h-10 md:hidden">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="training">Training</SelectItem>
                 <SelectItem value="meetup">Meetup</SelectItem>
                 <SelectItem value="match">Match</SelectItem>
@@ -118,30 +124,33 @@ const Events = () => {
                 className="h-10 px-3 text-xs" 
                 onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
               >
-                All
+                All Types
               </Button>
               <Button 
                 size="sm" 
                 variant={activeEventType === 'training' ? 'default' : 'ghost'} 
-                className="h-10 px-3 text-xs" 
+                className="h-10 px-3 text-xs gap-1.5" 
                 onClick={() => { setActiveEventType('training'); setTypeFilter('training'); }}
               >
+                <Trophy className="h-3.5 w-3.5" />
                 Training
               </Button>
               <Button 
                 size="sm" 
                 variant={activeEventType === 'meetup' ? 'default' : 'ghost'} 
-                className="h-10 px-3 text-xs" 
+                className="h-10 px-3 text-xs gap-1.5" 
                 onClick={() => { setActiveEventType('meetup'); setTypeFilter('meetup'); }}
               >
+                <Coffee className="h-3.5 w-3.5" />
                 Meetup
               </Button>
               <Button 
                 size="sm" 
                 variant={activeEventType === 'match' ? 'default' : 'ghost'} 
-                className="h-10 px-3 text-xs" 
+                className="h-10 px-3 text-xs gap-1.5" 
                 onClick={() => { setActiveEventType('match'); setTypeFilter('match'); }}
               >
+                <Swords className="h-3.5 w-3.5" />
                 Match
               </Button>
             </div>
@@ -164,6 +173,24 @@ const Events = () => {
               >
                 <CalendarIcon className="h-4 w-4" />
               </Button>
+            </div>
+
+            {/* Event Type Legend - Mobile only */}
+            <div className="flex items-center gap-3 md:hidden">
+              {EVENT_TYPE_LEGEND.map(({ type, label, icon: Icon, color }) => (
+                <button
+                  key={type}
+                  onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
+                  className={`flex items-center gap-1.5 text-xs transition-opacity ${
+                    activeEventType === 'all' || activeEventType === type 
+                      ? 'opacity-100' 
+                      : 'opacity-50'
+                  }`}
+                >
+                  <Icon className={`h-3.5 w-3.5 ${color}`} />
+                  <span className="text-muted-foreground">{label}</span>
+                </button>
+              ))}
             </div>
           </div>
 
