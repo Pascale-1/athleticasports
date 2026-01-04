@@ -63,16 +63,60 @@
     "title": "Titre",
     "titlePlaceholder": "Nom de l'événement",
     "description": "Description",
+    "descriptionOptional": "Description (optionnel)",
     "descriptionPlaceholder": "Décrivez votre événement...",
     "date": "Date",
+    "pickDate": "Choisir une date",
     "startTime": "Heure de début",
     "endTime": "Heure de fin",
+    "duration": "Durée",
     "location": "Lieu",
+    "locationOptional": "Lieu (optionnel)",
     "locationPlaceholder": "Adresse ou nom du lieu",
+    "venueName": "Nom du lieu",
     "type": "Type d'événement",
     "maxParticipants": "Nombre max de participants",
+    "participants": "Participants",
     "isPublic": "Événement public",
-    "isPublicDesc": "Visible par tous les utilisateurs"
+    "isPublicDesc": "Visible par tous les utilisateurs",
+    "sport": "Sport",
+    "selectSport": "Sélectionner un sport",
+    "training": {
+      "title": "Titre de l'entraînement",
+      "titlePlaceholder": "ex: Entraînement du mardi",
+      "descPlaceholder": "Sur quoi allez-vous travailler ?",
+      "create": "Créer l'entraînement"
+    },
+    "meetup": {
+      "title": "Titre du meetup",
+      "titlePlaceholder": "ex: Dîner et soirée équipe",
+      "descPlaceholder": "Quel est le programme ?",
+      "category": "Catégorie",
+      "selectCategory": "Sélectionner une catégorie",
+      "physicalLocation": "Lieu physique (optionnel)",
+      "virtualLink": "Lien virtuel (optionnel)",
+      "create": "Créer le meetup"
+    },
+    "game": {
+      "title": "Titre de la partie",
+      "titlePlaceholder": "ex: Finale du championnat",
+      "yourTeam": "Votre équipe",
+      "opponentTeam": "Adversaire",
+      "selectTeam": "Sélectionner",
+      "enterManually": "Saisir",
+      "opponentName": "Nom de l'adversaire",
+      "opponentPlaceholder": "ex: FC City Rivals",
+      "location": "Lieu du match",
+      "home": "Domicile",
+      "away": "Extérieur",
+      "neutral": "Neutre",
+      "format": "Format de la partie",
+      "formatPlaceholder": "ex: 11v11, 5v5, Best of 3",
+      "players": "Joueurs",
+      "venue": "Stade/Terrain (optionnel)",
+      "venuePlaceholder": "ex: Stade Central",
+      "create": "Créer la partie"
+    }
   },
   "game": {
     "opponent": "Adversaire",
@@ -111,5 +155,13 @@
   "views": {
     "list": "Liste",
     "calendar": "Calendrier"
+  },
+  "categories": {
+    "watchParty": "Soirée match",
+    "postGame": "Verre d'après-match",
+    "teamDinner": "Dîner d'équipe",
+    "social": "Événement social",
+    "fitness": "Activité fitness",
+    "other": "Autre"
   }
 }

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Coffee, Swords } from "lucide-react";
+import { Dumbbell, Users, Trophy } from "lucide-react";
 import { TrainingEventForm } from "./TrainingEventForm";
 import { MeetupEventForm } from "./MeetupEventForm";
 import { MatchEventForm } from "./MatchEventForm";
@@ -12,6 +12,7 @@ interface CreateEventDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   teamId?: string;
+  sport?: string;
   defaultType?: 'training' | 'meetup' | 'match';
   createEvent?: (data: CreateEventData) => Promise<boolean>;
   onCreated?: () => void;
@@ -21,6 +22,7 @@ export const CreateEventDialog = ({
   open, 
   onOpenChange, 
   teamId,
+  sport,
   defaultType = 'training',
   createEvent: parentCreateEvent,
   onCreated
@@ -61,17 +63,17 @@ export const CreateEventDialog = ({
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 h-auto p-1">
             <TabsTrigger value="training" className="flex flex-col items-center gap-1 py-3">
-              <Trophy className="h-5 w-5" />
+              <Dumbbell className="h-5 w-5" />
               <span className="text-xs font-medium">{t('types.training')}</span>
               <span className="text-[10px] text-muted-foreground">{t('create.trainingDesc')}</span>
             </TabsTrigger>
             <TabsTrigger value="meetup" className="flex flex-col items-center gap-1 py-3">
-              <Coffee className="h-5 w-5" />
+              <Users className="h-5 w-5" />
               <span className="text-xs font-medium">{t('types.meetup')}</span>
               <span className="text-[10px] text-muted-foreground">{t('create.meetupDesc')}</span>
             </TabsTrigger>
             <TabsTrigger value="match" className="flex flex-col items-center gap-1 py-3">
-              <Swords className="h-5 w-5" />
+              <Trophy className="h-5 w-5" />
               <span className="text-xs font-medium">{t('types.game')}</span>
               <span className="text-[10px] text-muted-foreground">{t('create.gameDesc')}</span>
             </TabsTrigger>
@@ -80,6 +82,7 @@ export const CreateEventDialog = ({
           <TabsContent value="training" className="mt-6">
             <TrainingEventForm
               teamId={teamId}
+              sport={sport}
               onSubmit={handleSubmit}
               onCancel={handleCancel}
               isSubmitting={isSubmitting}
@@ -98,6 +101,7 @@ export const CreateEventDialog = ({
           <TabsContent value="match" className="mt-6">
             <MatchEventForm
               teamId={teamId}
+              sport={sport}
               onSubmit={handleSubmit}
               onCancel={handleCancel}
               isSubmitting={isSubmitting}

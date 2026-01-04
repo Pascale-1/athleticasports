@@ -63,16 +63,60 @@
     "title": "Title",
     "titlePlaceholder": "Event name",
     "description": "Description",
+    "descriptionOptional": "Description (Optional)",
     "descriptionPlaceholder": "Describe your event...",
     "date": "Date",
+    "pickDate": "Pick a date",
     "startTime": "Start Time",
     "endTime": "End Time",
+    "duration": "Duration",
     "location": "Location",
+    "locationOptional": "Location (Optional)",
     "locationPlaceholder": "Address or venue name",
+    "venueName": "Venue Name",
     "type": "Event Type",
     "maxParticipants": "Max Participants",
+    "participants": "Participants",
     "isPublic": "Public Event",
-    "isPublicDesc": "Visible to all users"
+    "isPublicDesc": "Visible to all users",
+    "sport": "Sport",
+    "selectSport": "Select a sport",
+    "training": {
+      "title": "Training Title",
+      "titlePlaceholder": "e.g., Tuesday Practice Session",
+      "descPlaceholder": "What will you be working on?",
+      "create": "Create Training"
+    },
+    "meetup": {
+      "title": "Meetup Title",
+      "titlePlaceholder": "e.g., Team Dinner & Social",
+      "descPlaceholder": "What's the plan?",
+      "category": "Category",
+      "selectCategory": "Select category",
+      "physicalLocation": "Physical Location (Optional)",
+      "virtualLink": "Virtual Link (Optional)",
+      "create": "Create Meetup"
+    },
+    "game": {
+      "title": "Game Title",
+      "titlePlaceholder": "e.g., Championship Final",
+      "yourTeam": "Your Team",
+      "opponentTeam": "Opponent",
+      "selectTeam": "Select Team",
+      "enterManually": "Enter Manually",
+      "opponentName": "Opponent Name",
+      "opponentPlaceholder": "e.g., City Rivals FC",
+      "location": "Match Location",
+      "home": "Home",
+      "away": "Away",
+      "neutral": "Neutral",
+      "format": "Game Format",
+      "formatPlaceholder": "e.g., 11v11, 5v5, Best of 3",
+      "players": "Players",
+      "venue": "Venue (Optional)",
+      "venuePlaceholder": "e.g., Central Stadium",
+      "create": "Create Game"
+    }
   },
   "game": {
     "opponent": "Opponent",
@@ -111,5 +155,13 @@
   "views": {
     "list": "List",
     "calendar": "Calendar"
+  },
+  "categories": {
+    "watchParty": "Watch Party",
+    "postGame": "Post-Game Drinks",
+    "teamDinner": "Team Dinner",
+    "social": "Social Event",
+    "fitness": "Fitness Activity",
+    "other": "Other"
   }
 }
