@@ -354,4 +354,22 @@ All colors MUST be HSL.
   .text-subtle {
     @apply text-muted-foreground;
   }
+
+  /* Calendar event indicator dot */
+  .has-event-indicator {
+    position: relative;
+    font-weight: 600;
+  }
+
+  .has-event-indicator::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: hsl(var(--primary));
+  }
 }

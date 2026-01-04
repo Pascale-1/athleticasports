@@ -40,10 +40,8 @@ export const EventCalendar = ({ events }: EventCalendarProps) => {
           modifiers={{
             hasEvent: (date) => eventDates.some(eventDate => isSameDay(eventDate, date))
           }}
-          modifiersStyles={{
-            hasEvent: {
-              fontWeight: 'bold',
-            }
+          modifiersClassNames={{
+            hasEvent: "has-event-indicator"
           }}
         />
         <div className="mt-4 pt-4 border-t">
