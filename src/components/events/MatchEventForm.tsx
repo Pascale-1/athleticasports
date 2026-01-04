@@ -93,6 +93,15 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
     }
   }, [selectedFormat, effectiveSport, form]);
 
+  // Reset opponent when sport changes (team might not match new sport)
+  useEffect(() => {
+    if (selectedSport && !teamId) {
+      setOpponentTeamId(null);
+      setOpponentTeamName("");
+      setOpponentLogoUrl("");
+    }
+  }, [selectedSport, teamId]);
+
   // Auto-generate title when teams are selected
   useEffect(() => {
     const currentTitle = form.getValues('title');
@@ -134,36 +143,23 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
-        {/* Sport selector - only show if no team context */}
-        {!teamId && (
-          <SportQuickSelector
-            value={selectedSport}
-            onChange={setSelectedSport}
-            label={t('form.sport')}
-            lang={lang}
-          />
-        )}
-
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('form.game.title')}</FormLabel>
-              <FormControl>
-                <Input placeholder={t('form.game.titlePlaceholder')} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Teams section - compact layout */}
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        {/* Teams section */}
         <div className="space-y-3 p-4 rounded-lg bg-muted/30 border">
           <h4 className="text-sm font-medium text-muted-foreground">{lang === 'fr' ? 'Équipes' : 'Teams'}</h4>
           
-          {/* Home Team - inline display if pre-selected */}
+          {/* Sport selector inside teams section */}
+          {!teamId && (
+            <SportQuickSelector
+              value={selectedSport}
+              onChange={setSelectedSport}
+              label={t('form.sport')}
+              lang={lang}
+              required
+            />
+          )}
+
+          {/* Home Team */}
           <div className="space-y-2">
             <label className="text-sm font-medium">{t('form.game.yourTeam')}</label>
             {teamId && homeTeam ? (
@@ -181,17 +177,16 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
               </div>
             ) : (
               <TeamSelector
-                onSelect={(id, name) => {
-                  setHomeTeamId(id);
-                }}
+                onSelect={(id, name) => setHomeTeamId(id)}
                 selectedTeamId={homeTeamId}
-                placeholder={t('form.game.selectTeam')}
+                placeholder={!selectedSport && !teamId ? (lang === 'fr' ? 'Sélectionnez un sport d\'abord' : 'Select a sport first') : t('form.game.selectTeam')}
                 showCreateButton={true}
+                sportFilter={selectedSport || undefined}
               />
             )}
           </div>
 
-          {/* Opponent - toggle between selector and manual */}
+          {/* Opponent */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium">{t('form.game.opponentTeam')}</label>
@@ -201,7 +196,7 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
                   size="sm"
                   variant={useTeamSelector ? "default" : "ghost"}
                   onClick={() => setUseTeamSelector(true)}
-                  className="h-7 px-2 text-xs"
+                  className="h-6 px-2 text-xs"
                 >
                   {t('form.game.selectTeam')}
                 </Button>
@@ -210,7 +205,7 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
                   size="sm"
                   variant={!useTeamSelector ? "default" : "ghost"}
                   onClick={() => setUseTeamSelector(false)}
-                  className="h-7 px-2 text-xs"
+                  className="h-6 px-2 text-xs"
                 >
                   {t('form.game.enterManually')}
                 </Button>
@@ -227,7 +222,7 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
                 }}
                 selectedTeamId={opponentTeamId || undefined}
                 excludeTeamId={homeTeamId}
-                placeholder={lang === 'fr' ? 'Rechercher...' : 'Search...'}
+                placeholder={!effectiveSport ? (lang === 'fr' ? 'Sélectionnez un sport d\'abord' : 'Select a sport first') : (lang === 'fr' ? 'Rechercher...' : 'Search...')}
                 sportFilter={effectiveSport || undefined}
                 showCreateButton={true}
               />
@@ -244,48 +239,76 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
           </div>
         </div>
 
-        {/* Home/Away toggle - compact inline */}
+        {/* Title */}
         <FormField
           control={form.control}
-          name="homeAway"
+          name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('form.game.location')}</FormLabel>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={field.value === 'home' ? "default" : "outline"}
-                  onClick={() => field.onChange('home')}
-                  className="flex-1"
-                >
-                  <Home className="h-4 w-4 mr-1" />
-                  {t('form.game.home')}
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={field.value === 'away' ? "default" : "outline"}
-                  onClick={() => field.onChange('away')}
-                  className="flex-1"
-                >
-                  <Plane className="h-4 w-4 mr-1" />
-                  {t('form.game.away')}
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={field.value === 'neutral' ? "default" : "outline"}
-                  onClick={() => field.onChange('neutral')}
-                  className="flex-1"
-                >
-                  <Scale className="h-4 w-4 mr-1" />
-                  {t('form.game.neutral')}
-                </Button>
-              </div>
+              <FormLabel>{t('form.game.title')}</FormLabel>
+              <FormControl>
+                <Input placeholder={t('form.game.titlePlaceholder')} {...field} />
+              </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Where section */}
+        <div className="space-y-3 p-4 rounded-lg bg-muted/30 border">
+          <h4 className="text-sm font-medium text-muted-foreground">{lang === 'fr' ? 'Lieu' : 'Where'}</h4>
+          
+          {/* Home/Away toggle */}
+          <FormField
+            control={form.control}
+            name="homeAway"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex gap-1">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={field.value === 'home' ? "default" : "outline"}
+                    onClick={() => field.onChange('home')}
+                    className="flex-1 h-9"
+                  >
+                    <Home className="h-3.5 w-3.5 mr-1" />
+                    {t('form.game.home')}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={field.value === 'away' ? "default" : "outline"}
+                    onClick={() => field.onChange('away')}
+                    className="flex-1 h-9"
+                  >
+                    <Plane className="h-3.5 w-3.5 mr-1" />
+                    {t('form.game.away')}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={field.value === 'neutral' ? "default" : "outline"}
+                    onClick={() => field.onChange('neutral')}
+                    className="flex-1 h-9"
+                  >
+                    <Scale className="h-3.5 w-3.5 mr-1" />
+                    {t('form.game.neutral')}
+                  </Button>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/* Venue */}
+          <DistrictSelector
+            value={location}
+            onChange={setLocation}
+            label={t('form.game.venue')}
+            venueLabel={lang === 'fr' ? 'Nom du stade' : 'Stadium name'}
+            venuePlaceholder={t('form.game.venuePlaceholder')}
+          />
+        </div>
 
         {/* When section */}
         <div className="space-y-4 p-4 rounded-lg bg-muted/30 border">
@@ -352,8 +375,8 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
           </div>
         </div>
 
-        {/* Format & Players - horizontal */}
-        <div className="grid grid-cols-2 gap-4">
+        {/* Details section */}
+        <div className="grid grid-cols-2 gap-3">
           <FormField
             control={form.control}
             name="matchFormat"
@@ -362,11 +385,11 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
                 <FormLabel>{t('form.game.format')}</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder={lang === 'fr' ? 'Sélectionner' : 'Select'} />
+                    <SelectTrigger className="h-10">
+                      <SelectValue placeholder={lang === 'fr' ? 'Format' : 'Format'} />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="bg-background">
                     {sportDefaults.formats.map((fmt) => (
                       <SelectItem key={fmt.value} value={fmt.value}>
                         {fmt.label[lang]}
@@ -391,6 +414,7 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
                     type="number" 
                     min="1" 
                     placeholder={String(sportDefaults.players)}
+                    className="h-10"
                     {...field} 
                   />
                 </FormControl>
@@ -399,15 +423,6 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
             )}
           />
         </div>
-
-        {/* Venue */}
-        <DistrictSelector
-          value={location}
-          onChange={setLocation}
-          label={t('form.game.venue')}
-          venueLabel={lang === 'fr' ? 'Nom du stade' : 'Stadium name'}
-          venuePlaceholder={t('form.game.venuePlaceholder')}
-        />
 
         <FormField
           control={form.control}
