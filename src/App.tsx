@@ -14,10 +14,7 @@ import { Loader2 } from "lucide-react";
 const Index = lazy(() => import("./pages/Index"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Settings = lazy(() => import("./pages/Settings"));
-const Community = lazy(() => import("./pages/Community"));
 const Admin = lazy(() => import("./pages/Admin"));
-const Track = lazy(() => import("./pages/Track"));
-const ActivityHistory = lazy(() => import("./pages/ActivityHistory"));
 const Events = lazy(() => import("./pages/Events"));
 const EventDetail = lazy(() => import("./pages/EventDetail"));
 const Teams = lazy(() => import("./pages/Teams"));
@@ -78,13 +75,6 @@ const App = () => (
               </AppLayout>
             </ProtectedRoute>
           } />
-          <Route path="/community" element={
-            <ProtectedRoute>
-              <AppLayout>
-                <Community />
-              </AppLayout>
-            </ProtectedRoute>
-          } />
           {/* Redirects for old routes */}
           <Route path="/users" element={
             <ProtectedRoute>
@@ -104,20 +94,6 @@ const App = () => (
             <ProtectedRoute>
               <AppLayout>
                 <Admin />
-              </AppLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/track" element={
-            <ProtectedRoute>
-              <AppLayout>
-                <Track />
-              </AppLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/activity-history" element={
-            <ProtectedRoute>
-              <AppLayout>
-                <ActivityHistory />
               </AppLayout>
             </ProtectedRoute>
           } />

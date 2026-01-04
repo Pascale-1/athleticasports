@@ -8,7 +8,6 @@ import { Loader2, Upload, Share2, ArrowLeft } from "lucide-react";
 import { ProfileStats } from "@/components/settings/ProfileStats";
 import { ProfileTabs } from "@/components/settings/ProfileTabs";
 import { PageContainer } from "@/components/mobile/PageContainer";
-import { useActivities } from "@/hooks/useActivities";
 
 interface Profile {
   id: string;
@@ -31,8 +30,6 @@ const Settings = () => {
   const [email, setEmail] = useState("");
   const [editingField, setEditingField] = useState<string | null>(null);
   const [tempValues, setTempValues] = useState<any>({});
-  
-  const { activities } = useActivities();
 
   useEffect(() => {
     fetchProfile();
@@ -169,9 +166,9 @@ const Settings = () => {
   }
 
   const stats = {
-    totalActivities: activities.length,
-    totalDistance: activities.reduce((sum, act) => sum + (act.distance || 0), 0),
-    totalDuration: activities.reduce((sum, act) => sum + (act.duration || 0), 0),
+    totalActivities: 0,
+    totalDistance: 0,
+    totalDuration: 0,
   };
 
   return (

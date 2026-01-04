@@ -17,7 +17,10 @@ import { PullToRefresh } from "@/components/animations/PullToRefresh";
 import { AnimatedCard } from "@/components/animations/AnimatedCard";
 import { motion } from "framer-motion";
 import { FilterSheet } from "@/components/common/FilterSheet";
-import { SportFilter } from "@/components/community/SportFilter";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const SPORTS = ["All", "Football", "Basketball", "Tennis", "Running", "Cycling", "Swimming", "Other"];
 
 const Teams = () => {
   const navigate = useNavigate();
@@ -229,11 +232,19 @@ const Teams = () => {
             >
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-sm font-medium mb-3">Sport</h3>
-                  <SportFilter
-                    activeSport={activeSport}
-                    onSportChange={setActiveSport}
-                  />
+                  <Label className="text-sm font-medium mb-3 block">Sport</Label>
+                  <Select value={activeSport} onValueChange={setActiveSport}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select sport" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SPORTS.map((sport) => (
+                        <SelectItem key={sport} value={sport}>
+                          {sport}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </FilterSheet>

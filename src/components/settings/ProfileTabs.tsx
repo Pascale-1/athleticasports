@@ -1,13 +1,13 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { RecentActivities } from "./RecentActivities";
-import { Trophy, Activity, User, Mail, Calendar } from "lucide-react";
+import { Trophy, Users, User, Mail, Calendar, Swords } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { SportSelector } from "./SportSelector";
+import { useNavigate } from "react-router-dom";
 
 interface ProfileTabsProps {
   profile: any;
@@ -36,41 +36,16 @@ export const ProfileTabs = ({
   tempValues,
   setTempValues,
 }: ProfileTabsProps) => {
+  const navigate = useNavigate();
+
   return (
     <Tabs defaultValue="overview" className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="overview">Overview</TabsTrigger>
-        <TabsTrigger value="activity">Activity</TabsTrigger>
         <TabsTrigger value="about">About</TabsTrigger>
       </TabsList>
 
       <TabsContent value="overview" className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Activity className="h-8 w-8 text-primary" />
-                <div>
-                  <p className="text-2xl font-bold">{stats.totalActivities}</p>
-                  <p className="text-sm text-muted-foreground">Activities</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Trophy className="h-8 w-8 text-primary" />
-                <div>
-                  <p className="text-2xl font-bold">{stats.totalDistance.toFixed(1)} km</p>
-                  <p className="text-sm text-muted-foreground">Distance</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         <Card>
           <CardContent className="pt-6 space-y-4">
             <h3 className="font-semibold text-lg">Quick Info</h3>
@@ -103,10 +78,31 @@ export const ProfileTabs = ({
             </div>
           </CardContent>
         </Card>
-      </TabsContent>
 
-      <TabsContent value="activity">
-        <RecentActivities />
+        {/* Quick Actions */}
+        <Card>
+          <CardContent className="pt-6 space-y-4">
+            <h3 className="font-semibold text-lg">Quick Actions</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <Button 
+                variant="outline" 
+                className="flex flex-col items-center gap-2 h-auto py-4"
+                onClick={() => navigate("/events?type=match")}
+              >
+                <Swords className="h-5 w-5 text-primary" />
+                <span className="text-xs">Find Matches</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex flex-col items-center gap-2 h-auto py-4"
+                onClick={() => navigate("/teams")}
+              >
+                <Users className="h-5 w-5 text-primary" />
+                <span className="text-xs">My Teams</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </TabsContent>
 
       <TabsContent value="about" className="space-y-4">
