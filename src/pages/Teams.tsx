@@ -187,7 +187,7 @@ const Teams = () => {
             transition={{ delay: 0.1 }}
           >
             <div className="flex-1">
-              <TeamSearchBar value={searchQuery} onChange={setSearchQuery} />
+              <TeamSearchBar value={searchQuery} onChange={setSearchQuery} placeholder={t('search.placeholder')} />
             </div>
             <Select value={activeSport} onValueChange={setActiveSport}>
               <SelectTrigger className="w-[140px] h-10">

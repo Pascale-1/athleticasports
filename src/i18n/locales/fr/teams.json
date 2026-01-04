@@ -16,6 +16,64 @@
   "chat": "Discussion",
   "settings": "Paramètres",
   "performance": "Performance",
+  "search": {
+    "placeholder": "Rechercher des équipes..."
+  },
+  "header": {
+    "private": "Privée",
+    "public": "Publique",
+    "membersCount": "{{count}} membres"
+  },
+  "communication": {
+    "title": "Communication",
+    "announcements": "Annonces",
+    "chat": "Discussion"
+  },
+  "access": {
+    "denied": "Accès refusé",
+    "notMember": "Vous n'êtes pas membre de cette équipe"
+  },
+  "settingsPage": {
+    "title": "Paramètres de l'équipe",
+    "subtitle": "Gérez les informations et paramètres de votre équipe",
+    "backToTeam": "Retour à l'équipe",
+    "loading": "Chargement...",
+    "accessDenied": "Accès refusé",
+    "noPermission": "Vous n'avez pas la permission de gérer les paramètres de cette équipe.",
+    "backToTeams": "Retour aux équipes",
+    "general": "Paramètres généraux",
+    "teamName": "Nom de l'équipe",
+    "description": "Description",
+    "privateTeam": "Équipe privée",
+    "privateDesc": "Seuls les membres peuvent voir cette équipe",
+    "publicDesc": "Tout le monde peut voir cette équipe",
+    "teamInfo": "Informations de l'équipe",
+    "teamId": "ID de l'équipe",
+    "created": "Créée le",
+    "lastUpdated": "Dernière mise à jour",
+    "saveChanges": "Enregistrer",
+    "saving": "Enregistrement...",
+    "updateSuccess": "Paramètres de l'équipe mis à jour",
+    "updateError": "Échec de la mise à jour"
+  },
+  "danger": {
+    "title": "Zone de danger",
+    "transferOwnership": "Transférer la propriété",
+    "transferDesc": "Transférez la propriété à un autre administrateur ou entraîneur. Vous deviendrez administrateur.",
+    "transferDialogTitle": "Transférer la propriété",
+    "transferDialogDesc": "Sélectionnez un nouveau propriétaire pour cette équipe. Vous serez rétrogradé au statut d'administrateur.",
+    "newOwner": "Nouveau propriétaire",
+    "selectMember": "Sélectionner un membre",
+    "transferring": "Transfert en cours...",
+    "deleteTeam": "Supprimer l'équipe",
+    "deleteDesc": "Supprimez définitivement cette équipe et toutes les données associées. Cette action est irréversible.",
+    "confirmDelete": "Êtes-vous absolument sûr ?",
+    "confirmDeleteDesc": "Cette action est irréversible. Cela supprimera définitivement l'équipe, tous les membres, annonces, séances d'entraînement et données associées.",
+    "typeToConfirm": "Tapez {{name}} pour confirmer",
+    "teamNamePlaceholder": "Nom de l'équipe",
+    "deleting": "Suppression...",
+    "cancel": "Annuler"
+  },
   "roles": {
     "owner": "Propriétaire",
     "admin": "Administrateur",
@@ -52,7 +110,8 @@
     "delete": "Supprimer l'équipe",
     "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette équipe ? Cette action est irréversible.",
     "removeMember": "Retirer le membre",
-    "changeRole": "Changer le rôle"
+    "changeRole": "Changer le rôle",
+    "settings": "Paramètres"
   },
   "filters": {
     "all": "Toutes",
@@ -79,5 +138,15 @@
     "assign": "Attribuer un niveau",
     "level": "Niveau",
     "notes": "Notes"
+  },
+  "toast": {
+    "leaveSuccess": "Vous avez quitté l'équipe",
+    "leaveError": "Échec de la sortie de l'équipe",
+    "deleteSuccess": "Équipe supprimée avec succès",
+    "deleteError": "Échec de la suppression de l'équipe",
+    "transferSuccess": "Propriété transférée avec succès",
+    "transferError": "Échec du transfert de propriété",
+    "nameError": "Le nom de l'équipe ne correspond pas",
+    "selectOwnerError": "Veuillez sélectionner un nouveau propriétaire"
   }
 }
