@@ -2,9 +2,7 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -52,34 +50,14 @@ export const SportQuickSelector = ({
           </SelectValue>
         </SelectTrigger>
         <SelectContent className="bg-background">
-          <SelectGroup>
-            <SelectLabel className="text-xs text-muted-foreground">
-              {lang === 'fr' ? 'Populaires' : 'Featured'}
-            </SelectLabel>
-            {featuredSports.map((sport) => (
-              <SelectItem key={sport.id} value={sport.id}>
-                <span className="flex items-center gap-2">
-                  <span>{sport.emoji}</span>
-                  <span>{getSportLabel(sport.id, lang)}</span>
-                </span>
-              </SelectItem>
-            ))}
-          </SelectGroup>
-          {regularSports.length > 0 && (
-            <SelectGroup>
-              <SelectLabel className="text-xs text-muted-foreground">
-                {lang === 'fr' ? 'Autres sports' : 'All Sports'}
-              </SelectLabel>
-              {regularSports.map((sport) => (
-                <SelectItem key={sport.id} value={sport.id}>
-                  <span className="flex items-center gap-2">
-                    <span>{sport.emoji}</span>
-                    <span>{getSportLabel(sport.id, lang)}</span>
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          )}
+          {[...featuredSports, ...regularSports].map((sport) => (
+            <SelectItem key={sport.id} value={sport.id}>
+              <span className="flex items-center gap-2">
+                <span>{sport.emoji}</span>
+                <span>{getSportLabel(sport.id, lang)}</span>
+              </span>
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
       

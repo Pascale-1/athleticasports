@@ -119,37 +119,6 @@ export const MeetupEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Me
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
-        {/* Quick templates */}
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => handleTemplateClick('watch_party', lang === 'fr' ? 'Soirée match 📺' : 'Watch Party 📺')}
-            className="text-xs"
-          >
-            📺 {lang === 'fr' ? 'Soirée match' : 'Watch Party'}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => handleTemplateClick('team_dinner', lang === 'fr' ? 'Dîner d\'équipe 🍽️' : 'Team Dinner 🍽️')}
-            className="text-xs"
-          >
-            🍽️ {lang === 'fr' ? 'Dîner d\'équipe' : 'Team Dinner'}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => handleTemplateClick('post_game', lang === 'fr' ? 'Verre d\'après-match 🍻' : 'Post-Game Drinks 🍻')}
-            className="text-xs"
-          >
-            🍻 {lang === 'fr' ? 'Après-match' : 'Post-Game'}
-          </Button>
-        </div>
-
         <FormField
           control={form.control}
           name="title"
