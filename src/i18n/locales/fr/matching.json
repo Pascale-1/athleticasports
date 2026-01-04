@@ -1,7 +1,7 @@
 {
   "findGame": {
-    "title": "Trouver une partie",
-    "subtitle": "Trouvez des joueurs disponibles pour jouer",
+    "title": "Ma disponibilité",
+    "subtitle": "Indiquez quand et où vous pouvez jouer. Nous vous notifierons quand une partie correspondante sera trouvée.",
     "sport": "Sport",
     "sportPlaceholder": "Sélectionnez un sport",
     "location": "Lieu",
@@ -11,7 +11,8 @@
     "searching": "Recherche en cours...",
     "noResults": "Aucun joueur disponible",
     "noResultsDesc": "Essayez d'élargir vos critères de recherche",
-    "distance": "à {{distance}} km"
+    "distance": "à {{distance}} km",
+    "makeAvailable": "Indiquer ma disponibilité"
   },
   "createGame": {
     "title": "Créer une partie",
@@ -35,10 +36,10 @@
     "youProposed": "Vous avez proposé une partie"
   },
   "availability": {
-    "title": "Disponibilité",
+    "title": "Ma disponibilité",
     "setAvailable": "Indiquer ma disponibilité",
     "notAvailable": "Non disponible",
-    "available": "Disponible",
+    "available": "Disponible pour jouer",
     "activeUntil": "Actif jusqu'à",
     "cancel": "Annuler ma disponibilité"
   },
