@@ -1,4 +1,4 @@
-import { Calendar, Users, Trophy, LucideIcon } from "lucide-react";
+import { Dumbbell, Users, Trophy, LucideIcon } from "lucide-react";
 
 export type EventType = 'training' | 'meetup' | 'match';
 export type EventRole = 'coach' | 'admin' | 'owner' | 'member' | 'all';
@@ -16,7 +16,7 @@ export interface EventTypeConfig {
 
 export const EVENT_CONFIG: Record<EventType, EventTypeConfig> = {
   training: {
-    icon: Calendar,
+    icon: Dumbbell,
     color: 'hsl(var(--primary))',
     bgColor: 'hsl(var(--primary) / 0.1)',
     label: 'Training',

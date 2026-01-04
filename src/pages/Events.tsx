@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar as CalendarIcon, List, Search, Trophy, Coffee, Swords } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, List, Search, Dumbbell, Users, Swords } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { useEventFilters } from "@/hooks/useEventFilters";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
@@ -21,9 +21,9 @@ import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const EVENT_TYPE_LEGEND = [
-  { type: 'training', labelKey: 'types.training', icon: Trophy, color: 'text-blue-500' },
+  { type: 'training', labelKey: 'types.training', icon: Dumbbell, color: 'text-blue-500' },
   { type: 'match', labelKey: 'types.game', icon: Swords, color: 'text-amber-500' },
-  { type: 'meetup', labelKey: 'types.meetup', icon: Coffee, color: 'text-emerald-500' },
+  { type: 'meetup', labelKey: 'types.meetup', icon: Users, color: 'text-emerald-500' },
 ] as const;
 
 const Events = () => {
