@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Team, updateTeam } from "@/lib/teams";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ interface TeamGeneralSettingsProps {
 }
 
 export const TeamGeneralSettings = ({ team }: TeamGeneralSettingsProps) => {
+  const { t } = useTranslation('teams');
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -32,14 +34,14 @@ export const TeamGeneralSettings = ({ team }: TeamGeneralSettingsProps) => {
       });
 
       toast({
-        title: "Success",
-        description: "Team settings updated successfully",
+        title: t('settingsPage.updateSuccess'),
+        description: t('settingsPage.updateSuccess'),
       });
     } catch (error) {
       console.error("Error updating team:", error);
       toast({
-        title: "Error",
-        description: "Failed to update team settings",
+        title: t('settingsPage.updateError'),
+        description: t('settingsPage.updateError'),
         variant: "destructive",
       });
     } finally {
@@ -48,12 +50,12 @@ export const TeamGeneralSettings = ({ team }: TeamGeneralSettingsProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border bg-card p-6">
-      <h2 className="text-xl font-semibold mb-4">General Settings</h2>
+    <form onSubmit={handleSubmit} className="rounded-lg border bg-card p-4 sm:p-6">
+      <h2 className="text-lg font-semibold mb-4">{t('settingsPage.general')}</h2>
       
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="name">Team Name</Label>
+          <Label htmlFor="name">{t('settingsPage.teamName')}</Label>
           <Input
             id="name"
             value={formData.name}
@@ -61,11 +63,12 @@ export const TeamGeneralSettings = ({ team }: TeamGeneralSettingsProps) => {
               setFormData({ ...formData, name: e.target.value })
             }
             required
+            className="h-11"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description">{t('settingsPage.description')}</Label>
           <Textarea
             id="description"
             value={formData.description}
@@ -78,11 +81,11 @@ export const TeamGeneralSettings = ({ team }: TeamGeneralSettingsProps) => {
 
         <div className="flex items-center justify-between rounded-lg border p-4">
           <div className="space-y-0.5">
-            <Label htmlFor="privacy">Private Team</Label>
+            <Label htmlFor="privacy">{t('settingsPage.privateTeam')}</Label>
             <p className="text-sm text-muted-foreground">
               {formData.is_private
-                ? "Only members can view this team"
-                : "Anyone can view this team"}
+                ? t('settingsPage.privateDesc')
+                : t('settingsPage.publicDesc')}
             </p>
           </div>
           <Switch
@@ -94,8 +97,8 @@ export const TeamGeneralSettings = ({ team }: TeamGeneralSettingsProps) => {
           />
         </div>
 
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Saving..." : "Save Changes"}
+        <Button type="submit" disabled={isLoading} className="w-full sm:w-auto h-11">
+          {isLoading ? t('settingsPage.saving') : t('settingsPage.saveChanges')}
         </Button>
       </div>
     </form>

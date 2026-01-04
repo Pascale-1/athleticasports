@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Team, deleteTeam, transferTeamOwnership } from "@/lib/teams";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ interface TeamDangerZoneProps {
 
 export const TeamDangerZone = ({ team }: TeamDangerZoneProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation('teams');
   const { toast } = useToast();
   const { members } = useTeamMembers(team.id);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
@@ -46,8 +48,8 @@ export const TeamDangerZone = ({ team }: TeamDangerZoneProps) => {
   const handleDeleteTeam = async () => {
     if (deleteConfirmation !== team.name) {
       toast({
-        title: "Error",
-        description: "Team name doesn't match",
+        title: t('toast.nameError'),
+        description: t('toast.nameError'),
         variant: "destructive",
       });
       return;
@@ -57,15 +59,15 @@ export const TeamDangerZone = ({ team }: TeamDangerZoneProps) => {
     try {
       await deleteTeam(team.id);
       toast({
-        title: "Success",
-        description: "Team deleted successfully",
+        title: t('toast.deleteSuccess'),
+        description: t('toast.deleteSuccess'),
       });
       navigate("/teams");
     } catch (error) {
       console.error("Error deleting team:", error);
       toast({
-        title: "Error",
-        description: "Failed to delete team",
+        title: t('toast.deleteError'),
+        description: t('toast.deleteError'),
         variant: "destructive",
       });
     } finally {
@@ -76,8 +78,8 @@ export const TeamDangerZone = ({ team }: TeamDangerZoneProps) => {
   const handleTransferOwnership = async () => {
     if (!selectedNewOwner) {
       toast({
-        title: "Error",
-        description: "Please select a new owner",
+        title: t('toast.selectOwnerError'),
+        description: t('toast.selectOwnerError'),
         variant: "destructive",
       });
       return;
@@ -87,15 +89,15 @@ export const TeamDangerZone = ({ team }: TeamDangerZoneProps) => {
     try {
       await transferTeamOwnership(team.id, selectedNewOwner);
       toast({
-        title: "Success",
-        description: "Ownership transferred successfully",
+        title: t('toast.transferSuccess'),
+        description: t('toast.transferSuccess'),
       });
       navigate(`/teams/${team.id}`);
     } catch (error) {
       console.error("Error transferring ownership:", error);
       toast({
-        title: "Error",
-        description: "Failed to transfer ownership",
+        title: t('toast.transferError'),
+        description: t('toast.transferError'),
         variant: "destructive",
       });
     } finally {
@@ -104,63 +106,60 @@ export const TeamDangerZone = ({ team }: TeamDangerZoneProps) => {
   };
 
   return (
-    <div className="rounded-lg border-2 border-destructive/50 bg-destructive/5 p-6">
+    <div className="rounded-lg border-2 border-destructive/50 bg-destructive/5 p-4 sm:p-6">
       <div className="flex items-center gap-2 mb-4">
         <AlertTriangle className="h-5 w-5 text-destructive" />
-        <h2 className="text-xl font-semibold text-destructive">Danger Zone</h2>
+        <h2 className="text-lg font-semibold text-destructive">{t('danger.title')}</h2>
       </div>
 
       <div className="space-y-4">
         <div className="rounded-lg border bg-background p-4">
           <h3 className="font-semibold mb-2 flex items-center gap-2">
             <UserCog className="h-4 w-4" />
-            Transfer Ownership
+            {t('danger.transferOwnership')}
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Transfer ownership to another admin or coach. You will become an
-            admin.
+            {t('danger.transferDesc')}
           </p>
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" disabled={admins.length === 0}>
-                Transfer Ownership
+              <Button variant="outline" disabled={admins.length === 0} className="h-11">
+                {t('danger.transferOwnership')}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Transfer Team Ownership</AlertDialogTitle>
+                <AlertDialogTitle>{t('danger.transferDialogTitle')}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Select a new owner for this team. You will be demoted to
-                  admin status.
+                  {t('danger.transferDialogDesc')}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <div className="py-4">
-                <Label htmlFor="new-owner">New Owner</Label>
+                <Label htmlFor="new-owner">{t('danger.newOwner')}</Label>
                 <Select
                   value={selectedNewOwner}
                   onValueChange={setSelectedNewOwner}
                 >
-                  <SelectTrigger id="new-owner">
-                    <SelectValue placeholder="Select a member" />
+                  <SelectTrigger id="new-owner" className="h-11">
+                    <SelectValue placeholder={t('danger.selectMember')} />
                   </SelectTrigger>
                   <SelectContent>
                     {admins.map((admin) => (
                       <SelectItem key={admin.user_id} value={admin.user_id}>
-                        {admin.profile.display_name || admin.profile.username} (
-                        {admin.role})
+                        {admin.profile.display_name || admin.profile.username} ({t(`roles.${admin.role}`)})
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>{t('danger.cancel')}</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleTransferOwnership}
                   disabled={isTransferring}
                 >
-                  {isTransferring ? "Transferring..." : "Transfer Ownership"}
+                  {isTransferring ? t('danger.transferring') : t('danger.transferOwnership')}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -170,49 +169,47 @@ export const TeamDangerZone = ({ team }: TeamDangerZoneProps) => {
         <div className="rounded-lg border bg-background p-4">
           <h3 className="font-semibold mb-2 flex items-center gap-2">
             <Trash2 className="h-4 w-4" />
-            Delete Team
+            {t('danger.deleteTeam')}
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Permanently delete this team and all associated data. This action
-            cannot be undone.
+            {t('danger.deleteDesc')}
           </p>
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive">Delete Team</Button>
+              <Button variant="destructive" className="h-11">{t('danger.deleteTeam')}</Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>
-                  Are you absolutely sure?
+                  {t('danger.confirmDelete')}
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the
-                  team, all members, announcements, training sessions, and
-                  associated data.
+                  {t('danger.confirmDeleteDesc')}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <div className="py-4">
                 <Label htmlFor="confirm-name">
-                  Type <strong>{team.name}</strong> to confirm
+                  {t('danger.typeToConfirm', { name: team.name })}
                 </Label>
                 <Input
                   id="confirm-name"
                   value={deleteConfirmation}
                   onChange={(e) => setDeleteConfirmation(e.target.value)}
-                  placeholder="Team name"
+                  placeholder={t('danger.teamNamePlaceholder')}
+                  className="h-11 mt-2"
                 />
               </div>
               <AlertDialogFooter>
                 <AlertDialogCancel onClick={() => setDeleteConfirmation("")}>
-                  Cancel
+                  {t('danger.cancel')}
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleDeleteTeam}
                   disabled={deleteConfirmation !== team.name || isDeleting}
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
-                  {isDeleting ? "Deleting..." : "Delete Team"}
+                  {isDeleting ? t('danger.deleting') : t('danger.deleteTeam')}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

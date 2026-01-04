@@ -97,29 +97,31 @@ const Events = () => {
         {/* Controls Row */}
         <div className="space-y-3">
           {/* Row 1: Type Filters + View Toggle */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Event Type Legend Buttons */}
-            <div className="flex items-center gap-1 bg-muted p-1 rounded-lg">
-              <Button 
-                size="sm" 
-                variant={activeEventType === 'all' ? 'default' : 'ghost'} 
-                className="h-10 px-3 text-xs" 
-                onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
-              >
-                {t('types.all')}
-              </Button>
-              {EVENT_TYPE_LEGEND.map(({ type, labelKey, icon: Icon }) => (
+          <div className="flex items-center gap-2">
+            {/* Event Type Legend Buttons - Scrollable */}
+            <div className="flex-1 overflow-x-auto scrollbar-hide">
+              <div className="flex items-center gap-1 bg-muted p-1 rounded-lg w-max min-w-full">
                 <Button 
-                  key={type}
                   size="sm" 
-                  variant={activeEventType === type ? 'default' : 'ghost'} 
-                  className="h-10 px-3 text-xs gap-1.5" 
-                  onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
+                  variant={activeEventType === 'all' ? 'default' : 'ghost'} 
+                  className="h-10 px-3 text-xs whitespace-nowrap" 
+                  onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
                 >
-                  <Icon className="h-3.5 w-3.5" />
-                  {t(labelKey)}
+                  {t('types.all')}
                 </Button>
-              ))}
+                {EVENT_TYPE_LEGEND.map(({ type, labelKey, icon: Icon }) => (
+                  <Button 
+                    key={type}
+                    size="sm" 
+                    variant={activeEventType === type ? 'default' : 'ghost'} 
+                    className="h-10 px-3 text-xs gap-1.5 whitespace-nowrap" 
+                    onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
+                  >
+                    <Icon className="h-3.5 w-3.5 flex-shrink-0" />
+                    {t(labelKey)}
+                  </Button>
+                ))}
+              </div>
             </div>
 
             {/* View Toggle */}

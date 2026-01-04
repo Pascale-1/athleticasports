@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { TeamHeader } from "@/components/teams/TeamHeader";
 import { TeamQuickStats } from "@/components/teams/TeamQuickStats";
@@ -10,6 +11,7 @@ import { PerformancePreview } from "@/components/teams/PerformancePreview";
 import { InviteMemberDialog } from "@/components/teams/InviteMemberDialog";
 import { TeamAnnouncements } from "@/components/teams/TeamAnnouncements";
 import { TeamChat } from "@/components/teams/TeamChat";
+import { PageHeader } from "@/components/mobile/PageHeader";
 import { useTeam } from "@/hooks/useTeam";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useTeamInvitations } from "@/hooks/useTeamInvitations";
@@ -28,6 +30,7 @@ import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
 const TeamDetail = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation('teams');
   const { toast } = useToast();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [memberCount, setMemberCount] = useState(0);
@@ -76,14 +79,14 @@ const TeamDetail = () => {
     try {
       await leaveTeam(teamId);
       toast({
-        title: "Success",
-        description: "You have left the team",
+        title: t('toast.leaveSuccess'),
+        description: t('toast.leaveSuccess'),
       });
       navigate("/teams");
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to leave team",
+        title: t('toast.leaveError'),
+        description: t('toast.leaveError'),
         variant: "destructive",
       });
     }
@@ -101,8 +104,8 @@ const TeamDetail = () => {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">Access Denied</h2>
-          <p className="text-muted-foreground">You are not a member of this team</p>
+          <h2 className="text-2xl font-bold mb-2">{t('access.denied')}</h2>
+          <p className="text-muted-foreground">{t('access.notMember')}</p>
         </div>
       </div>
     );
@@ -119,6 +122,14 @@ const TeamDetail = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
+      {/* Back Button */}
+      <PageHeader
+        title=""
+        showBackButton={true}
+        backPath="/teams"
+        className="px-4 pt-4 pb-0"
+      />
+
       <TeamHeader
         team={team}
         memberCount={memberCount}
@@ -159,13 +170,13 @@ const TeamDetail = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Team Communication</CardTitle>
+              <CardTitle>{t('communication.title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="announcements" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="announcements">Announcements</TabsTrigger>
-                  <TabsTrigger value="chat">Chat</TabsTrigger>
+                  <TabsTrigger value="announcements">{t('communication.announcements')}</TabsTrigger>
+                  <TabsTrigger value="chat">{t('communication.chat')}</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="announcements" className="mt-4">

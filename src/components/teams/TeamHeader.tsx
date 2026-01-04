@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,6 +23,7 @@ const roleColors: Record<string, string> = {
 
 export const TeamHeader = ({ team, memberCount, userRole, canManage, onLeaveTeam }: TeamHeaderProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation('teams');
 
   return (
     <div className="border-b bg-card overflow-hidden">
@@ -40,12 +42,12 @@ export const TeamHeader = ({ team, memberCount, userRole, canManage, onLeaveTeam
                 {team.is_private ? (
                   <Badge variant="outline" className="gap-1 text-xs">
                     <Lock className="h-3 w-3" />
-                    Private
+                    {t('header.private')}
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="gap-1 text-xs">
                     <Globe className="h-3 w-3" />
-                    Public
+                    {t('header.public')}
                   </Badge>
                 )}
               </div>
@@ -55,11 +57,11 @@ export const TeamHeader = ({ team, memberCount, userRole, canManage, onLeaveTeam
               <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-3">
                 <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
                   <Users className="h-4 w-4" />
-                  <span>{memberCount} members</span>
+                  <span>{t('header.membersCount', { count: memberCount })}</span>
                 </div>
                 {userRole && (
                   <Badge variant="outline" className={`${roleColors[userRole]} text-xs`}>
-                    {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
+                    {t(`roles.${userRole}`)}
                   </Badge>
                 )}
               </div>
@@ -69,13 +71,13 @@ export const TeamHeader = ({ team, memberCount, userRole, canManage, onLeaveTeam
             {canManage && (
               <Button variant="outline" onClick={() => navigate(`/teams/${team.id}/settings`)} className="w-full sm:w-auto min-h-11">
                 <Settings className="h-4 w-4 mr-2" />
-                <span className="text-xs sm:text-sm">Settings</span>
+                <span className="text-xs sm:text-sm">{t('actions.settings')}</span>
               </Button>
             )}
             {userRole && userRole !== "owner" && (
               <Button variant="outline" onClick={onLeaveTeam} className="w-full sm:w-auto min-h-11">
                 <LogOut className="h-4 w-4 mr-2" />
-                <span className="text-xs sm:text-sm">Leave Team</span>
+                <span className="text-xs sm:text-sm">{t('actions.leave')}</span>
               </Button>
             )}
           </div>
