@@ -90,5 +90,16 @@
     "title": "Edit Event",
     "success": "Event updated!",
     "error": "Failed to update event"
+  },
+  "calendar": {
+    "hasEvents": "Has events",
+    "selectDate": "Select a date",
+    "noEventsOnDate": "No events scheduled for this date",
+    "eventCount": "{{count}} event",
+    "eventCount_other": "{{count}} events"
+  },
+  "views": {
+    "list": "List",
+    "calendar": "Calendar"
   }
 }

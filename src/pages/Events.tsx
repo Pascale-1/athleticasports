@@ -17,11 +17,12 @@ import { Badge } from "@/components/ui/badge";
 import { FAB } from "@/components/mobile/FAB";
 import { EmptyState } from "@/components/EmptyState";
 import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
+import { cn } from "@/lib/utils";
 
 const EVENT_TYPE_LEGEND = [
-  { type: 'training', labelKey: 'types.training', icon: Trophy },
-  { type: 'match', labelKey: 'types.game', icon: Swords },
-  { type: 'meetup', labelKey: 'types.meetup', icon: Coffee },
+  { type: 'training', labelKey: 'types.training', icon: Trophy, color: 'text-blue-500' },
+  { type: 'match', labelKey: 'types.game', icon: Swords, color: 'text-amber-500' },
+  { type: 'meetup', labelKey: 'types.meetup', icon: Coffee, color: 'text-emerald-500' },
 ] as const;
 
 const Events = () => {
@@ -94,50 +95,64 @@ const Events = () => {
           variant="info"
         />
 
-        {/* Controls Row */}
+        {/* Controls Row - Unified Modern Design */}
         <div className="space-y-3">
-          {/* Row 1: Type Filters + View Toggle */}
-          <div className="flex items-center gap-2">
-            {/* Event Type Legend Buttons - Scrollable */}
-            <div className="flex-1 overflow-x-auto scrollbar-hide">
-              <div className="flex items-center gap-1 bg-muted p-1 rounded-lg w-max min-w-full">
-                <Button 
-                  size="sm" 
-                  variant={activeEventType === 'all' ? 'default' : 'ghost'} 
-                  className="h-10 px-3 text-xs whitespace-nowrap" 
-                  onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
-                >
-                  {t('types.all')}
-                </Button>
-                {EVENT_TYPE_LEGEND.map(({ type, labelKey, icon: Icon }) => (
-                  <Button 
-                    key={type}
-                    size="sm" 
-                    variant={activeEventType === type ? 'default' : 'ghost'} 
-                    className="h-10 px-3 text-xs gap-1.5 whitespace-nowrap" 
-                    onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
-                  >
-                    <Icon className="h-3.5 w-3.5 flex-shrink-0" />
-                    {t(labelKey)}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* View Toggle */}
-            <div className="flex gap-1 bg-muted p-1 rounded-lg ml-auto">
+          {/* Unified Filter Bar */}
+          <div className="flex items-center gap-2 bg-card/50 backdrop-blur-sm border rounded-xl p-1.5">
+            {/* Type Filters - Segmented Control */}
+            <div className="flex-1 flex items-center gap-0.5 overflow-x-auto scrollbar-hide">
               <Button 
                 size="sm" 
-                variant={viewMode === 'list' ? 'default' : 'ghost'} 
-                className="h-10 w-10 p-0" 
+                variant="ghost"
+                className={cn(
+                  "h-9 px-3 text-xs rounded-lg transition-all whitespace-nowrap",
+                  activeEventType === 'all' && "bg-primary/10 text-primary font-medium"
+                )}
+                onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
+              >
+                {t('types.all')}
+              </Button>
+              
+              {EVENT_TYPE_LEGEND.map(({ type, labelKey, icon: Icon, color }) => (
+                <Button 
+                  key={type}
+                  size="sm" 
+                  variant="ghost"
+                  className={cn(
+                    "h-9 px-2 md:px-3 text-xs rounded-lg transition-all gap-1.5 whitespace-nowrap",
+                    activeEventType === type && "bg-primary/10 text-primary font-medium"
+                  )}
+                  onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
+                >
+                  <Icon className={cn("h-4 w-4 flex-shrink-0", color)} />
+                  <span className="hidden sm:inline">{t(labelKey)}</span>
+                </Button>
+              ))}
+            </div>
+
+            {/* Divider */}
+            <div className="h-6 w-px bg-border flex-shrink-0" />
+
+            {/* View Toggle */}
+            <div className="flex gap-0.5 flex-shrink-0">
+              <Button 
+                size="sm" 
+                variant="ghost"
+                className={cn(
+                  "h-9 w-9 p-0 rounded-lg",
+                  viewMode === 'list' && "bg-primary/10 text-primary"
+                )}
                 onClick={() => setViewMode('list')}
               >
                 <List className="h-4 w-4" />
               </Button>
               <Button 
                 size="sm" 
-                variant={viewMode === 'calendar' ? 'default' : 'ghost'} 
-                className="h-10 w-10 p-0" 
+                variant="ghost"
+                className={cn(
+                  "h-9 w-9 p-0 rounded-lg",
+                  viewMode === 'calendar' && "bg-primary/10 text-primary"
+                )}
                 onClick={() => setViewMode('calendar')}
               >
                 <CalendarIcon className="h-4 w-4" />
@@ -145,14 +160,14 @@ const Events = () => {
             </div>
           </div>
 
-          {/* Row 2: Search */}
+          {/* Search Input */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input 
               placeholder={t('search.placeholder')} 
               value={filters.searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
-              className="pl-9 h-10" 
+              className="pl-9 h-10 bg-card/50 backdrop-blur-sm" 
             />
           </div>
         </div>
