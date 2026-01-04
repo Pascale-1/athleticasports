@@ -119,7 +119,7 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{lang === 'fr' ? 'Titre du match' : 'Match Title'}</FormLabel>
+              <FormLabel>{lang === 'fr' ? 'Titre de la partie' : 'Game Title'}</FormLabel>
               <FormControl>
                 <Input placeholder={lang === 'fr' ? 'ex: Finale du championnat' : 'e.g., Championship Final'} {...field} />
               </FormControl>
@@ -387,7 +387,7 @@ export const MatchEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Mat
             {t('actions.cancel')}
           </Button>
           <Button type="submit" disabled={isSubmitting} className="flex-1">
-            {isSubmitting ? t('actions.loading') : (lang === 'fr' ? 'Créer le match' : 'Create Match')}
+            {isSubmitting ? t('actions.loading') : (lang === 'fr' ? 'Créer la partie' : 'Create Game')}
           </Button>
         </div>
       </form>

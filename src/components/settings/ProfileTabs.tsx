@@ -95,7 +95,7 @@ export const ProfileTabs = ({
                 onClick={() => navigate("/events?type=match")}
               >
                 <Swords className="h-5 w-5 text-primary" />
-                <span className="text-xs">{t('home.findMatch')}</span>
+                <span className="text-xs">{t('home.findGame')}</span>
               </Button>
               <Button 
                 variant="outline" 
