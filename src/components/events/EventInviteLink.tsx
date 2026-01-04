@@ -1,13 +1,23 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Copy, RefreshCw, Share2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Copy, RefreshCw, Share2, MessageCircle, MoreHorizontal, Settings } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
 
 interface EventInviteLinkProps {
   eventId: string;
@@ -28,11 +38,11 @@ export const EventInviteLink = ({
 
   const inviteLink = `${window.location.origin}/events/join/${inviteCode}`;
 
-  const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(inviteLink);
     toast({
       title: "Copied!",
-      description: `${label} copied to clipboard`,
+      description: "Link copied to clipboard",
     });
   };
 
@@ -103,102 +113,86 @@ export const EventInviteLink = ({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <Share2 className="h-5 w-5" />
-              Share Event
-            </CardTitle>
-            <CardDescription>Invite others to join this event</CardDescription>
-          </div>
-          <Badge variant={localAllowPublicJoin ? "default" : "secondary"}>
-            {localAllowPublicJoin ? "Active" : "Paused"}
-          </Badge>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Share2 className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">Share Event</span>
+          {localAllowPublicJoin ? (
+            <span className="text-xs text-success">Active</span>
+          ) : (
+            <span className="text-xs text-muted-foreground">Paused</span>
+          )}
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Invite Link */}
-        <div className="space-y-2">
-          <Label>Shareable Link</Label>
-          <div className="flex gap-2">
-            <Input value={inviteLink} readOnly className="font-mono text-sm" />
-            <Button
-              size="icon"
-              variant="outline"
-              onClick={() => copyToClipboard(inviteLink, "Link")}
-            >
-              <Copy className="h-4 w-4" />
+        
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Settings className="h-4 w-4" />
             </Button>
-          </div>
-        </div>
-
-        {/* Invite Code */}
-        <div className="space-y-2">
-          <Label>Event Code</Label>
-          <div className="flex gap-2">
-            <Input
-              value={inviteCode}
-              readOnly
-              className="font-mono text-lg font-bold text-center"
-            />
-            <Button
-              size="icon"
-              variant="outline"
-              onClick={() => copyToClipboard(inviteCode, "Code")}
-            >
-              <Copy className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Share Buttons */}
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={shareViaWhatsApp}
-          >
-            Share via WhatsApp
-          </Button>
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={shareViaSMS}
-          >
-            Share via SMS
-          </Button>
-        </div>
-
-        {/* Settings */}
-        <div className="pt-4 border-t space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Allow anyone to join</Label>
-              <p className="text-xs text-muted-foreground">
-                Users with the link can RSVP
-              </p>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-64">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-sm">Allow joining</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Anyone with link can RSVP
+                  </p>
+                </div>
+                <Switch
+                  checked={localAllowPublicJoin}
+                  onCheckedChange={togglePublicJoin}
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={regenerateCode}
+                disabled={isRegenerating}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isRegenerating ? 'animate-spin' : ''}`} />
+                Regenerate Code
+              </Button>
             </div>
-            <Switch
-              checked={localAllowPublicJoin}
-              onCheckedChange={togglePublicJoin}
-            />
-          </div>
+          </PopoverContent>
+        </Popover>
+      </div>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full"
-            onClick={regenerateCode}
-            disabled={isRegenerating}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isRegenerating ? 'animate-spin' : ''}`} />
-            Regenerate Code
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      <div className="flex gap-2">
+        <Input 
+          value={inviteLink} 
+          readOnly 
+          className="font-mono text-xs h-9 flex-1" 
+        />
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-9 px-3"
+          onClick={copyToClipboard}
+        >
+          <Copy className="h-4 w-4" />
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm" variant="outline" className="h-9 px-3">
+              <Share2 className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={shareViaWhatsApp}>
+              <MessageCircle className="h-4 w-4 mr-2" />
+              WhatsApp
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={shareViaSMS}>
+              <MessageCircle className="h-4 w-4 mr-2" />
+              SMS
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
   );
 };
 
