@@ -97,7 +97,7 @@ const Events = () => {
         />
 
         {/* Controls Row - Unified Modern Design */}
-        <TooltipProvider delayDuration={300}>
+        <TooltipProvider delayDuration={0}>
           <div className="space-y-3">
             {/* Unified Filter Bar */}
             <div className="flex items-center gap-2 bg-card/50 backdrop-blur-sm border rounded-xl p-1.5">
@@ -131,7 +131,7 @@ const Events = () => {
                         <span className="hidden sm:inline">{t(labelKey)}</span>
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" className="sm:hidden">
+                    <TooltipContent side="bottom" className="sm:hidden z-50">
                       {t(labelKey)}
                     </TooltipContent>
                   </Tooltip>
