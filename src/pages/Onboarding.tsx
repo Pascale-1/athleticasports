@@ -19,7 +19,7 @@ const Onboarding = () => {
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   const [otherCity, setOtherCity] = useState("");
-  const [selectedGoal, setSelectedGoal] = useState<OnboardingGoal | null>(null);
+  const [selectedGoals, setSelectedGoals] = useState<OnboardingGoal[]>([]);
   const [saving, setSaving] = useState(false);
 
   // Check if user is authenticated
@@ -69,7 +69,10 @@ const Onboarding = () => {
 
       if (error) throw error;
 
-      // Navigate based on goal
+      // Navigate based on first selected goal (priority: play > organize > team > explore)
+      const goalPriority: OnboardingGoal[] = ['play', 'organize', 'team', 'explore'];
+      const primaryGoal = goalPriority.find(g => selectedGoals.includes(g)) || 'explore';
+      
       const goalRoutes: Record<OnboardingGoal, string> = {
         play: '/events',
         organize: '/events',
@@ -77,7 +80,7 @@ const Onboarding = () => {
         explore: '/',
       };
 
-      navigate(goalRoutes[selectedGoal || 'explore'], { replace: true });
+      navigate(goalRoutes[primaryGoal], { replace: true });
       toast.success("Welcome to Athletica!");
     } catch (error) {
       console.error('Error saving onboarding:', error);
@@ -125,8 +128,14 @@ const Onboarding = () => {
           {currentStep === 4 && (
             <GoalStep
               key="goal"
-              selectedGoal={selectedGoal}
-              onSelect={setSelectedGoal}
+              selectedGoals={selectedGoals}
+              onToggle={(goal) => {
+                setSelectedGoals(prev => 
+                  prev.includes(goal) 
+                    ? prev.filter(g => g !== goal)
+                    : [...prev, goal]
+                );
+              }}
               onNext={handleNext}
               onBack={handleBack}
             />
@@ -134,7 +143,7 @@ const Onboarding = () => {
           {currentStep === 5 && (
             <CompletionStep
               key="completion"
-              goal={selectedGoal}
+              goals={selectedGoals}
               onComplete={handleComplete}
             />
           )}

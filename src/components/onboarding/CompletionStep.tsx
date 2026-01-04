@@ -5,11 +5,11 @@ import { CheckCircle2, Star } from "lucide-react";
 import { type OnboardingGoal } from "./GoalStep";
 
 interface CompletionStepProps {
-  goal: OnboardingGoal | null;
+  goals: OnboardingGoal[];
   onComplete: () => void;
 }
 
-export const CompletionStep = ({ goal, onComplete }: CompletionStepProps) => {
+export const CompletionStep = ({ goals, onComplete }: CompletionStepProps) => {
   const { t } = useTranslation("onboarding");
 
   return (

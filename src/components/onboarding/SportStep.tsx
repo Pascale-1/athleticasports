@@ -16,10 +16,8 @@ export const SportStep = ({ selectedSport, onSelect, onNext, onBack }: SportStep
   const { t, i18n } = useTranslation("onboarding");
   const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
 
-  // Filter out 'other' for cleaner grid, sort by priority
-  const displaySports = SPORTS
-    .filter(s => s.id !== 'other')
-    .sort((a, b) => a.priority - b.priority);
+  // Sort by priority (other has priority 99, so it appears last)
+  const displaySports = SPORTS.sort((a, b) => a.priority - b.priority);
 
   return (
     <motion.div

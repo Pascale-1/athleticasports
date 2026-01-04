@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils";
 export type OnboardingGoal = 'play' | 'organize' | 'team' | 'explore';
 
 interface GoalStepProps {
-  selectedGoal: OnboardingGoal | null;
-  onSelect: (goal: OnboardingGoal) => void;
+  selectedGoals: OnboardingGoal[];
+  onToggle: (goal: OnboardingGoal) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -20,7 +20,7 @@ const GOALS: { id: OnboardingGoal; icon: React.ElementType }[] = [
   { id: 'explore', icon: Compass },
 ];
 
-export const GoalStep = ({ selectedGoal, onSelect, onNext, onBack }: GoalStepProps) => {
+export const GoalStep = ({ selectedGoals, onToggle, onNext, onBack }: GoalStepProps) => {
   const { t, i18n } = useTranslation("onboarding");
   const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
 
@@ -41,7 +41,7 @@ export const GoalStep = ({ selectedGoal, onSelect, onNext, onBack }: GoalStepPro
       <div className="space-y-3 flex-1">
         {GOALS.map((goal, index) => {
           const Icon = goal.icon;
-          const isSelected = selectedGoal === goal.id;
+          const isSelected = selectedGoals.includes(goal.id);
           
           return (
             <motion.button
@@ -49,7 +49,7 @@ export const GoalStep = ({ selectedGoal, onSelect, onNext, onBack }: GoalStepPro
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              onClick={() => onSelect(goal.id)}
+              onClick={() => onToggle(goal.id)}
               className={cn(
                 "relative w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all duration-200 text-left",
                 isSelected
@@ -87,7 +87,7 @@ export const GoalStep = ({ selectedGoal, onSelect, onNext, onBack }: GoalStepPro
         <Button variant="outline" onClick={onBack} className="flex-1">
           {lang === 'fr' ? 'Retour' : 'Back'}
         </Button>
-        <Button onClick={onNext} disabled={!selectedGoal} className="flex-1">
+        <Button onClick={onNext} disabled={selectedGoals.length === 0} className="flex-1">
           {lang === 'fr' ? 'Continuer' : 'Continue'}
         </Button>
       </div>

@@ -21,7 +21,7 @@
   },
   "goal": {
     "title": "What would you like to do first?",
-    "subtitle": "We'll personalize your experience",
+    "subtitle": "Select all that apply",
     "play": {
       "title": "I want to play",
       "description": "Find games and players near me"
