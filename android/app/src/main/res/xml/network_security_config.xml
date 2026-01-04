@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Base configuration: Enforce HTTPS and disable cleartext traffic -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Trust system certificate authorities -->
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    
+    <!-- Domain-specific configurations can be added here if needed -->
+    <!-- Example for certificate pinning (uncomment and configure if needed):
+    <domain-config>
+        <domain includeSubdomains="true">athleticasports.app</domain>
+        <pin-set>
+            <pin digest="SHA-256">base64-encoded-certificate-hash</pin>
+        </pin-set>
+    </domain-config>
+    -->
+</network-security-config>
+
