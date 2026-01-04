@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CreateEventData } from "@/hooks/useEvents";
 import { TeamSelector } from "@/components/teams/TeamSelector";
+import { MyTeamSelector } from "@/components/teams/MyTeamSelector";
 import { useTeam } from "@/hooks/useTeam";
 import { DistrictSelector } from "@/components/location/DistrictSelector";
 import { getDistrictLabel } from "@/lib/parisDistricts";
@@ -49,7 +50,7 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
   const { i18n, t } = useTranslation('events');
   const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
   const [useTeamSelector, setUseTeamSelector] = useState(true);
-  const [homeTeamId, setHomeTeamId] = useState<string | undefined>(teamId);
+  const [homeTeamId, setHomeTeamId] = useState<string | null>(teamId || null);
   const [opponentTeamId, setOpponentTeamId] = useState<string | null>(null);
   const [opponentTeamName, setOpponentTeamName] = useState<string>("");
   const [opponentLogoUrl, setOpponentLogoUrl] = useState<string>("");
@@ -93,12 +94,13 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
     }
   }, [selectedFormat, effectiveSport, form]);
 
-  // Reset opponent when sport changes (team might not match new sport)
+  // Reset opponent and home team when sport changes (only if no fixed teamId)
   useEffect(() => {
     if (selectedSport && !teamId) {
       setOpponentTeamId(null);
       setOpponentTeamName("");
       setOpponentLogoUrl("");
+      setHomeTeamId(null);
     }
   }, [selectedSport, teamId]);
 
@@ -176,12 +178,13 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
                 </Badge>
               </div>
             ) : (
-              <TeamSelector
-                onSelect={(id, name) => setHomeTeamId(id)}
-                selectedTeamId={homeTeamId}
-                placeholder={!selectedSport && !teamId ? (lang === 'fr' ? 'Sélectionnez un sport d\'abord' : 'Select a sport first') : t('form.game.selectTeam')}
-                showCreateButton={true}
+              <MyTeamSelector
+                value={homeTeamId}
+                onChange={(id) => setHomeTeamId(id)}
                 sportFilter={selectedSport || undefined}
+                placeholder={!selectedSport && !teamId ? (lang === 'fr' ? 'Sélectionnez un sport d\'abord' : 'Select a sport first') : t('form.game.selectTeam')}
+                optional={false}
+                disabled={!selectedSport && !teamId}
               />
             )}
           </div>
@@ -221,7 +224,7 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
                   form.setValue("opponentName", name);
                 }}
                 selectedTeamId={opponentTeamId || undefined}
-                excludeTeamId={homeTeamId}
+                excludeTeamId={homeTeamId || undefined}
                 placeholder={!effectiveSport ? (lang === 'fr' ? 'Sélectionnez un sport d\'abord' : 'Select a sport first') : (lang === 'fr' ? 'Rechercher...' : 'Search...')}
                 sportFilter={effectiveSport || undefined}
                 showCreateButton={true}

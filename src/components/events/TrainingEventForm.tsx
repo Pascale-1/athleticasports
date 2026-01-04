@@ -18,6 +18,7 @@ import { getDistrictLabel } from "@/lib/parisDistricts";
 import { DurationPicker } from "./DurationPicker";
 import { SportQuickSelector } from "./SportQuickSelector";
 import { getSportDefaults } from "@/lib/sportDefaults";
+import { MyTeamSelector } from "@/components/teams/MyTeamSelector";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(100),
@@ -42,6 +43,7 @@ export const TrainingEventForm = ({ teamId, sport: initialSport, onSubmit, onCan
   const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
   const [location, setLocation] = useState<{ district: string; venueName?: string }>({ district: '', venueName: '' });
   const [selectedSport, setSelectedSport] = useState<string | null>(initialSport || null);
+  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(teamId || null);
   const [duration, setDuration] = useState(90); // Default 1.5h
   
   const sportDefaults = getSportDefaults(selectedSport);
@@ -63,6 +65,13 @@ export const TrainingEventForm = ({ teamId, sport: initialSport, onSubmit, onCan
     }
   }, [selectedSport, sportDefaults.duration]);
 
+  // Reset team selection when sport changes (only if no fixed teamId)
+  useEffect(() => {
+    if (!teamId && selectedSport) {
+      setSelectedTeamId(null);
+    }
+  }, [selectedSport, teamId]);
+
   const handleSubmit = (values: FormData) => {
     const startDateTime = new Date(values.date);
     const [startHour, startMinute] = values.startTime.split(':');
@@ -76,7 +85,7 @@ export const TrainingEventForm = ({ teamId, sport: initialSport, onSubmit, onCan
       : undefined;
 
     onSubmit({
-      team_id: teamId || null,
+      team_id: selectedTeamId || teamId || null,
       type: 'training',
       title: values.title,
       description: values.description || undefined,
@@ -85,7 +94,7 @@ export const TrainingEventForm = ({ teamId, sport: initialSport, onSubmit, onCan
       start_time: startDateTime.toISOString(),
       end_time: endDateTime.toISOString(),
       max_participants: values.maxParticipants ? parseInt(values.maxParticipants) : undefined,
-      is_public: !teamId,
+      is_public: !(selectedTeamId || teamId),
     });
   };
 
@@ -99,6 +108,18 @@ export const TrainingEventForm = ({ teamId, sport: initialSport, onSubmit, onCan
             onChange={setSelectedSport}
             label={t('form.sport')}
             lang={lang}
+          />
+        )}
+
+        {/* Team selector - only show if sport is selected and no fixed team context */}
+        {!teamId && selectedSport && (
+          <MyTeamSelector
+            value={selectedTeamId}
+            onChange={(id) => setSelectedTeamId(id)}
+            sportFilter={selectedSport}
+            label={lang === 'fr' ? 'Équipe (optionnel)' : 'Team (optional)'}
+            placeholder={lang === 'fr' ? 'Sélectionner une équipe' : 'Select a team'}
+            optional={true}
           />
         )}
 

@@ -3,6 +3,7 @@
   "createTeam": "Create Team",
   "joinTeam": "Join Team",
   "myTeams": "My Teams",
+  "allTeams": "All Teams",
   "discover": "Discover",
   "noTeams": "No Teams",
   "noTeamsDesc": "You haven't joined any teams yet.",
@@ -16,6 +17,11 @@
   "chat": "Chat",
   "settings": "Settings",
   "performance": "Performance",
+  "create": {
+    "title": "Create New Team",
+    "description": "Set up a new team to organize training sessions and communicate with members",
+    "submit": "Create Team"
+  },
   "search": {
     "placeholder": "Search teams..."
   },
@@ -84,12 +90,17 @@
     "name": "Team Name",
     "namePlaceholder": "My Football Team",
     "description": "Description",
-    "descriptionPlaceholder": "Describe your team...",
+    "descriptionPlaceholder": "Tell others about your team...",
     "sport": "Sport",
     "sportPlaceholder": "Select a sport",
+    "sportRequired": "Please select a sport for your team",
+    "privateTeam": "Private Team",
+    "privateTeamDesc": "Only members can see and join this team",
     "isPrivate": "Private Team",
     "isPrivateDesc": "Only invited members can join",
-    "avatar": "Team Photo"
+    "avatar": "Team Photo",
+    "nameMinLength": "Team name must be at least 2 characters long",
+    "nameMaxLength": "Team name must be less than 100 characters"
   },
   "invite": {
     "title": "Invite Members",
