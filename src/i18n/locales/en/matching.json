@@ -1,6 +1,6 @@
 {
-  "findMatch": {
-    "title": "Find a Match",
+  "findGame": {
+    "title": "Find a Game",
     "subtitle": "Find available players to play with",
     "sport": "Sport",
     "sportPlaceholder": "Select a sport",
@@ -13,9 +13,9 @@
     "noResultsDesc": "Try broadening your search criteria",
     "distance": "{{distance}} km away"
   },
-  "createMatch": {
-    "title": "Create a Match",
-    "subtitle": "Organize your own match",
+  "createGame": {
+    "title": "Create a Game",
+    "subtitle": "Organize your own game",
     "setAvailability": "Set My Availability",
     "availabilitySet": "Availability saved!",
     "availableFrom": "Available from",
@@ -23,7 +23,7 @@
     "lookingFor": "Looking to play"
   },
   "proposal": {
-    "title": "Match Proposal",
+    "title": "Game Proposal",
     "accept": "Accept",
     "decline": "Decline",
     "pending": "Pending",
@@ -32,7 +32,7 @@
     "expired": "Expired",
     "sentAt": "Sent",
     "wantsToPlay": "{{name}} wants to play with you",
-    "youProposed": "You proposed a match"
+    "youProposed": "You proposed a game"
   },
   "availability": {
     "title": "Availability",

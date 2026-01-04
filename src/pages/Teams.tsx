@@ -17,16 +17,15 @@ import { toast } from "sonner";
 import { PullToRefresh } from "@/components/animations/PullToRefresh";
 import { AnimatedCard } from "@/components/animations/AnimatedCard";
 import { motion } from "framer-motion";
-import { FilterSheet } from "@/components/common/FilterSheet";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getActiveSports, getFeaturedSports, getRegularSports } from "@/lib/sports";
 import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getActiveSports } from "@/lib/sports";
 
 const Teams = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n } = useTranslation('teams');
+  const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
   const [myTeams, setMyTeams] = useState<Team[]>([]);
   const [publicTeams, setPublicTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +44,8 @@ const Teams = () => {
   const {
     filteredTeams: filteredPublicTeams,
   } = useTeamFilters(publicTeams.filter(team => !myTeams.some(mt => mt.id === team.id)));
+
+  const sports = getActiveSports();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -178,7 +179,7 @@ const Teams = () => {
             />
           )}
 
-          {/* Search & Filter */}
+          {/* Search & Sport Dropdown */}
           <motion.div
             className="flex gap-2"
             initial={{ opacity: 0, y: 10 }}
@@ -188,41 +189,21 @@ const Teams = () => {
             <div className="flex-1">
               <TeamSearchBar value={searchQuery} onChange={setSearchQuery} />
             </div>
-            <FilterSheet 
-              activeCount={activeSport !== "All" ? 1 : 0}
-              onApply={() => {}}
-              onReset={() => setActiveSport("All")}
-            >
-                <div className="space-y-4">
-                <div>
-                  <Label className="text-sm font-medium mb-3 block">{t('filters.sport')}</Label>
-                  <Select value={activeSport} onValueChange={setActiveSport}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t('form.sportPlaceholder')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="All">{i18n.language?.startsWith('fr') ? 'Tous' : 'All'}</SelectItem>
-                      <SelectGroup>
-                        <SelectLabel>{i18n.language?.startsWith('fr') ? '⭐ Populaires' : '⭐ Popular'}</SelectLabel>
-                        {getFeaturedSports().map((sport) => (
-                          <SelectItem key={sport.id} value={sport.id}>
-                            {sport.emoji} {sport.label[i18n.language?.startsWith('fr') ? 'fr' : 'en']}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                      <SelectGroup>
-                        <SelectLabel>{i18n.language?.startsWith('fr') ? 'Autres' : 'Others'}</SelectLabel>
-                        {getRegularSports().map((sport) => (
-                          <SelectItem key={sport.id} value={sport.id}>
-                            {sport.emoji} {sport.label[i18n.language?.startsWith('fr') ? 'fr' : 'en']}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </FilterSheet>
+            <Select value={activeSport} onValueChange={setActiveSport}>
+              <SelectTrigger className="w-[140px] h-10">
+                <SelectValue placeholder={t('filters.sport')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">
+                  {lang === 'fr' ? 'Tous' : 'All'}
+                </SelectItem>
+                {sports.map((sport) => (
+                  <SelectItem key={sport.id} value={sport.id}>
+                    {sport.emoji} {sport.label[lang]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </motion.div>
 
           {/* View Toggle */}

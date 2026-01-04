@@ -8,9 +8,26 @@
   "noEventsDesc": "Aucun événement prévu pour le moment.",
   "createFirst": "Créer votre premier événement",
   "types": {
+    "all": "Tous",
     "training": "Entraînement",
-    "match": "Match",
+    "game": "Partie",
     "meetup": "Rencontre"
+  },
+  "timeGroups": {
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain",
+    "thisWeek": "Cette semaine",
+    "comingUp": "Prochainement"
+  },
+  "search": {
+    "placeholder": "Rechercher..."
+  },
+  "empty": {
+    "noUpcoming": "Aucun événement à venir",
+    "noPast": "Aucun événement passé",
+    "noResults": "Aucun événement trouvé",
+    "tryAdjusting": "Essayez d'ajuster vos filtres",
+    "createFirst": "Créez votre premier événement"
   },
   "details": {
     "when": "Quand",
@@ -27,7 +44,10 @@
     "maybe": "Peut-être",
     "respond": "Répondre",
     "attending": "Participants",
-    "notAttending": "Ne participent pas"
+    "notAttending": "Ne participent pas",
+    "pass": "Passe",
+    "committed": "Engagé",
+    "count": "{{count}} inscrit(s)"
   },
   "form": {
     "title": "Titre",
@@ -44,16 +64,17 @@
     "isPublic": "Événement public",
     "isPublicDesc": "Visible par tous les utilisateurs"
   },
-  "match": {
+  "game": {
     "opponent": "Adversaire",
     "opponentPlaceholder": "Nom de l'équipe adverse",
     "homeAway": "Domicile/Extérieur",
     "home": "Domicile",
     "away": "Extérieur",
     "neutral": "Neutre",
-    "format": "Format du match",
+    "format": "Format de la partie",
     "lookingForPlayers": "Recherche de joueurs",
-    "playersNeeded": "Joueurs recherchés"
+    "playersNeeded": "Joueurs recherchés",
+    "needPlayers": "Besoin de {{count}}"
   },
   "filters": {
     "eventType": "Type d'événement",
