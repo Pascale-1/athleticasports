@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trophy, Users, User, Mail, Calendar, Swords, Globe } from "lucide-react";
+import { Trophy, Users, User, Mail, Calendar, Swords, Globe, MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { SportSelector } from "./SportSelector";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { FeedbackForm } from "@/components/feedback/FeedbackForm";
 import { useNavigate } from "react-router-dom";
 import { formatMonthYear } from "@/lib/dateUtils";
 
@@ -41,6 +43,7 @@ export const ProfileTabs = ({
 }: ProfileTabsProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   return (
     <Tabs defaultValue="overview" className="w-full">
@@ -259,6 +262,23 @@ export const ProfileTabs = ({
       </TabsContent>
 
       <TabsContent value="settings" className="space-y-4">
+        {/* Feedback Section */}
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="pt-6 space-y-3">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold">{t('feedback.title')}</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {t('feedback.subtitle')}
+            </p>
+            <Button onClick={() => setFeedbackOpen(true)} className="w-full">
+              <MessageSquare className="h-4 w-4 mr-2" />
+              {t('feedback.title')}
+            </Button>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardContent className="pt-6 space-y-4">
             <div className="space-y-2">
@@ -270,6 +290,8 @@ export const ProfileTabs = ({
             </div>
           </CardContent>
         </Card>
+
+        <FeedbackForm open={feedbackOpen} onOpenChange={setFeedbackOpen} />
       </TabsContent>
     </Tabs>
   );

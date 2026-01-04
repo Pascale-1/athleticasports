@@ -279,6 +279,42 @@ export type Database = {
           },
         ]
       }
+      feedback: {
+        Row: {
+          admin_notes: string | null
+          category: string
+          created_at: string | null
+          id: string
+          message: string
+          page_url: string | null
+          status: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          category: string
+          created_at?: string | null
+          id?: string
+          message: string
+          page_url?: string | null
+          status?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          category?: string
+          created_at?: string | null
+          id?: string
+          message?: string
+          page_url?: string | null
+          status?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       followers: {
         Row: {
           created_at: string

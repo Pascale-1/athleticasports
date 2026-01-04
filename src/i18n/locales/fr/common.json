@@ -1,4 +1,28 @@
 {
+  "feedback": {
+    "title": "Donner votre avis",
+    "subtitle": "Aidez-nous à améliorer l'application",
+    "category": "Type de retour",
+    "categories": {
+      "bug": "Signaler un bug",
+      "suggestion": "Suggestion",
+      "question": "Question",
+      "praise": "Compliment"
+    },
+    "categoryDescriptions": {
+      "bug": "Quelque chose ne fonctionne pas",
+      "suggestion": "Une idée pour améliorer l'app",
+      "question": "Besoin d'aide ou d'informations",
+      "praise": "Dites-nous ce que vous aimez"
+    },
+    "message": "Votre message",
+    "messagePlaceholder": "Décrivez votre retour en détail...",
+    "submit": "Envoyer",
+    "success": "Merci pour votre retour !",
+    "successDescription": "Nous avons bien reçu votre message.",
+    "error": "Erreur lors de l'envoi",
+    "required": "Ce champ est requis"
+  },
   "nav": {
     "home": "Accueil",
     "teams": "Équipes",
