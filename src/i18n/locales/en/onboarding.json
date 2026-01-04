@@ -1,0 +1,62 @@
+{
+  "welcome": {
+    "title": "Welcome to Athletica",
+    "subtitle": "Join a community of women who play, organize, and celebrate sports together.",
+    "getStarted": "Get Started",
+    "alreadyHaveAccount": "Already have an account?",
+    "signIn": "Sign In"
+  },
+  "sport": {
+    "title": "What's your main sport?",
+    "subtitle": "You can always change this later"
+  },
+  "location": {
+    "title": "Where do you usually play?",
+    "subtitle": "Help us find games near you",
+    "parisNote": "We're launching in Paris first, but we'd love to know where you are!",
+    "selectDistrict": "Select your area",
+    "otherCity": "My city isn't listed",
+    "enterCity": "Enter your city",
+    "otherCityPlaceholder": "e.g., Lyon, Marseille, Bordeaux..."
+  },
+  "goal": {
+    "title": "What would you like to do first?",
+    "subtitle": "We'll personalize your experience",
+    "play": {
+      "title": "I want to play",
+      "description": "Find games and players near me"
+    },
+    "organize": {
+      "title": "I want to organize",
+      "description": "Create my own games and events"
+    },
+    "team": {
+      "title": "I have a team",
+      "description": "Create or manage my team"
+    },
+    "explore": {
+      "title": "Just exploring",
+      "description": "Browse and discover the app"
+    }
+  },
+  "completion": {
+    "title": "You're all set!",
+    "subtitle": "Welcome to the community",
+    "foundingMember": "You're a Founding Member!",
+    "foundingMemberDescription": "As an early supporter, you'll always have this special badge on your profile.",
+    "goToHome": "Let's Go!",
+    "cta": {
+      "play": "Find a Game",
+      "organize": "Create an Event",
+      "team": "Create a Team",
+      "explore": "Explore"
+    }
+  },
+  "progress": {
+    "step": "Step {{current}} of {{total}}"
+  },
+  "foundingMember": {
+    "badge": "Founding Member",
+    "badgeFr": "Membre Fondatrice"
+  }
+}

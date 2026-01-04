@@ -1,0 +1,62 @@
+{
+  "welcome": {
+    "title": "Bienvenue sur Athletica",
+    "subtitle": "Rejoins une communauté de femmes qui jouent, organisent et célèbrent le sport ensemble.",
+    "getStarted": "Commencer",
+    "alreadyHaveAccount": "Tu as déjà un compte ?",
+    "signIn": "Se connecter"
+  },
+  "sport": {
+    "title": "Quel est ton sport principal ?",
+    "subtitle": "Tu pourras toujours changer plus tard"
+  },
+  "location": {
+    "title": "Où joues-tu habituellement ?",
+    "subtitle": "Pour trouver des matchs près de chez toi",
+    "parisNote": "Nous lançons d'abord à Paris, mais dis-nous où tu es !",
+    "selectDistrict": "Sélectionne ton quartier",
+    "otherCity": "Ma ville n'est pas listée",
+    "enterCity": "Entre ta ville",
+    "otherCityPlaceholder": "ex: Lyon, Marseille, Bordeaux..."
+  },
+  "goal": {
+    "title": "Que veux-tu faire en premier ?",
+    "subtitle": "On va personnaliser ton expérience",
+    "play": {
+      "title": "Je veux jouer",
+      "description": "Trouver des matchs et des joueuses près de moi"
+    },
+    "organize": {
+      "title": "Je veux organiser",
+      "description": "Créer mes propres matchs et événements"
+    },
+    "team": {
+      "title": "J'ai une équipe",
+      "description": "Créer ou gérer mon équipe"
+    },
+    "explore": {
+      "title": "Je découvre",
+      "description": "Explorer et découvrir l'application"
+    }
+  },
+  "completion": {
+    "title": "C'est parti !",
+    "subtitle": "Bienvenue dans la communauté",
+    "foundingMember": "Tu es Membre Fondatrice !",
+    "foundingMemberDescription": "En tant que membre des premières heures, tu auras toujours ce badge spécial sur ton profil.",
+    "goToHome": "Allons-y !",
+    "cta": {
+      "play": "Trouver un match",
+      "organize": "Créer un événement",
+      "team": "Créer une équipe",
+      "explore": "Explorer"
+    }
+  },
+  "progress": {
+    "step": "Étape {{current}} sur {{total}}"
+  },
+  "foundingMember": {
+    "badge": "Membre Fondatrice",
+    "badgeFr": "Membre Fondatrice"
+  }
+}

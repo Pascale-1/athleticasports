@@ -525,6 +525,9 @@ export type Database = {
           display_name: string | null
           full_name: string | null
           id: string
+          is_founding_member: boolean | null
+          onboarding_completed: boolean | null
+          preferred_district: string | null
           primary_sport: string | null
           team_name: string | null
           updated_at: string
@@ -538,6 +541,9 @@ export type Database = {
           display_name?: string | null
           full_name?: string | null
           id?: string
+          is_founding_member?: boolean | null
+          onboarding_completed?: boolean | null
+          preferred_district?: string | null
           primary_sport?: string | null
           team_name?: string | null
           updated_at?: string
@@ -551,6 +557,9 @@ export type Database = {
           display_name?: string | null
           full_name?: string | null
           id?: string
+          is_founding_member?: boolean | null
+          onboarding_completed?: boolean | null
+          preferred_district?: string | null
           primary_sport?: string | null
           team_name?: string | null
           updated_at?: string
