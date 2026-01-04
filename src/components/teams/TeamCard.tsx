@@ -19,47 +19,53 @@ export const TeamCard = memo(({ team, memberCount = 0, isMember }: TeamCardProps
 
   return (
     <Link to={`/teams/${team.id}`}>
-      <Card className="group h-full hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer border-l-4 border-l-primary active:scale-[0.99]">
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <Avatar className="h-16 w-16 rounded-lg shrink-0">
+      <Card className="group hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer active:scale-[0.99]">
+        <CardContent className="p-3">
+          <div className="flex items-center gap-3">
+            {/* Compact avatar */}
+            <Avatar className="h-12 w-12 rounded-lg shrink-0">
               <AvatarImage src={team.avatar_url || ""} />
-              <AvatarFallback className="text-xl font-heading font-bold bg-primary/10 text-primary rounded-lg">
+              <AvatarFallback className="text-lg font-heading font-bold bg-primary/10 text-primary rounded-lg">
                 {team.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
 
-            <div className="flex-1 min-w-0 w-full space-y-2">
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="text-base sm:text-lg font-heading font-bold truncate">
+            {/* Content - always horizontal */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-sm font-heading font-bold truncate">
                   {team.name}
                 </h3>
-                {isMember && (
-                  <Badge className="shrink-0 text-xs font-body">Member</Badge>
-                )}
+                <div className="flex items-center gap-2 shrink-0">
+                  {isMember && (
+                    <Badge variant="secondary" className="text-xs font-body">Member</Badge>
+                  )}
+                  {team.is_private ? (
+                    <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+                  ) : (
+                    <Globe className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                </div>
               </div>
 
+              {/* Single line description */}
               {team.description && (
-                <p className="text-xs sm:text-sm font-body text-muted-foreground line-clamp-2">
+                <p className="text-xs text-muted-foreground truncate mt-0.5">
                   {team.description}
                 </p>
               )}
 
-              <div className="flex items-center gap-3 text-xs sm:text-sm text-muted-foreground">
+              {/* Metadata row */}
+              <div className="flex items-center gap-2 mt-1.5 text-xs text-muted-foreground">
                 {sport && (
-                  <Badge variant="secondary" className="text-xs font-body">
+                  <Badge variant="outline" className="text-xs py-0 h-5">
                     {sport}
                   </Badge>
                 )}
-                <div className="flex items-center gap-1.5 font-body">
-                  <Users className="h-3.5 w-3.5" />
+                <div className="flex items-center gap-1">
+                  <Users className="h-3 w-3" />
                   <span>{memberCount}</span>
                 </div>
-                {team.is_private ? (
-                  <Lock className="h-3.5 w-3.5" />
-                ) : (
-                  <Globe className="h-3.5 w-3.5" />
-                )}
               </div>
             </div>
           </div>

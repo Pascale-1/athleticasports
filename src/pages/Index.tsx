@@ -17,7 +17,9 @@ import { motion } from "framer-motion";
 import { useEvents } from "@/hooks/useEvents";
 import { CreateMatchSheet } from "@/components/matching/CreateMatchSheet";
 import { FindMatchSheet } from "@/components/matching/FindMatchSheet";
-import { MyMatchStatus } from "@/components/matching/MyMatchStatus";
+import { usePlayerAvailability } from "@/hooks/usePlayerAvailability";
+import { useMatchProposals } from "@/hooks/useMatchProposals";
+import { MatchProposalCard } from "@/components/matching/MatchProposalCard";
 
 interface Profile {
   id: string;
@@ -48,6 +50,11 @@ const Index = () => {
   // Fetch upcoming matches
   const { events: allMatches, loading: matchesLoading } = useEvents(undefined, { status: 'upcoming' });
   const upcomingMatches = allMatches.filter(e => e.type === 'match').slice(0, 3);
+  
+  // Fetch match status (proposals & availability)
+  const { availability } = usePlayerAvailability();
+  const { proposals, acceptProposal, declineProposal, loading: proposalsLoading } = useMatchProposals();
+  const pendingProposals = proposals.filter(p => p.status === 'pending');
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -186,25 +193,23 @@ const Index = () => {
               <div className="flex items-center justify-around border-t pt-3">
                 <button 
                   onClick={() => navigate("/teams?filter=my-teams")}
-                  className="flex flex-col items-center gap-1 transition-all hover:text-primary active:scale-95 min-h-[44px] min-w-[44px]"
+                  className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all hover:bg-muted active:scale-95 min-h-[44px] min-w-[44px]"
                 >
                   <Users className="h-4 w-4 text-primary" />
                   <p className="text-body-large font-bold">{stats.teams}</p>
                   <p className="text-caption text-muted-foreground">Teams</p>
                 </button>
-                <div className="h-12 w-px bg-border" />
                 <button
                   onClick={() => navigate("/events?type=match")}
-                  className="flex flex-col items-center gap-1 transition-all hover:text-primary active:scale-95 min-h-[44px] min-w-[44px]"
+                  className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all hover:bg-muted active:scale-95 min-h-[44px] min-w-[44px]"
                 >
                   <Swords className="h-4 w-4 text-primary" />
                   <p className="text-body-large font-bold">{stats.upcomingMatches}</p>
                   <p className="text-caption text-muted-foreground">Matches</p>
                 </button>
-                <div className="h-12 w-px bg-border" />
                 <button
                   onClick={() => navigate("/settings")}
-                  className="flex flex-col items-center gap-1 transition-all hover:text-primary active:scale-95 min-h-[44px] min-w-[44px]"
+                  className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all hover:bg-muted active:scale-95 min-h-[44px] min-w-[44px]"
                 >
                   <TrendingUp className="h-4 w-4 text-primary" />
                   <p className="text-body-large font-bold">{stats.followers}</p>
@@ -214,16 +219,16 @@ const Index = () => {
             </Card>
           </AnimatedCard>
 
-          {/* Quick Actions - Match Focused */}
+          {/* Quick Actions - Simplified to 2 buttons */}
           <AnimatedCard delay={0.2}>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <Button 
                 variant="outline"
                 className="flex flex-col items-center justify-center gap-2 h-16 px-2"
-                onClick={() => setCreateMatchSheetOpen(true)}
+                onClick={() => setFindMatchSheetOpen(true)}
               >
-                <Swords className="h-5 w-5 text-primary" />
-                <span className="text-xs font-medium text-center">Create Match</span>
+                <Search className="h-5 w-5 text-primary" />
+                <span className="text-xs font-medium text-center">Find Match</span>
               </Button>
               
               <Button 
@@ -235,30 +240,16 @@ const Index = () => {
                 <Users className="h-5 w-5 text-primary" />
                 <span className="text-xs font-medium text-center">Create Team</span>
               </Button>
-              
-              <Button 
-                variant="outline"
-                className="flex flex-col items-center justify-center gap-2 h-16 px-2"
-                onClick={() => setFindMatchSheetOpen(true)}
-              >
-                <Search className="h-5 w-5 text-primary" />
-                <span className="text-xs font-medium text-center">Find Match</span>
-              </Button>
             </div>
           </AnimatedCard>
 
-          {/* Match Status Section */}
-          <AnimatedCard delay={0.25}>
-            <MyMatchStatus onFindMatchClick={() => setFindMatchSheetOpen(true)} />
-          </AnimatedCard>
-
-          {/* Upcoming Matches Section */}
+          {/* Unified Matches Section - Combines status + upcoming */}
           <AnimatedCard delay={0.25}>
             <Card className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Swords className="h-5 w-5 text-primary" />
-                  <h2 className="text-heading-3 font-semibold">Upcoming Matches</h2>
+                  <h2 className="text-heading-3 font-semibold">Matches</h2>
                 </div>
                 <Button 
                   variant="ghost" 
@@ -270,6 +261,39 @@ const Index = () => {
                 </Button>
               </div>
               
+              {/* Pending Match Proposals */}
+              {pendingProposals.length > 0 && (
+                <div className="space-y-2 border-b pb-3">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-xs">
+                      {pendingProposals.length} pending
+                    </Badge>
+                  </div>
+                  {pendingProposals.slice(0, 2).map((proposal) => (
+                    <MatchProposalCard
+                      key={proposal.id}
+                      proposal={proposal}
+                      onAccept={() => acceptProposal(proposal.id)}
+                      onDecline={() => declineProposal(proposal.id)}
+                    />
+                  ))}
+                </div>
+              )}
+              
+              {/* Active Availability Status */}
+              {availability && (
+                <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Search className="h-4 w-4 text-primary" />
+                    <span className="font-medium">Looking for {availability.sport} matches</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {availability.location || 'Any location'}
+                  </p>
+                </div>
+              )}
+              
+              {/* Upcoming Matches List */}
               {matchesLoading ? (
                 <div className="space-y-2">
                   {[1, 2].map((i) => (
@@ -308,7 +332,7 @@ const Index = () => {
                     </div>
                   ))}
                 </div>
-              ) : (
+              ) : !pendingProposals.length && !availability ? (
                 <div className="text-center py-6">
                   <Swords className="h-10 w-10 mx-auto mb-2 text-muted-foreground" />
                   <p className="text-sm text-muted-foreground mb-3">No upcoming matches</p>
@@ -319,7 +343,7 @@ const Index = () => {
                     Create a Match
                   </Button>
                 </div>
-              )}
+              ) : null}
             </Card>
           </AnimatedCard>
 
@@ -330,12 +354,7 @@ const Index = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <div className="flex items-center justify-between">
-              <h2 className="text-heading-3 font-semibold">Activity Feed</h2>
-              <Button variant="ghost" size="sm" className="text-primary min-h-[44px]">
-                View All
-              </Button>
-            </div>
+            <h2 className="text-heading-3 font-semibold">Activity Feed</h2>
 
             {feedLoading ? (
               <FeedSkeleton />
