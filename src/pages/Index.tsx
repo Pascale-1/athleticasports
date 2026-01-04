@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@supabase/supabase-js";
-import { Trophy, Users, TrendingUp, Swords, UserPlus, Search } from "lucide-react";
+import { Trophy, Users, TrendingUp, Swords, UserPlus, Search, Sparkles } from "lucide-react";
 import { ActivityCard } from "@/components/feed/ActivityCard";
 import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
@@ -23,6 +23,7 @@ import { useMatchProposals } from "@/hooks/useMatchProposals";
 import { MatchProposalCard } from "@/components/matching/MatchProposalCard";
 import { formatDateTimeShort } from "@/lib/dateUtils";
 import { LanguageToggle } from "@/components/settings/LanguageToggle";
+import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
 
 interface Profile {
   id: string;
@@ -227,6 +228,15 @@ const Index = () => {
               </div>
             </Card>
           </AnimatedCard>
+
+          {/* Welcome Hint */}
+          <OnboardingHint
+            id="hint-welcome"
+            icon={Sparkles}
+            titleKey="onboarding.welcome.title"
+            descriptionKey="onboarding.welcome.description"
+            variant="tip"
+          />
 
           {/* Quick Actions - Simplified to 2 buttons */}
           <AnimatedCard delay={0.2}>

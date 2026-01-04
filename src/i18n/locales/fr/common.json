@@ -144,5 +144,25 @@
   "empty": {
     "title": "Rien à afficher",
     "description": "Aucun élément trouvé"
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Bienvenue sur Athletica !",
+      "description": "Trouve un match ou crée une équipe pour commencer à jouer."
+    },
+    "events": {
+      "title": "Tes événements",
+      "description": "Ici tu trouveras tes matchs, entraînements et rencontres."
+    },
+    "teams": {
+      "title": "Construis ton équipe",
+      "description": "Rejoins une équipe existante ou crée la tienne pour organiser des matchs."
+    },
+    "teamMembers": {
+      "title": "Agrandis ton équipe",
+      "description": "Invite tes amis avec le lien de partage dans les paramètres."
+    },
+    "gotIt": "Compris !",
+    "showMe": "Montre-moi"
   }
 }

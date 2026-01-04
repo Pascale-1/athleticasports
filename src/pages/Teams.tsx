@@ -21,6 +21,7 @@ import { FilterSheet } from "@/components/common/FilterSheet";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getActiveSports, getFeaturedSports, getRegularSports } from "@/lib/sports";
+import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
 
 const Teams = () => {
   const navigate = useNavigate();
@@ -161,6 +162,21 @@ const Teams = () => {
               </Button>
             }
           />
+
+          {/* Teams Onboarding Hint - show only when user has no teams */}
+          {myTeams.length === 0 && (
+            <OnboardingHint
+              id="hint-teams"
+              icon={Users}
+              titleKey="onboarding.teams.title"
+              descriptionKey="onboarding.teams.description"
+              variant="info"
+              action={{
+                labelKey: "onboarding.showMe",
+                onClick: () => navigate("/teams/create"),
+              }}
+            />
+          )}
 
           {/* Search & Filter */}
           <motion.div

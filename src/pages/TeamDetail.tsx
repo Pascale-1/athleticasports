@@ -17,12 +17,13 @@ import { useTeamAnnouncements } from "@/hooks/useTeamAnnouncements";
 import { useEvents } from "@/hooks/useEvents";
 import { leaveTeam } from "@/lib/teams";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
 import { isThisWeek } from "date-fns";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
 
 const TeamDetail = () => {
   const { teamId } = useParams<{ teamId: string }>();
@@ -136,6 +137,19 @@ const TeamDetail = () => {
           />
 
           <TeamAboutSection description={team.description} />
+
+          {/* Team Members Onboarding Hint */}
+          <OnboardingHint
+            id="hint-team-members"
+            icon={UserPlus}
+            titleKey="onboarding.teamMembers.title"
+            descriptionKey="onboarding.teamMembers.description"
+            variant="tip"
+            action={canManage ? {
+              labelKey: "onboarding.showMe",
+              onClick: () => setInviteDialogOpen(true),
+            } : undefined}
+          />
 
           <EventsPreview
             events={upcomingSessions}
