@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trophy, Coffee, Swords } from "lucide-react";
@@ -27,6 +28,7 @@ export const CreateEventDialog = ({
   const [activeTab, setActiveTab] = useState<string>(defaultType);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { createEvent: internalCreateEvent } = useEvents(teamId);
+  const { t } = useTranslation('events');
 
   const handleSubmit = async (data: CreateEventData) => {
     setIsSubmitting(true);
@@ -48,30 +50,30 @@ export const CreateEventDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Event</DialogTitle>
+          <DialogTitle>{t('create.title')}</DialogTitle>
         </DialogHeader>
 
         <div className="text-center mb-4">
-          <h3 className="text-lg font-semibold">Choose Event Type</h3>
-          <p className="text-sm text-muted-foreground mt-1">Select the type of event you want to create</p>
+          <h3 className="text-lg font-semibold">{t('create.chooseType')}</h3>
+          <p className="text-sm text-muted-foreground mt-1">{t('create.selectTypeDesc')}</p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 h-auto p-1">
             <TabsTrigger value="training" className="flex flex-col items-center gap-1 py-3">
               <Trophy className="h-5 w-5" />
-              <span className="text-xs font-medium">Training</span>
-              <span className="text-[10px] text-muted-foreground">Practice sessions</span>
+              <span className="text-xs font-medium">{t('types.training')}</span>
+              <span className="text-[10px] text-muted-foreground">{t('create.trainingDesc')}</span>
             </TabsTrigger>
             <TabsTrigger value="meetup" className="flex flex-col items-center gap-1 py-3">
               <Coffee className="h-5 w-5" />
-              <span className="text-xs font-medium">Meetup</span>
-              <span className="text-[10px] text-muted-foreground">Social gatherings</span>
+              <span className="text-xs font-medium">{t('types.meetup')}</span>
+              <span className="text-[10px] text-muted-foreground">{t('create.meetupDesc')}</span>
             </TabsTrigger>
             <TabsTrigger value="match" className="flex flex-col items-center gap-1 py-3">
               <Swords className="h-5 w-5" />
-              <span className="text-xs font-medium">Match</span>
-              <span className="text-[10px] text-muted-foreground">Competitive games</span>
+              <span className="text-xs font-medium">{t('types.game')}</span>
+              <span className="text-[10px] text-muted-foreground">{t('create.gameDesc')}</span>
             </TabsTrigger>
           </TabsList>
 
