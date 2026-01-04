@@ -18,9 +18,13 @@ export interface TeamMessage {
   };
 }
 
+const MESSAGES_PER_PAGE = 50;
+
 export const useTeamChat = (teamId: string | null) => {
   const [messages, setMessages] = useState<TeamMessage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
 
   useEffect(() => {
     if (!teamId) {
@@ -56,16 +60,24 @@ export const useTeamChat = (teamId: string | null) => {
     if (!teamId) return;
 
     try {
+      // Get total count first
+      const { count } = await supabase
+        .from('team_messages_with_profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('team_id', teamId);
+
+      // Fetch latest messages (descending to get newest first, then reverse for display)
       const { data, error } = await supabase
         .from('team_messages_with_profiles')
         .select('*')
         .eq('team_id', teamId)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false })
+        .limit(MESSAGES_PER_PAGE);
 
       if (error) throw error;
       
-      // Transform flattened data to nested structure expected by component
-      const transformedMessages = (data || []).map((msg: any) => ({
+      // Transform and reverse for chronological display (oldest first)
+      const transformedMessages = (data || []).reverse().map((msg: any) => ({
         id: msg.id,
         team_id: msg.team_id,
         user_id: msg.user_id,
@@ -82,11 +94,56 @@ export const useTeamChat = (teamId: string | null) => {
       }));
       
       setMessages(transformedMessages);
+      setHasMore((count || 0) > MESSAGES_PER_PAGE);
     } catch (error) {
       console.error('Error fetching messages:', error);
       toast.error("Failed to load messages");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMoreMessages = async () => {
+    if (!teamId || messages.length === 0 || loadingMore) return;
+
+    setLoadingMore(true);
+    try {
+      const oldestMessage = messages[0];
+      
+      const { data, error } = await supabase
+        .from('team_messages_with_profiles')
+        .select('*')
+        .eq('team_id', teamId)
+        .lt('created_at', oldestMessage.created_at)
+        .order('created_at', { ascending: false })
+        .limit(MESSAGES_PER_PAGE);
+
+      if (error) throw error;
+      
+      const transformedMessages = (data || []).reverse().map((msg: any) => ({
+        id: msg.id,
+        team_id: msg.team_id,
+        user_id: msg.user_id,
+        content: msg.content,
+        created_at: msg.created_at,
+        updated_at: msg.updated_at,
+        is_edited: msg.is_edited,
+        replied_to_id: msg.replied_to_id,
+        profiles: {
+          username: msg.username,
+          display_name: msg.display_name,
+          avatar_url: msg.avatar_url
+        }
+      }));
+      
+      // Prepend older messages
+      setMessages(prev => [...transformedMessages, ...prev]);
+      setHasMore((data || []).length === MESSAGES_PER_PAGE);
+    } catch (error) {
+      console.error('Error loading more messages:', error);
+      toast.error("Failed to load earlier messages");
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -135,5 +192,5 @@ export const useTeamChat = (teamId: string | null) => {
     }
   };
 
-  return { messages, loading, sendMessage, deleteMessage };
+  return { messages, loading, loadingMore, hasMore, loadMoreMessages, sendMessage, deleteMessage };
 };

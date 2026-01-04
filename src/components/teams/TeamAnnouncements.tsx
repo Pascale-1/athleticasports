@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { AnnouncementCard } from "./AnnouncementCard";
 import { CreateAnnouncement } from "./CreateAnnouncement";
 import { TeamAnnouncement } from "@/hooks/useTeamAnnouncements";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface TeamAnnouncementsProps {
   announcements: TeamAnnouncement[];
@@ -12,6 +15,8 @@ interface TeamAnnouncementsProps {
   onDelete: (id: string) => void;
 }
 
+const MAX_REGULAR_ANNOUNCEMENTS = 5;
+
 export const TeamAnnouncements = ({
   announcements,
   canPost,
@@ -21,8 +26,14 @@ export const TeamAnnouncements = ({
   onTogglePin,
   onDelete,
 }: TeamAnnouncementsProps) => {
+  const [showAll, setShowAll] = useState(false);
+  
   const pinnedAnnouncements = announcements.filter((a) => a.is_pinned);
-  const regularAnnouncements = announcements.filter((a) => !a.is_pinned);
+  const allRegularAnnouncements = announcements.filter((a) => !a.is_pinned);
+  const hasMoreAnnouncements = allRegularAnnouncements.length > MAX_REGULAR_ANNOUNCEMENTS;
+  const displayedRegular = showAll 
+    ? allRegularAnnouncements 
+    : allRegularAnnouncements.slice(0, MAX_REGULAR_ANNOUNCEMENTS);
 
   return (
     <div className="space-y-6">
@@ -47,12 +58,12 @@ export const TeamAnnouncements = ({
       )}
 
       <div className="space-y-3">
-        {pinnedAnnouncements.length > 0 && (
+        {pinnedAnnouncements.length > 0 && displayedRegular.length > 0 && (
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
             Recent Announcements
           </h3>
         )}
-        {regularAnnouncements.map((announcement) => (
+        {displayedRegular.map((announcement) => (
           <AnnouncementCard
             key={announcement.id}
             announcement={announcement}
@@ -62,6 +73,27 @@ export const TeamAnnouncements = ({
             onDelete={onDelete}
           />
         ))}
+        
+        {hasMoreAnnouncements && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowAll(!showAll)}
+            className="w-full text-muted-foreground"
+          >
+            {showAll ? (
+              <>
+                <ChevronUp className="h-4 w-4 mr-2" />
+                Show less
+              </>
+            ) : (
+              <>
+                <ChevronDown className="h-4 w-4 mr-2" />
+                View all {allRegularAnnouncements.length} announcements
+              </>
+            )}
+          </Button>
+        )}
       </div>
 
       {announcements.length === 0 && (
