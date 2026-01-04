@@ -1,0 +1,83 @@
+{
+  "title": "Teams",
+  "createTeam": "Create Team",
+  "joinTeam": "Join Team",
+  "myTeams": "My Teams",
+  "discover": "Discover",
+  "noTeams": "No Teams",
+  "noTeamsDesc": "You haven't joined any teams yet.",
+  "createFirst": "Create your first team",
+  "members": "Members",
+  "member": "member",
+  "memberPlural": "members",
+  "about": "About",
+  "events": "Events",
+  "announcements": "Announcements",
+  "chat": "Chat",
+  "settings": "Settings",
+  "performance": "Performance",
+  "roles": {
+    "owner": "Owner",
+    "admin": "Admin",
+    "coach": "Coach",
+    "member": "Member"
+  },
+  "form": {
+    "name": "Team Name",
+    "namePlaceholder": "My Football Team",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe your team...",
+    "sport": "Sport",
+    "sportPlaceholder": "Select a sport",
+    "isPrivate": "Private Team",
+    "isPrivateDesc": "Only invited members can join",
+    "avatar": "Team Photo"
+  },
+  "invite": {
+    "title": "Invite Members",
+    "email": "Email Address",
+    "emailPlaceholder": "player@example.com",
+    "role": "Role",
+    "send": "Send Invitation",
+    "sent": "Invitation sent!",
+    "pending": "Pending Invitations",
+    "shareLink": "Invite Link",
+    "linkCopied": "Link copied!",
+    "allowLinkJoining": "Allow joining via link",
+    "regenerateLink": "Regenerate Link"
+  },
+  "actions": {
+    "leave": "Leave Team",
+    "leaveConfirm": "Are you sure you want to leave this team?",
+    "delete": "Delete Team",
+    "deleteConfirm": "Are you sure you want to delete this team? This action cannot be undone.",
+    "removeMember": "Remove Member",
+    "changeRole": "Change Role"
+  },
+  "filters": {
+    "all": "All",
+    "myTeams": "My Teams",
+    "sport": "Sport",
+    "clearFilters": "Clear Filters"
+  },
+  "session": {
+    "title": "Training Session",
+    "createSession": "Create Session",
+    "attendance": "Attendance",
+    "present": "Present",
+    "absent": "Absent",
+    "unknown": "No Response"
+  },
+  "announcement": {
+    "createAnnouncement": "New Announcement",
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "postedBy": "Posted by"
+  },
+  "performanceLevel": {
+    "title": "Performance Level",
+    "assign": "Assign Level",
+    "level": "Level",
+    "notes": "Notes"
+  }
+}

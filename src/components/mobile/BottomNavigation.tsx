@@ -1,17 +1,19 @@
 import { Home, Users, Calendar, User } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-
-const navItems = [
-  { title: "Home", url: "/", icon: Home },
-  { title: "Events", url: "/events", icon: Calendar },
-  { title: "Teams", url: "/teams", icon: Users },
-  { title: "Profile", url: "/settings", icon: User },
-];
 
 export const BottomNavigation = () => {
   const location = useLocation();
+  const { t } = useTranslation();
+
+  const navItems = [
+    { titleKey: "nav.home", url: "/", icon: Home },
+    { titleKey: "nav.events", url: "/events", icon: Calendar },
+    { titleKey: "nav.teams", url: "/teams", icon: Users },
+    { titleKey: "nav.profile", url: "/settings", icon: User },
+  ];
 
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 h-16 border-t border-border/50 bg-background/95 backdrop-blur-lg shadow-lg">
@@ -41,7 +43,7 @@ export const BottomNavigation = () => {
                 "text-xs font-medium transition-all duration-150",
                 isActive && "font-semibold"
               )}>
-                {item.title}
+                {t(item.titleKey)}
               </span>
             </NavLink>
           );

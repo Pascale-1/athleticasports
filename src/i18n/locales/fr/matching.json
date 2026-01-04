@@ -1,0 +1,52 @@
+{
+  "findMatch": {
+    "title": "Trouver un match",
+    "subtitle": "Trouvez des joueurs disponibles pour jouer",
+    "sport": "Sport",
+    "sportPlaceholder": "Sélectionnez un sport",
+    "location": "Lieu",
+    "locationPlaceholder": "Entrez un lieu",
+    "when": "Quand",
+    "skillLevel": "Niveau",
+    "searching": "Recherche en cours...",
+    "noResults": "Aucun joueur disponible",
+    "noResultsDesc": "Essayez d'élargir vos critères de recherche",
+    "distance": "à {{distance}} km"
+  },
+  "createMatch": {
+    "title": "Créer un match",
+    "subtitle": "Organisez votre propre match",
+    "setAvailability": "Définir ma disponibilité",
+    "availabilitySet": "Disponibilité enregistrée !",
+    "availableFrom": "Disponible de",
+    "availableUntil": "Jusqu'à",
+    "lookingFor": "Je cherche à jouer au"
+  },
+  "proposal": {
+    "title": "Proposition de match",
+    "accept": "Accepter",
+    "decline": "Refuser",
+    "pending": "En attente",
+    "accepted": "Acceptée",
+    "declined": "Refusée",
+    "expired": "Expirée",
+    "sentAt": "Envoyée",
+    "wantsToPlay": "{{name}} veut jouer avec vous",
+    "youProposed": "Vous avez proposé un match"
+  },
+  "availability": {
+    "title": "Disponibilité",
+    "setAvailable": "Indiquer ma disponibilité",
+    "notAvailable": "Non disponible",
+    "available": "Disponible",
+    "activeUntil": "Actif jusqu'à",
+    "cancel": "Annuler ma disponibilité"
+  },
+  "skillLevels": {
+    "1": "Débutant",
+    "2": "Intermédiaire",
+    "3": "Avancé",
+    "4": "Expert",
+    "5": "Professionnel"
+  }
+}
