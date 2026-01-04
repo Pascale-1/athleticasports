@@ -1,1 +1,13 @@
 project_id = "vbnetwodxboajlsytolr"
+
+[functions.send-team-invitation]
+verify_jwt = false
+
+[functions.accept-team-invitation]
+verify_jwt = false
+
+[functions.generate-balanced-teams]
+verify_jwt = true
+
+[functions.match-players]
+verify_jwt = true

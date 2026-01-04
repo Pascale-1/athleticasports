@@ -63,6 +63,7 @@ export type Database = {
         Row: {
           event_id: string
           id: string
+          is_committed: boolean | null
           responded_at: string | null
           status: string
           updated_at: string | null
@@ -71,6 +72,7 @@ export type Database = {
         Insert: {
           event_id: string
           id?: string
+          is_committed?: boolean | null
           responded_at?: string | null
           status: string
           updated_at?: string | null
@@ -79,6 +81,7 @@ export type Database = {
         Update: {
           event_id?: string
           id?: string
+          is_committed?: boolean | null
           responded_at?: string | null
           status?: string
           updated_at?: string | null
@@ -184,12 +187,14 @@ export type Database = {
           location: string | null
           location_type: Database["public"]["Enums"]["location_type"] | null
           location_url: string | null
+          looking_for_players: boolean | null
           match_format: string | null
           max_participants: number | null
           meetup_category: string | null
           opponent_logo_url: string | null
           opponent_name: string | null
           opponent_team_id: string | null
+          players_needed: number | null
           recurrence_rule: string | null
           start_time: string
           team_id: string | null
@@ -212,12 +217,14 @@ export type Database = {
           location?: string | null
           location_type?: Database["public"]["Enums"]["location_type"] | null
           location_url?: string | null
+          looking_for_players?: boolean | null
           match_format?: string | null
           max_participants?: number | null
           meetup_category?: string | null
           opponent_logo_url?: string | null
           opponent_name?: string | null
           opponent_team_id?: string | null
+          players_needed?: number | null
           recurrence_rule?: string | null
           start_time: string
           team_id?: string | null
@@ -240,12 +247,14 @@ export type Database = {
           location?: string | null
           location_type?: Database["public"]["Enums"]["location_type"] | null
           location_url?: string | null
+          looking_for_players?: boolean | null
           match_format?: string | null
           max_participants?: number | null
           meetup_category?: string | null
           opponent_logo_url?: string | null
           opponent_name?: string | null
           opponent_team_id?: string | null
+          players_needed?: number | null
           recurrence_rule?: string | null
           start_time?: string
           team_id?: string | null
@@ -306,6 +315,51 @@ export type Database = {
           },
         ]
       }
+      match_proposals: {
+        Row: {
+          commitment_acknowledged_at: string | null
+          event_id: string
+          id: string
+          player_user_id: string
+          proposed_at: string | null
+          responded_at: string | null
+          status: string
+        }
+        Insert: {
+          commitment_acknowledged_at?: string | null
+          event_id: string
+          id?: string
+          player_user_id: string
+          proposed_at?: string | null
+          responded_at?: string | null
+          status?: string
+        }
+        Update: {
+          commitment_acknowledged_at?: string | null
+          event_id?: string
+          id?: string
+          player_user_id?: string
+          proposed_at?: string | null
+          responded_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_proposals_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_proposals_player_user_id_fkey"
+            columns: ["player_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string | null
@@ -341,6 +395,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      player_availability: {
+        Row: {
+          available_from: string
+          available_until: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          location: string | null
+          skill_level: number | null
+          sport: string
+          user_id: string
+        }
+        Insert: {
+          available_from: string
+          available_until: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          skill_level?: number | null
+          sport: string
+          user_id: string
+        }
+        Update: {
+          available_from?: string
+          available_until?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          skill_level?: number | null
+          sport?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_availability_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       player_performance_levels: {
         Row: {

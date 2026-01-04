@@ -14,6 +14,7 @@ export interface EventAttendee {
   user_id: string;
   status: 'attending' | 'maybe' | 'not_attending';
   responded_at: string;
+  is_committed?: boolean;
   profiles?: {
     username: string;
     display_name: string | null;
@@ -30,6 +31,7 @@ export const useEventAttendance = (eventId: string) => {
   });
   const [attendees, setAttendees] = useState<EventAttendee[]>([]);
   const [userStatus, setUserStatus] = useState<string | null>(null);
+  const [isCommitted, setIsCommitted] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -111,6 +113,7 @@ export const useEventAttendance = (eventId: string) => {
         const userAttendance = typedData.find(a => a.user_id === user.id);
         console.log('[Attendance] User status:', userAttendance?.status);
         setUserStatus(userAttendance?.status || null);
+        setIsCommitted(userAttendance?.is_committed || false);
       }
     } catch (error) {
       console.error("[Attendance] Error fetching:", error);
@@ -157,6 +160,16 @@ export const useEventAttendance = (eventId: string) => {
 
   const removeAttendance = async () => {
     try {
+      // Check if committed - cannot remove committed attendance
+      if (isCommitted) {
+        toast({
+          title: "Cannot cancel",
+          description: "You are committed to this match and cannot cancel.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
@@ -169,6 +182,7 @@ export const useEventAttendance = (eventId: string) => {
       if (error) throw error;
 
       setUserStatus(null);
+      setIsCommitted(false);
       
       toast({
         title: "Success",
@@ -191,6 +205,7 @@ export const useEventAttendance = (eventId: string) => {
     stats,
     attendees,
     userStatus,
+    isCommitted,
     loading,
     updateAttendance,
     removeAttendance,
