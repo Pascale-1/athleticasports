@@ -167,7 +167,7 @@ export const CreateMatchSheet = ({ open, onOpenChange, onSuccess }: CreateMatchS
         <SheetHeader className="mb-6">
           <SheetTitle className="flex items-center gap-2">
             <Swords className="h-5 w-5 text-primary" />
-            {lang === 'fr' ? 'Créer un match' : 'Create a Match'}
+            {lang === 'fr' ? 'Créer une partie' : 'Create a Game'}
           </SheetTitle>
         </SheetHeader>
 
@@ -213,7 +213,7 @@ export const CreateMatchSheet = ({ open, onOpenChange, onSuccess }: CreateMatchS
 
           {/* Title */}
           <div className="space-y-2">
-            <Label htmlFor="title">{lang === 'fr' ? 'Titre du match' : 'Match Title'} *</Label>
+            <Label htmlFor="title">{lang === 'fr' ? 'Titre de la partie' : 'Game Title'} *</Label>
             <Input
               id="title"
               placeholder={lang === 'fr' ? 'ex: Match de football dimanche' : 'e.g., Sunday Football Game'}
@@ -336,7 +336,7 @@ export const CreateMatchSheet = ({ open, onOpenChange, onSuccess }: CreateMatchS
             ) : (
               <>
                 <Swords className="mr-2 h-4 w-4" />
-                {lang === 'fr' ? 'Créer le match' : 'Create Match'}
+                {lang === 'fr' ? 'Créer la partie' : 'Create Game'}
               </>
             )}
           </Button>
