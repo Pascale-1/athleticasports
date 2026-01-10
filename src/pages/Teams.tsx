@@ -106,20 +106,25 @@ const Teams = () => {
       allTeamIds.push(...(publicTeamsData || []).map((t: any) => t.id));
 
       if (allTeamIds.length > 0) {
-        const countPromises = allTeamIds.map(teamId =>
-          supabase.rpc("get_team_member_count", { _team_id: teamId })
-        );
-        
-        const countResults = await Promise.all(countPromises);
-        
+        // Single query to get member counts for all teams at once
+        // This eliminates the N+1 problem (previously: N RPC calls, now: 1 query)
+        const uniqueTeamIds = [...new Set(allTeamIds)];
+        const { data: countData } = await supabase
+          .from("team_members")
+          .select("team_id")
+          .in("team_id", uniqueTeamIds)
+          .eq("status", "active");
+
         const newCounts: Record<string, number> = {};
-        allTeamIds.forEach((teamId, index) => {
-          const result = countResults[index];
-          if (result.data !== null && result.data !== undefined) {
-            newCounts[teamId] = result.data;
-          }
+        // Initialize all team counts to 0
+        uniqueTeamIds.forEach(teamId => {
+          newCounts[teamId] = 0;
         });
-        
+        // Count members per team
+        countData?.forEach(member => {
+          newCounts[member.team_id] = (newCounts[member.team_id] || 0) + 1;
+        });
+
         setMemberCounts(newCounts);
       }
     } catch (error) {

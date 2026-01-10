@@ -68,7 +68,6 @@ export const useEventAttendance = (eventId: string) => {
   }, [eventId]);
 
   const fetchAttendance = async () => {
-    console.log('[Attendance] Fetching for event:', eventId);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       console.log('[Attendance] Current user:', user?.id);
@@ -86,9 +85,6 @@ export const useEventAttendance = (eventId: string) => {
         `)
         .eq("event_id", eventId);
 
-      console.log('[Attendance] Raw data:', attendanceData);
-      console.log('[Attendance] Error:', attendanceError);
-
       if (attendanceError) throw attendanceError;
 
       const typedData = (attendanceData || []) as unknown as EventAttendee[];
@@ -96,8 +92,6 @@ export const useEventAttendance = (eventId: string) => {
       const attending = typedData.filter(a => a.status === 'attending').length || 0;
       const maybe = typedData.filter(a => a.status === 'maybe').length || 0;
       const not_attending = typedData.filter(a => a.status === 'not_attending').length || 0;
-
-      console.log('[Attendance] Stats calculated:', { attending, maybe, not_attending });
 
       setStats({
         attending,
@@ -111,7 +105,6 @@ export const useEventAttendance = (eventId: string) => {
       // Get user's status
       if (user) {
         const userAttendance = typedData.find(a => a.user_id === user.id);
-        console.log('[Attendance] User status:', userAttendance?.status);
         setUserStatus(userAttendance?.status || null);
         setIsCommitted(userAttendance?.is_committed || false);
       }

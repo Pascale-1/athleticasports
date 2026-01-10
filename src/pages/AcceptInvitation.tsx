@@ -27,8 +27,6 @@ const AcceptInvitation = () => {
   const handleInvitation = async () => {
     const rawId = searchParams.get("id");
     
-    console.log('[AcceptInvitation] Starting invitation acceptance', { invitationId: rawId });
-    
     // Validate UUID format
     const validation = uuidSchema.safeParse(rawId);
     if (!validation.success) {
@@ -50,7 +48,6 @@ const AcceptInvitation = () => {
     
     if (!session) {
       // Store invitation ID and redirect to auth
-      console.log('[AcceptInvitation] No session, redirecting to auth');
       sessionStorage.setItem("pendingInvitationId", invitationId);
       navigate(`/auth?invitationId=${invitationId}`);
       return;
@@ -61,13 +58,9 @@ const AcceptInvitation = () => {
       setLoading(true);
       setRetrying(false);
       
-      console.log('[AcceptInvitation] Calling accept-team-invitation function');
-      
       const { data, error } = await supabase.functions.invoke('accept-team-invitation', {
         body: { invitationId }
       });
-
-      console.log('[AcceptInvitation] Function response', { data, error });
 
       if (error) {
         // Enhanced error handling with specific error types

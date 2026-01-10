@@ -109,8 +109,6 @@ Deno.serve(async (req) => {
 
     const { invitationId, teamId, recipientEmail, role, appOrigin }: InvitationRequest = await req.json()
 
-    console.log('Sending invitation email:', { invitationId, teamId, recipientEmail, role, appOrigin })
-
     // Create authenticated Supabase client to verify user
     const supabaseAuth = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -208,8 +206,6 @@ Deno.serve(async (req) => {
       throw new Error(`Invalid accept URL generated: ${acceptUrl}`)
     }
     
-    console.log('Invitation URLs generated:', { acceptUrl, authFallbackUrl, appUrl, cleanAppUrl })
-
     // Generate HTML email
     const html = generateEmailHTML(
       team.name,
@@ -242,8 +238,6 @@ Deno.serve(async (req) => {
       console.error('Error sending email:', resendData)
       throw resendData
     }
-
-    console.log('Email sent successfully:', resendData)
 
     return new Response(
       JSON.stringify({ success: true, messageId: resendData?.id }),

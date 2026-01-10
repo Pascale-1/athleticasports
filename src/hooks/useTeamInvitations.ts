@@ -91,19 +91,30 @@ export const useTeamInvitations = (teamId: string | null) => {
         if (!profile) throw new Error("User not found");
         email = profile.username;
       } else {
-        // Sanitize input to prevent SQL injection
-        const sanitizedInput = emailOrUserId.replace(/[%_']/g, '\\$&')
-        const usernamePrefix = emailOrUserId.includes('@') ? sanitizedInput.split('@')[0] : sanitizedInput
-        
-        // Try to find existing user by username or email
-        const { data: existingProfile } = await supabase
+        // Try to find existing user by exact username match first (parametrized query - safe from SQL injection)
+        const { data: exactMatch } = await supabase
           .from("profiles")
           .select("user_id, username")
-          .or(`username.eq.${sanitizedInput},username.ilike.${usernamePrefix}`)
+          .eq("username", emailOrUserId)
           .maybeSingle();
 
-        if (existingProfile) {
-          invitedUserId = existingProfile.user_id;
+        if (exactMatch) {
+          invitedUserId = exactMatch.user_id;
+        } else {
+          // If no exact match and input looks like email, try prefix match
+          const usernamePrefix = emailOrUserId.includes('@') ? emailOrUserId.split('@')[0] : null;
+
+          if (usernamePrefix) {
+            const { data: prefixMatch } = await supabase
+              .from("profiles")
+              .select("user_id, username")
+              .ilike("username", usernamePrefix)
+              .maybeSingle();
+
+            if (prefixMatch) {
+              invitedUserId = prefixMatch.user_id;
+            }
+          }
         }
       }
 

@@ -210,12 +210,11 @@ export const TeamInviteLink = ({
   );
 };
 
-// Helper function to generate random invite code
+// Helper function to generate cryptographically secure invite code
 function generateInviteCode(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let code = '';
-  for (let i = 0; i < 8; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
+  const array = new Uint8Array(12);
+  crypto.getRandomValues(array);
+  return Array.from(array, byte =>
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[byte % 36]
+  ).join('');
 }

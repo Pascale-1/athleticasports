@@ -92,13 +92,34 @@ const Settings = () => {
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setUploading(true);
-      
+
       if (!event.target.files || event.target.files.length === 0) {
         return;
       }
 
       const file = event.target.files[0];
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split('.').pop()?.toLowerCase();
+
+      // Valider le type MIME
+      if (!file.type.startsWith('image/')) {
+        toast.error("Only image files are allowed");
+        return;
+      }
+
+      // Limiter la taille (5MB)
+      const MAX_FILE_SIZE = 5 * 1024 * 1024;
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error("File is too large (max 5MB)");
+        return;
+      }
+
+      // Verifier l'extension
+      const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+      if (!fileExt || !allowedExtensions.includes(fileExt)) {
+        toast.error("Invalid file type. Allowed: jpg, jpeg, png, webp, gif");
+        return;
+      }
+
       const filePath = `${profile?.user_id}-${Math.random()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage

@@ -19,7 +19,6 @@ export const useDeepLink = () => {
     // Handle app URL open events (custom scheme and universal links)
     const handleAppUrl = async (event: { url: string }) => {
       try {
-        console.log('[DeepLink] App opened with URL:', event.url);
         
         let path = '';
         let searchParams = '';
@@ -58,7 +57,6 @@ export const useDeepLink = () => {
         const fullPath = path || '/';
         const finalPath = searchParams ? `${fullPath}${searchParams}` : fullPath;
         
-        console.log('[DeepLink] Navigating to:', finalPath);
         
         // Navigate to the path
         navigate(finalPath);
@@ -67,19 +65,45 @@ export const useDeepLink = () => {
       }
     };
 
+    // Store listener handle for cleanup
+    let listenerHandle: { remove: () => Promise<void> } | null = null;
+    let isCleanedUp = false;
+
     // Listen for app URL open events
-    const urlListener = App.addListener('appUrlOpen', handleAppUrl);
+    App.addListener('appUrlOpen', handleAppUrl)
+      .then((handle) => {
+        // If cleanup already happened before listener was ready, remove immediately
+        if (isCleanedUp) {
+          handle.remove().catch((error) => {
+            console.error('[DeepLink] Error removing listener after late resolve:', error);
+          });
+        } else {
+          listenerHandle = handle;
+        }
+      })
+      .catch((error) => {
+        console.error('[DeepLink] Error adding listener:', error);
+      });
 
     // Also check if app was opened with a URL on launch
-    App.getLaunchUrl().then((result) => {
-      if (result?.url) {
-        handleAppUrl({ url: result.url });
-      }
-    });
+    App.getLaunchUrl()
+      .then((result) => {
+        if (result?.url) {
+          handleAppUrl({ url: result.url });
+        }
+      })
+      .catch((error) => {
+        console.error('[DeepLink] Error getting launch URL:', error);
+      });
 
     // Cleanup listener on unmount
     return () => {
-      urlListener.then((listener) => listener.remove());
+      isCleanedUp = true;
+      if (listenerHandle) {
+        listenerHandle.remove().catch((error) => {
+          console.error('[DeepLink] Error removing listener:', error);
+        });
+      }
     };
   }, [navigate]);
 };

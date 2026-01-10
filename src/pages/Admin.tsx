@@ -45,14 +45,18 @@ const Admin = () => {
         return;
       }
 
-      const { data } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'admin')
-        .maybeSingle();
+      // Utiliser la fonction RPC securisee pour verifier le role admin
+      const { data: isUserAdmin, error } = await supabase
+        .rpc('has_role', { _user_id: user.id, _role: 'admin' });
 
-      if (!data) {
+      if (error) {
+        console.error('Error checking admin status:', error);
+        toast.error("Error verifying admin access");
+        navigate('/');
+        return;
+      }
+
+      if (!isUserAdmin) {
         toast.error("You don't have admin access");
         navigate('/');
         return;
@@ -98,17 +102,35 @@ const Admin = () => {
   const handleRoleChange = async (userId: string, newRole: string) => {
     try {
       // Remove existing roles
-      await supabase
+      const { error: deleteError } = await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId);
 
+      if (deleteError) {
+        // RLS policy violation - user is not admin
+        if (deleteError.code === '42501' || deleteError.message.includes('policy')) {
+          toast.error("Access denied: Admin privileges required");
+          navigate('/');
+          return;
+        }
+        throw deleteError;
+      }
+
       // Add new role
-      const { error } = await supabase
+      const { error: insertError } = await supabase
         .from('user_roles')
         .insert([{ user_id: userId, role: newRole as any }]);
 
-      if (error) throw error;
+      if (insertError) {
+        // RLS policy violation - user is not admin
+        if (insertError.code === '42501' || insertError.message.includes('policy')) {
+          toast.error("Access denied: Admin privileges required");
+          navigate('/');
+          return;
+        }
+        throw insertError;
+      }
 
       toast.success("Role updated successfully");
       fetchProfiles();

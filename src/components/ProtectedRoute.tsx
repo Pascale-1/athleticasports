@@ -81,8 +81,13 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false }: Protec
     return <Navigate to="/auth" replace />;
   }
 
-  // Redirect to onboarding if not completed (and not already on onboarding page)
-  if (!skipOnboardingCheck && onboardingCompleted === false && location.pathname !== '/onboarding') {
+  // Redirect to onboarding if not completed
+  // Guard against redirect loops by checking multiple conditions:
+  // 1. skipOnboardingCheck must be false
+  // 2. onboardingCompleted must be explicitly false (not null/undefined)
+  // 3. Current path must not be onboarding or any of its sub-routes
+  const isOnboardingPath = location.pathname.startsWith('/onboarding');
+  if (!skipOnboardingCheck && onboardingCompleted === false && !isOnboardingPath) {
     return <Navigate to="/onboarding" replace />;
   }
 

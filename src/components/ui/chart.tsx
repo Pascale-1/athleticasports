@@ -6,6 +6,23 @@ import { cn } from "@/lib/utils";
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
 
+// Sanitize CSS values to prevent XSS injection
+function sanitizeCssValue(value: string): string {
+  // Remove dangerous characters and patterns that could escape CSS context
+  return value
+    .replace(/[<>'"`;{}()]/g, '')
+    .replace(/javascript:/gi, '')
+    .replace(/expression\s*\(/gi, '')
+    .replace(/url\s*\(/gi, '')
+    .slice(0, 100); // Limit length
+}
+
+// Sanitize CSS property names (keys)
+function sanitizeCssKey(key: string): string {
+  // Only allow alphanumeric characters and hyphens
+  return key.replace(/[^a-zA-Z0-9-]/g, '').slice(0, 50);
+}
+
 export type ChartConfig = {
   [k in string]: {
     label?: React.ReactNode;
@@ -65,17 +82,22 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     return null;
   }
 
+  // Sanitize the chart ID to prevent CSS injection
+  const sanitizedId = sanitizeCssKey(id);
+
   return (
     <style
       dangerouslySetInnerHTML={{
         __html: Object.entries(THEMES)
           .map(
             ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
+${prefix} [data-chart=${sanitizedId}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
     const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
+    const sanitizedKey = sanitizeCssKey(key);
+    const sanitizedColor = color ? sanitizeCssValue(color) : null;
+    return sanitizedColor ? `  --color-${sanitizedKey}: ${sanitizedColor};` : null;
   })
   .join("\n")}
 }

@@ -105,22 +105,10 @@ export const useActivityFeed = (userId?: string) => {
         return;
       }
 
-      // Build query with pagination
+      // Build query with pagination - fetch logs first, then profiles separately
       let query = supabase
         .from('user_activity_log')
-        .select(`
-          id,
-          action_type,
-          entity_id,
-          entity_type,
-          metadata,
-          created_at,
-          profiles:user_id (
-            username,
-            display_name,
-            avatar_url
-          )
-        `)
+        .select('id, action_type, entity_id, entity_type, metadata, created_at, user_id')
         .order('created_at', { ascending: false })
         .limit(PAGE_SIZE + 1); // Fetch one extra to check if there's more
 
@@ -133,12 +121,34 @@ export const useActivityFeed = (userId?: string) => {
 
       if (logsError) throw logsError;
 
+      // Fetch profiles for all users in the activity logs
+      const userIds = [...new Set((activityLogs || []).map(log => log.user_id))];
+      let profilesMap: Record<string, { username: string; display_name: string | null; avatar_url: string | null }> = {};
+
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, username, display_name, avatar_url')
+          .in('user_id', userIds);
+
+        profilesMap = (profiles || []).reduce((acc, p) => {
+          acc[p.user_id] = p;
+          return acc;
+        }, {} as typeof profilesMap);
+      }
+
+      // Attach profiles to logs
+      const logsWithProfiles = (activityLogs || []).map(log => ({
+        ...log,
+        profiles: profilesMap[log.user_id] || null
+      }));
+
       // Check if there's more data
-      const hasMoreData = (activityLogs || []).length > PAGE_SIZE;
+      const hasMoreData = logsWithProfiles.length > PAGE_SIZE;
       setHasMore(hasMoreData);
 
       // Take only PAGE_SIZE items
-      const logsToProcess = (activityLogs || []).slice(0, PAGE_SIZE);
+      const logsToProcess = logsWithProfiles.slice(0, PAGE_SIZE);
       
       // Update cursor for next page
       if (logsToProcess.length > 0) {

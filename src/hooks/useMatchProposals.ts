@@ -98,14 +98,20 @@ export const useMatchProposals = () => {
   };
 
   const acceptProposal = async (proposalId: string) => {
+    // Track completed operations for rollback
+    let proposalUpdated = false;
+    let attendanceCreated = false;
+    let previousAvailabilityIds: string[] = [];
+
+    const proposal = proposals.find(p => p.id === proposalId);
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const proposal = proposals.find(p => p.id === proposalId);
       if (!proposal) throw new Error("Proposal not found");
 
-      // Update proposal status
+      // Step 1: Update proposal status
       const { error: proposalError } = await supabase
         .from("match_proposals")
         .update({
@@ -113,11 +119,13 @@ export const useMatchProposals = () => {
           responded_at: new Date().toISOString(),
           commitment_acknowledged_at: new Date().toISOString(),
         })
-        .eq("id", proposalId);
+        .eq("id", proposalId)
+        .eq("status", "pending"); // Ensure we only update pending proposals (prevents race condition)
 
       if (proposalError) throw proposalError;
+      proposalUpdated = true;
 
-      // Add to event attendance with committed flag
+      // Step 2: Add to event attendance with committed flag
       const { error: attendanceError } = await supabase
         .from("event_attendance")
         .upsert({
@@ -130,13 +138,26 @@ export const useMatchProposals = () => {
         });
 
       if (attendanceError) throw attendanceError;
+      attendanceCreated = true;
 
-      // Deactivate player's availability
-      await supabase
+      // Step 3: Get active availability IDs before deactivating (for potential rollback)
+      const { data: activeAvailability } = await supabase
         .from("player_availability")
-        .update({ is_active: false })
+        .select("id")
         .eq("user_id", user.id)
         .eq("is_active", true);
+
+      previousAvailabilityIds = activeAvailability?.map(a => a.id) || [];
+
+      // Step 4: Deactivate player's availability
+      if (previousAvailabilityIds.length > 0) {
+        const { error: availabilityError } = await supabase
+          .from("player_availability")
+          .update({ is_active: false })
+          .in("id", previousAvailabilityIds);
+
+        if (availabilityError) throw availabilityError;
+      }
 
       toast({
         title: "Match accepted!",
@@ -148,6 +169,43 @@ export const useMatchProposals = () => {
       return true;
     } catch (error: any) {
       console.error("Error accepting proposal:", error);
+
+      // Rollback: revert changes in reverse order
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+
+        // Rollback availability deactivation
+        if (previousAvailabilityIds.length > 0) {
+          await supabase
+            .from("player_availability")
+            .update({ is_active: true })
+            .in("id", previousAvailabilityIds);
+        }
+
+        // Rollback attendance creation
+        if (attendanceCreated && proposal && user) {
+          await supabase
+            .from("event_attendance")
+            .delete()
+            .eq("event_id", proposal.event_id)
+            .eq("user_id", user.id);
+        }
+
+        // Rollback proposal status
+        if (proposalUpdated) {
+          await supabase
+            .from("match_proposals")
+            .update({
+              status: "pending",
+              responded_at: null,
+              commitment_acknowledged_at: null,
+            })
+            .eq("id", proposalId);
+        }
+      } catch (rollbackError) {
+        console.error("Error during rollback:", rollbackError);
+      }
+
       toast({
         title: "Error",
         description: error.message || "Failed to accept proposal",

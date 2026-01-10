@@ -15,6 +15,8 @@ export const useTeamMembers = (teamId: string | null) => {
     }
 
     try {
+      // Single query with JOIN to fetch members, profiles, and roles together
+      // This eliminates the N+1 problem (previously: 1 + N queries, now: 1 query)
       const { data: membersData, error } = await supabase
         .from("team_members")
         .select(`
@@ -23,6 +25,9 @@ export const useTeamMembers = (teamId: string | null) => {
             username,
             display_name,
             avatar_url
+          ),
+          team_member_roles (
+            role
           )
         `)
         .eq("team_id", teamId)
@@ -30,23 +35,17 @@ export const useTeamMembers = (teamId: string | null) => {
 
       if (error) throw error;
 
-      const membersWithRoles = await Promise.all(
-        membersData.map(async (member) => {
-          const { data: roleData } = await supabase
-            .from("team_member_roles")
-            .select("role")
-            .eq("team_member_id", member.id)
-            .order("role", { ascending: true })
-            .limit(1)
-            .single();
+      const membersWithRoles = membersData.map((member) => {
+        // Get the first role from the joined data, default to "member"
+        const roles = member.team_member_roles as { role: string }[] | null;
+        const role = roles && roles.length > 0 ? roles[0].role : "member";
 
-          return {
-            ...member,
-            profile: Array.isArray(member.profiles) ? member.profiles[0] : member.profiles,
-            role: roleData?.role || "member",
-          };
-        })
-      );
+        return {
+          ...member,
+          profile: Array.isArray(member.profiles) ? member.profiles[0] : member.profiles,
+          role,
+        };
+      });
 
       setMembers(membersWithRoles as TeamMemberWithProfile[]);
     } catch (error) {

@@ -52,8 +52,6 @@ Deno.serve(async (req) => {
       throw new Error('Invalid request: sessionId required and numTeams must be between 2-6');
     }
 
-    console.log('Generating balanced teams:', { sessionId, numTeams, userId: user.id });
-
     // Fetch training session
     const { data: session, error: sessionError } = await supabaseClient
       .from('training_sessions')
@@ -91,8 +89,6 @@ Deno.serve(async (req) => {
       throw new Error('No active team members found');
     }
 
-    console.log('Found team members:', members.length);
-
     // Fetch profiles for these members
     const { data: profiles, error: profilesError } = await supabaseClient
       .from('profiles')
@@ -127,8 +123,6 @@ Deno.serve(async (req) => {
         level: levelMap.get(m.user_id) || 3,
       };
     });
-
-    console.log('Players with levels:', players.map(p => ({ name: p.username, level: p.level })));
 
     // Sort players by level (strongest first)
     players.sort((a, b) => a.level - b.level);
@@ -167,12 +161,6 @@ Deno.serve(async (req) => {
         ? 0
         : team.members.reduce((sum, p) => sum + p.level, 0) / team.members.length;
     });
-
-    console.log('Generated teams:', teams.map(t => ({ 
-      name: t.teamName, 
-      avg: t.averageLevel.toFixed(2), 
-      count: t.members.length 
-    })));
 
     // Delete existing teams for this session
     const { error: deleteError } = await supabaseServiceRole

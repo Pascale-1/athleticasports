@@ -13,5 +13,53 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
+    // Session expires after 20 days of inactivity
+    // User will need to re-authenticate after this period
+    flowType: 'pkce',
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'athletica-sports',
+    },
+  },
+});
+
+// Session timeout configuration (20 days for mobile app)
+const SESSION_TIMEOUT_MS = 20 * 24 * 60 * 60 * 1000;
+let sessionTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+// Reset session timeout on user activity
+function resetSessionTimeout() {
+  if (sessionTimeoutId) {
+    clearTimeout(sessionTimeoutId);
+  }
+  sessionTimeoutId = setTimeout(async () => {
+    await supabase.auth.signOut();
+  }, SESSION_TIMEOUT_MS);
+}
+
+// Listen for auth state changes to manage session timeout
+supabase.auth.onAuthStateChange((event) => {
+  if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+    resetSessionTimeout();
+  } else if (event === 'SIGNED_OUT') {
+    if (sessionTimeoutId) {
+      clearTimeout(sessionTimeoutId);
+      sessionTimeoutId = null;
+    }
   }
 });
+
+// Reset timeout on user activity (only in browser environment)
+if (typeof window !== 'undefined') {
+  ['mousedown', 'keydown', 'touchstart', 'scroll'].forEach((eventType) => {
+    window.addEventListener(eventType, () => {
+      // Only reset if user is authenticated
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          resetSessionTimeout();
+        }
+      });
+    }, { passive: true });
+  });
+}

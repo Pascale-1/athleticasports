@@ -25,8 +25,6 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const { event_id, availability_id } = body;
 
-    console.log("[match-players] Starting matching process", { event_id, availability_id });
-
     let result: MatchResult = { proposals_created: 0, notifications_sent: 0 };
 
     // Get all active player availabilities
@@ -41,8 +39,6 @@ Deno.serve(async (req) => {
       throw availError;
     }
 
-    console.log("[match-players] Found active availabilities:", availabilities?.length || 0);
-
     // Get all matches looking for players
     const { data: events, error: eventsError } = await supabase
       .from("events")
@@ -56,10 +52,7 @@ Deno.serve(async (req) => {
       throw eventsError;
     }
 
-    console.log("[match-players] Found events looking for players:", events?.length || 0);
-
     if (!availabilities?.length || !events?.length) {
-      console.log("[match-players] No availabilities or events to match");
       return new Response(
         JSON.stringify({ success: true, result }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -130,8 +123,6 @@ Deno.serve(async (req) => {
           }
         }
 
-        console.log(`[match-players] Creating proposal: event=${event.id}, player=${avail.user_id}`);
-
         // Create proposal
         const { error: insertError } = await supabase
           .from("match_proposals")
@@ -170,8 +161,6 @@ Deno.serve(async (req) => {
         }
       }
     }
-
-    console.log("[match-players] Matching complete:", result);
 
     return new Response(
       JSON.stringify({ success: true, result }),

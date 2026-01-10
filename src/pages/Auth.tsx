@@ -9,7 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const emailSchema = z.object({
@@ -19,7 +25,9 @@ const emailSchema = z.object({
 
 const phoneSchema = z.object({
   countryCode: z.string().min(1, "Please select a country code"),
-  phone: z.string().regex(/^[0-9]{6,14}$/, "Please enter a valid phone number (6-14 digits)"),
+  phone: z
+    .string()
+    .regex(/^[0-9]{6,14}$/, "Please enter a valid phone number (6-14 digits)"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -36,9 +44,15 @@ const Auth = () => {
   const [oauthUrl, setOauthUrl] = useState<string | null>(null);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
   const [invitationId, setInvitationId] = useState<string | null>(null);
-  const returnUrl = searchParams.get('returnUrl');
+  const returnUrl = searchParams.get("returnUrl");
   const redirectUrl = `${window.location.origin}/auth`;
-  const inIframe = (() => { try { return window.top !== window.self; } catch { return true; } })();
+  const inIframe = (() => {
+    try {
+      return window.top !== window.self;
+    } catch {
+      return true;
+    }
+  })();
 
   const emailForm = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
@@ -50,49 +64,54 @@ const Auth = () => {
 
   useEffect(() => {
     // Check for OAuth errors in URL params
-    const error = searchParams.get('error');
-    const errorDescription = searchParams.get('error_description');
-    const invitationIdParam = searchParams.get('invitationId');
-    
+    const error = searchParams.get("error");
+    const errorDescription = searchParams.get("error_description");
+    const invitationIdParam = searchParams.get("invitationId");
+
     // Store invitation ID if present (for users who need to login first)
     if (invitationIdParam) {
       setInvitationId(invitationIdParam);
       sessionStorage.setItem("pendingInvitationId", invitationIdParam);
-      console.log('[Auth] Stored pending invitation ID:', invitationIdParam);
     }
-    
+
     if (error) {
-      const friendlyMessage = errorDescription 
-        ? errorDescription.replace(/\+/g, ' ')
-        : 'An error occurred during sign in';
-      
-      console.error('[Auth] OAuth error:', error, errorDescription);
-      
+      const friendlyMessage = errorDescription
+        ? errorDescription.replace(/\+/g, " ")
+        : "An error occurred during sign in";
+
+      console.error("[Auth] OAuth error:", error, errorDescription);
+
       toast({
         variant: "destructive",
         title: "Google Sign In Error",
         description: friendlyMessage,
       });
-      
+
       // Clean up URL but preserve invitation ID
-      const cleanUrl = invitationIdParam ? `/auth?invitationId=${invitationIdParam}` : '/auth';
-      window.history.replaceState({}, '', cleanUrl);
+      const cleanUrl = invitationIdParam
+        ? `/auth?invitationId=${invitationIdParam}`
+        : "/auth";
+      window.history.replaceState({}, "", cleanUrl);
     }
   }, [searchParams, toast]);
 
   useEffect(() => {
     document.title = "Sign in | Athletica Sports";
     const metaDesc = "Secure sign in and sign up for Athletica Sports.";
-    let meta = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
+    let meta = document.querySelector(
+      'meta[name="description"]'
+    ) as HTMLMetaElement | null;
     if (!meta) {
-      meta = document.createElement('meta');
+      meta = document.createElement("meta");
       meta.name = "description";
       document.head.appendChild(meta);
     }
     meta.content = metaDesc;
-    let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    let link = document.querySelector(
+      'link[rel="canonical"]'
+    ) as HTMLLinkElement | null;
     if (!link) {
-      link = document.createElement('link');
+      link = document.createElement("link");
       link.rel = "canonical";
       document.head.appendChild(link);
     }
@@ -100,35 +119,38 @@ const Auth = () => {
   }, []);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    // Flag to prevent double navigation from both subscription and getSession
+    let hasNavigated = false;
+
+    const handleAuthRedirect = () => {
+      // Prevent duplicate navigation
+      if (hasNavigated) return;
+      hasNavigated = true;
+
+      // Check for pending invitation first
+      const pendingInvitationId = sessionStorage.getItem("pendingInvitationId");
+      if (pendingInvitationId) {
+        sessionStorage.removeItem("pendingInvitationId");
+        navigate(`/teams/invitations/accept?id=${pendingInvitationId}`);
+      } else if (returnUrl) {
+        // Redirect to returnUrl after authentication
+        navigate(returnUrl);
+      } else {
+        navigate("/");
+      }
+    };
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        // Check for pending invitation first
-        const pendingInvitationId = sessionStorage.getItem("pendingInvitationId");
-        if (pendingInvitationId) {
-          sessionStorage.removeItem("pendingInvitationId");
-          navigate(`/teams/invitations/accept?id=${pendingInvitationId}`);
-        } else if (returnUrl) {
-          // Redirect to returnUrl after authentication
-          navigate(returnUrl);
-        } else {
-          navigate("/");
-        }
+        handleAuthRedirect();
       }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        // Check for pending invitation first
-        const pendingInvitationId = sessionStorage.getItem("pendingInvitationId");
-        if (pendingInvitationId) {
-          sessionStorage.removeItem("pendingInvitationId");
-          navigate(`/teams/invitations/accept?id=${pendingInvitationId}`);
-        } else if (returnUrl) {
-          // Redirect to returnUrl after authentication
-          navigate(returnUrl);
-        } else {
-          navigate("/");
-        }
+        handleAuthRedirect();
       }
     });
 
@@ -146,9 +168,9 @@ const Auth = () => {
             emailRedirectTo: `${window.location.origin}/`,
           },
         });
-        
+
         if (error) throw error;
-        
+
         toast({
           title: "Account created!",
           description: "You can now sign in with your credentials.",
@@ -159,18 +181,22 @@ const Auth = () => {
           email: data.email,
           password: data.password,
         });
-        
+
         if (error) {
           // Provide clearer error messages
           if (error.message.includes("Invalid login credentials")) {
-            throw new Error("Invalid email or password. Don't have an account? Sign up below.");
+            throw new Error(
+              "Invalid email or password. Don't have an account? Sign up below."
+            );
           }
           if (error.message.includes("Email not confirmed")) {
-            throw new Error("Please check your email and confirm your account before signing in.");
+            throw new Error(
+              "Please check your email and confirm your account before signing in."
+            );
           }
           throw error;
         }
-        
+
         toast({
           title: "Welcome back!",
           description: "Successfully signed in.",
@@ -180,29 +206,28 @@ const Auth = () => {
       toast({
         variant: "destructive",
         title: isSignUp ? "Sign Up Error" : "Sign In Error",
-        description: error.message || "An error occurred during authentication.",
+        description:
+          error.message || "An error occurred during authentication.",
       });
     } finally {
       setLoading(false);
     }
   };
 
-const handleGoogleAuth = async () => {
+  const handleGoogleAuth = async () => {
     setGoogleLoading(true);
     setOauthUrl(null);
     try {
-      console.log('[OAuth] Starting Google sign-in', { 
+      console.log("[OAuth] Starting Google sign-in", {
         origin: window.location.origin,
-        invitationId: invitationId || 'none'
+        invitationId: invitationId || "none",
       });
-      
+
       // Preserve invitation ID through OAuth redirect
-      const finalRedirectUrl = invitationId 
+      const finalRedirectUrl = invitationId
         ? `${redirectUrl}?invitationId=${invitationId}`
         : redirectUrl;
-      
-      console.log('[OAuth] Redirect URL:', finalRedirectUrl);
-      
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -213,11 +238,9 @@ const handleGoogleAuth = async () => {
 
       if (error) throw error;
 
-      console.log('[OAuth] signInWithOAuth returned', data);
       if (data?.url) {
         setOauthUrl(data.url);
         const url = data.url;
-        console.log('[OAuth] Navigating to Google OAuth URL');
         try {
           if (window.top && window.top !== window.self) {
             (window.top as Window).location.href = url;
@@ -225,14 +248,17 @@ const handleGoogleAuth = async () => {
             window.location.assign(url);
           }
         } catch (navErr) {
-          console.warn('[OAuth] Top navigation blocked, opening new tab', navErr);
+          console.warn(
+            "[OAuth] Top navigation blocked, opening new tab",
+            navErr
+          );
           window.open(url, "_blank", "noopener,noreferrer");
         }
       } else {
         throw new Error("No OAuth redirect URL was returned.");
       }
     } catch (error: any) {
-      console.error('[OAuth] Google sign in error', error);
+      console.error("[OAuth] Google sign in error", error);
       toast({
         variant: "destructive",
         title: "Google Sign In Error",
@@ -247,7 +273,7 @@ const handleGoogleAuth = async () => {
     setLoading(true);
     try {
       const fullPhone = `${data.countryCode}${data.phone}`;
-      
+
       if (isSignUp) {
         const { error } = await supabase.auth.signUp({
           phone: fullPhone,
@@ -258,9 +284,9 @@ const handleGoogleAuth = async () => {
             },
           },
         });
-        
+
         if (error) throw error;
-        
+
         toast({
           title: "Account created!",
           description: "You're now signed in with your phone number.",
@@ -270,14 +296,16 @@ const handleGoogleAuth = async () => {
           phone: fullPhone,
           password: data.password,
         });
-        
+
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
-            throw new Error("Invalid phone or password. Don't have an account? Sign up below.");
+            throw new Error(
+              "Invalid phone or password. Don't have an account? Sign up below."
+            );
           }
           throw error;
         }
-        
+
         toast({
           title: "Welcome back!",
           description: "Successfully signed in.",
@@ -306,7 +334,8 @@ const handleGoogleAuth = async () => {
             <Alert className="border-primary/50 bg-primary/5">
               <AlertTitle className="text-primary">Team Invitation</AlertTitle>
               <AlertDescription className="text-body">
-                You've been invited to join a team! Please sign in or create an account to accept.
+                You've been invited to join a team! Please sign in or create an
+                account to accept.
               </AlertDescription>
             </Alert>
           )}
@@ -345,21 +374,38 @@ const handleGoogleAuth = async () => {
             <Alert className="mt-3">
               <AlertTitle>Having trouble redirecting?</AlertTitle>
               <AlertDescription>
-                We generated your Google sign-in link but your browser blocked automatic navigation{inIframe ? " (possibly due to iframe)." : "."}
+                We generated your Google sign-in link but your browser blocked
+                automatic navigation
+                {inIframe ? " (possibly due to iframe)." : "."}
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <Button size="sm" onClick={() => window.open(oauthUrl, "_blank", "noopener,noreferrer")}>Open Google Sign-in</Button>
-                  <Button size="sm" variant="secondary" onClick={() => navigator.clipboard.writeText(oauthUrl)}>Copy Link</Button>
+                  <Button
+                    size="sm"
+                    onClick={() =>
+                      window.open(oauthUrl, "_blank", "noopener,noreferrer")
+                    }
+                  >
+                    Open Google Sign-in
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => navigator.clipboard.writeText(oauthUrl)}
+                  >
+                    Copy Link
+                  </Button>
                 </div>
               </AlertDescription>
             </Alert>
           )}
-          
+
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-caption uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with email</span>
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with email
+              </span>
             </div>
           </div>
 
@@ -369,9 +415,12 @@ const handleGoogleAuth = async () => {
               <TabsTrigger value="email">Email</TabsTrigger>
               <TabsTrigger value="phone">Phone</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="email" className="space-y-4 mt-4">
-              <form onSubmit={emailForm.handleSubmit(handleEmailAuth)} className="space-y-4">
+              <form
+                onSubmit={emailForm.handleSubmit(handleEmailAuth)}
+                className="space-y-4"
+              >
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -386,7 +435,7 @@ const handleGoogleAuth = async () => {
                     </p>
                   )}
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
                   <Input
@@ -401,17 +450,18 @@ const handleGoogleAuth = async () => {
                     </p>
                   )}
                 </div>
-                
+
                 {invitationId && (
                   <p className="text-xs text-muted-foreground text-center">
-                    💡 Tip: Use the same email address where you received the invitation
+                    💡 Tip: Use the same email address where you received the
+                    invitation
                   </p>
                 )}
-                
+
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
                 </Button>
-                
+
                 <Button
                   type="button"
                   variant="ghost"
@@ -419,25 +469,30 @@ const handleGoogleAuth = async () => {
                   onClick={() => setIsSignUp(!isSignUp)}
                   disabled={loading}
                 >
-                  {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
+                  {isSignUp
+                    ? "Already have an account? Sign In"
+                    : "Don't have an account? Sign Up"}
                 </Button>
               </form>
-              
+
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Or continue with
+                  </span>
                 </div>
               </div>
-              
+
               {invitationId && (
                 <p className="text-xs text-muted-foreground text-center">
-                  💡 You can also sign up with Google using your invited email address
+                  💡 You can also sign up with Google using your invited email
+                  address
                 </p>
               )}
-              
+
               <Button
                 type="button"
                 variant="outline"
@@ -463,18 +518,39 @@ const handleGoogleAuth = async () => {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                {googleLoading ? "Signing in with Google..." : "Continue with Google"}
+                {googleLoading
+                  ? "Signing in with Google..."
+                  : "Continue with Google"}
               </Button>
 
               {oauthUrl && (
                 <Alert className="mt-3">
                   <AlertTitle>Having trouble redirecting?</AlertTitle>
                   <AlertDescription>
-                    We generated your Google sign-in link but your browser blocked automatic navigation{inIframe ? " (possibly due to iframe)." : "."}
+                    We generated your Google sign-in link but your browser
+                    blocked automatic navigation
+                    {inIframe ? " (possibly due to iframe)." : "."}
                     <div className="mt-2 flex flex-wrap gap-2">
-                      <Button size="sm" onClick={() => window.open(oauthUrl, "_blank", "noopener,noreferrer")}>Open Google Sign-in</Button>
-                      <Button size="sm" variant="secondary" onClick={() => navigator.clipboard.writeText(oauthUrl)}>Copy Link</Button>
-                      <Button size="sm" variant="ghost" onClick={() => setShowDiagnostics((s) => !s)}>
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          window.open(oauthUrl, "_blank", "noopener,noreferrer")
+                        }
+                      >
+                        Open Google Sign-in
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => navigator.clipboard.writeText(oauthUrl)}
+                      >
+                        Copy Link
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setShowDiagnostics((s) => !s)}
+                      >
                         {showDiagnostics ? "Hide details" : "Show details"}
                       </Button>
                     </div>
@@ -489,9 +565,12 @@ const handleGoogleAuth = async () => {
                 </Alert>
               )}
             </TabsContent>
-            
+
             <TabsContent value="phone" className="space-y-4">
-              <form onSubmit={phoneForm.handleSubmit(handlePhoneAuth)} className="space-y-4">
+              <form
+                onSubmit={phoneForm.handleSubmit(handlePhoneAuth)}
+                className="space-y-4"
+              >
                 <div className="space-y-2">
                   <Label htmlFor="countryCode">Country Code</Label>
                   <select
@@ -521,7 +600,7 @@ const handleGoogleAuth = async () => {
                     </p>
                   )}
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
                   <Input
@@ -539,7 +618,7 @@ const handleGoogleAuth = async () => {
                     Enter your phone number without country code
                   </p>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="phone-password">Password</Label>
                   <Input
@@ -554,11 +633,15 @@ const handleGoogleAuth = async () => {
                     </p>
                   )}
                 </div>
-                
+
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Loading..." : isSignUp ? "Sign Up with Phone" : "Sign In with Phone"}
+                  {loading
+                    ? "Loading..."
+                    : isSignUp
+                    ? "Sign Up with Phone"
+                    : "Sign In with Phone"}
                 </Button>
-                
+
                 <Button
                   type="button"
                   variant="ghost"
@@ -566,7 +649,9 @@ const handleGoogleAuth = async () => {
                   onClick={() => setIsSignUp(!isSignUp)}
                   disabled={loading}
                 >
-                  {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
+                  {isSignUp
+                    ? "Already have an account? Sign In"
+                    : "Don't have an account? Sign Up"}
                 </Button>
               </form>
             </TabsContent>

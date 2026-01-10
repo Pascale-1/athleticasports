@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Event } from "@/lib/events";
@@ -35,6 +35,83 @@ export const useEvents = (teamId?: string | null, filters?: {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
+  // Stable key for filters to prevent infinite loops from object reference changes
+  const filtersKey = JSON.stringify({
+    type: filters?.type,
+    status: filters?.status,
+    isPublic: filters?.isPublic,
+    includeAsOpponent: filters?.includeAsOpponent,
+  });
+
+  // Use refs for values needed in callbacks to avoid stale closures
+  const teamIdRef = useRef(teamId);
+  const filtersRef = useRef(filters);
+
+  // Keep refs in sync
+  useEffect(() => {
+    teamIdRef.current = teamId;
+    filtersRef.current = filters;
+  }, [teamId, filtersKey]);
+
+  const fetchEvents = useCallback(async () => {
+    const currentTeamId = teamIdRef.current;
+    const currentFilters = filtersRef.current;
+    try {
+      let query = supabase
+        .from("events" as any)
+        .select("*")
+        .order("start_time", { ascending: true });
+
+      // Apply filters
+      if (currentTeamId !== undefined) {
+        if (currentTeamId === null) {
+          query = query.is('team_id', null);
+        } else {
+          // Support querying by both team_id and opponent_team_id
+          if (currentFilters?.includeAsOpponent) {
+            query = query.or(`team_id.eq.${currentTeamId},opponent_team_id.eq.${currentTeamId}`);
+          } else {
+            query = query.eq("team_id", currentTeamId);
+          }
+        }
+      }
+
+      if (currentFilters?.type && currentFilters.type !== 'all') {
+        query = query.eq("type", currentFilters.type);
+      }
+
+      if (currentFilters?.isPublic !== undefined) {
+        query = query.eq("is_public", currentFilters.isPublic);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      let filteredEvents = (data || []) as unknown as Event[];
+
+      // Apply status filter
+      if (currentFilters?.status === 'upcoming') {
+        const now = new Date().toISOString();
+        filteredEvents = filteredEvents.filter(e => e.start_time >= now);
+      } else if (currentFilters?.status === 'past') {
+        const now = new Date().toISOString();
+        filteredEvents = filteredEvents.filter(e => e.end_time < now);
+      }
+
+      setEvents(filteredEvents);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load events",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
   useEffect(() => {
     fetchEvents();
 
@@ -56,64 +133,7 @@ export const useEvents = (teamId?: string | null, filters?: {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [teamId, filters]);
-
-  const fetchEvents = async () => {
-    try {
-      let query = supabase
-        .from("events" as any)
-        .select("*")
-        .order("start_time", { ascending: true });
-
-      // Apply filters
-      if (teamId !== undefined) {
-        if (teamId === null) {
-          query = query.is('team_id', null);
-        } else {
-          // Support querying by both team_id and opponent_team_id
-          if (filters?.includeAsOpponent) {
-            query = query.or(`team_id.eq.${teamId},opponent_team_id.eq.${teamId}`);
-          } else {
-            query = query.eq("team_id", teamId);
-          }
-        }
-      }
-
-      if (filters?.type && filters.type !== 'all') {
-        query = query.eq("type", filters.type);
-      }
-
-      if (filters?.isPublic !== undefined) {
-        query = query.eq("is_public", filters.isPublic);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      let filteredEvents = (data || []) as unknown as Event[];
-
-      // Apply status filter
-      if (filters?.status === 'upcoming') {
-        const now = new Date().toISOString();
-        filteredEvents = filteredEvents.filter(e => e.start_time >= now);
-      } else if (filters?.status === 'past') {
-        const now = new Date().toISOString();
-        filteredEvents = filteredEvents.filter(e => e.end_time < now);
-      }
-
-      setEvents(filteredEvents);
-    } catch (error) {
-      console.error("Error fetching events:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load events",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [teamId, filtersKey, fetchEvents]);
 
   const createEvent = async (data: CreateEventData) => {
     try {
