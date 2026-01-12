@@ -67,6 +67,11 @@ export const useEvents = (teamId?: string | null, filters?: {
         if (currentTeamId === null) {
           query = query.is('team_id', null);
         } else {
+          // Validate teamId is a valid UUID to prevent injection
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          if (!uuidRegex.test(currentTeamId)) {
+            throw new Error("Invalid team ID format");
+          }
           // Support querying by both team_id and opponent_team_id
           if (currentFilters?.includeAsOpponent) {
             query = query.or(`team_id.eq.${currentTeamId},opponent_team_id.eq.${currentTeamId}`);
