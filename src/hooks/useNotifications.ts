@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface Notification {
   id: string;
@@ -49,58 +50,50 @@ export const useNotifications = () => {
     };
 
     fetchNotifications();
-
-    // Subscribe to realtime updates
-    const channel = supabase
-      .channel("user-notifications")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "notifications",
-        },
-        (payload) => {
-          const newNotification = payload.new as Notification;
-          setNotifications((prev) => [newNotification, ...prev]);
-          setUnreadCount((prev) => prev + 1);
-          
-          // Show toast for new notification
-          toast({
-            title: newNotification.title,
-            description: newNotification.message,
-          });
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "notifications",
-        },
-        (payload) => {
-          const updatedNotification = payload.new as Notification;
-          setNotifications((prev) =>
-            prev.map((n) => (n.id === updatedNotification.id ? updatedNotification : n))
-          );
-          
-          // Update unread count
-          setUnreadCount((prev) => {
-            const oldNotification = notifications.find(n => n.id === updatedNotification.id);
-            if (oldNotification && !oldNotification.read && updatedNotification.read) {
-              return Math.max(0, prev - 1);
-            }
-            return prev;
-          });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [toast]);
+
+  // Refs for accessing current state in callbacks
+  const notificationsRef = useRef(notifications);
+  notificationsRef.current = notifications;
+
+  // Realtime subscription using centralized manager
+  const handleRealtimeChange = useCallback((payload: any) => {
+    if (payload.eventType === "INSERT") {
+      const newNotification = payload.new as Notification;
+      setNotifications((prev) => [newNotification, ...prev]);
+      setUnreadCount((prev) => prev + 1);
+
+      // Show toast for new notification
+      toast({
+        title: newNotification.title,
+        description: newNotification.message,
+      });
+    } else if (payload.eventType === "UPDATE") {
+      const updatedNotification = payload.new as Notification;
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === updatedNotification.id ? updatedNotification : n))
+      );
+
+      // Update unread count
+      setUnreadCount((prev) => {
+        const oldNotification = notificationsRef.current.find(n => n.id === updatedNotification.id);
+        if (oldNotification && !oldNotification.read && updatedNotification.read) {
+          return Math.max(0, prev - 1);
+        }
+        return prev;
+      });
+    }
+  }, [toast]);
+
+  useRealtimeSubscription(
+    "user-notifications",
+    [
+      { table: "notifications", event: "INSERT" },
+      { table: "notifications", event: "UPDATE" },
+    ],
+    handleRealtimeChange,
+    true
+  );
 
   const markAsRead = async (notificationId: string) => {
     try {

@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface MatchProposal {
   id: string;
@@ -28,38 +29,9 @@ export const useMatchProposals = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchProposals();
+  const [userId, setUserId] = useState<string | null>(null);
 
-    // Subscribe to real-time updates
-    const setupSubscription = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const channel = supabase
-        .channel("match-proposals")
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "match_proposals",
-            filter: `player_user_id=eq.${user.id}`,
-          },
-          () => {
-            fetchProposals();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    };
-
-    setupSubscription();
-  }, []);
-
+  // Declare fetchProposals BEFORE it's used
   const fetchProposals = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -96,6 +68,31 @@ export const useMatchProposals = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
+    };
+    getUser();
+    fetchProposals();
+  }, []);
+
+  // Use ref to store fetchProposals for stable callback
+  const fetchProposalsRef = useRef(fetchProposals);
+  fetchProposalsRef.current = fetchProposals;
+
+  // Realtime subscription using centralized manager
+  const handleRealtimeChange = useCallback(() => {
+    fetchProposalsRef.current();
+  }, []);
+
+  useRealtimeSubscription(
+    "match-proposals",
+    [{ table: "match_proposals", event: "*", filter: userId ? `player_user_id=eq.${userId}` : undefined }],
+    handleRealtimeChange,
+    !!userId
+  );
 
   const acceptProposal = async (proposalId: string) => {
     // Track completed operations for rollback

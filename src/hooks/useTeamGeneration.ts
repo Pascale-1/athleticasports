@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface GeneratedTeamMember {
   id: string;
@@ -27,93 +28,91 @@ export const useTeamGeneration = (sessionId: string | null) => {
   const [generating, setGenerating] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
+  // Declare fetchTeams BEFORE it's used
+  const fetchTeams = async () => {
     if (!sessionId) {
       setLoading(false);
       return;
     }
 
-    const fetchTeams = async () => {
-      try {
-        const { data: teamsData, error: teamsError } = await supabase
-          .from("event_teams")
-          .select("*")
-          .eq("event_id", sessionId)
-          .order("team_number");
+    try {
+      const { data: teamsData, error: teamsError } = await supabase
+        .from("event_teams")
+        .select("*")
+        .eq("event_id", sessionId)
+        .order("team_number");
 
-        if (teamsError) throw teamsError;
+      if (teamsError) throw teamsError;
 
-        if (!teamsData || teamsData.length === 0) {
-          setTeams([]);
-          return;
-        }
-
-        const teamsWithMembers = await Promise.all(
-          teamsData.map(async (team) => {
-            const { data: membersData, error: membersError } = await supabase
-              .from("event_team_members")
-              .select("id, user_id, performance_level")
-              .eq("event_team_id", team.id);
-
-            if (membersError) throw membersError;
-
-            // Fetch profiles for members
-            const userIds = membersData?.map(m => m.user_id) || [];
-            const { data: profilesData, error: profilesError } = await supabase
-              .from("profiles")
-              .select("user_id, username, display_name, avatar_url")
-              .in("user_id", userIds);
-
-            if (profilesError) throw profilesError;
-
-            // Merge profiles with members
-            const profileMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
-            const membersWithProfiles = (membersData || []).map(member => ({
-              ...member,
-              profiles: profileMap.get(member.user_id) || {
-                username: "Unknown",
-                display_name: null,
-                avatar_url: null,
-              },
-            }));
-
-            return {
-              ...team,
-              members: membersWithProfiles,
-            };
-          })
-        );
-
-        setTeams(teamsWithMembers as GeneratedTeam[]);
-      } catch (error) {
-        console.error("Error fetching teams:", error);
-      } finally {
+      if (!teamsData || teamsData.length === 0) {
+        setTeams([]);
         setLoading(false);
+        return;
       }
-    };
 
+      const teamsWithMembers = await Promise.all(
+        teamsData.map(async (team) => {
+          const { data: membersData, error: membersError } = await supabase
+            .from("event_team_members")
+            .select("id, user_id, performance_level")
+            .eq("event_team_id", team.id);
+
+          if (membersError) throw membersError;
+
+          // Fetch profiles for members
+          const userIds = membersData?.map(m => m.user_id) || [];
+          const { data: profilesData, error: profilesError } = await supabase
+            .from("profiles")
+            .select("user_id, username, display_name, avatar_url")
+            .in("user_id", userIds);
+
+          if (profilesError) throw profilesError;
+
+          // Merge profiles with members
+          const profileMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
+          const membersWithProfiles = (membersData || []).map(member => ({
+            ...member,
+            profiles: profileMap.get(member.user_id) || {
+              username: "Unknown",
+              display_name: null,
+              avatar_url: null,
+            },
+          }));
+
+          return {
+            ...team,
+            members: membersWithProfiles,
+          };
+        })
+      );
+
+      setTeams(teamsWithMembers as GeneratedTeam[]);
+    } catch (error) {
+      console.error("Error fetching teams:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchTeams();
-
-    const channel = supabase
-      .channel(`session-teams-${sessionId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "event_teams",
-          filter: `event_id=eq.${sessionId}`,
-        },
-        () => {
-          fetchTeams();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [sessionId]);
+
+  // Use ref to store fetchTeams for stable callback
+  const fetchTeamsRef = useRef(fetchTeams);
+  fetchTeamsRef.current = fetchTeams;
+
+  // Realtime subscription using centralized manager
+  const handleRealtimeChange = useCallback(() => {
+    fetchTeamsRef.current();
+  }, []);
+
+  useRealtimeSubscription(
+    `session-teams-${sessionId}`,
+    [{ table: "event_teams", event: "*", filter: `event_id=eq.${sessionId}` }],
+    handleRealtimeChange,
+    !!sessionId
+  );
 
   const generateTeams = async (numTeams: number) => {
     if (!sessionId) return;

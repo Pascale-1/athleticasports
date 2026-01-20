@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export type AttendanceStatus = "attending" | "not_attending" | "maybe";
 
@@ -34,81 +35,77 @@ export const useSessionAttendance = (
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
+  // Declare fetchAttendance BEFORE it's used
+  const fetchAttendance = async () => {
     if (!sessionId) {
       setLoading(false);
       return;
     }
 
-    const fetchAttendance = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-        // Fetch all attendance records
-        const { data: attendanceData, error: attendanceError } = await supabase
-          .from("event_attendance")
-          .select("*")
-          .eq("event_id", sessionId);
+      // Fetch all attendance records
+      const { data: attendanceData, error: attendanceError } = await supabase
+        .from("event_attendance")
+        .select("*")
+        .eq("event_id", sessionId);
 
-        if (attendanceError) throw attendanceError;
+      if (attendanceError) throw attendanceError;
 
-        // Fetch profiles for all users in attendance
-        if (attendanceData && attendanceData.length > 0) {
-          const userIds = attendanceData.map(a => a.user_id);
-          const { data: profilesData, error: profilesError } = await supabase
-            .from("profiles")
-            .select("user_id, username, display_name, avatar_url")
-            .in("user_id", userIds);
+      // Fetch profiles for all users in attendance
+      if (attendanceData && attendanceData.length > 0) {
+        const userIds = attendanceData.map(a => a.user_id);
+        const { data: profilesData, error: profilesError } = await supabase
+          .from("profiles")
+          .select("user_id, username, display_name, avatar_url")
+          .in("user_id", userIds);
 
-          if (profilesError) throw profilesError;
+        if (profilesError) throw profilesError;
 
-          // Merge attendance with profiles
-          const merged = attendanceData.map(a => ({
-            ...a,
-            status: a.status as AttendanceStatus,
-            profile: profilesData?.find(p => p.user_id === a.user_id),
-          }));
+        // Merge attendance with profiles
+        const merged = attendanceData.map(a => ({
+          ...a,
+          status: a.status as AttendanceStatus,
+          profile: profilesData?.find(p => p.user_id === a.user_id),
+        }));
 
-          setAttendance(merged);
+        setAttendance(merged);
 
-          // Find current user's status
-          const userAttendance = merged.find((a) => a.user_id === user.id);
-          setUserStatus(userAttendance?.status || null);
-        } else {
-          setAttendance([]);
-          setUserStatus(null);
-        }
-      } catch (error) {
-        console.error("Error fetching attendance:", error);
-      } finally {
-        setLoading(false);
+        // Find current user's status
+        const userAttendance = merged.find((a) => a.user_id === user.id);
+        setUserStatus(userAttendance?.status || null);
+      } else {
+        setAttendance([]);
+        setUserStatus(null);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching attendance:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchAttendance();
-
-    // Subscribe to real-time changes
-    const channel = supabase
-      .channel(`attendance-${sessionId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "event_attendance",
-          filter: `event_id=eq.${sessionId}`,
-        },
-        () => {
-          fetchAttendance();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [sessionId]);
+
+  // Use ref to store fetchAttendance for stable callback
+  const fetchAttendanceRef = useRef(fetchAttendance);
+  fetchAttendanceRef.current = fetchAttendance;
+
+  // Realtime subscription using centralized manager
+  const handleRealtimeChange = useCallback(() => {
+    fetchAttendanceRef.current();
+  }, []);
+
+  useRealtimeSubscription(
+    `session-attendance-${sessionId}`,
+    [{ table: "event_attendance", event: "*", filter: `event_id=eq.${sessionId}` }],
+    handleRealtimeChange,
+    !!sessionId
+  );
 
   const stats: AttendanceStats = {
     attending: attendance.filter((a) => a.status === "attending").length,

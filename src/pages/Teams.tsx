@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeSubscription } from "@/lib/realtimeManager";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2, Users, Search as SearchIcon } from "lucide-react";
 import { Team } from "@/lib/teams";
@@ -47,35 +48,7 @@ const Teams = () => {
 
   const sports = getActiveSports();
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const filter = params.get('filter');
-    
-    if (filter === 'my-teams') {
-      setShowAllTeams(false);
-      window.history.replaceState({}, '', location.pathname);
-    }
-  }, [location]);
-
-  useEffect(() => {
-    fetchTeams();
-    
-    const teamsChannel = supabase
-      .channel('teams-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'teams' }, () => fetchTeams())
-      .subscribe();
-      
-    const membersChannel = supabase
-      .channel('team-members-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'team_members' }, () => fetchTeams())
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(teamsChannel);
-      supabase.removeChannel(membersChannel);
-    };
-  }, []);
-
+  // Declare fetchTeams BEFORE it's used
   const fetchTeams = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -134,6 +107,39 @@ const Teams = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const filter = params.get('filter');
+
+    if (filter === 'my-teams') {
+      setShowAllTeams(false);
+      window.history.replaceState({}, '', location.pathname);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    fetchTeams();
+  }, []);
+
+  // Use ref to store fetchTeams for stable callback
+  const fetchTeamsRef = useRef(fetchTeams);
+  fetchTeamsRef.current = fetchTeams;
+
+  // Realtime subscription using centralized manager
+  const handleRealtimeChange = useCallback(() => {
+    fetchTeamsRef.current();
+  }, []);
+
+  useRealtimeSubscription(
+    "teams-page",
+    [
+      { table: "teams", event: "*" },
+      { table: "team_members", event: "*" },
+    ],
+    handleRealtimeChange,
+    true
+  );
 
   const handleRefresh = async () => {
     setLoading(true);

@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface TeamInvitation {
   id: string;
@@ -20,52 +21,49 @@ export const useTeamInvitations = (teamId: string | null) => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
+  // Declare fetchInvitations BEFORE it's used
+  const fetchInvitations = async () => {
     if (!teamId) {
       setLoading(false);
       return;
     }
 
-    const fetchInvitations = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("team_invitations")
-          .select("*")
-          .eq("team_id", teamId)
-          .eq("status", "pending")
-          .order("created_at", { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from("team_invitations")
+        .select("*")
+        .eq("team_id", teamId)
+        .eq("status", "pending")
+        .order("created_at", { ascending: false });
 
-        if (error) throw error;
-        setInvitations(data || []);
-      } catch (error) {
-        console.error("Error fetching invitations:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      if (error) throw error;
+      setInvitations(data || []);
+    } catch (error) {
+      console.error("Error fetching invitations:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchInvitations();
-
-    const channel = supabase
-      .channel(`team-invitations-${teamId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "team_invitations",
-          filter: `team_id=eq.${teamId}`,
-        },
-        () => {
-          fetchInvitations();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [teamId]);
+
+  // Use ref to store fetchInvitations for stable callback
+  const fetchInvitationsRef = useRef(fetchInvitations);
+  fetchInvitationsRef.current = fetchInvitations;
+
+  // Realtime subscription using centralized manager
+  const handleRealtimeChange = useCallback(() => {
+    fetchInvitationsRef.current();
+  }, []);
+
+  useRealtimeSubscription(
+    `team-invitations-${teamId}`,
+    [{ table: "team_invitations", event: "*", filter: `team_id=eq.${teamId}` }],
+    handleRealtimeChange,
+    !!teamId
+  );
 
   const sendInvitation = async (emailOrUserId: string, isUserId: boolean = false, role: "member" | "coach" | "admin" | "owner" = "member") => {
     if (!teamId) return;

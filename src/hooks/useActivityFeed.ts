@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
+import { useRealtimeSubscription } from '@/lib/realtimeManager';
 
 export interface Activity {
   id: string;
@@ -177,30 +178,26 @@ export const useActivityFeed = (userId?: string) => {
     setLastCursor(null);
     setActivities([]);
     fetchActivities();
-
-    // Set up realtime subscription
-    const channel = supabase
-      .channel('activity-feed')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_activity_log',
-        },
-        () => {
-          // Reset and refetch on new activity
-          setLastCursor(null);
-          fetchActivities();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
+
+  // Use ref to store fetchActivities for stable callback
+  const fetchActivitiesRef = useRef(fetchActivities);
+  fetchActivitiesRef.current = fetchActivities;
+
+  // Realtime subscription using centralized manager
+  const handleRealtimeChange = useCallback(() => {
+    // Reset and refetch on new activity
+    setLastCursor(null);
+    fetchActivitiesRef.current();
+  }, []);
+
+  useRealtimeSubscription(
+    'activity-feed',
+    [{ table: 'user_activity_log', event: '*' }],
+    handleRealtimeChange,
+    true
+  );
 
   const loadMore = () => {
     if (!loadingMore && hasMore) {

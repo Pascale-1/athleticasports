@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface EventAttendanceStats {
   attending: number;
@@ -35,38 +36,7 @@ export const useEventAttendance = (eventId: string) => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (!eventId) {
-      setLoading(false);
-      return;
-    }
-
-    fetchAttendance();
-
-    const channel = supabase
-      .channel(`event-attendance-${eventId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "event_attendance",
-          filter: `event_id=eq.${eventId}`,
-        },
-        (payload) => {
-          console.log('[Attendance] Real-time update received:', payload);
-          fetchAttendance();
-        }
-      )
-      .subscribe((status) => {
-        console.log('[Attendance] Subscription status:', status);
-      });
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [eventId]);
-
+  // Declare fetchAttendance BEFORE it's used
   const fetchAttendance = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -114,6 +84,31 @@ export const useEventAttendance = (eventId: string) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!eventId) {
+      setLoading(false);
+      return;
+    }
+
+    fetchAttendance();
+  }, [eventId]);
+
+  // Use ref to store fetchAttendance for stable callback
+  const fetchAttendanceRef = useRef(fetchAttendance);
+  fetchAttendanceRef.current = fetchAttendance;
+
+  // Realtime subscription using centralized manager
+  const handleRealtimeChange = useCallback(() => {
+    fetchAttendanceRef.current();
+  }, []);
+
+  useRealtimeSubscription(
+    `event-attendance-${eventId}`,
+    [{ table: "event_attendance", event: "*", filter: `event_id=eq.${eventId}` }],
+    handleRealtimeChange,
+    !!eventId
+  );
 
   const updateAttendance = async (status: 'attending' | 'maybe' | 'not_attending') => {
     try {

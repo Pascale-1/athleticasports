@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface TeamAnnouncement {
   id: string;
@@ -60,27 +61,19 @@ export const useTeamAnnouncements = (teamId: string | null) => {
 
   useEffect(() => {
     fetchAnnouncements();
-
-    const channel = supabase
-      .channel(`team-announcements-${teamId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "team_announcements",
-          filter: `team_id=eq.${teamId}`,
-        },
-        () => {
-          fetchAnnouncements();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [teamId]);
+
+  // Realtime subscription using centralized manager
+  const handleRealtimeChange = useCallback(() => {
+    fetchAnnouncements();
+  }, []);
+
+  useRealtimeSubscription(
+    `team-announcements-${teamId}`,
+    [{ table: "team_announcements", event: "*", filter: `team_id=eq.${teamId}` }],
+    handleRealtimeChange,
+    !!teamId
+  );
 
   const createAnnouncement = async (content: string) => {
     if (!teamId) return;

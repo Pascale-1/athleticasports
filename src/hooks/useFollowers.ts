@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   getFollowerCount,
@@ -8,6 +8,7 @@ import {
   unfollowUser,
 } from "@/lib/followers";
 import { useToast } from "@/hooks/use-toast";
+import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export const useFollowers = (userId: string | null) => {
   const [followerCount, setFollowerCount] = useState(0);
@@ -44,42 +45,24 @@ export const useFollowers = (userId: string | null) => {
     fetchCounts();
   }, [userId]);
 
-  // Subscribe to realtime updates
-  useEffect(() => {
-    if (!userId) return;
+  // Use ref to store fetchCounts for stable callback
+  const fetchCountsRef = useRef(fetchCounts);
+  fetchCountsRef.current = fetchCounts;
 
-    const channel = supabase
-      .channel(`follower-changes-${userId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "followers",
-          filter: `following_id=eq.${userId}`,
-        },
-        () => {
-          fetchCounts();
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "followers",
-          filter: `follower_id=eq.${userId}`,
-        },
-        () => {
-          fetchCounts();
-        }
-      )
-      .subscribe();
+  // Realtime subscription using centralized manager
+  const handleRealtimeChange = useCallback(() => {
+    fetchCountsRef.current();
+  }, []);
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [userId]);
+  useRealtimeSubscription(
+    `follower-changes-${userId}`,
+    [
+      { table: "followers", event: "*", filter: `following_id=eq.${userId}` },
+      { table: "followers", event: "*", filter: `follower_id=eq.${userId}` },
+    ],
+    handleRealtimeChange,
+    !!userId
+  );
 
   const follow = async () => {
     if (!userId || actionLoading) return;

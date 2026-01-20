@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Event } from "@/lib/events";
+import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface CreateEventData {
   team_id?: string | null;
@@ -118,26 +119,15 @@ export const useEvents = (teamId?: string | null, filters?: {
 
   useEffect(() => {
     fetchEvents();
-
-    const channel = supabase
-      .channel(`events-${teamId || 'all'}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "events",
-        },
-        () => {
-          fetchEvents();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [teamId, filtersKey, fetchEvents]);
+
+  // Realtime subscription using centralized manager
+  useRealtimeSubscription(
+    `events-${teamId || 'all'}`,
+    [{ table: "events", event: "*" }],
+    fetchEvents,
+    true
+  );
 
   const createEvent = async (data: CreateEventData) => {
     try {

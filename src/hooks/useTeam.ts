@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Team, getUserTeamRole, canManageTeam } from "@/lib/teams";
 import { useToast } from "@/hooks/use-toast";
+import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export const useTeam = (teamId: string | null) => {
   const [team, setTeam] = useState<Team | null>(null);
@@ -50,31 +51,23 @@ export const useTeam = (teamId: string | null) => {
     };
 
     fetchTeam();
-
-    const channel = supabase
-      .channel(`team-${teamId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "teams",
-          filter: `id=eq.${teamId}`,
-        },
-        (payload) => {
-          if (payload.eventType === "DELETE") {
-            setTeam(null);
-          } else {
-            setTeam(payload.new as Team);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [teamId, toast]);
+
+  // Realtime subscription using centralized manager
+  const handleRealtimeChange = useCallback((payload: any) => {
+    if (payload.eventType === "DELETE") {
+      setTeam(null);
+    } else {
+      setTeam(payload.new as Team);
+    }
+  }, []);
+
+  useRealtimeSubscription(
+    `team-${teamId}`,
+    [{ table: "teams", event: "*", filter: `id=eq.${teamId}` }],
+    handleRealtimeChange,
+    !!teamId
+  );
 
   return {
     team,

@@ -1,4 +1,4 @@
-import { Home, Users, Settings, Shield, Calendar, Activity } from "lucide-react";
+import { Home, Users, Settings, Shield, Calendar } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -19,10 +19,8 @@ import {
 
 const mainItems = [
   { title: "Home", url: "/", icon: Home },
-  { title: "Track", url: "/track", icon: Activity },
   { title: "Teams", url: "/teams", icon: Users },
   { title: "Events", url: "/events", icon: Calendar },
-  { title: "Community", url: "/community", icon: Users },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 

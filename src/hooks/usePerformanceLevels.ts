@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface PerformanceLevel {
   id: string;
@@ -26,50 +27,47 @@ export const usePerformanceLevels = (teamId: string | null) => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
+  // Declare fetchLevels BEFORE it's used
+  const fetchLevels = async () => {
     if (!teamId) {
       setLoading(false);
       return;
     }
 
-    const fetchLevels = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("player_performance_levels")
-          .select("*")
-          .eq("team_id", teamId);
+    try {
+      const { data, error } = await supabase
+        .from("player_performance_levels")
+        .select("*")
+        .eq("team_id", teamId);
 
-        if (error) throw error;
-        setLevels(data || []);
-      } catch (error) {
-        console.error("Error fetching performance levels:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      if (error) throw error;
+      setLevels(data || []);
+    } catch (error) {
+      console.error("Error fetching performance levels:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchLevels();
-
-    const channel = supabase
-      .channel(`performance-levels-${teamId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "player_performance_levels",
-          filter: `team_id=eq.${teamId}`,
-        },
-        () => {
-          fetchLevels();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [teamId]);
+
+  // Use ref to store fetchLevels for stable callback
+  const fetchLevelsRef = useRef(fetchLevels);
+  fetchLevelsRef.current = fetchLevels;
+
+  // Realtime subscription using centralized manager
+  const handleRealtimeChange = useCallback(() => {
+    fetchLevelsRef.current();
+  }, []);
+
+  useRealtimeSubscription(
+    `performance-levels-${teamId}`,
+    [{ table: "player_performance_levels", event: "*", filter: `team_id=eq.${teamId}` }],
+    handleRealtimeChange,
+    !!teamId
+  );
 
   const assignLevel = async (
     userId: string,

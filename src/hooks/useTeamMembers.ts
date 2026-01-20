@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { TeamMemberWithProfile } from "@/lib/teams";
 import { useToast } from "@/hooks/use-toast";
+import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export const useTeamMembers = (teamId: string | null) => {
   const [members, setMembers] = useState<TeamMemberWithProfile[]>([]);
@@ -57,38 +58,26 @@ export const useTeamMembers = (teamId: string | null) => {
 
   useEffect(() => {
     fetchMembers();
-
-    const channel = supabase
-      .channel(`team-members-${teamId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "team_members",
-          filter: `team_id=eq.${teamId}`,
-        },
-        () => {
-          fetchMembers();
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "team_member_roles",
-        },
-        () => {
-          fetchMembers();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [teamId]);
+
+  // Use ref to store fetchMembers for stable callback
+  const fetchMembersRef = useRef(fetchMembers);
+  fetchMembersRef.current = fetchMembers;
+
+  // Realtime subscription using centralized manager
+  const handleRealtimeChange = useCallback(() => {
+    fetchMembersRef.current();
+  }, []);
+
+  useRealtimeSubscription(
+    `team-members-${teamId}`,
+    [
+      { table: "team_members", event: "*", filter: `team_id=eq.${teamId}` },
+      { table: "team_member_roles", event: "*" },
+    ],
+    handleRealtimeChange,
+    !!teamId
+  );
 
   const removeMember = async (memberId: string) => {
     try {

@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface TeamMessage {
   id: string;
@@ -26,36 +27,7 @@ export const useTeamChat = (teamId: string | null) => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
 
-  useEffect(() => {
-    if (!teamId) {
-      setLoading(false);
-      return;
-    }
-
-    fetchMessages();
-
-    // Realtime subscription
-    const channel = supabase
-      .channel(`team-chat-${teamId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'team_messages',
-          filter: `team_id=eq.${teamId}`,
-        },
-        () => {
-          fetchMessages();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [teamId]);
-
+  // Declare fetchMessages BEFORE it's used
   const fetchMessages = async () => {
     if (!teamId) return;
 
@@ -102,6 +74,27 @@ export const useTeamChat = (teamId: string | null) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!teamId) {
+      setLoading(false);
+      return;
+    }
+
+    fetchMessages();
+  }, [teamId]);
+
+  // Realtime subscription using centralized manager
+  const handleRealtimeChange = useCallback(() => {
+    fetchMessages();
+  }, []);
+
+  useRealtimeSubscription(
+    `team-chat-${teamId}`,
+    [{ table: "team_messages", event: "*", filter: `team_id=eq.${teamId}` }],
+    handleRealtimeChange,
+    !!teamId
+  );
 
   const loadMoreMessages = async () => {
     if (!teamId || messages.length === 0 || loadingMore) return;
