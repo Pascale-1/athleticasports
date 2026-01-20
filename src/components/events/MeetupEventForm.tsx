@@ -15,7 +15,6 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CreateEventData } from "@/hooks/useEvents";
 import { DistrictSelector } from "@/components/location/DistrictSelector";
-import { getDistrictLabel } from "@/lib/parisDistricts";
 import { DurationPicker } from "./DurationPicker";
 
 const formSchema = z.object({
@@ -79,12 +78,10 @@ export const MeetupEventForm = ({ teamId, onSubmit, onCancel, isSubmitting }: Me
     const endDateTime = new Date(startDateTime);
     endDateTime.setMinutes(endDateTime.getMinutes() + duration);
 
-    const locationString = location.district 
-      ? `${getDistrictLabel(location.district, lang)}${location.venueName ? ` - ${location.venueName}` : ''}`
-      : undefined;
+    const locationString = location.venueName || undefined;
 
-    const locationType = locationMode === 'virtual' ? 'virtual' 
-      : locationMode === 'physical' && locationString ? 'physical' 
+    const locationType = locationMode === 'virtual' ? 'virtual'
+      : locationMode === 'physical' && locationString ? 'physical'
       : 'tbd';
 
     onSubmit({

@@ -20,7 +20,6 @@ import { TeamSelector } from "@/components/teams/TeamSelector";
 import { MyTeamSelector } from "@/components/teams/MyTeamSelector";
 import { useTeam } from "@/hooks/useTeam";
 import { DistrictSelector } from "@/components/location/DistrictSelector";
-import { getDistrictLabel } from "@/lib/parisDistricts";
 import { DurationPicker } from "./DurationPicker";
 import { SportQuickSelector } from "./SportQuickSelector";
 import { getSportDefaults, getPlayersForFormat } from "@/lib/sportDefaults";
@@ -120,9 +119,7 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
     const endDateTime = new Date(startDateTime);
     endDateTime.setMinutes(endDateTime.getMinutes() + duration);
 
-    const locationString = location.district 
-      ? `${getDistrictLabel(location.district, lang)}${location.venueName ? ` - ${location.venueName}` : ''}`
-      : undefined;
+    const locationString = location.venueName || undefined;
 
     onSubmit({
       team_id: homeTeamId || null,

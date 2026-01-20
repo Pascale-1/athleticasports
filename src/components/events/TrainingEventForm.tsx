@@ -14,7 +14,6 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CreateEventData } from "@/hooks/useEvents";
 import { DistrictSelector } from "@/components/location/DistrictSelector";
-import { getDistrictLabel } from "@/lib/parisDistricts";
 import { DurationPicker } from "./DurationPicker";
 import { SportQuickSelector } from "./SportQuickSelector";
 import { getSportDefaults } from "@/lib/sportDefaults";
@@ -80,9 +79,7 @@ export const TrainingEventForm = ({ teamId, sport: initialSport, onSubmit, onCan
     const endDateTime = new Date(startDateTime);
     endDateTime.setMinutes(endDateTime.getMinutes() + duration);
 
-    const locationString = location.district 
-      ? `${getDistrictLabel(location.district, lang)}${location.venueName ? ` - ${location.venueName}` : ''}`
-      : undefined;
+    const locationString = location.venueName || undefined;
 
     onSubmit({
       team_id: selectedTeamId || teamId || null,
