@@ -1,6 +1,7 @@
-import { CheckCircle2, HelpCircle, XCircle, Loader2 } from "lucide-react";
+import { CheckCircle2, HelpCircle, XCircle, Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { isPast } from "date-fns";
 
 interface EventRSVPBarProps {
   userStatus: string | null;
@@ -13,6 +14,7 @@ interface EventRSVPBarProps {
   onUpdateAttendance: (status: 'attending' | 'maybe' | 'not_attending') => void;
   onRemoveAttendance: () => void;
   loading?: boolean;
+  rsvpDeadline?: string | null;
 }
 
 export const EventRSVPBar = ({
@@ -22,6 +24,7 @@ export const EventRSVPBar = ({
   onUpdateAttendance,
   onRemoveAttendance,
   loading = false,
+  rsvpDeadline,
 }: EventRSVPBarProps) => {
   const handleClick = (status: 'attending' | 'maybe' | 'not_attending') => {
     if (userStatus === status) {
@@ -30,6 +33,9 @@ export const EventRSVPBar = ({
       onUpdateAttendance(status);
     }
   };
+
+  // Check if RSVP deadline has passed
+  const isDeadlinePassed = rsvpDeadline ? isPast(new Date(rsvpDeadline)) : false;
 
   if (loading) {
     return (
@@ -49,6 +55,23 @@ export const EventRSVPBar = ({
           <div className="flex items-center justify-center gap-2 h-11 bg-amber-500/10 rounded-lg border border-amber-500/20">
             <CheckCircle2 className="h-4 w-4 text-amber-600" />
             <span className="text-sm font-medium text-amber-600">Committed to this match</span>
+          </div>
+          <p className="text-xs text-center text-muted-foreground mt-2">
+            {stats.attending} going · {stats.maybe} maybe
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // RSVP deadline passed - show locked state
+  if (isDeadlinePassed && !userStatus) {
+    return (
+      <div className="fixed bottom-16 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t p-3 lg:bottom-0 lg:relative lg:border lg:rounded-lg lg:bg-card">
+        <div className="max-w-lg mx-auto">
+          <div className="flex items-center justify-center gap-2 h-11 bg-muted rounded-lg border">
+            <Lock className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-muted-foreground">RSVPs closed</span>
           </div>
           <p className="text-xs text-center text-muted-foreground mt-2">
             {stats.attending} going · {stats.maybe} maybe

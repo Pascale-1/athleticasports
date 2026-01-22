@@ -7,6 +7,9 @@ import { EventInviteLink } from "@/components/events/EventInviteLink";
 import { EventRSVPBar } from "@/components/events/EventRSVPBar";
 import { EventAttendees } from "@/components/events/EventAttendees";
 import { EditEventDialog } from "@/components/events/EditEventDialog";
+import { AddToCalendarButton } from "@/components/events/AddToCalendarButton";
+import { LookingForPlayersBanner } from "@/components/events/LookingForPlayersBanner";
+import { RSVPDeadlineDisplay } from "@/components/events/RSVPDeadlineDisplay";
 import { 
   ArrowLeft, 
   Calendar, 
@@ -62,6 +65,7 @@ const EventDetail = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+  const [isTeamMember, setIsTeamMember] = useState(false);
 
   const { events, loading, deleteEvent, updateEvent } = useEvents();
   const event = events.find(e => e.id === eventId);
@@ -101,8 +105,18 @@ const EventDetail = () => {
         .then(({ data }) => {
           if (data) setTeamName(data.name);
         });
+
+      // Check if current user is a team member
+      if (currentUserId) {
+        supabase.rpc('is_team_member', {
+          _user_id: currentUserId,
+          _team_id: event.team_id
+        }).then(({ data }) => {
+          setIsTeamMember(!!data);
+        });
+      }
     }
-  }, [event?.team_id]);
+  }, [event?.team_id, currentUserId]);
 
   const handleDelete = async () => {
     if (!eventId) return;
@@ -232,6 +246,11 @@ const EventDetail = () => {
             <span>{timeStr}</span>
           </div>
 
+          {/* Add to Calendar Button */}
+          <div className="mt-3">
+            <AddToCalendarButton event={event} />
+          </div>
+
           {/* Team badge */}
           {teamName && (
             <Badge variant="outline" className="mt-3 bg-background/50">
@@ -242,6 +261,28 @@ const EventDetail = () => {
 
         {/* Details Section */}
         <div className="space-y-4">
+          {/* Looking for Players Banner */}
+          {event.looking_for_players && event.players_needed && (
+            <LookingForPlayersBanner
+              playersNeeded={event.players_needed}
+              currentAttending={stats.attending}
+              maxParticipants={event.max_participants || undefined}
+              allowPublicJoin={event.allow_public_join}
+              isTeamMember={isTeamMember}
+              onRequestJoin={() => {
+                toast({
+                  title: "Request sent",
+                  description: "The organizer will be notified of your interest.",
+                });
+              }}
+            />
+          )}
+
+          {/* RSVP Deadline */}
+          {event.rsvp_deadline && (
+            <RSVPDeadlineDisplay deadline={event.rsvp_deadline} />
+          )}
+
           {/* Location */}
           {event.location && (
             <div className="flex items-start gap-3">
@@ -358,6 +399,7 @@ const EventDetail = () => {
         onUpdateAttendance={handleAttendanceUpdate}
         onRemoveAttendance={handleRemoveAttendance}
         loading={attendanceLoading}
+        rsvpDeadline={event.rsvp_deadline}
       />
 
       {/* Edit Event Dialog */}

@@ -204,6 +204,74 @@ export type Database = {
           },
         ]
       }
+      event_templates: {
+        Row: {
+          created_at: string | null
+          default_day_of_week: number | null
+          default_duration: number | null
+          default_time: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          location: string | null
+          match_format: string | null
+          max_participants: number | null
+          meetup_category: string | null
+          name: string
+          team_id: string | null
+          title: string
+          type: Database["public"]["Enums"]["event_type"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          default_day_of_week?: number | null
+          default_duration?: number | null
+          default_time?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          location?: string | null
+          match_format?: string | null
+          max_participants?: number | null
+          meetup_category?: string | null
+          name: string
+          team_id?: string | null
+          title: string
+          type: Database["public"]["Enums"]["event_type"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          default_day_of_week?: number | null
+          default_duration?: number | null
+          default_time?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          location?: string | null
+          match_format?: string | null
+          max_participants?: number | null
+          meetup_category?: string | null
+          name?: string
+          team_id?: string | null
+          title?: string
+          type?: Database["public"]["Enums"]["event_type"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_templates_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           allow_public_join: boolean | null
@@ -231,6 +299,7 @@ export type Database = {
           parent_event_id: string | null
           players_needed: number | null
           recurrence_rule: string | null
+          rsvp_deadline: string | null
           start_time: string
           team_id: string | null
           title: string
@@ -263,6 +332,7 @@ export type Database = {
           parent_event_id?: string | null
           players_needed?: number | null
           recurrence_rule?: string | null
+          rsvp_deadline?: string | null
           start_time: string
           team_id?: string | null
           title: string
@@ -295,6 +365,7 @@ export type Database = {
           parent_event_id?: string | null
           players_needed?: number | null
           recurrence_rule?: string | null
+          rsvp_deadline?: string | null
           start_time?: string
           team_id?: string | null
           title?: string
@@ -866,6 +937,10 @@ export type Database = {
           created_at: string
           created_by: string
           created_invite_code_at: string | null
+          default_training_day: number | null
+          default_training_time: string | null
+          default_venue: string | null
+          default_venue_url: string | null
           description: string | null
           id: string
           invite_code: string | null
@@ -880,6 +955,10 @@ export type Database = {
           created_at?: string
           created_by: string
           created_invite_code_at?: string | null
+          default_training_day?: number | null
+          default_training_time?: string | null
+          default_venue?: string | null
+          default_venue_url?: string | null
           description?: string | null
           id?: string
           invite_code?: string | null
@@ -894,6 +973,10 @@ export type Database = {
           created_at?: string
           created_by?: string
           created_invite_code_at?: string | null
+          default_training_day?: number | null
+          default_training_time?: string | null
+          default_venue?: string | null
+          default_venue_url?: string | null
           description?: string | null
           id?: string
           invite_code?: string | null

@@ -180,5 +180,44 @@
     "social": "Événement social",
     "fitness": "Activité fitness",
     "other": "Autre"
+  },
+  "calendar": {
+    "addToCalendar": "Ajouter au calendrier",
+    "downloaded": "Fichier calendrier téléchargé",
+    "downloadedDesc": "Ouvrez le fichier .ics pour l'ajouter à votre calendrier",
+    "downloadICS": "Télécharger fichier .ics"
+  },
+  "lookingForPlayers": {
+    "title": "Recherche de joueurs",
+    "description": "Cet événement a besoin de plus de participants",
+    "spotsLeft": "{{count}} place restante",
+    "spotsLeft_other": "{{count}} places restantes",
+    "requestJoin": "Demander à rejoindre",
+    "toggle": "Rechercher plus de joueurs ?",
+    "playersNeeded": "Joueurs recherchés"
+  },
+  "rsvpDeadline": {
+    "title": "Date limite de réponse",
+    "respondBy": "Répondre avant",
+    "closed": "Inscriptions fermées",
+    "closedDesc": "La date limite pour cet événement est passée",
+    "urgent": "Urgent",
+    "set": "Définir une date limite",
+    "description": "Définir une heure limite pour les réponses"
+  },
+  "templates": {
+    "quickStart": "Démarrage rapide",
+    "saveAsTemplate": "Sauvegarder comme modèle",
+    "custom": "Perso",
+    "saved": "Modèle sauvegardé",
+    "deleted": "Modèle supprimé"
+  },
+  "conflicts": {
+    "warning": "Chevauche {{count}} événement",
+    "warning_other": "Chevauche {{count}} événements",
+    "andMore": "+{{count}} de plus"
+  },
+  "smartDefaults": {
+    "usingTeamVenue": "Utilisation du lieu par défaut de l'équipe"
   }
 }
