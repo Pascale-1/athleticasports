@@ -13,6 +13,11 @@ export interface Team {
   invite_code: string | null;
   allow_link_joining: boolean | null;
   created_invite_code_at: string | null;
+  // Default venue settings
+  default_venue: string | null;
+  default_venue_url: string | null;
+  default_training_time: string | null;
+  default_training_day: number | null;
 }
 
 export interface TeamMember {
@@ -61,7 +66,7 @@ export const createTeam = async (data: {
 
 export const updateTeam = async (
   teamId: string,
-  data: Partial<Pick<Team, "name" | "description" | "is_private" | "avatar_url">>
+  data: Partial<Pick<Team, "name" | "description" | "is_private" | "avatar_url" | "default_venue" | "default_venue_url" | "default_training_time" | "default_training_day">>
 ) => {
   const { data: team, error } = await supabase
     .from("teams")

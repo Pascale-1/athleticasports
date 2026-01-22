@@ -24,6 +24,11 @@ export interface CreateEventData {
   match_format?: string;
   home_away?: 'home' | 'away' | 'neutral';
   meetup_category?: string;
+  // Player recruitment
+  looking_for_players?: boolean;
+  players_needed?: number;
+  // RSVP deadline
+  rsvp_deadline?: string;
 }
 
 export const useEvents = (teamId?: string | null, filters?: {

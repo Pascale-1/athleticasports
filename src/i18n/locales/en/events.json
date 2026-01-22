@@ -180,5 +180,44 @@
     "social": "Social Event",
     "fitness": "Fitness Activity",
     "other": "Other"
+  },
+  "calendar": {
+    "addToCalendar": "Add to Calendar",
+    "downloaded": "Calendar file downloaded",
+    "downloadedDesc": "Open the .ics file to add to your calendar",
+    "downloadICS": "Download .ics file"
+  },
+  "lookingForPlayers": {
+    "title": "Looking for Players",
+    "description": "This event needs more participants",
+    "spotsLeft": "{{count}} spot left",
+    "spotsLeft_other": "{{count}} spots left",
+    "requestJoin": "Request to Join",
+    "toggle": "Looking for more players?",
+    "playersNeeded": "Players needed"
+  },
+  "rsvpDeadline": {
+    "title": "RSVP Deadline",
+    "respondBy": "Respond by",
+    "closed": "RSVPs Closed",
+    "closedDesc": "The deadline for this event has passed",
+    "urgent": "Urgent",
+    "set": "Set RSVP deadline",
+    "description": "Set a cutoff time for responses"
+  },
+  "templates": {
+    "quickStart": "Quick Start",
+    "saveAsTemplate": "Save as Template",
+    "custom": "Custom",
+    "saved": "Template saved",
+    "deleted": "Template deleted"
+  },
+  "conflicts": {
+    "warning": "This overlaps with {{count}} event",
+    "warning_other": "This overlaps with {{count}} events",
+    "andMore": "+{{count}} more"
+  },
+  "smartDefaults": {
+    "usingTeamVenue": "Using team's default venue"
   }
 }

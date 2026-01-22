@@ -18,6 +18,7 @@ export interface Event {
   recurrence_rule: string | null;
   opponent_name: string | null;
   opponent_logo_url: string | null;
+  opponent_team_id: string | null;
   match_format: string | null;
   home_away: 'home' | 'away' | 'neutral' | null;
   meetup_category: string | null;
@@ -30,6 +31,11 @@ export interface Event {
   // Recurring event support
   parent_event_id?: string | null;
   occurrence_index?: number | null;
+  // Player recruitment
+  looking_for_players?: boolean;
+  players_needed?: number | null;
+  // RSVP deadline
+  rsvp_deadline?: string | null;
 }
 
 export interface EventWithAttendance extends Event {
