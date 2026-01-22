@@ -1,0 +1,29 @@
+{
+  "steps": {
+    "profile": {
+      "title": "Your Profile",
+      "description": "See your teams, games, and followers at a glance. Tap any stat to explore more."
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "description": "Find a game, organize one, or create your own team - all in one tap."
+    },
+    "games": {
+      "title": "Your Games",
+      "description": "View upcoming games, respond to match proposals, and set your availability."
+    },
+    "feed": {
+      "title": "Activity Feed",
+      "description": "Stay updated with your teams and community activities."
+    },
+    "navigation": {
+      "title": "Navigate the App",
+      "description": "Switch between Home, Events, Teams, and your Profile using the bottom bar."
+    }
+  },
+  "buttons": {
+    "next": "Next",
+    "prev": "Back",
+    "done": "Got it!"
+  }
+}

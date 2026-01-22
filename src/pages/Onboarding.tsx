@@ -10,11 +10,13 @@ import { SportStep } from "@/components/onboarding/SportStep";
 import { LocationStep } from "@/components/onboarding/LocationStep";
 import { GoalStep, type OnboardingGoal } from "@/components/onboarding/GoalStep";
 import { CompletionStep } from "@/components/onboarding/CompletionStep";
+import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
 
 const TOTAL_STEPS = 5;
 
 const Onboarding = () => {
   const navigate = useNavigate();
+  const { setTrigger } = useAppWalkthrough();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
@@ -74,12 +76,14 @@ const Onboarding = () => {
       const primaryGoal = goalPriority.find(g => selectedGoals.includes(g)) || 'explore';
       
       const goalRoutes: Record<OnboardingGoal, string> = {
-        play: '/events',
-        organize: '/events',
-        team: '/teams',
+        play: '/',
+        organize: '/',
+        team: '/',
         explore: '/',
       };
 
+      // Set walkthrough trigger so it starts on home page
+      setTrigger();
       navigate(goalRoutes[primaryGoal], { replace: true });
       toast.success("Welcome to Athletica!");
     } catch (error) {

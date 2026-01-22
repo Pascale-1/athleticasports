@@ -149,6 +149,11 @@
     "title": "Nothing to show",
     "description": "No items found"
   },
+  "settings": {
+    "walkthrough": "App Walkthrough",
+    "walkthroughDescription": "Take a guided tour of the app's main features",
+    "restartWalkthrough": "Restart Walkthrough"
+  },
   "onboarding": {
     "welcome": {
       "title": "Welcome to Athletica!",

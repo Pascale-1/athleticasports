@@ -24,6 +24,7 @@ import { MatchProposalCard } from "@/components/matching/MatchProposalCard";
 import { formatDateTimeShort } from "@/lib/dateUtils";
 import { LanguageToggle } from "@/components/settings/LanguageToggle";
 import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
+import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
 
 interface Profile {
   id: string;
@@ -60,6 +61,9 @@ const Index = () => {
   const { availability } = usePlayerAvailability();
   const { proposals, acceptProposal, declineProposal, loading: proposalsLoading } = useMatchProposals();
   const pendingProposals = proposals.filter(p => p.status === 'pending');
+  
+  // Walkthrough
+  const { startWalkthrough, shouldTrigger, clearTrigger } = useAppWalkthrough();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -83,6 +87,14 @@ const Index = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Auto-trigger walkthrough after onboarding
+  useEffect(() => {
+    if (!loading && profile && shouldTrigger()) {
+      clearTrigger();
+      startWalkthrough();
+    }
+  }, [loading, profile, shouldTrigger, clearTrigger, startWalkthrough]);
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -178,7 +190,7 @@ const Index = () => {
         >
           {/* Hero Section with Merged Stats */}
           <AnimatedCard delay={0.1}>
-            <Card className="p-4 space-y-3 relative">
+            <Card data-walkthrough="profile" className="p-4 space-y-3 relative">
               {/* Language Toggle */}
               <div className="absolute top-2 right-2">
                 <LanguageToggle />
@@ -240,7 +252,7 @@ const Index = () => {
 
           {/* Quick Actions - 3 buttons: Availability, Organize, Create Team */}
           <AnimatedCard delay={0.2}>
-            <div className="grid grid-cols-3 gap-2">
+            <div data-walkthrough="quick-actions" className="grid grid-cols-3 gap-2">
               <Button 
                 variant="default"
                 className="flex flex-col items-center justify-center gap-2 h-16 px-2 bg-green-600 hover:bg-green-700"
@@ -273,7 +285,7 @@ const Index = () => {
 
           {/* Unified Matches Section - Combines status + upcoming */}
           <AnimatedCard delay={0.25}>
-            <Card className="p-4 space-y-3">
+            <Card data-walkthrough="games" className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Swords className="h-5 w-5 text-primary" />
@@ -390,6 +402,7 @@ const Index = () => {
 
           {/* Activity Feed */}
           <motion.div 
+            data-walkthrough="feed"
             className="space-y-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
