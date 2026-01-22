@@ -241,12 +241,14 @@
   },
   "lookingForPlayers": {
     "title": "Recherche de joueurs",
-    "description": "Cet événement a besoin de plus de participants",
+    "description": "Trouvez des joueurs pour votre événement",
     "spotsLeft": "{{count}} place restante",
     "spotsLeft_other": "{{count}} places restantes",
     "requestJoin": "Demander à rejoindre",
     "toggle": "Rechercher plus de joueurs ?",
-    "playersNeeded": "Joueurs recherchés"
+    "playersNeeded": "Combien de joueurs ?",
+    "player": "joueur",
+    "players": "joueurs"
   },
   "rsvpDeadline": {
     "title": "Date limite de réponse",
