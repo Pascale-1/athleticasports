@@ -173,5 +173,34 @@
     },
     "gotIt": "Got it!",
     "showMe": "Show me"
+  },
+  "accountDeletion": {
+    "dangerZone": "Danger Zone",
+    "dangerZoneDesc": "Once you delete your account, there is no going back. Please be certain.",
+    "button": "🗑️ Delete my Athletica Sports account",
+    "modalTitle": "PERMANENT ACCOUNT DELETION",
+    "warning": "This action CANNOT BE UNDONE.",
+    "dataList": {
+      "intro": "All your data will be permanently deleted:",
+      "profiles": "Profiles, statistics and performance",
+      "events": "Saved events and favorites",
+      "messages": "Messages, connections and groups",
+      "history": "Complete activity history",
+      "subscriptions": "Subscriptions and preferences"
+    },
+    "confirmPrompt": "To confirm deletion, type \"{{word}}\" below:",
+    "confirmButton": "Confirm deletion",
+    "emailSent": "Confirmation email sent",
+    "emailSentDesc": "Check your inbox to confirm the deletion. The link expires in 24 hours.",
+    "confirming": "Processing...",
+    "confirmingDesc": "Please wait while we process your request.",
+    "successTitle": "Account Deleted",
+    "successDesc": "Your account and all associated data have been permanently deleted.",
+    "redirecting": "Redirecting in {{seconds}} seconds...",
+    "goToLogin": "Go to Login",
+    "expiredTitle": "Link Expired",
+    "expiredDesc": "This confirmation link has expired. Please request a new deletion if you still want to delete your account.",
+    "errorTitle": "Invalid Link",
+    "errorDesc": "This confirmation link is invalid or has already been used."
   }
 }

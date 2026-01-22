@@ -25,6 +25,7 @@ import { formatDateTimeShort } from "@/lib/dateUtils";
 import { LanguageToggle } from "@/components/settings/LanguageToggle";
 import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
 import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
+import { LogoutButton } from "@/components/settings/LogoutButton";
 
 interface Profile {
   id: string;
@@ -191,9 +192,10 @@ const Index = () => {
           {/* Hero Section with Merged Stats */}
           <AnimatedCard delay={0.1}>
             <Card data-walkthrough="profile" className="p-4 space-y-3 relative">
-              {/* Language Toggle */}
-              <div className="absolute top-2 right-2">
+              {/* Language Toggle & Logout */}
+              <div className="absolute top-2 right-2 flex items-center gap-1">
                 <LanguageToggle />
+                <LogoutButton variant="header" />
               </div>
               
               <div className="flex items-center gap-3">

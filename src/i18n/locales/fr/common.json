@@ -173,5 +173,34 @@
     },
     "gotIt": "Compris !",
     "showMe": "Montre-moi"
+  },
+  "accountDeletion": {
+    "dangerZone": "Zone de danger",
+    "dangerZoneDesc": "Une fois votre compte supprimé, il n'y a pas de retour en arrière. Soyez certain(e).",
+    "button": "🗑️ Supprimer mon compte Athletica Sports",
+    "modalTitle": "SUPPRESSION DÉFINITIVE DU COMPTE",
+    "warning": "Cette action est IRRÉVERSIBLE.",
+    "dataList": {
+      "intro": "Toutes vos données seront supprimées à jamais :",
+      "profiles": "Profils, statistiques et performances",
+      "events": "Événements sauvegardés et favoris",
+      "messages": "Messages, connexions et groupes",
+      "history": "Historique complet d'activité",
+      "subscriptions": "Abonnements et préférences"
+    },
+    "confirmPrompt": "Pour confirmer la suppression, tapez \"{{word}}\" ci-dessous :",
+    "confirmButton": "Confirmer suppression",
+    "emailSent": "Email de confirmation envoyé",
+    "emailSentDesc": "Vérifiez votre boîte mail pour confirmer la suppression. Le lien expire dans 24 heures.",
+    "confirming": "Traitement en cours...",
+    "confirmingDesc": "Veuillez patienter pendant le traitement de votre demande.",
+    "successTitle": "Compte supprimé",
+    "successDesc": "Votre compte et toutes les données associées ont été définitivement supprimés.",
+    "redirecting": "Redirection dans {{seconds}} secondes...",
+    "goToLogin": "Aller à la connexion",
+    "expiredTitle": "Lien expiré",
+    "expiredDesc": "Ce lien de confirmation a expiré. Veuillez faire une nouvelle demande de suppression si vous souhaitez toujours supprimer votre compte.",
+    "errorTitle": "Lien invalide",
+    "errorDesc": "Ce lien de confirmation est invalide ou a déjà été utilisé."
   }
 }

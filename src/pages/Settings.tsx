@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -10,6 +11,8 @@ import { ProfileTabs } from "@/components/settings/ProfileTabs";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
 import { FoundingMemberBadge } from "@/components/profile/FoundingMemberBadge";
+import { LogoutButton } from "@/components/settings/LogoutButton";
+import { AccountDangerZone } from "@/components/settings/AccountDangerZone";
 
 interface Profile {
   id: string;
@@ -27,6 +30,7 @@ interface Profile {
 
 const Settings = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation("common");
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -200,9 +204,10 @@ const Settings = () => {
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <PageHeader
-          title="Profile"
+          title={t("profile.title")}
           showBackButton
           backPath="/"
+          rightAction={<LogoutButton variant="header" />}
         />
 
         {/* Hero Section */}
@@ -279,6 +284,9 @@ const Settings = () => {
           tempValues={tempValues}
           setTempValues={setTempValues}
         />
+
+        {/* Account Danger Zone */}
+        <AccountDangerZone />
       </div>
     </PageContainer>
   );

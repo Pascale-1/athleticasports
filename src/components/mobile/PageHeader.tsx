@@ -52,7 +52,7 @@ export const PageHeader = ({
           )}
         </div>
         {rightAction && (
-          <div className="hidden md:flex shrink-0">{rightAction}</div>
+          <div className="shrink-0">{rightAction}</div>
         )}
       </div>
     </div>
