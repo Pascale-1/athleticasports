@@ -23,11 +23,11 @@ export const BottomNavigation = () => {
           const Icon = item.icon;
           
           return (
-            <NavLink
+              <NavLink
               key={item.url}
               to={item.url}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-all duration-150 active:scale-95 min-w-[64px]",
+                "flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-all duration-150 active:scale-95 min-w-[72px]",
                 isActive
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
@@ -40,7 +40,7 @@ export const BottomNavigation = () => {
                 )} 
               />
               <span className={cn(
-                "text-xs font-medium transition-all duration-150 truncate max-w-[56px]",
+                "text-xs font-medium transition-all duration-150 truncate max-w-[80px]",
                 isActive && "font-semibold"
               )}>
                 {t(item.titleKey)}
