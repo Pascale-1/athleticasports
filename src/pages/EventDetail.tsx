@@ -26,7 +26,9 @@ import {
   ChevronDown,
   ChevronUp,
   Plane,
-  Users2
+  Users2,
+  Map,
+  Navigation
 } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { useEventAttendance } from "@/hooks/useEventAttendance";
@@ -56,11 +58,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-// Helper to generate Google Maps URL from address
-const getGoogleMapsUrl = (address: string): string => {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-};
+import { MAP_PROVIDERS, getDefaultMapUrl } from "@/lib/mapProviders";
 
 const EventDetail = () => {
   const { eventId } = useParams();
@@ -309,28 +307,52 @@ const EventDetail = () => {
               </div>
             </div>
 
-            {/* Location - Clickable with Google Maps */}
+            {/* Location - Multi-provider map menu */}
             {event.location && (
-              <div 
-                onClick={() => openExternalUrl(event.location_url || getGoogleMapsUrl(event.location!))}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && openExternalUrl(event.location_url || getGoogleMapsUrl(event.location!))}
-                className="flex items-center gap-3 p-3 -mx-1 rounded-lg hover:bg-muted/50 transition-colors group cursor-pointer"
-              >
-                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0 group-hover:bg-muted/80">
-                  <MapPin className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
-                    {event.location}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {t('details.tapToOpenMaps', 'Tap to open in Maps')}
-                  </p>
-                </div>
-                <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div 
+                    role="button"
+                    tabIndex={0}
+                    className="flex items-center gap-3 p-3 -mx-1 rounded-lg hover:bg-muted/50 transition-colors group cursor-pointer"
+                  >
+                    <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0 group-hover:bg-muted/80">
+                      <MapPin className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+                        {event.location}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {t('details.tapToOpenMaps', 'Tap to open in Maps')}
+                      </p>
+                    </div>
+                    <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56 bg-popover">
+                  {/* Custom venue link if provided */}
+                  {event.location_url && (
+                    <>
+                      <DropdownMenuItem onClick={() => openExternalUrl(event.location_url!)}>
+                        <Navigation className="h-4 w-4 mr-2" />
+                        {t('details.openVenueLink', 'Open Venue Link')}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  {/* Map providers */}
+                  {MAP_PROVIDERS.map((provider) => (
+                    <DropdownMenuItem 
+                      key={provider.id}
+                      onClick={() => openExternalUrl(provider.getUrl(event.location!))}
+                    >
+                      <Map className="h-4 w-4 mr-2" />
+                      {provider.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
 
             {/* Capacity */}
