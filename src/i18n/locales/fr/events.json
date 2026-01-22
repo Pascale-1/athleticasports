@@ -48,16 +48,49 @@
   },
   "rsvp": {
     "going": "J'y vais",
-    "notGoing": "Je n'y vais pas",
+    "notGoing": "Je ne peux pas",
     "maybe": "Peut-être",
     "respond": "Répondre",
     "attending": "Participants",
     "notAttending": "Ne participent pas",
     "pass": "Passe",
     "committed": "Engagé",
-    "count": "{{count}} inscrit(s)",
+    "committedToMatch": "Engagé pour cette partie",
+    "count": "{{count}} inscrit",
+    "count_one": "{{count}} inscrit",
+    "count_other": "{{count}} inscrits",
     "countWithMax": "{{count}}/{{max}} inscrits",
-    "full": "Complet"
+    "full": "Complet",
+    "closed": "Inscriptions fermées",
+    "stats": "{{going}} inscrits · {{maybe}} peut-être",
+    "changeRsvp": "Modifier ma réponse"
+  },
+  "attendees": {
+    "title": "Participants",
+    "going": "Inscrits",
+    "maybe": "Peut-être",
+    "cantGo": "Ne peuvent pas",
+    "committed": "Engagé",
+    "you": "(Vous)",
+    "noResponses": "Aucune réponse. Soyez le premier à répondre !",
+    "count": "{{count}} inscrit",
+    "count_one": "{{count}} inscrit",
+    "count_other": "{{count}} inscrits"
+  },
+  "status": {
+    "past": "Terminé",
+    "liveNow": "En cours",
+    "public": "Public",
+    "private": "Privé"
+  },
+  "preview": {
+    "nextEvent": "Prochain événement",
+    "upcomingEvents": "Événements à venir",
+    "viewAll": "Voir tout",
+    "noUpcoming": "Aucun événement prévu"
+  },
+  "toast": {
+    "requestSent": "Demande envoyée"
   },
   "form": {
     "title": "Titre",

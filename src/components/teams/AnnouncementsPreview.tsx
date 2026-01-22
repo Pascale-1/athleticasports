@@ -1,10 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Pin } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AnnouncementCard } from "./AnnouncementCard";
 import { CreateAnnouncement } from "./CreateAnnouncement";
 import { TeamAnnouncement } from "@/hooks/useTeamAnnouncements";
+import { useTranslation } from "react-i18next";
 
 interface AnnouncementsPreviewProps {
   announcements: TeamAnnouncement[];
@@ -18,28 +19,20 @@ interface AnnouncementsPreviewProps {
 }
 
 export const AnnouncementsPreview = ({ 
-  announcements, 
-  canPost,
-  canManage,
-  currentUserId,
-  onPost, 
-  onTogglePin,
-  onDelete,
-  teamId 
+  announcements, canPost, canManage, currentUserId, onPost, onTogglePin, onDelete, teamId 
 }: AnnouncementsPreviewProps) => {
+  const { t } = useTranslation(['teams', 'common']);
   const pinnedAnnouncements = announcements.filter(a => a.is_pinned);
-  const recentAnnouncements = announcements
-    .filter(a => !a.is_pinned)
-    .slice(0, 2);
+  const recentAnnouncements = announcements.filter(a => !a.is_pinned).slice(0, 2);
 
   return (
     <Card>
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-body-large font-semibold">Announcements</h3>
+          <h3 className="text-body-large font-semibold">{t('teams:announcements')}</h3>
           <Link to={`/teams/${teamId}?tab=announcements`}>
             <Button variant="ghost" size="sm" className="text-primary">
-              View all <ArrowRight className="h-4 w-4 ml-1" />
+              {t('common:actions.viewAll')} <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           </Link>
         </div>
@@ -50,14 +43,7 @@ export const AnnouncementsPreview = ({
           {pinnedAnnouncements.length > 0 && (
             <div className="space-y-2">
               {pinnedAnnouncements.slice(0, 1).map((announcement) => (
-                <AnnouncementCard
-                  key={announcement.id}
-                  announcement={announcement}
-                  canManage={canManage}
-                  canEdit={currentUserId === announcement.posted_by}
-                  onTogglePin={onTogglePin}
-                  onDelete={onDelete}
-                />
+                <AnnouncementCard key={announcement.id} announcement={announcement} canManage={canManage} canEdit={currentUserId === announcement.posted_by} onTogglePin={onTogglePin} onDelete={onDelete} />
               ))}
             </div>
           )}
@@ -65,19 +51,12 @@ export const AnnouncementsPreview = ({
           {recentAnnouncements.length > 0 ? (
             <div className="space-y-2">
               {recentAnnouncements.map((announcement) => (
-                <AnnouncementCard
-                  key={announcement.id}
-                  announcement={announcement}
-                  canManage={canManage}
-                  canEdit={currentUserId === announcement.posted_by}
-                  onTogglePin={onTogglePin}
-                  onDelete={onDelete}
-                />
+                <AnnouncementCard key={announcement.id} announcement={announcement} canManage={canManage} canEdit={currentUserId === announcement.posted_by} onTogglePin={onTogglePin} onDelete={onDelete} />
               ))}
             </div>
           ) : !canPost && pinnedAnnouncements.length === 0 && (
             <p className="text-caption text-muted-foreground text-center py-4">
-              No announcements yet
+              {t('teams:announcement.noAnnouncements')}
             </p>
           )}
         </div>

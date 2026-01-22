@@ -139,16 +139,22 @@
     "unknown": "No Response"
   },
   "announcement": {
+    "title": "Announcements",
     "createAnnouncement": "New Announcement",
     "pin": "Pin",
     "unpin": "Unpin",
-    "postedBy": "Posted by"
+    "postedBy": "Posted by",
+    "noAnnouncements": "No announcements yet",
+    "viewAll": "View all {{count}} announcements"
   },
   "performanceLevel": {
     "title": "Performance Level",
     "assign": "Assign Level",
     "level": "Level",
-    "notes": "Notes"
+    "notes": "Notes",
+    "noLevels": "No performance levels assigned yet",
+    "averageLevel": "Average Level",
+    "assigned": "{{assigned}} of {{total}} members assigned"
   },
   "toast": {
     "leaveSuccess": "You have left the team",
@@ -175,5 +181,12 @@
     "balancingDescription": "Teams will be automatically balanced by average performance level to ensure fair practice games",
     "generating": "Generating...",
     "generate": "Generate Teams"
+  },
+  "preview": {
+    "nextEvent": "Next Event",
+    "upcomingEvents": "Upcoming Events",
+    "viewAll": "View all",
+    "noUpcoming": "No upcoming events scheduled",
+    "teamLeaders": "Team Leaders"
   }
 }

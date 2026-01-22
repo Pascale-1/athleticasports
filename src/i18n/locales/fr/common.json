@@ -106,6 +106,28 @@
     "anyLocation": "N'importe quel lieu",
     "open": "Ouvert"
   },
+  "activity": {
+    "title": "Activité",
+    "recentActivity": "Activité récente",
+    "noActivity": "Aucune activité récente",
+    "noActivityDesc": "Votre fil d'activité apparaîtra ici",
+    "createdTeam": "A créé une équipe",
+    "joinedTeam": "A rejoint une équipe",
+    "createdEvent": "A créé un événement",
+    "rsvp": "S'est inscrit à un événement",
+    "attending": "Participe à un événement",
+    "loggedActivity": "A enregistré une activité",
+    "created": "A créé \"{{name}}\"",
+    "joined": "A rejoint \"{{name}}\""
+  },
+  "invitations": {
+    "pending": "Invitations en attente",
+    "cancelTitle": "Annuler l'invitation ?",
+    "cancelDescription": "Êtes-vous sûr de vouloir annuler cette invitation ? Cette action est irréversible.",
+    "cancelButton": "Annuler l'invitation",
+    "invited": "Invité",
+    "resending": "Renvoi..."
+  },
   "profile": {
     "title": "Profil",
     "about": "À propos",

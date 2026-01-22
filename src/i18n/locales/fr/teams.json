@@ -139,16 +139,22 @@
     "unknown": "Non répondu"
   },
   "announcement": {
+    "title": "Annonces",
     "createAnnouncement": "Nouvelle annonce",
     "pin": "Épingler",
     "unpin": "Désépingler",
-    "postedBy": "Publié par"
+    "postedBy": "Publié par",
+    "noAnnouncements": "Aucune annonce pour le moment",
+    "viewAll": "Voir les {{count}} annonces"
   },
   "performanceLevel": {
     "title": "Niveau de performance",
     "assign": "Attribuer un niveau",
     "level": "Niveau",
-    "notes": "Notes"
+    "notes": "Notes",
+    "noLevels": "Aucun niveau de performance attribué",
+    "averageLevel": "Niveau moyen",
+    "assigned": "{{assigned}} sur {{total}} membres attribués"
   },
   "toast": {
     "leaveSuccess": "Vous avez quitté l'équipe",
@@ -175,5 +181,12 @@
     "balancingDescription": "Les équipes seront automatiquement équilibrées par niveau de performance pour des parties d'entraînement équitables",
     "generating": "Génération...",
     "generate": "Générer les équipes"
+  },
+  "preview": {
+    "nextEvent": "Prochain événement",
+    "upcomingEvents": "Événements à venir",
+    "viewAll": "Voir tout",
+    "noUpcoming": "Aucun événement prévu",
+    "teamLeaders": "Responsables"
   }
 }
