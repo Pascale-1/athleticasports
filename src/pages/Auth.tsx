@@ -41,18 +41,9 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
-  const [oauthUrl, setOauthUrl] = useState<string | null>(null);
-  const [showDiagnostics, setShowDiagnostics] = useState(false);
   const [invitationId, setInvitationId] = useState<string | null>(null);
   const returnUrl = searchParams.get("returnUrl");
   const redirectUrl = `${window.location.origin}/auth`;
-  const inIframe = (() => {
-    try {
-      return window.top !== window.self;
-    } catch {
-      return true;
-    }
-  })();
 
   const emailForm = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
@@ -106,47 +97,6 @@ const Auth = () => {
     }
   }, [searchParams, toast]);
 
-  useEffect(() => {
-    // When using skipBrowserRedirect, we must exchange the OAuth `code` for a session ourselves.
-    // This runs after the provider redirects back to /auth.
-    const code = searchParams.get("code");
-    if (!code) return;
-
-    let cancelled = false;
-    (async () => {
-      try {
-        setGoogleLoading(true);
-        const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
-        if (error) throw error;
-
-        // Clean URL (remove code/state) but preserve invitationId if present
-        const invitationIdParam = searchParams.get("invitationId");
-        const cleanUrl = invitationIdParam
-          ? `/auth?invitationId=${invitationIdParam}`
-          : "/auth";
-        window.history.replaceState({}, "", cleanUrl);
-      } catch (err: any) {
-        if (cancelled) return;
-        console.error("[Auth] OAuth code exchange failed", err);
-
-        // Also clear any broken session that may have been set
-        await supabase.auth.signOut();
-
-        toast({
-          variant: "destructive",
-          title: "Google Sign In Error",
-          description:
-            err?.message || "Something went wrong while finishing Google sign-in. Please try again.",
-        });
-      } finally {
-        if (!cancelled) setGoogleLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [searchParams, toast]);
 
   useEffect(() => {
     document.title = "Sign in | Athletica Sports";
@@ -269,7 +219,6 @@ const Auth = () => {
 
   const handleGoogleAuth = async () => {
     setGoogleLoading(true);
-    setOauthUrl(null);
     try {
       console.log("[OAuth] Starting Google sign-in", {
         origin: window.location.origin,
@@ -281,44 +230,27 @@ const Auth = () => {
         ? `${redirectUrl}?invitationId=${invitationId}`
         : redirectUrl;
 
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      // Let Supabase handle the redirect naturally (no skipBrowserRedirect)
+      // This ensures PKCE code_verifier stays in the same browser context
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: finalRedirectUrl,
-          skipBrowserRedirect: true,
         },
       });
 
       if (error) throw error;
-
-      if (data?.url) {
-        setOauthUrl(data.url);
-        const url = data.url;
-        try {
-          if (window.top && window.top !== window.self) {
-            (window.top as Window).location.href = url;
-          } else {
-            window.location.assign(url);
-          }
-        } catch (navErr) {
-          console.warn(
-            "[OAuth] Top navigation blocked, opening new tab",
-            navErr
-          );
-          window.open(url, "_blank", "noopener,noreferrer");
-        }
-      } else {
-        throw new Error("No OAuth redirect URL was returned.");
-      }
+      
+      // If we reach here, the browser should be redirecting to Google
+      // Keep loading state active
     } catch (error: any) {
       console.error("[OAuth] Google sign in error", error);
+      setGoogleLoading(false);
       toast({
         variant: "destructive",
         title: "Google Sign In Error",
         description: error.message || "Failed to sign in with Google.",
       });
-    } finally {
-      setTimeout(() => setGoogleLoading(false), 1000);
     }
   };
 
@@ -423,33 +355,6 @@ const Auth = () => {
             {googleLoading ? "Signing in..." : "Continue with Google"}
           </Button>
 
-          {oauthUrl && (
-            <Alert className="mt-3">
-              <AlertTitle>Having trouble redirecting?</AlertTitle>
-              <AlertDescription>
-                We generated your Google sign-in link but your browser blocked
-                automatic navigation
-                {inIframe ? " (possibly due to iframe)." : "."}
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <Button
-                    size="sm"
-                    onClick={() =>
-                      window.open(oauthUrl, "_blank", "noopener,noreferrer")
-                    }
-                  >
-                    Open Google Sign-in
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => navigator.clipboard.writeText(oauthUrl)}
-                  >
-                    Copy Link
-                  </Button>
-                </div>
-              </AlertDescription>
-            </Alert>
-          )}
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -575,48 +480,6 @@ const Auth = () => {
                   ? "Signing in with Google..."
                   : "Continue with Google"}
               </Button>
-
-              {oauthUrl && (
-                <Alert className="mt-3">
-                  <AlertTitle>Having trouble redirecting?</AlertTitle>
-                  <AlertDescription>
-                    We generated your Google sign-in link but your browser
-                    blocked automatic navigation
-                    {inIframe ? " (possibly due to iframe)." : "."}
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() =>
-                          window.open(oauthUrl, "_blank", "noopener,noreferrer")
-                        }
-                      >
-                        Open Google Sign-in
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => navigator.clipboard.writeText(oauthUrl)}
-                      >
-                        Copy Link
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setShowDiagnostics((s) => !s)}
-                      >
-                        {showDiagnostics ? "Hide details" : "Show details"}
-                      </Button>
-                    </div>
-                    {showDiagnostics && (
-                      <div className="mt-2 grid gap-1 text-xs text-muted-foreground">
-                        <div>Origin: {window.location.origin}</div>
-                        <div>In iframe: {inIframe ? "yes" : "no"}</div>
-                        <div>Redirect URL: {redirectUrl}</div>
-                      </div>
-                    )}
-                  </AlertDescription>
-                </Alert>
-              )}
             </TabsContent>
 
             <TabsContent value="phone" className="space-y-4">
