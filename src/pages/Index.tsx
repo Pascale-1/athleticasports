@@ -257,30 +257,30 @@ const Index = () => {
             <div data-walkthrough="quick-actions" className="grid grid-cols-3 gap-2">
               <Button 
                 variant="default"
-                className="flex flex-col items-center justify-center gap-2 h-16 px-2 bg-green-600 hover:bg-green-700"
+                className="flex flex-col items-center justify-center gap-2 h-16 px-2 bg-green-600 hover:bg-green-700 overflow-hidden"
                 onClick={() => setFindMatchSheetOpen(true)}
               >
-                <CalendarCheck className="h-5 w-5" />
-                <span className="text-xs font-medium text-center">{t('home.findGame')}</span>
+                <CalendarCheck className="h-5 w-5 flex-shrink-0" />
+                <span className="text-xs font-medium text-center truncate max-w-full">{t('home.findGame')}</span>
               </Button>
               
               <Button 
                 variant="outline"
-                className="flex flex-col items-center justify-center gap-2 h-16 px-2"
+                className="flex flex-col items-center justify-center gap-2 h-16 px-2 overflow-hidden"
                 onClick={() => setCreateEventDialogOpen(true)}
               >
-                <Plus className="h-5 w-5 text-primary" />
-                <span className="text-xs font-medium text-center">{t('home.organizeEvent')}</span>
+                <Plus className="h-5 w-5 text-primary flex-shrink-0" />
+                <span className="text-xs font-medium text-center truncate max-w-full">{t('home.organizeEvent')}</span>
               </Button>
               
               <Button 
                 type="button"
                 variant="outline"
-                className="flex flex-col items-center justify-center gap-2 h-16 px-2"
+                className="flex flex-col items-center justify-center gap-2 h-16 px-2 overflow-hidden"
                 onClick={() => navigate("/teams/create")}
               >
-                <Users className="h-5 w-5 text-primary" />
-                <span className="text-xs font-medium text-center">{t('home.createTeam')}</span>
+                <Users className="h-5 w-5 text-primary flex-shrink-0" />
+                <span className="text-xs font-medium text-center truncate max-w-full">{t('home.createTeam')}</span>
               </Button>
             </div>
           </AnimatedCard>
