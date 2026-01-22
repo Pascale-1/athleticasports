@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Users, Clock, Trophy, Coffee, UserCheck, UserX, HelpCircle, UserPlus, Swords, ChevronDown } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Trophy, Coffee, UserCheck, UserX, HelpCircle, UserPlus, Swords, ChevronDown, Repeat } from "lucide-react";
 import { Event } from "@/lib/events";
 import { Link } from "react-router-dom";
 import {
@@ -14,7 +14,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface EventCardProps {
-  event: Event & { looking_for_players?: boolean; players_needed?: number | null };
+  event: Event & { 
+    looking_for_players?: boolean; 
+    players_needed?: number | null;
+    parent_event_id?: string | null;
+    is_recurring?: boolean;
+    recurrence_rule?: string | null;
+  };
   onAttendanceClick?: () => void;
   attendeeCount?: number;
   userStatus?: 'attending' | 'maybe' | 'not_attending' | null;
@@ -88,6 +94,18 @@ export const EventCard = memo(({
 
   const currentRSVP = getCurrentRSVP();
 
+  // Helper to get recurrence label
+  const getRecurrenceLabel = () => {
+    if (!event.recurrence_rule) return null;
+    if (event.recurrence_rule.includes('FREQ=DAILY')) return t('recurrence.daily', 'Daily');
+    if (event.recurrence_rule.includes('FREQ=WEEKLY')) return t('recurrence.weekly', 'Weekly');
+    if (event.recurrence_rule.includes('FREQ=MONTHLY')) return t('recurrence.monthly', 'Monthly');
+    return t('recurrence.recurring', 'Recurring');
+  };
+
+  const isPartOfSeries = !!event.parent_event_id;
+  const isRecurringParent = event.is_recurring && !event.parent_event_id;
+
   return (
     <Link to={`/events/${event.id}`}>
       <Card 
@@ -97,7 +115,7 @@ export const EventCard = memo(({
         onMouseLeave={() => setIsHovered(false)}
       >
         <CardContent className="p-3 space-y-2">
-          {/* Row 1: Type icon + Title + RSVP status/action */}
+          {/* Row 1: Type icon + Title + Recurring badge + RSVP status/action */}
           <div className="flex items-center gap-2">
             <div className={`p-1.5 rounded-md ${getEventTypeColor()}`}>
               {getEventIcon()}
@@ -105,6 +123,19 @@ export const EventCard = memo(({
             <h3 className="flex-1 text-sm font-heading font-semibold truncate">
               {event.title}
             </h3>
+            
+            {/* Recurring indicator */}
+            {isRecurringParent && (
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 gap-0.5 border-primary/30 text-primary shrink-0">
+                <Repeat className="h-3 w-3" />
+                <span className="hidden sm:inline">{getRecurrenceLabel()}</span>
+              </Badge>
+            )}
+            {isPartOfSeries && (
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 text-muted-foreground shrink-0">
+                <Repeat className="h-3 w-3" />
+              </Badge>
+            )}
             
             {/* RSVP: Show current status or compact dropdown */}
             {showInlineRSVP && onRSVPChange ? (

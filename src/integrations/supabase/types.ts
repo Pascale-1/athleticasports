@@ -224,9 +224,11 @@ export type Database = {
           match_format: string | null
           max_participants: number | null
           meetup_category: string | null
+          occurrence_index: number | null
           opponent_logo_url: string | null
           opponent_name: string | null
           opponent_team_id: string | null
+          parent_event_id: string | null
           players_needed: number | null
           recurrence_rule: string | null
           start_time: string
@@ -254,9 +256,11 @@ export type Database = {
           match_format?: string | null
           max_participants?: number | null
           meetup_category?: string | null
+          occurrence_index?: number | null
           opponent_logo_url?: string | null
           opponent_name?: string | null
           opponent_team_id?: string | null
+          parent_event_id?: string | null
           players_needed?: number | null
           recurrence_rule?: string | null
           start_time: string
@@ -284,9 +288,11 @@ export type Database = {
           match_format?: string | null
           max_participants?: number | null
           meetup_category?: string | null
+          occurrence_index?: number | null
           opponent_logo_url?: string | null
           opponent_name?: string | null
           opponent_team_id?: string | null
+          parent_event_id?: string | null
           players_needed?: number | null
           recurrence_rule?: string | null
           start_time?: string
@@ -301,6 +307,13 @@ export type Database = {
             columns: ["opponent_team_id"]
             isOneToOne: false
             referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_parent_event_id_fkey"
+            columns: ["parent_event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
           {

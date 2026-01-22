@@ -27,6 +27,9 @@ export interface Event {
   invite_code?: string;
   allow_public_join?: boolean;
   created_invite_code_at?: string;
+  // Recurring event support
+  parent_event_id?: string | null;
+  occurrence_index?: number | null;
 }
 
 export interface EventWithAttendance extends Event {
