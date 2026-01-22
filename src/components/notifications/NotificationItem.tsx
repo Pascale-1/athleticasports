@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
-import { UserPlus, Megaphone, Calendar, UserCheck } from "lucide-react";
+import { UserPlus, Megaphone, Calendar, UserCheck, CheckCircle, XCircle, Bell } from "lucide-react";
 import { useNotifications, type Notification } from "@/hooks/useNotifications";
 import { cn } from "@/lib/utils";
 
@@ -8,26 +8,32 @@ interface NotificationItemProps {
   notification: Notification;
 }
 
-const iconMap = {
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   team_invitation: UserPlus,
   new_follower: UserPlus,
   team_announcement: Megaphone,
   training_session: Calendar,
   event_join_request: UserCheck,
+  event_join_response: CheckCircle,
 };
 
-const colorMap = {
+const colorMap: Record<string, string> = {
   team_invitation: "text-blue-500",
   new_follower: "text-green-500",
   team_announcement: "text-orange-500",
   training_session: "text-purple-500",
   event_join_request: "text-teal-500",
+  event_join_response: "text-emerald-500",
 };
+
+// Fallback icon for unknown notification types
+const FallbackIcon = Bell;
 
 export const NotificationItem = ({ notification }: NotificationItemProps) => {
   const navigate = useNavigate();
   const { markAsRead } = useNotifications();
-  const Icon = iconMap[notification.type];
+  const Icon = iconMap[notification.type] || FallbackIcon;
+  const iconColor = colorMap[notification.type] || "text-muted-foreground";
 
   const handleClick = () => {
     if (!notification.read) {
@@ -56,7 +62,7 @@ export const NotificationItem = ({ notification }: NotificationItemProps) => {
       )}
     >
       <div className="flex gap-3">
-        <div className={cn("mt-1", colorMap[notification.type])}>
+        <div className={cn("mt-1", iconColor)}>
           <Icon className="h-5 w-5" />
         </div>
         <div className="flex-1 min-w-0">

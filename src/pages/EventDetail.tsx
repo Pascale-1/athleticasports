@@ -78,7 +78,7 @@ const EventDetail = () => {
 
   const { events, loading, deleteEvent, updateEvent } = useEvents();
   const event = events.find(e => e.id === eventId);
-  const { stats, attendees, userStatus, isCommitted, updateAttendance, removeAttendance, loading: attendanceLoading } = useEventAttendance(eventId || '');
+  const { stats, attendees, userStatus, isCommitted, updateAttendance, removeAttendance, refetch: refetchAttendance, loading: attendanceLoading } = useEventAttendance(eventId || '');
   const { 
     pendingRequests, 
     userRequest, 
@@ -87,6 +87,20 @@ const EventDetail = () => {
     rejectRequest, 
     loading: joinRequestsLoading 
   } = useEventJoinRequests(eventId || '');
+
+  // Wrap approve/reject handlers to refetch attendance after approval
+  const handleApproveRequest = async (requestId: string) => {
+    const success = await approveRequest(requestId);
+    if (success) {
+      // Refetch attendance to show the newly approved user
+      refetchAttendance();
+    }
+    return success;
+  };
+
+  const handleRejectRequest = async (requestId: string) => {
+    return rejectRequest(requestId);
+  };
 
   useEffect(() => {
     const getUser = async () => {
@@ -288,8 +302,8 @@ const EventDetail = () => {
         {canEdit && pendingRequests.length > 0 && (
           <EventJoinRequests
             requests={pendingRequests}
-            onApprove={approveRequest}
-            onReject={rejectRequest}
+            onApprove={handleApproveRequest}
+            onReject={handleRejectRequest}
             isLoading={joinRequestsLoading}
           />
         )}
