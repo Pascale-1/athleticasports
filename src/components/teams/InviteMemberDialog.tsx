@@ -22,6 +22,7 @@ interface SearchedUser {
   username: string;
   display_name: string | null;
   avatar_url: string | null;
+  email: string | null;
 }
 
 interface InviteMemberDialogProps {
@@ -59,11 +60,11 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canMa
         // Sanitize query to prevent SQL injection
         const sanitizedQuery = searchQuery.replace(/[%_]/g, '\\$&');
         
-        // Search for users by username or display name
+        // Search for users by username, display name, or email
         const { data, error } = await supabase
           .from("profiles")
-          .select("user_id, username, display_name, avatar_url")
-          .or(`username.ilike.%${sanitizedQuery}%,display_name.ilike.%${sanitizedQuery}%`)
+          .select("user_id, username, display_name, avatar_url, email")
+          .or(`username.ilike.%${sanitizedQuery}%,display_name.ilike.%${sanitizedQuery}%,email.ilike.%${sanitizedQuery}%`)
           .limit(5);
 
         if (error) throw error;
@@ -180,7 +181,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canMa
                           {user.display_name || user.username}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">
-                          @{user.username}
+                          @{user.username}{user.email && ` • ${user.email}`}
                         </p>
                       </div>
                       <Badge variant={getRoleBadgeVariant(selectedRole)}>
