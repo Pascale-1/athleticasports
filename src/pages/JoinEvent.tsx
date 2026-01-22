@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +15,7 @@ const JoinEvent = () => {
   const { code } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
   const [event, setEvent] = useState<any>(null);
@@ -42,7 +44,7 @@ const JoinEvent = () => {
       setEvent(eventData);
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t('status.error', { ns: 'common' }),
         description: error.message,
         variant: "destructive",
       });
@@ -78,15 +80,15 @@ const JoinEvent = () => {
       if (error) throw error;
 
       toast({
-        title: "Success!",
-        description: `You're now attending ${event.title}`,
+        title: t('status.success', { ns: 'common' }),
+        description: t('rsvp.attending', { ns: 'events' }) + ` ${event.title}`,
       });
 
       // Redirect to event detail page
       navigate(`/events/${event.id}`);
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t('status.error', { ns: 'common' }),
         description: error.message,
         variant: "destructive",
       });

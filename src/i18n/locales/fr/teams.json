@@ -113,7 +113,23 @@
     "shareLink": "Lien d'invitation",
     "linkCopied": "Lien copié !",
     "allowLinkJoining": "Autoriser l'inscription via lien",
-    "regenerateLink": "Régénérer le lien"
+    "regenerateLink": "Régénérer le lien",
+    "code": "Code d'invitation",
+    "shareDescription": "Partagez ce lien ou code avec les personnes à inviter",
+    "shareWhatsApp": "Partager via WhatsApp",
+    "shareSMS": "Partager par SMS",
+    "toggleDescription": "Contrôlez qui peut utiliser ce lien",
+    "regenerateWarning": "Ceci invalidera le lien actuel et en créera un nouveau",
+    "codeRegenerated": "Code régénéré",
+    "oldLinksInvalid": "Les anciens liens ne fonctionneront plus",
+    "linkJoiningEnabled": "Inscription via lien activée",
+    "linkJoiningEnabledDesc": "Toute personne avec le lien peut rejoindre",
+    "linkJoiningDisabled": "Inscription via lien désactivée",
+    "linkJoiningDisabledDesc": "L'inscription via lien a été désactivée",
+    "regenerateError": "Échec de la régénération du code",
+    "updateError": "Échec de la mise à jour",
+    "copied": "Copié !",
+    "copiedToClipboard": "{{label}} copié dans le presse-papier"
   },
   "actions": {
     "leave": "Quitter l'équipe",
@@ -164,7 +180,12 @@
     "transferSuccess": "Propriété transférée avec succès",
     "transferError": "Échec du transfert de propriété",
     "nameError": "Le nom de l'équipe ne correspond pas",
-    "selectOwnerError": "Veuillez sélectionner un nouveau propriétaire"
+    "selectOwnerError": "Veuillez sélectionner un nouveau propriétaire",
+    "alreadyMember": "Déjà membre",
+    "alreadyMemberDesc": "Vous faites déjà partie de cette équipe",
+    "joinSuccess": "Vous avez rejoint {{name}}",
+    "createSuccess": "Équipe créée avec succès",
+    "createError": "Échec de la création de l'équipe"
   },
   "quickCreate": {
     "description": "Créez l'équipe adverse pour suivre les parties et inviter des membres plus tard"

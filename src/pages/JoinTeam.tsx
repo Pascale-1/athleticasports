@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Loader2, Users, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +26,7 @@ export default function JoinTeam() {
   const { code } = useParams<{ code: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation('teams');
   const [team, setTeam] = useState<TeamInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isJoining, setIsJoining] = useState(false);
@@ -106,21 +108,21 @@ export default function JoinTeam() {
 
       if (result.alreadyMember) {
         toast({
-          title: "Already a member",
-          description: "You're already part of this team",
+          title: t('toast.alreadyMember'),
+          description: t('toast.alreadyMemberDesc'),
         });
       } else {
         toast({
-          title: "Success!",
-          description: `You've joined ${team?.name}`,
+          title: t('status.success', { ns: 'common' }),
+          description: t('toast.joinSuccess', { name: team?.name }),
         });
       }
 
       navigate(`/teams/${result.teamId}`);
     } catch (err: any) {
       toast({
-        title: "Error",
-        description: err.message || "Failed to join team",
+        title: t('status.error', { ns: 'common' }),
+        description: err.message || t('toast.leaveError'),
         variant: "destructive",
       });
     } finally {

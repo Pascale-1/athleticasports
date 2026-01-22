@@ -83,7 +83,11 @@
     "noResponses": "No responses yet. Be the first to RSVP!",
     "count": "{{count}} attending",
     "count_one": "{{count}} attending",
-    "count_other": "{{count}} attending"
+    "count_other": "{{count}} attending",
+    "seeAll": "See all ({{count}})",
+    "hideDetails": "Hide details",
+    "andOthers": "and {{count}} other",
+    "andOthers_other": "and {{count}} others"
   },
   "status": {
     "past": "Past",

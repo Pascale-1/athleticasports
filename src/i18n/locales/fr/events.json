@@ -83,7 +83,11 @@
     "noResponses": "Aucune réponse. Soyez le premier à répondre !",
     "count": "{{count}} inscrit",
     "count_one": "{{count}} inscrit",
-    "count_other": "{{count}} inscrits"
+    "count_other": "{{count}} inscrits",
+    "seeAll": "Voir tout ({{count}})",
+    "hideDetails": "Masquer",
+    "andOthers": "et {{count}} autre",
+    "andOthers_other": "et {{count}} autres"
   },
   "status": {
     "past": "Terminé",

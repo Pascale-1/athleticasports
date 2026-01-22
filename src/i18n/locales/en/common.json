@@ -72,7 +72,9 @@
     "pending": "Pending",
     "confirmed": "Confirmed",
     "cancelled": "Cancelled",
-    "completed": "Completed"
+    "completed": "Completed",
+    "success": "Success",
+    "error": "Error"
   },
   "errors": {
     "generic": "An error occurred",
@@ -200,7 +202,7 @@
   "accountDeletion": {
     "dangerZone": "Danger Zone",
     "dangerZoneDesc": "Once you delete your account, there is no going back. Please be certain.",
-    "button": "🗑️ Delete my Athletica Sports account",
+    "button": "Delete my account",
     "modalTitle": "PERMANENT ACCOUNT DELETION",
     "warning": "This action CANNOT BE UNDONE.",
     "dataList": {

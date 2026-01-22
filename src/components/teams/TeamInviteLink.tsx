@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Copy, RefreshCw, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +24,7 @@ export const TeamInviteLink = ({
   canManage 
 }: TeamInviteLinkProps) => {
   const { toast } = useToast();
+  const { t } = useTranslation('teams');
   const { openExternalUrl } = useExternalLink();
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [linkJoiningEnabled, setLinkJoiningEnabled] = useState(allowLinkJoining);
@@ -32,8 +34,8 @@ export const TeamInviteLink = ({
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast({
-      title: "Copied!",
-      description: `${label} copied to clipboard`,
+      title: t('invite.copied'),
+      description: t('invite.copiedToClipboard', { label }),
     });
   };
 
@@ -54,16 +56,16 @@ export const TeamInviteLink = ({
       if (error) throw error;
 
       toast({
-        title: "Code regenerated",
-        description: "Previous invite links are now invalid",
+        title: t('invite.codeRegenerated'),
+        description: t('invite.oldLinksInvalid'),
       });
       
       // Refresh page to show new code
       window.location.reload();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to regenerate code",
+        title: t('status.error', { ns: 'common' }),
+        description: t('invite.regenerateError'),
         variant: "destructive",
       });
     } finally {
@@ -84,15 +86,15 @@ export const TeamInviteLink = ({
 
       setLinkJoiningEnabled(enabled);
       toast({
-        title: enabled ? "Link joining enabled" : "Link joining disabled",
+        title: enabled ? t('invite.linkJoiningEnabled') : t('invite.linkJoiningDisabled'),
         description: enabled 
-          ? "Anyone with the link can now join" 
-          : "Link joining has been disabled",
+          ? t('invite.linkJoiningEnabledDesc')
+          : t('invite.linkJoiningDisabledDesc'),
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update settings",
+        title: t('status.error', { ns: 'common' }),
+        description: t('invite.updateError'),
         variant: "destructive",
       });
     }
@@ -114,15 +116,15 @@ export const TeamInviteLink = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Share2 className="h-5 w-5" />
-          Invite Members
+          {t('invite.title')}
         </CardTitle>
         <CardDescription>
-          Share this link or code with people you want to invite
+          {t('invite.shareDescription')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="invite-link">Invite Link</Label>
+          <Label htmlFor="invite-link">{t('invite.shareLink')}</Label>
           <div className="flex gap-2">
             <Input
               id="invite-link"
@@ -133,7 +135,7 @@ export const TeamInviteLink = ({
             <Button
               variant="outline"
               size="icon"
-              onClick={() => copyToClipboard(inviteLink, "Link")}
+              onClick={() => copyToClipboard(inviteLink, t('invite.shareLink'))}
             >
               <Copy className="h-4 w-4" />
             </Button>
@@ -141,7 +143,7 @@ export const TeamInviteLink = ({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="invite-code">Invite Code</Label>
+          <Label htmlFor="invite-code">{t('invite.code')}</Label>
           <div className="flex gap-2">
             <Input
               id="invite-code"
@@ -152,7 +154,7 @@ export const TeamInviteLink = ({
             <Button
               variant="outline"
               size="icon"
-              onClick={() => copyToClipboard(inviteCode, "Code")}
+              onClick={() => copyToClipboard(inviteCode, t('invite.code'))}
             >
               <Copy className="h-4 w-4" />
             </Button>
@@ -165,14 +167,14 @@ export const TeamInviteLink = ({
             onClick={shareViaWhatsApp}
             className="flex-1"
           >
-            Share via WhatsApp
+            {t('invite.shareWhatsApp')}
           </Button>
           <Button
             variant="outline"
             onClick={shareViaSMS}
             className="flex-1"
           >
-            Share via SMS
+            {t('invite.shareSMS')}
           </Button>
         </div>
 
@@ -181,9 +183,9 @@ export const TeamInviteLink = ({
             <div className="border-t pt-4 space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="allow-joining">Anyone with link can join</Label>
+                  <Label htmlFor="allow-joining">{t('invite.allowLinkJoining')}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Toggle to control who can use this link
+                    {t('invite.toggleDescription')}
                   </p>
                 </div>
                 <Switch
@@ -200,10 +202,10 @@ export const TeamInviteLink = ({
                 className="w-full"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${isRegenerating ? 'animate-spin' : ''}`} />
-                Regenerate Code
+                {t('invite.regenerateLink')}
               </Button>
               <p className="text-xs text-muted-foreground">
-                This will invalidate the current link and create a new one
+                {t('invite.regenerateWarning')}
               </p>
             </div>
           </>
