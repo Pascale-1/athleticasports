@@ -7,6 +7,7 @@ import { formatEventDateRange } from "@/lib/events";
 import { useNavigate } from "react-router-dom";
 import { useSwipe } from "@/hooks/useSwipe";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 interface SwipeableEventCardProps {
   event: Event;
@@ -25,6 +26,7 @@ export const SwipeableEventCard = ({
   userStatus,
   canDelete = false
 }: SwipeableEventCardProps) => {
+  const { t } = useTranslation('events');
   const navigate = useNavigate();
   const { swipeOffset, isSwiping, handleTouchStart, handleTouchMove, handleTouchEnd, resetSwipe } = useSwipe({
     onSwipeLeft: () => {},
@@ -61,13 +63,23 @@ export const SwipeableEventCard = ({
     if (!userStatus) return null;
     
     const variants = {
-      attending: { label: 'Going', className: 'bg-green-500/10 text-green-700 dark:text-green-400' },
-      maybe: { label: 'Maybe', className: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400' },
-      not_attending: { label: 'Not Going', className: 'bg-red-500/10 text-red-700 dark:text-red-400' },
+      attending: { label: t('rsvp.going'), className: 'bg-green-500/10 text-green-700 dark:text-green-400' },
+      maybe: { label: t('rsvp.maybe'), className: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400' },
+      not_attending: { label: t('rsvp.notGoing'), className: 'bg-red-500/10 text-red-700 dark:text-red-400' },
     };
 
     const { label, className } = variants[userStatus];
     return <Badge className={className}>{label}</Badge>;
+  };
+
+  const getHomeAwayLabel = (homeAway: string | null | undefined) => {
+    if (!homeAway) return null;
+    switch (homeAway) {
+      case 'home': return t('game.home');
+      case 'away': return t('game.away');
+      case 'neutral': return t('game.neutral');
+      default: return null;
+    }
   };
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -120,7 +132,7 @@ export const SwipeableEventCard = ({
                 <div>
                   <h3 className="font-semibold text-base line-clamp-1">{event.title}</h3>
                   <Badge variant="outline" className="mt-1">
-                    {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
+                    {t(`types.${event.type}`)}
                   </Badge>
                 </div>
                 {getStatusBadge()}
@@ -148,7 +160,7 @@ export const SwipeableEventCard = ({
                 {attendeeCount !== undefined && (
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4" />
-                    <span>{attendeeCount} attending</span>
+                    <span>{t('rsvp.count', { count: attendeeCount })}</span>
                   </div>
                 )}
               </div>
@@ -160,7 +172,7 @@ export const SwipeableEventCard = ({
                     <span className="font-medium">{event.opponent_name}</span>
                     {event.home_away && (
                       <Badge variant="outline" className="ml-2">
-                        {event.home_away === 'home' ? 'Home' : event.home_away === 'away' ? 'Away' : 'Neutral'}
+                        {getHomeAwayLabel(event.home_away)}
                       </Badge>
                     )}
                   </div>
@@ -177,7 +189,7 @@ export const SwipeableEventCard = ({
                     onAttendanceClick();
                   }}
                 >
-                  {userStatus === 'attending' ? 'Change RSVP' : 'RSVP'}
+                  {userStatus === 'attending' ? t('rsvp.changeRsvp') : t('rsvp.respond')}
                 </Button>
               )}
             </div>

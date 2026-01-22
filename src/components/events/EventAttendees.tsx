@@ -25,10 +25,14 @@ interface EventAttendeesProps {
 
 const AttendeeRow = ({ 
   attendee, 
-  currentUserId 
+  currentUserId,
+  youLabel,
+  committedLabel
 }: { 
   attendee: Attendee; 
   currentUserId: string | null;
+  youLabel: string;
+  committedLabel: string;
 }) => {
   const displayName = attendee.profiles?.display_name || attendee.profiles?.username || 'Unknown';
   const isCurrentUser = attendee.user_id === currentUserId;
@@ -44,12 +48,12 @@ const AttendeeRow = ({
       <span className="text-sm flex-1">
         {displayName}
         {isCurrentUser && (
-          <span className="text-muted-foreground ml-1">(You)</span>
+          <span className="text-muted-foreground ml-1">{youLabel}</span>
         )}
       </span>
       {attendee.is_committed && (
         <Badge variant="secondary" className="text-xs bg-warning/20 text-warning-foreground">
-          ⭐ Committed
+          ⭐ {committedLabel}
         </Badge>
       )}
     </div>
@@ -59,27 +63,29 @@ const AttendeeRow = ({
 const StatusSection = ({ 
   status, 
   attendees, 
-  currentUserId 
+  currentUserId,
+  labels
 }: { 
   status: 'attending' | 'maybe' | 'not_attending';
   attendees: Attendee[]; 
   currentUserId: string | null;
+  labels: { going: string; maybe: string; cantGo: string; you: string; committed: string };
 }) => {
   const config = {
     attending: {
-      label: "Going",
+      label: labels.going,
       icon: CheckCircle2,
       color: "text-success",
       bgColor: "bg-success/10",
     },
     maybe: {
-      label: "Maybe",
+      label: labels.maybe,
       icon: HelpCircle,
       color: "text-warning",
       bgColor: "bg-warning/10",
     },
     not_attending: {
-      label: "Can't Go",
+      label: labels.cantGo,
       icon: XCircle,
       color: "text-destructive",
       bgColor: "bg-destructive/10",
@@ -105,7 +111,9 @@ const StatusSection = ({
           <AttendeeRow 
             key={attendee.user_id} 
             attendee={attendee} 
-            currentUserId={currentUserId} 
+            currentUserId={currentUserId}
+            youLabel={labels.you}
+            committedLabel={labels.committed}
           />
         ))}
       </div>
@@ -116,6 +124,14 @@ const StatusSection = ({
 export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps) => {
   const { t } = useTranslation('events');
   const [showAll, setShowAll] = useState(false);
+  
+  const labels = {
+    going: t('attendees.going'),
+    maybe: t('attendees.maybe'),
+    cantGo: t('attendees.cantGo'),
+    you: t('attendees.you'),
+    committed: t('attendees.committed'),
+  };
   
   const grouped = {
     attending: attendees.filter((a) => a.status === 'attending'),
@@ -129,7 +145,7 @@ export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps
   if (attendees.length === 0) {
     return (
       <div className="text-center py-6 text-muted-foreground text-sm">
-        {t('attendees.noResponses', 'No responses yet. Be the first to RSVP!')}
+        {t('attendees.noResponses')}
       </div>
     );
   }
@@ -146,16 +162,15 @@ export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps
 
   return (
     <div className="space-y-4">
-      {/* Summary Stats Row */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-1.5">
           <CheckCircle2 className="h-4 w-4 text-success" />
-          <span className="text-sm font-medium">{grouped.attending.length} {t('attendees.going', 'going')}</span>
+          <span className="text-sm font-medium">{grouped.attending.length} {labels.going.toLowerCase()}</span>
         </div>
         {grouped.maybe.length > 0 && (
           <div className="flex items-center gap-1.5">
             <HelpCircle className="h-4 w-4 text-warning" />
-            <span className="text-sm text-muted-foreground">{grouped.maybe.length} {t('attendees.maybe', 'maybe')}</span>
+            <span className="text-sm text-muted-foreground">{grouped.maybe.length} {labels.maybe.toLowerCase()}</span>
           </div>
         )}
         {grouped.not_attending.length > 0 && (
@@ -166,7 +181,6 @@ export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps
         )}
       </div>
 
-      {/* Avatar Stack with Names */}
       {previewAttendees.length > 0 && (
         <div className="flex items-center gap-3">
           <div className="flex -space-x-2">
@@ -186,12 +200,11 @@ export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps
           </div>
           <span className="text-sm text-muted-foreground">
             {previewNames.join(', ')}
-            {othersCount > 0 && ` ${t('attendees.andOthers', 'and {{count}} others', { count: othersCount })}`}
+            {othersCount > 0 && ` ${t('attendees.andOthers', { count: othersCount })}`}
           </span>
         </div>
       )}
 
-      {/* Expandable Details */}
       {totalResponses > 0 && (
         <>
           <Button 
@@ -202,17 +215,17 @@ export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps
           >
             <span className="text-sm">
               {showAll 
-                ? t('attendees.hideDetails', 'Hide details') 
-                : t('attendees.seeAll', 'See all {{count}} responses', { count: totalResponses })}
+                ? t('attendees.hideDetails') 
+                : t('attendees.seeAll', { count: totalResponses })}
             </span>
             {showAll ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>
 
           {showAll && (
             <div className="space-y-3 pt-2 border-t">
-              <StatusSection status="attending" attendees={grouped.attending} currentUserId={currentUserId} />
-              <StatusSection status="maybe" attendees={grouped.maybe} currentUserId={currentUserId} />
-              <StatusSection status="not_attending" attendees={grouped.not_attending} currentUserId={currentUserId} />
+              <StatusSection status="attending" attendees={grouped.attending} currentUserId={currentUserId} labels={labels} />
+              <StatusSection status="maybe" attendees={grouped.maybe} currentUserId={currentUserId} labels={labels} />
+              <StatusSection status="not_attending" attendees={grouped.not_attending} currentUserId={currentUserId} labels={labels} />
             </div>
           )}
         </>

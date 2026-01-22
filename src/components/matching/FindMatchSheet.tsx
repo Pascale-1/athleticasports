@@ -21,13 +21,8 @@ interface FindMatchSheetProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const SKILL_LABELS = {
-  en: ["Beginner", "Novice", "Intermediate", "Advanced", "Expert"],
-  fr: ["Débutant", "Novice", "Intermédiaire", "Avancé", "Expert"],
-};
-
 export const FindMatchSheet = ({ open, onOpenChange }: FindMatchSheetProps) => {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation('matching');
   const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
   const { availability, createAvailability, cancelAvailability, loading: availabilityLoading } = usePlayerAvailability();
   const [loading, setLoading] = useState(false);
@@ -36,7 +31,6 @@ export const FindMatchSheet = ({ open, onOpenChange }: FindMatchSheetProps) => {
   const featuredSports = getFeaturedSports();
   const regularSports = getRegularSports();
   
-  // Form state
   const [sport, setSport] = useState("");
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: new Date(),
@@ -99,7 +93,6 @@ export const FindMatchSheet = ({ open, onOpenChange }: FindMatchSheetProps) => {
     }
   };
 
-  // If user has active availability, show status instead
   if (availability && !availabilityLoading) {
     const sportData = getSportById(availability.sport);
     return (
@@ -108,12 +101,10 @@ export const FindMatchSheet = ({ open, onOpenChange }: FindMatchSheetProps) => {
           <SheetHeader className="mb-6">
             <SheetTitle className="flex items-center gap-2">
               <Search className="h-5 w-5 text-primary" />
-              {lang === 'fr' ? 'Vous recherchez des matchs' : "You're Looking for Matches"}
+              {t('availability.lookingTitle')}
             </SheetTitle>
             <SheetDescription>
-              {lang === 'fr' 
-                ? 'Nous vous notifierons quand nous trouverons un match adapté.'
-                : "We'll notify you when we find a match that fits your availability."}
+              {t('availability.lookingDesc')}
             </SheetDescription>
           </SheetHeader>
 
@@ -124,7 +115,7 @@ export const FindMatchSheet = ({ open, onOpenChange }: FindMatchSheetProps) => {
                   {sportData ? `${sportData.emoji} ${sportData.label[lang]}` : availability.sport}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  {lang === 'fr' ? "Jusqu'au" : 'Until'} {format(new Date(availability.available_until), "d MMM")}
+                  {t('availability.activeUntil')} {format(new Date(availability.available_until), "d MMM")}
                 </span>
               </div>
               {availability.location && (
@@ -141,10 +132,8 @@ export const FindMatchSheet = ({ open, onOpenChange }: FindMatchSheetProps) => {
               onClick={handleCancel}
               disabled={loading}
             >
-              {loading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
-              {lang === 'fr' ? 'Annuler ma disponibilité' : 'Cancel Availability'}
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {t('availability.cancel')}
             </Button>
           </div>
         </SheetContent>
@@ -158,26 +147,23 @@ export const FindMatchSheet = ({ open, onOpenChange }: FindMatchSheetProps) => {
         <SheetHeader className="mb-6">
           <SheetTitle className="flex items-center gap-2">
             <Search className="h-5 w-5 text-primary" />
-            {lang === 'fr' ? 'Trouver un match' : 'Find a Match'}
+            {t('findGame.title')}
           </SheetTitle>
           <SheetDescription>
-            {lang === 'fr' 
-              ? 'Indiquez vos disponibilités et nous trouverons des matchs pour vous.'
-              : "Tell us when and where you're available, and we'll find matches for you."}
+            {t('findGame.subtitle')}
           </SheetDescription>
         </SheetHeader>
 
         <div className="space-y-6">
-          {/* Sport */}
           <div className="space-y-2">
-            <Label>{lang === 'fr' ? 'Quel sport voulez-vous jouer ?' : 'What sport do you want to play?'} *</Label>
+            <Label>{t('findGame.sportQuestion')} *</Label>
             <Select value={sport} onValueChange={setSport}>
               <SelectTrigger>
-                <SelectValue placeholder={lang === 'fr' ? 'Sélectionner un sport' : 'Select a sport'} />
+                <SelectValue placeholder={t('findGame.sportPlaceholder')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>{lang === 'fr' ? '⭐ Populaires' : '⭐ Popular'}</SelectLabel>
+                  <SelectLabel>{t('sports.popular')}</SelectLabel>
                   {featuredSports.map((s) => (
                     <SelectItem key={s.id} value={s.id}>
                       {s.emoji} {s.label[lang]}
@@ -185,7 +171,7 @@ export const FindMatchSheet = ({ open, onOpenChange }: FindMatchSheetProps) => {
                   ))}
                 </SelectGroup>
                 <SelectGroup>
-                  <SelectLabel>{lang === 'fr' ? 'Autres sports' : 'Other sports'}</SelectLabel>
+                  <SelectLabel>{t('sports.other')}</SelectLabel>
                   {regularSports.map((s) => (
                     <SelectItem key={s.id} value={s.id}>
                       {s.emoji} {s.label[lang]}
@@ -196,17 +182,11 @@ export const FindMatchSheet = ({ open, onOpenChange }: FindMatchSheetProps) => {
             </Select>
           </div>
 
-          {/* Date Range - From */}
           <div className="space-y-2">
-            <Label>{lang === 'fr' ? 'Disponible à partir du' : 'Available from'}</Label>
+            <Label>{t('findGame.availableFrom')}</Label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal"
-                  )}
-                >
+                <Button variant="outline" className={cn("w-full justify-start text-left font-normal")}>
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {format(dateRange.from, "PPP")}
                 </Button>
@@ -223,17 +203,11 @@ export const FindMatchSheet = ({ open, onOpenChange }: FindMatchSheetProps) => {
             </Popover>
           </div>
 
-          {/* Date Range - To */}
           <div className="space-y-2">
-            <Label>{lang === 'fr' ? "Disponible jusqu'au" : 'Available until'}</Label>
+            <Label>{t('findGame.availableUntil')}</Label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal"
-                  )}
-                >
+                <Button variant="outline" className={cn("w-full justify-start text-left font-normal")}>
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {format(dateRange.to, "PPP")}
                 </Button>
@@ -250,20 +224,18 @@ export const FindMatchSheet = ({ open, onOpenChange }: FindMatchSheetProps) => {
             </Popover>
           </div>
 
-          {/* Location - District Selector */}
           <DistrictSelector
             value={location}
             onChange={setLocation}
-            label={lang === 'fr' ? 'Où pouvez-vous jouer ?' : 'Where can you play?'}
-            venueLabel={lang === 'fr' ? 'Lieu précis (optionnel)' : 'Specific venue (optional)'}
+            label={t('findGame.locationQuestion')}
+            venueLabel={t('findGame.venueOptional')}
           />
 
-          {/* Skill Level */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label>{lang === 'fr' ? 'Votre niveau' : 'Your skill level'}</Label>
+              <Label>{t('findGame.yourLevel')}</Label>
               <span className="text-sm font-medium text-primary">
-                {SKILL_LABELS[lang][skillLevel[0] - 1]}
+                {t(`skillLevels.${skillLevel[0]}`)}
               </span>
             </div>
             <Slider
@@ -275,12 +247,11 @@ export const FindMatchSheet = ({ open, onOpenChange }: FindMatchSheetProps) => {
               className="w-full"
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{SKILL_LABELS[lang][0]}</span>
-              <span>{SKILL_LABELS[lang][4]}</span>
+              <span>{t('skillLevels.1')}</span>
+              <span>{t('skillLevels.5')}</span>
             </div>
           </div>
 
-          {/* Submit Button */}
           <Button
             className="w-full"
             size="lg"
@@ -290,20 +261,18 @@ export const FindMatchSheet = ({ open, onOpenChange }: FindMatchSheetProps) => {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {lang === 'fr' ? 'Configuration...' : 'Setting up...'}
+                {t('findGame.settingUp')}
               </>
             ) : (
               <>
                 <Search className="mr-2 h-4 w-4" />
-                {lang === 'fr' ? 'Me rendre disponible' : 'Make Me Available'}
+                {t('findGame.makeAvailable')}
               </>
             )}
           </Button>
 
           <p className="text-xs text-center text-muted-foreground">
-            {lang === 'fr' 
-              ? 'Votre disponibilité expirera dans 7 jours. Vous pouvez annuler à tout moment.'
-              : 'Your availability will expire in 7 days. You can cancel anytime.'}
+            {t('findGame.expiryNote')}
           </p>
         </div>
       </SheetContent>

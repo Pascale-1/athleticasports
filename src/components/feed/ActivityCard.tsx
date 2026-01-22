@@ -2,8 +2,8 @@ import { memo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Heart, MessageCircle, Trophy, Clock, Users, UserPlus, Calendar, Check, Activity as ActivityIcon } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface ActivityCardProps {
   username: string;
@@ -32,6 +32,7 @@ export const ActivityCard = memo(({
   imageUrl,
   actionIcon = 'activity',
 }: ActivityCardProps) => {
+  const { t } = useTranslation('common');
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
 
@@ -60,6 +61,19 @@ export const ActivityCard = memo(({
     }
   };
 
+  // Translate activity type
+  const getTranslatedActivityType = (type: string) => {
+    const typeMap: Record<string, string> = {
+      'Created Team': t('activity.createdTeam'),
+      'Joined Team': t('activity.joinedTeam'),
+      'Created Event': t('activity.createdEvent'),
+      'RSVP': t('activity.rsvp'),
+      'Attending': t('activity.attending'),
+      'Activity': t('activity.title'),
+    };
+    return typeMap[type] || type;
+  };
+
   return (
     <Card className="overflow-hidden hover-lift transition-all duration-200 active:scale-[0.98] w-full max-w-full min-w-0">
       {/* Header */}
@@ -76,7 +90,7 @@ export const ActivityCard = memo(({
           </p>
           <div className="flex items-center gap-2 text-caption text-muted-foreground flex-wrap">
             {getActionIcon()}
-            <span>{activityType}</span>
+            <span>{getTranslatedActivityType(activityType)}</span>
             <span>•</span>
             <Clock className="h-3 w-3" />
             <span>{timeAgo}</span>

@@ -7,6 +7,7 @@ import { Event } from "@/lib/events";
 import { useEventAttendance } from "@/hooks/useEventAttendance";
 import { formatEventDate } from "@/lib/events";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface EventsPreviewProps {
   events: Event[];
@@ -15,6 +16,7 @@ interface EventsPreviewProps {
 }
 
 export const EventsPreview = ({ events, teamId, canRSVP }: EventsPreviewProps) => {
+  const { t } = useTranslation(['events', 'common']);
   const upcomingEvents = events.slice(0, 3);
 
   if (events.length === 0) {
@@ -22,11 +24,11 @@ export const EventsPreview = ({ events, teamId, canRSVP }: EventsPreviewProps) =
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-body-large font-semibold">Upcoming Events</h3>
+            <h3 className="text-body-large font-semibold">{t('events:preview.upcomingEvents')}</h3>
           </div>
           <div className="text-center py-6">
             <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-            <p className="text-caption text-muted-foreground">No upcoming events</p>
+            <p className="text-caption text-muted-foreground">{t('events:preview.noUpcoming')}</p>
           </div>
         </CardContent>
       </Card>
@@ -38,11 +40,11 @@ export const EventsPreview = ({ events, teamId, canRSVP }: EventsPreviewProps) =
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-body-large font-semibold">
-            Upcoming Events ({events.length})
+            {t('events:preview.upcomingEvents')} ({events.length})
           </h3>
           <Link to={`/teams/${teamId}/events`}>
             <Button variant="ghost" size="sm" className="text-primary">
-              View all <ArrowRight className="h-4 w-4 ml-1" />
+              {t('events:preview.viewAll')} <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           </Link>
         </div>
@@ -62,6 +64,7 @@ export const EventsPreview = ({ events, teamId, canRSVP }: EventsPreviewProps) =
 };
 
 const EventPreviewCard = ({ event, canRSVP }: { event: Event; canRSVP: boolean }) => {
+  const { t } = useTranslation('events');
   const { stats, userStatus, updateAttendance } = useEventAttendance(event.id);
 
   const getEventTypeColor = (type: string) => {
@@ -82,8 +85,8 @@ const EventPreviewCard = ({ event, canRSVP }: { event: Event; canRSVP: boolean }
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <Badge variant="outline" className={cn("text-[10px] capitalize", getEventTypeColor(event.type))}>
-              {event.type}
+            <Badge variant="outline" className={cn("text-[10px]", getEventTypeColor(event.type))}>
+              {t(`types.${event.type}`)}
             </Badge>
             {event.is_recurring && (
               <Flame className="h-3 w-3 text-orange-500" />
@@ -110,7 +113,7 @@ const EventPreviewCard = ({ event, canRSVP }: { event: Event; canRSVP: boolean }
         )}
         <div className="flex items-center gap-1 ml-auto">
           <Users className="h-3 w-3" />
-          <span>{stats.attending} going</span>
+          <span>{t('rsvp.count', { count: stats.attending })}</span>
         </div>
       </div>
 
@@ -122,7 +125,7 @@ const EventPreviewCard = ({ event, canRSVP }: { event: Event; canRSVP: boolean }
             className="flex-1 h-7 text-[11px]"
             onClick={() => updateAttendance('attending')}
           >
-            Going
+            {t('rsvp.going')}
           </Button>
           <Button
             variant={userStatus === 'maybe' ? 'default' : 'outline'}
@@ -130,7 +133,7 @@ const EventPreviewCard = ({ event, canRSVP }: { event: Event; canRSVP: boolean }
             className="flex-1 h-7 text-[11px]"
             onClick={() => updateAttendance('maybe')}
           >
-            Maybe
+            {t('rsvp.maybe')}
           </Button>
           <Button
             variant={userStatus === 'not_attending' ? 'default' : 'outline'}
@@ -138,7 +141,7 @@ const EventPreviewCard = ({ event, canRSVP }: { event: Event; canRSVP: boolean }
             className="flex-1 h-7 text-[11px]"
             onClick={() => updateAttendance('not_attending')}
           >
-            Can't go
+            {t('rsvp.notGoing')}
           </Button>
         </div>
       )}

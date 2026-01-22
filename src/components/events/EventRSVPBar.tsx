@@ -2,6 +2,7 @@ import { CheckCircle2, HelpCircle, XCircle, Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { isPast } from "date-fns";
+import { useTranslation } from "react-i18next";
 
 interface EventRSVPBarProps {
   userStatus: string | null;
@@ -26,6 +27,8 @@ export const EventRSVPBar = ({
   loading = false,
   rsvpDeadline,
 }: EventRSVPBarProps) => {
+  const { t } = useTranslation('events');
+  
   const handleClick = (status: 'attending' | 'maybe' | 'not_attending') => {
     if (userStatus === status) {
       onRemoveAttendance();
@@ -34,7 +37,6 @@ export const EventRSVPBar = ({
     }
   };
 
-  // Check if RSVP deadline has passed
   const isDeadlinePassed = rsvpDeadline ? isPast(new Date(rsvpDeadline)) : false;
 
   if (loading) {
@@ -47,34 +49,32 @@ export const EventRSVPBar = ({
     );
   }
 
-  // Committed users can't change their status
   if (isCommitted) {
     return (
       <div className="fixed bottom-16 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t p-3 lg:bottom-0 lg:relative lg:border lg:rounded-lg lg:bg-card">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-center gap-2 h-11 bg-amber-500/10 rounded-lg border border-amber-500/20">
             <CheckCircle2 className="h-4 w-4 text-amber-600" />
-            <span className="text-sm font-medium text-amber-600">Committed to this match</span>
+            <span className="text-sm font-medium text-amber-600">{t('rsvp.committedToMatch')}</span>
           </div>
           <p className="text-xs text-center text-muted-foreground mt-2">
-            {stats.attending} going · {stats.maybe} maybe
+            {t('rsvp.stats', { going: stats.attending, maybe: stats.maybe })}
           </p>
         </div>
       </div>
     );
   }
 
-  // RSVP deadline passed - show locked state
   if (isDeadlinePassed && !userStatus) {
     return (
       <div className="fixed bottom-16 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t p-3 lg:bottom-0 lg:relative lg:border lg:rounded-lg lg:bg-card">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-center gap-2 h-11 bg-muted rounded-lg border">
             <Lock className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">RSVPs closed</span>
+            <span className="text-sm font-medium text-muted-foreground">{t('rsvp.closed')}</span>
           </div>
           <p className="text-xs text-center text-muted-foreground mt-2">
-            {stats.attending} going · {stats.maybe} maybe
+            {t('rsvp.stats', { going: stats.attending, maybe: stats.maybe })}
           </p>
         </div>
       </div>
@@ -84,7 +84,6 @@ export const EventRSVPBar = ({
   return (
     <div className="fixed bottom-16 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t p-3 lg:bottom-0 lg:relative lg:border lg:rounded-lg lg:bg-card">
       <div className="max-w-lg mx-auto space-y-2">
-        {/* Toggle buttons */}
         <div className="flex gap-1 bg-muted/50 rounded-lg p-1">
           <Button
             variant="ghost"
@@ -96,7 +95,7 @@ export const EventRSVPBar = ({
             onClick={() => handleClick('attending')}
           >
             <CheckCircle2 className="h-4 w-4" />
-            <span className="hidden xs:inline">Going</span>
+            <span className="hidden xs:inline">{t('rsvp.going')}</span>
           </Button>
           <Button
             variant="ghost"
@@ -108,7 +107,7 @@ export const EventRSVPBar = ({
             onClick={() => handleClick('maybe')}
           >
             <HelpCircle className="h-4 w-4" />
-            <span className="hidden xs:inline">Maybe</span>
+            <span className="hidden xs:inline">{t('rsvp.maybe')}</span>
           </Button>
           <Button
             variant="ghost"
@@ -120,13 +119,12 @@ export const EventRSVPBar = ({
             onClick={() => handleClick('not_attending')}
           >
             <XCircle className="h-4 w-4" />
-            <span className="hidden xs:inline">Can't Go</span>
+            <span className="hidden xs:inline">{t('rsvp.notGoing')}</span>
           </Button>
         </div>
         
-        {/* Attendance summary */}
         <p className="text-xs text-center text-muted-foreground">
-          {stats.attending} going · {stats.maybe} maybe
+          {t('rsvp.stats', { going: stats.attending, maybe: stats.maybe })}
         </p>
       </div>
     </div>
