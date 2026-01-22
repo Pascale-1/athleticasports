@@ -270,6 +270,18 @@
     "saved": "Modèle sauvegardé",
     "deleted": "Modèle supprimé"
   },
+  "joinRequests": {
+    "title": "Demandes",
+    "pending": "En attente",
+    "approve": "Accepter",
+    "reject": "Refuser",
+    "approved": "Acceptée",
+    "rejected": "Refusée",
+    "alreadyRequested": "En attente",
+    "requestSent": "Demande envoyée !",
+    "requestSentDesc": "L'organisateur examinera votre demande",
+    "noRequests": "Aucune demande"
+  },
   "conflicts": {
     "warning": "Chevauche {{count}} événement",
     "warning_other": "Chevauche {{count}} événements",
