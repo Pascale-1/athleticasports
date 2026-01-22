@@ -6,7 +6,7 @@ import { useRealtimeSubscription } from "@/lib/realtimeManager";
 export interface Notification {
   id: string;
   user_id: string;
-  type: "team_invitation" | "new_follower" | "team_announcement" | "training_session";
+  type: "team_invitation" | "new_follower" | "team_announcement" | "training_session" | "event_join_request";
   title: string;
   message: string;
   link: string | null;

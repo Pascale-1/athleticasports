@@ -270,6 +270,18 @@
     "saved": "Template saved",
     "deleted": "Template deleted"
   },
+  "joinRequests": {
+    "title": "Join Requests",
+    "pending": "Pending",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approved": "Approved",
+    "rejected": "Declined",
+    "alreadyRequested": "Request Pending",
+    "requestSent": "Request sent!",
+    "requestSentDesc": "The organizer will review your request",
+    "noRequests": "No pending requests"
+  },
   "conflicts": {
     "warning": "This overlaps with {{count}} event",
     "warning_other": "This overlaps with {{count}} events",

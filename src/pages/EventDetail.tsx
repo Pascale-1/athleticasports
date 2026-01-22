@@ -11,6 +11,7 @@ import { EditEventDialog } from "@/components/events/EditEventDialog";
 import { AddToCalendarButton } from "@/components/events/AddToCalendarButton";
 import { LookingForPlayersBanner } from "@/components/events/LookingForPlayersBanner";
 import { RSVPDeadlineDisplay } from "@/components/events/RSVPDeadlineDisplay";
+import { EventJoinRequests } from "@/components/events/EventJoinRequests";
 import { 
   ArrowLeft, 
   Clock, 
@@ -32,6 +33,7 @@ import {
 } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { useEventAttendance } from "@/hooks/useEventAttendance";
+import { useEventJoinRequests } from "@/hooks/useEventJoinRequests";
 import { useExternalLink } from "@/hooks/useExternalLink";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
@@ -77,6 +79,14 @@ const EventDetail = () => {
   const { events, loading, deleteEvent, updateEvent } = useEvents();
   const event = events.find(e => e.id === eventId);
   const { stats, attendees, userStatus, isCommitted, updateAttendance, removeAttendance, loading: attendanceLoading } = useEventAttendance(eventId || '');
+  const { 
+    pendingRequests, 
+    userRequest, 
+    sendRequest, 
+    approveRequest, 
+    rejectRequest, 
+    loading: joinRequestsLoading 
+  } = useEventJoinRequests(eventId || '');
 
   useEffect(() => {
     const getUser = async () => {
@@ -268,12 +278,19 @@ const EventDetail = () => {
             maxParticipants={event.max_participants || undefined}
             allowPublicJoin={event.allow_public_join}
             isTeamMember={isTeamMember}
-            onRequestJoin={() => {
-              toast({
-                title: t('toast.requestSent'),
-                description: t('lookingForPlayers.requestSent', 'The organizer will be notified of your interest.'),
-              });
-            }}
+            requestStatus={userRequest?.status}
+            isLoading={joinRequestsLoading}
+            onRequestJoin={() => sendRequest()}
+          />
+        )}
+
+        {/* Join Requests for Organizers */}
+        {canEdit && pendingRequests.length > 0 && (
+          <EventJoinRequests
+            requests={pendingRequests}
+            onApprove={approveRequest}
+            onReject={rejectRequest}
+            isLoading={joinRequestsLoading}
           />
         )}
 
