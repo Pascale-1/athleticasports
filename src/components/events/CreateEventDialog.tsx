@@ -47,7 +47,7 @@ export const CreateEventDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md w-[calc(100%-2rem)] mx-auto max-h-[90vh] overflow-y-auto overflow-x-hidden">
+      <DialogContent className="max-w-md w-[calc(100%-2rem)] mx-auto max-h-[85vh] overflow-y-auto overflow-x-hidden pb-6">
         <DialogHeader>
           <DialogTitle>{t('create.title')}</DialogTitle>
         </DialogHeader>
