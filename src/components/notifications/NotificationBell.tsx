@@ -2,12 +2,11 @@ import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { NotificationPanel } from "./NotificationPanel";
-import { useNotifications } from "@/hooks/useNotifications";
+import { useNotificationContext } from "@/contexts/NotificationContext";
 import { Badge } from "@/components/ui/badge";
 
 export const NotificationBell = () => {
-  const { unreadCount } = useNotifications();
-
+  const { unreadCount } = useNotificationContext();
   return (
     <Popover>
       <PopoverTrigger asChild>

@@ -114,6 +114,7 @@ export const CreateMatchSheet = ({ open, onOpenChange, onSuccess }: CreateMatchS
           title,
           description: description || null,
           type: "match",
+          sport: sport || null,
           start_time: startDateTime.toISOString(),
           end_time: endDateTime.toISOString(),
           location: locationString,

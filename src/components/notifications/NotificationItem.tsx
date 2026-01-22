@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
-import { UserPlus, Megaphone, Calendar, UserCheck, CheckCircle, XCircle, Bell } from "lucide-react";
-import { useNotifications, type Notification } from "@/hooks/useNotifications";
+import { UserPlus, Megaphone, Calendar, UserCheck, CheckCircle, Swords, Users, Bell } from "lucide-react";
+import { useNotificationContext, type Notification } from "@/contexts/NotificationContext";
 import { cn } from "@/lib/utils";
 
 interface NotificationItemProps {
@@ -15,6 +15,8 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   training_session: Calendar,
   event_join_request: UserCheck,
   event_join_response: CheckCircle,
+  match_proposal: Swords,
+  player_available: Users,
 };
 
 const colorMap: Record<string, string> = {
@@ -24,6 +26,8 @@ const colorMap: Record<string, string> = {
   training_session: "text-purple-500",
   event_join_request: "text-teal-500",
   event_join_response: "text-emerald-500",
+  match_proposal: "text-amber-500",
+  player_available: "text-indigo-500",
 };
 
 // Fallback icon for unknown notification types
@@ -31,7 +35,7 @@ const FallbackIcon = Bell;
 
 export const NotificationItem = ({ notification }: NotificationItemProps) => {
   const navigate = useNavigate();
-  const { markAsRead } = useNotifications();
+  const { markAsRead } = useNotificationContext();
   const Icon = iconMap[notification.type] || FallbackIcon;
   const iconColor = colorMap[notification.type] || "text-muted-foreground";
 

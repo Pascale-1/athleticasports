@@ -344,6 +344,7 @@ export type Database = {
           players_needed: number | null
           recurrence_rule: string | null
           rsvp_deadline: string | null
+          sport: string | null
           start_time: string
           team_id: string | null
           title: string
@@ -377,6 +378,7 @@ export type Database = {
           players_needed?: number | null
           recurrence_rule?: string | null
           rsvp_deadline?: string | null
+          sport?: string | null
           start_time: string
           team_id?: string | null
           title: string
@@ -410,6 +412,7 @@ export type Database = {
           players_needed?: number | null
           recurrence_rule?: string | null
           rsvp_deadline?: string | null
+          sport?: string | null
           start_time?: string
           team_id?: string | null
           title?: string

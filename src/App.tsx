@@ -9,6 +9,7 @@ import { AppLayout } from "./components/AppLayout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { InstallPrompt } from "./components/InstallPrompt";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { NotificationProvider } from "./contexts/NotificationContext";
 import { Loader2 } from "lucide-react";
 
 // Lazy load all route components for code splitting
@@ -80,11 +81,12 @@ const App = () => {
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <InstallPrompt />
-        <BrowserRouter>
-          <Suspense fallback={<PageLoader />}>
+        <NotificationProvider>
+          <Toaster />
+          <Sonner />
+          <InstallPrompt />
+          <BrowserRouter>
+            <Suspense fallback={<PageLoader />}>
             <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route path="/onboarding" element={
@@ -192,8 +194,9 @@ const App = () => {
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
             </Routes>
-          </Suspense>
-        </BrowserRouter>
+            </Suspense>
+          </BrowserRouter>
+        </NotificationProvider>
       </TooltipProvider>
     </QueryClientProvider>
   </ErrorBoundary>
