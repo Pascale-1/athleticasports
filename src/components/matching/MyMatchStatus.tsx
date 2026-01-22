@@ -64,11 +64,13 @@ export const MyMatchStatus = ({ onFindMatchClick }: MyMatchStatusProps) => {
         {/* Pending Proposals */}
         {proposals.length > 0 && (
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Bell className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">
-                {proposals.length} match{proposals.length > 1 ? 'es' : ''} found!
-              </span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Bell className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">
+                  {proposals.length} match{proposals.length > 1 ? 'es' : ''} found!
+                </span>
+              </div>
             </div>
             
             {proposals.map((proposal) => (

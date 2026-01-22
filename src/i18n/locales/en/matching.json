@@ -41,7 +41,13 @@
     "expired": "Expired",
     "sentAt": "Sent",
     "wantsToPlay": "{{name}} wants to play with you",
-    "youProposed": "You proposed a game"
+    "youProposed": "You proposed a game",
+    "matchedWithGame": "You were matched with this game!",
+    "respondBelow": "Accept or decline to respond",
+    "commitTitle": "Confirm Your Commitment",
+    "commitDescription": "When you accept, you're committing to attend this game. The organizer is counting on you!",
+    "commitCheckbox": "I understand and commit to attending this game",
+    "confirmAccept": "Confirm & Join"
   },
   "availability": {
     "title": "My Availability",
