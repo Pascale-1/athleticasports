@@ -84,6 +84,16 @@
     "selectEventType": "Which event type are you creating?",
     "preview": "Preview",
     "cancel": "Cancel",
+    "repeat": "Repeat",
+    "recurrence": {
+      "none": "None",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "until": "Repeat until",
+      "noEndDate": "No end date"
+    },
     "training": {
       "title": "Training Title",
       "titlePlaceholder": "e.g., Tuesday Practice Session",
