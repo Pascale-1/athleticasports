@@ -286,7 +286,7 @@ const EventDetail = () => {
         <Card className="overflow-hidden">
           <CardContent className="p-4 space-y-4">
             <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">
-              {t('details.whereAndWhen', 'When & Where')}
+              {t('details.whereAndWhen')}
             </h3>
             
             <div className="flex items-center gap-3">
@@ -324,7 +324,7 @@ const EventDetail = () => {
                         {event.location}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {t('details.tapToOpenMaps', 'Tap to open in Maps')}
+                        {t('details.tapToOpenMaps')}
                       </p>
                     </div>
                     <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
@@ -336,7 +336,7 @@ const EventDetail = () => {
                     <>
                       <DropdownMenuItem onClick={() => openExternalUrl(event.location_url!)}>
                         <Navigation className="h-4 w-4 mr-2" />
-                        {t('details.openVenueLink', 'Open Venue Link')}
+                        {t('details.openVenueLink')}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                     </>
@@ -363,10 +363,10 @@ const EventDetail = () => {
                 </div>
                 <div>
                   <p className="text-sm font-medium">
-                    {stats.attending} / {event.max_participants} {t('details.participants', 'spots filled')}
+                    {stats.attending} / {event.max_participants} {t('details.participants')}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {event.max_participants - stats.attending} {t('details.maxParticipants', 'available spots')}
+                    {event.max_participants - stats.attending} {t('details.maxParticipants')}
                   </p>
                 </div>
               </div>
@@ -379,7 +379,7 @@ const EventDetail = () => {
           <Card>
             <CardContent className="p-4 space-y-4">
               <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">
-                {t('details.matchInfo', 'Match Info')}
+                {t('details.matchInfo')}
               </h3>
               
               {event.opponent_name && (
@@ -418,7 +418,7 @@ const EventDetail = () => {
           <CardContent className="p-4">
             <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide mb-4">
               <Users2 className="h-3.5 w-3.5 inline mr-1.5" />
-              {t('details.whoComing', "Who's Coming")}
+              {t('details.whoComing')}
             </h3>
             <EventAttendees attendees={attendees} currentUserId={currentUserId} />
           </CardContent>
@@ -429,7 +429,7 @@ const EventDetail = () => {
           <Card>
             <CardContent className="p-4">
               <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide mb-3">
-                {t('details.about', 'About')}
+                {t('details.about')}
               </h3>
               <p className={cn(
                 "text-sm text-muted-foreground whitespace-pre-wrap",
@@ -444,10 +444,10 @@ const EventDetail = () => {
                   className="h-8 px-0 text-primary mt-1"
                   onClick={() => setDescriptionExpanded(!descriptionExpanded)}
                 >
-                  {descriptionExpanded ? (
-                    <>Show less <ChevronUp className="h-4 w-4 ml-1" /></>
+                {descriptionExpanded ? (
+                    <>{t('details.showLess')} <ChevronUp className="h-4 w-4 ml-1" /></>
                   ) : (
-                    <>Read more <ChevronDown className="h-4 w-4 ml-1" /></>
+                    <>{t('details.readMore')} <ChevronDown className="h-4 w-4 ml-1" /></>
                   )}
                 </Button>
               )}

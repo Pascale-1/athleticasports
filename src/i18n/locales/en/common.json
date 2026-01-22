@@ -111,14 +111,15 @@
     "recentActivity": "Recent Activity",
     "noActivity": "No recent activity",
     "noActivityDesc": "Your activity feed will appear here",
-    "createdTeam": "Created a team",
-    "joinedTeam": "Joined a team",
-    "createdEvent": "Created an event",
-    "rsvp": "RSVP'd to an event",
-    "attending": "Attending an event",
-    "loggedActivity": "Logged an activity",
+    "createdTeam": "Created Team",
+    "joinedTeam": "Joined Team",
+    "createdEvent": "Created Event",
+    "rsvp": "RSVP",
+    "attending": "Attending",
+    "loggedActivity": "Logged Activity",
     "created": "Created \"{{name}}\"",
-    "joined": "Joined \"{{name}}\""
+    "joined": "Joined \"{{name}}\"",
+    "attendingEvent": "Attending \"{{name}}\""
   },
   "invitations": {
     "pending": "Pending Invitations",

@@ -40,11 +40,19 @@
   "details": {
     "when": "Quand",
     "where": "Où",
-    "participants": "Participants",
-    "maxParticipants": "Places disponibles",
+    "participants": "places occupées",
+    "maxParticipants": "places disponibles",
     "description": "Description",
     "organizer": "Organisateur",
-    "team": "Équipe"
+    "team": "Équipe",
+    "whoComing": "Qui vient ?",
+    "whereAndWhen": "Quand et où",
+    "matchInfo": "Infos du match",
+    "tapToOpenMaps": "Ouvrir dans Plans",
+    "openVenueLink": "Ouvrir le lien du lieu",
+    "about": "À propos",
+    "showLess": "Voir moins",
+    "readMore": "Lire la suite"
   },
   "rsvp": {
     "going": "J'y vais",
@@ -187,8 +195,19 @@
   },
   "invite": {
     "title": "Inviter des participants",
+    "shareEvent": "Partager l'événement",
     "shareLink": "Partager le lien",
-    "linkCopied": "Lien copié !"
+    "linkCopied": "Lien copié dans le presse-papier",
+    "paused": "En pause",
+    "allowJoining": "Autoriser les inscriptions",
+    "anyoneCanRsvp": "Toute personne avec le lien peut s'inscrire",
+    "regenerateCode": "Régénérer le code",
+    "codeRegenerated": "Code régénéré !",
+    "oldLinksInvalid": "Les anciens liens ne fonctionneront plus",
+    "publicJoinEnabled": "Inscriptions publiques activées",
+    "publicJoinDisabled": "Inscriptions publiques désactivées",
+    "sharingPaused": "Le partage est en pause",
+    "joinMessage": "Rejoins-moi pour {{title}} !"
   },
   "edit": {
     "title": "Modifier l'événement",
