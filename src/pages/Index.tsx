@@ -157,7 +157,7 @@ const Index = () => {
     return (
       <PageContainer>
         <div className="flex items-center justify-center py-12">
-          <div className="text-muted-foreground">Loading...</div>
+          <div className="text-muted-foreground">{t('actions.loading')}</div>
         </div>
       </PageContainer>
     );

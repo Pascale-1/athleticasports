@@ -72,7 +72,9 @@
     "pending": "En attente",
     "confirmed": "Confirmé",
     "cancelled": "Annulé",
-    "completed": "Terminé"
+    "completed": "Terminé",
+    "success": "Succès",
+    "error": "Erreur"
   },
   "errors": {
     "generic": "Une erreur s'est produite",
@@ -200,7 +202,7 @@
   "accountDeletion": {
     "dangerZone": "Zone de danger",
     "dangerZoneDesc": "Une fois votre compte supprimé, il n'y a pas de retour en arrière. Soyez certain(e).",
-    "button": "🗑️ Supprimer mon compte Athletica Sports",
+    "button": "Supprimer mon compte",
     "modalTitle": "SUPPRESSION DÉFINITIVE DU COMPTE",
     "warning": "Cette action est IRRÉVERSIBLE.",
     "dataList": {

@@ -113,7 +113,23 @@
     "shareLink": "Invite Link",
     "linkCopied": "Link copied!",
     "allowLinkJoining": "Allow joining via link",
-    "regenerateLink": "Regenerate Link"
+    "regenerateLink": "Regenerate Link",
+    "code": "Invite Code",
+    "shareDescription": "Share this link or code with people you want to invite",
+    "shareWhatsApp": "Share via WhatsApp",
+    "shareSMS": "Share via SMS",
+    "toggleDescription": "Toggle to control who can use this link",
+    "regenerateWarning": "This will invalidate the current link and create a new one",
+    "codeRegenerated": "Code regenerated",
+    "oldLinksInvalid": "Previous invite links are now invalid",
+    "linkJoiningEnabled": "Link joining enabled",
+    "linkJoiningEnabledDesc": "Anyone with the link can now join",
+    "linkJoiningDisabled": "Link joining disabled",
+    "linkJoiningDisabledDesc": "Link joining has been disabled",
+    "regenerateError": "Failed to regenerate code",
+    "updateError": "Failed to update settings",
+    "copied": "Copied!",
+    "copiedToClipboard": "{{label}} copied to clipboard"
   },
   "actions": {
     "leave": "Leave Team",
@@ -164,7 +180,12 @@
     "transferSuccess": "Ownership transferred successfully",
     "transferError": "Failed to transfer ownership",
     "nameError": "Team name doesn't match",
-    "selectOwnerError": "Please select a new owner"
+    "selectOwnerError": "Please select a new owner",
+    "alreadyMember": "Already a member",
+    "alreadyMemberDesc": "You're already part of this team",
+    "joinSuccess": "You've joined {{name}}",
+    "createSuccess": "Team created successfully",
+    "createError": "Failed to create team"
   },
   "quickCreate": {
     "description": "Create your opponent's team to track games and invite members later"

@@ -50,15 +50,15 @@ const TeamCreate = () => {
         sport: formData.sport,
       });
       toast({
-        title: "Success",
-        description: "Team created successfully",
+        title: t('status.success', { ns: 'common' }),
+        description: t('toast.createSuccess'),
       });
       navigate(`/teams/${team.id}`);
     } catch (error: any) {
       console.error("Error creating team:", error);
-      const errorMessage = error?.message || error?.error?.message || "Failed to create team. Please try again.";
+      const errorMessage = error?.message || error?.error?.message || t('toast.createError');
       toast({
-        title: "Error",
+        title: t('status.error', { ns: 'common' }),
         description: errorMessage,
         variant: "destructive",
       });

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +15,7 @@ const AcceptInvitation = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { t } = useTranslation('teams');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [errorDetails, setErrorDetails] = useState<{
@@ -93,13 +95,13 @@ const AcceptInvitation = () => {
       
       if (data.alreadyAccepted) {
         toast({
-          title: "Already a member",
-          description: "You're already part of this team",
+          title: t('toast.alreadyMember'),
+          description: t('toast.alreadyMemberDesc'),
         });
       } else {
         toast({
-          title: "Success!",
-          description: "You've joined the team",
+          title: t('status.success', { ns: 'common' }),
+          description: t('toast.joinSuccess', { name: '' }),
         });
       }
 
@@ -108,11 +110,11 @@ const AcceptInvitation = () => {
       
     } catch (err: any) {
       console.error("[AcceptInvitation] Error accepting invitation:", err);
-      const errorMessage = err.message || "Failed to accept invitation";
+      const errorMessage = err.message || t('toast.leaveError');
       setError(errorMessage);
       toast({
         variant: "destructive",
-        title: "Error",
+        title: t('status.error', { ns: 'common' }),
         description: errorMessage,
       });
     } finally {
