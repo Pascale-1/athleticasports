@@ -1005,6 +1005,39 @@ export type Database = {
           },
         ]
       }
+      user_feedback_view: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string | null
+          message: string | null
+          page_url: string | null
+          status: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string | null
+          message?: string | null
+          page_url?: string | null
+          status?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string | null
+          message?: string | null
+          page_url?: string | null
+          status?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       can_manage_team: {
