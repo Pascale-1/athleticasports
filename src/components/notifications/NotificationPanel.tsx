@@ -1,14 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { useNotifications } from "@/hooks/useNotifications";
+import { useNotificationContext } from "@/contexts/NotificationContext";
 import { NotificationItem } from "./NotificationItem";
 import { EmptyNotifications } from "./EmptyNotifications";
 import { Loader2 } from "lucide-react";
 
 export const NotificationPanel = () => {
-  const { notifications, loading, markAllAsRead } = useNotifications();
-
+  const { notifications, loading, markAllAsRead } = useNotificationContext();
   return (
     <div className="flex flex-col">
       <div className="flex items-center justify-between p-4 pb-3">
