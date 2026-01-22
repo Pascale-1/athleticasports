@@ -149,6 +149,11 @@
     "title": "Rien à afficher",
     "description": "Aucun élément trouvé"
   },
+  "settings": {
+    "walkthrough": "Visite guidée",
+    "walkthroughDescription": "Découvre les principales fonctionnalités de l'app",
+    "restartWalkthrough": "Relancer la visite"
+  },
   "onboarding": {
     "welcome": {
       "title": "Bienvenue sur Athletica !",

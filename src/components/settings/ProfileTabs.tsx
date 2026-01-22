@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trophy, Users, User, Mail, Calendar, Swords, Globe, MessageSquare } from "lucide-react";
+import { Trophy, Users, User, Mail, Calendar, Swords, Globe, MessageSquare, PlayCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { FeedbackForm } from "@/components/feedback/FeedbackForm";
 import { useNavigate } from "react-router-dom";
 import { formatMonthYear } from "@/lib/dateUtils";
+import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
 
 interface ProfileTabsProps {
   profile: any;
@@ -44,6 +45,13 @@ export const ProfileTabs = ({
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const { resetWalkthrough, startWalkthrough } = useAppWalkthrough();
+
+  const handleRestartWalkthrough = () => {
+    resetWalkthrough();
+    navigate('/');
+    setTimeout(() => startWalkthrough(), 500);
+  };
 
   return (
     <Tabs defaultValue="overview" className="w-full">
@@ -287,6 +295,28 @@ export const ProfileTabs = ({
                 {t('profile.language')}
               </Label>
               <LanguageSwitcher />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Walkthrough Section */}
+        <Card>
+          <CardContent className="pt-6 space-y-4">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <PlayCircle className="h-4 w-4" />
+                {t('settings.walkthrough')}
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                {t('settings.walkthroughDescription')}
+              </p>
+              <Button 
+                variant="outline" 
+                onClick={handleRestartWalkthrough}
+                className="w-full"
+              >
+                {t('settings.restartWalkthrough')}
+              </Button>
             </div>
           </CardContent>
         </Card>

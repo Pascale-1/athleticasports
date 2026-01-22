@@ -16,7 +16,7 @@ export const BottomNavigation = () => {
   ];
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 h-16 border-t border-border/50 bg-background/95 backdrop-blur-lg shadow-lg">
+    <nav data-walkthrough="navigation" className="lg:hidden fixed bottom-0 left-0 right-0 z-50 h-16 border-t border-border/50 bg-background/95 backdrop-blur-lg shadow-lg">
       <div className="flex h-full items-center justify-around px-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.url;

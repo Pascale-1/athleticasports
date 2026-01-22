@@ -1,0 +1,29 @@
+{
+  "steps": {
+    "profile": {
+      "title": "Ton Profil",
+      "description": "Consulte tes équipes, matchs et abonnés en un coup d'œil. Touche une stat pour en savoir plus."
+    },
+    "quickActions": {
+      "title": "Actions Rapides",
+      "description": "Trouve un match, organise-en un ou crée ton équipe - tout en un seul geste."
+    },
+    "games": {
+      "title": "Tes Matchs",
+      "description": "Vois les matchs à venir, réponds aux propositions et définis ta disponibilité."
+    },
+    "feed": {
+      "title": "Fil d'Activité",
+      "description": "Reste informé de l'actualité de tes équipes et de la communauté."
+    },
+    "navigation": {
+      "title": "Navigation",
+      "description": "Navigue entre Accueil, Événements, Équipes et Profil avec la barre du bas."
+    }
+  },
+  "buttons": {
+    "next": "Suivant",
+    "prev": "Retour",
+    "done": "Compris !"
+  }
+}
