@@ -184,8 +184,8 @@
     "away": "Away",
     "neutral": "Neutral",
     "format": "Game Format",
-    "lookingForPlayers": "Looking for Players",
-    "playersNeeded": "Players Needed",
+    "lookingForPlayers": "Looking for Participants",
+    "playersNeeded": "Participants Needed",
     "needPlayers": "Need {{count}}"
   },
   "filters": {
@@ -240,15 +240,15 @@
     "downloadICS": "Download .ics file"
   },
   "lookingForPlayers": {
-    "title": "Looking for Players",
-    "description": "Find players to join your event",
+    "title": "Looking for Participants",
+    "description": "Find people to join your event",
     "spotsLeft": "{{count}} spot left",
     "spotsLeft_other": "{{count}} spots left",
     "requestJoin": "Request to Join",
-    "toggle": "Looking for more players?",
-    "playersNeeded": "How many players?",
-    "player": "player",
-    "players": "players"
+    "toggle": "Looking for more people?",
+    "playersNeeded": "How many participants?",
+    "player": "participant",
+    "players": "participants"
   },
   "rsvpDeadline": {
     "title": "RSVP Deadline",
