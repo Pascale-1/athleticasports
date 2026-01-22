@@ -1,13 +1,19 @@
 import { Browser } from '@capacitor/browser';
 import { Capacitor } from '@capacitor/core';
 
-// Check if running inside an iframe (like Lovable preview)
-const isInIframe = (): boolean => {
-  try {
-    return window.self !== window.top;
-  } catch (e) {
-    return true; // If access is denied, we're likely in a cross-origin iframe
-  }
+/**
+ * Opens an external URL using the most reliable method for the current platform.
+ * - Native: Uses Capacitor Browser plugin
+ * - Web: Uses anchor click method (most reliable, avoids popup blockers and iframe issues)
+ */
+const openUrlWithAnchor = (url: string): void => {
+  const link = document.createElement('a');
+  link.href = url;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
 
 export const useExternalLink = () => {
@@ -16,23 +22,15 @@ export const useExternalLink = () => {
       if (Capacitor.isNativePlatform()) {
         // Native app: use Capacitor Browser plugin for in-app browser
         await Browser.open({ url });
-      } else if (isInIframe() && window.top) {
-        // Running in iframe (like Lovable preview): open in parent/top window
-        window.top.open(url, '_blank');
       } else {
-        // Standard web browser: use window.open
-        window.open(url, '_blank');
+        // Web browser (including iframes): use anchor click method
+        // This is more reliable than window.open and avoids cross-origin issues
+        openUrlWithAnchor(url);
       }
     } catch (error) {
       console.error('Failed to open external URL:', error);
-      // Ultimate fallback - create a temporary link and click it
-      const link = document.createElement('a');
-      link.href = url;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Fallback to anchor click
+      openUrlWithAnchor(url);
     }
   };
 
@@ -44,19 +42,11 @@ export const openExternalUrl = async (url: string) => {
   try {
     if (Capacitor.isNativePlatform()) {
       await Browser.open({ url });
-    } else if (isInIframe() && window.top) {
-      window.top.open(url, '_blank');
     } else {
-      window.open(url, '_blank');
+      openUrlWithAnchor(url);
     }
   } catch (error) {
     console.error('Failed to open external URL:', error);
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    openUrlWithAnchor(url);
   }
 };
