@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { useExternalLink } from "@/hooks/useExternalLink";
 import { supabase } from "@/integrations/supabase/client";
 
 interface TeamInviteLinkProps {
@@ -22,6 +23,7 @@ export const TeamInviteLink = ({
   canManage 
 }: TeamInviteLinkProps) => {
   const { toast } = useToast();
+  const { openExternalUrl } = useExternalLink();
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [linkJoiningEnabled, setLinkJoiningEnabled] = useState(allowLinkJoining);
   
@@ -96,13 +98,14 @@ export const TeamInviteLink = ({
     }
   };
 
-  const shareViaWhatsApp = () => {
+  const shareViaWhatsApp = async () => {
     const text = `Join my team! ${inviteLink}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    await openExternalUrl(`https://wa.me/?text=${encodeURIComponent(text)}`);
   };
 
   const shareViaSMS = () => {
     const text = `Join my team! ${inviteLink}`;
+    // SMS uses native URL scheme, handled directly by the OS
     window.location.href = `sms:?body=${encodeURIComponent(text)}`;
   };
 

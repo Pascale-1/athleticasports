@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Copy, RefreshCw, Share2, MessageCircle, MoreHorizontal, Settings } from "lucide-react";
+import { useExternalLink } from "@/hooks/useExternalLink";
+import { Copy, RefreshCw, Share2, MessageCircle, Settings } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -33,6 +33,7 @@ export const EventInviteLink = ({
   eventTitle,
 }: EventInviteLinkProps) => {
   const { toast } = useToast();
+  const { openExternalUrl } = useExternalLink();
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [localAllowPublicJoin, setLocalAllowPublicJoin] = useState(allowPublicJoin);
 
@@ -102,14 +103,15 @@ export const EventInviteLink = ({
     }
   };
 
-  const shareViaWhatsApp = () => {
+  const shareViaWhatsApp = async () => {
     const message = `Join me for ${eventTitle}! ${inviteLink}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`);
+    await openExternalUrl(`https://wa.me/?text=${encodeURIComponent(message)}`);
   };
 
   const shareViaSMS = () => {
     const message = `Join me for ${eventTitle}! ${inviteLink}`;
-    window.open(`sms:?body=${encodeURIComponent(message)}`);
+    // SMS uses native URL scheme, handled directly by the OS
+    window.location.href = `sms:?body=${encodeURIComponent(message)}`;
   };
 
   return (

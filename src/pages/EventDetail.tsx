@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { useEventAttendance } from "@/hooks/useEventAttendance";
+import { useExternalLink } from "@/hooks/useExternalLink";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -66,6 +67,7 @@ const EventDetail = () => {
   const navigate = useNavigate();
   const { t } = useTranslation('events');
   const { toast } = useToast();
+  const { openExternalUrl } = useExternalLink();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [canEdit, setCanEdit] = useState(false);
   const [teamName, setTeamName] = useState<string | null>(null);
@@ -309,11 +311,12 @@ const EventDetail = () => {
 
             {/* Location - Clickable with Google Maps */}
             {event.location && (
-              <a 
-                href={event.location_url || getGoogleMapsUrl(event.location)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 -mx-1 rounded-lg hover:bg-muted/50 transition-colors group"
+              <div 
+                onClick={() => openExternalUrl(event.location_url || getGoogleMapsUrl(event.location!))}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && openExternalUrl(event.location_url || getGoogleMapsUrl(event.location!))}
+                className="flex items-center gap-3 p-3 -mx-1 rounded-lg hover:bg-muted/50 transition-colors group cursor-pointer"
               >
                 <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0 group-hover:bg-muted/80">
                   <MapPin className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -327,7 +330,7 @@ const EventDetail = () => {
                   </p>
                 </div>
                 <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-              </a>
+              </div>
             )}
 
             {/* Capacity */}

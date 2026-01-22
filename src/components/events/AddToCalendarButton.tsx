@@ -16,6 +16,7 @@ import {
   type CalendarEvent,
 } from "@/lib/calendarExport";
 import { useToast } from "@/hooks/use-toast";
+import { useExternalLink } from "@/hooks/useExternalLink";
 
 interface AddToCalendarButtonProps {
   event: {
@@ -36,6 +37,7 @@ export const AddToCalendarButton = ({
 }: AddToCalendarButtonProps) => {
   const { t } = useTranslation("events");
   const { toast } = useToast();
+  const { openExternalUrl } = useExternalLink();
   const [isOpen, setIsOpen] = useState(false);
 
   const calendarEvent: CalendarEvent = {
@@ -46,18 +48,18 @@ export const AddToCalendarButton = ({
     end: new Date(event.end_time),
   };
 
-  const handleGoogleCalendar = () => {
-    window.open(generateGoogleCalendarUrl(calendarEvent), "_blank");
+  const handleGoogleCalendar = async () => {
+    await openExternalUrl(generateGoogleCalendarUrl(calendarEvent));
     setIsOpen(false);
   };
 
-  const handleOutlook = () => {
-    window.open(generateOutlookUrl(calendarEvent), "_blank");
+  const handleOutlook = async () => {
+    await openExternalUrl(generateOutlookUrl(calendarEvent));
     setIsOpen(false);
   };
 
-  const handleOffice365 = () => {
-    window.open(generateOffice365Url(calendarEvent), "_blank");
+  const handleOffice365 = async () => {
+    await openExternalUrl(generateOffice365Url(calendarEvent));
     setIsOpen(false);
   };
 
