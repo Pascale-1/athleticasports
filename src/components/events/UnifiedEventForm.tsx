@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
 import { AnimatePresence, motion, Easing } from "framer-motion";
-import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat } from "lucide-react";
+import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Plus, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 import { EventType } from "@/lib/eventConfig";
@@ -130,6 +131,11 @@ export const UnifiedEventForm = ({
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('none');
   const [recurrenceEndDate, setRecurrenceEndDate] = useState<Date | undefined>(undefined);
+
+  // Collapsible sections state (collapsed by default for mobile optimization)
+  const [showDescription, setShowDescription] = useState(false);
+  const [showRecurrence, setShowRecurrence] = useState(false);
+  const [showParticipantLimit, setShowParticipantLimit] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -464,31 +470,12 @@ export const UnifiedEventForm = ({
                   <Input
                     {...field}
                     placeholder={
-                      eventType === 'match' 
+                      eventType === 'match'
                         ? t('form.game.titlePlaceholder')
                         : eventType === 'meetup'
                         ? t('form.meetup.titlePlaceholder')
                         : t('form.training.titlePlaceholder')
                     }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Description - Always visible */}
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('form.descriptionOptional')}</FormLabel>
-                <FormControl>
-                  <Textarea
-                    {...field}
-                    placeholder={t('form.descriptionPlaceholder')}
-                    className="min-h-[80px] resize-none"
                   />
                 </FormControl>
                 <FormMessage />
@@ -569,74 +556,6 @@ export const UnifiedEventForm = ({
                 onChange={setDuration}
               />
             </div>
-          </div>
-
-          {/* Repeat Section */}
-          <div className="p-4 bg-muted/30 rounded-xl border space-y-4 overflow-hidden">
-            <Label className="text-sm font-medium flex items-center gap-2">
-              <Repeat className="h-4 w-4" />
-              {t('form.repeat')}
-            </Label>
-            
-            <div className="grid grid-cols-5 gap-2">
-              {(['none', 'daily', 'weekly', 'monthly', 'yearly'] as const).map((option) => (
-                <Button
-                  key={option}
-                  type="button"
-                  variant={recurrenceType === option ? 'default' : 'outline'}
-                  onClick={() => {
-                    setRecurrenceType(option);
-                    setIsRecurring(option !== 'none');
-                    if (option === 'none') setRecurrenceEndDate(undefined);
-                  }}
-                  className="h-10 text-xs px-1"
-                >
-                  {t(`form.recurrence.${option}`)}
-                </Button>
-              ))}
-            </div>
-            
-            {/* End date for recurring events */}
-            <AnimatePresence mode="sync">
-              {isRecurring && (
-                <motion.div
-                  key="recurrence-end"
-                  variants={fieldVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                  transition={transitionConfig}
-                >
-                  <div className="space-y-2">
-                    <Label className="text-xs">{t('form.recurrence.until')}</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          className="w-full h-11 justify-start text-left font-normal min-w-0"
-                        >
-                          <span className="truncate flex-1">
-                            {recurrenceEndDate 
-                              ? format(recurrenceEndDate, "MMM dd, yyyy") 
-                              : t('form.recurrence.noEndDate')}
-                          </span>
-                          <CalendarIcon className="ml-2 h-4 w-4 opacity-50 shrink-0" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={recurrenceEndDate}
-                          onSelect={setRecurrenceEndDate}
-                          disabled={(date) => date < new Date()}
-                          className="pointer-events-auto"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
 
           {/* Where Section */}
@@ -729,37 +648,37 @@ export const UnifiedEventForm = ({
             </AnimatePresence>
           </div>
 
-          {/* Details Section */}
-          <div className="p-4 bg-muted/30 rounded-xl border space-y-4">
-            <Label className="text-sm font-medium">{t('details.participants')}</Label>
-
-            {/* Max Participants */}
-            <FormField
-              control={form.control}
-              name="maxParticipants"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs">{t('form.maxParticipants')}</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="number"
-                      min="2"
-                      max="100"
-                      placeholder="10"
-                      className="h-11"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
+          {/* Optional Sections - Collapsed by default for mobile optimization */}
+          <div className="space-y-2">
+            {/* Add Description Toggle */}
             <AnimatePresence mode="sync">
-              {/* Match Format - Match only */}
-              {showMatchFormat && (
+              {!showDescription && (
                 <motion.div
-                  key="match-format"
+                  key="add-description-toggle"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowDescription(true)}
+                    className="w-full justify-start text-muted-foreground h-10 gap-2 hover:text-foreground"
+                  >
+                    <Plus className="h-4 w-4" />
+                    {t('form.addDescription')}
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Description Field - Collapsible */}
+            <AnimatePresence mode="sync">
+              {showDescription && (
+                <motion.div
+                  key="description-field"
                   variants={fieldVariants}
                   initial="hidden"
                   animate="visible"
@@ -768,15 +687,29 @@ export const UnifiedEventForm = ({
                 >
                   <FormField
                     control={form.control}
-                    name="matchFormat"
+                    name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs">{t('form.game.format')}</FormLabel>
+                        <div className="flex items-center justify-between">
+                          <FormLabel>{t('form.description')}</FormLabel>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setShowDescription(false);
+                              field.onChange('');
+                            }}
+                            className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                          >
+                            {t('form.remove')}
+                          </Button>
+                        </div>
                         <FormControl>
-                          <Input
+                          <Textarea
                             {...field}
-                            placeholder={t('form.game.formatPlaceholder')}
-                            className="h-11"
+                            placeholder={t('form.descriptionPlaceholder')}
+                            className="min-h-[60px] resize-none"
                           />
                         </FormControl>
                         <FormMessage />
@@ -785,48 +718,285 @@ export const UnifiedEventForm = ({
                   />
                 </motion.div>
               )}
+            </AnimatePresence>
 
-              {/* Public Toggle - Meetup only without team */}
-              {showPublicToggle && (
+            {/* Make Recurring Toggle */}
+            <AnimatePresence mode="sync">
+              {!showRecurrence && (
                 <motion.div
-                  key="public-toggle"
+                  key="add-recurrence-toggle"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowRecurrence(true)}
+                    className="w-full justify-start text-muted-foreground h-10 gap-2 hover:text-foreground"
+                  >
+                    <Repeat className="h-4 w-4" />
+                    {t('form.makeRecurring')}
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Recurrence Section - Collapsible with Dropdown */}
+            <AnimatePresence mode="sync">
+              {showRecurrence && (
+                <motion.div
+                  key="recurrence-section"
                   variants={fieldVariants}
                   initial="hidden"
                   animate="visible"
                   exit="hidden"
                   transition={transitionConfig}
                 >
-                  <FormField
-                    control={form.control}
-                    name="isPublic"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex items-center justify-between p-3 bg-background rounded-lg border">
-                          <div className="flex items-center gap-2">
-                            {field.value ? (
-                              <Globe className="h-4 w-4 text-primary" />
-                            ) : (
-                              <Lock className="h-4 w-4 text-muted-foreground" />
-                            )}
-                            <div>
-                              <p className="text-sm font-medium">{t('form.isPublic')}</p>
-                              <p className="text-xs text-muted-foreground">{t('form.isPublicDesc')}</p>
-                            </div>
+                  <div className="p-4 bg-muted/30 rounded-xl border space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-medium flex items-center gap-2">
+                        <Repeat className="h-4 w-4" />
+                        {t('form.repeat')}
+                      </Label>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setShowRecurrence(false);
+                          setIsRecurring(false);
+                          setRecurrenceType('none');
+                          setRecurrenceEndDate(undefined);
+                        }}
+                        className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        {t('form.remove')}
+                      </Button>
+                    </div>
+                    
+                    {/* Dropdown Select instead of Button Grid */}
+                    <Select
+                      value={recurrenceType}
+                      onValueChange={(value: RecurrenceType) => {
+                        setRecurrenceType(value);
+                        setIsRecurring(value !== 'none');
+                        if (value === 'none') setRecurrenceEndDate(undefined);
+                      }}
+                    >
+                      <SelectTrigger className="h-11">
+                        <SelectValue placeholder={t('form.recurrence.none')} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        <SelectItem value="none">{t('form.recurrence.none')}</SelectItem>
+                        <SelectItem value="daily">{t('form.recurrence.daily')}</SelectItem>
+                        <SelectItem value="weekly">{t('form.recurrence.weekly')}</SelectItem>
+                        <SelectItem value="monthly">{t('form.recurrence.monthly')}</SelectItem>
+                        <SelectItem value="yearly">{t('form.recurrence.yearly')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    {/* End date picker - only when recurring */}
+                    <AnimatePresence mode="sync">
+                      {isRecurring && recurrenceType !== 'none' && (
+                        <motion.div
+                          key="recurrence-end"
+                          variants={fieldVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="hidden"
+                          transition={transitionConfig}
+                        >
+                          <div className="space-y-2">
+                            <Label className="text-xs">{t('form.recurrence.until')}</Label>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button 
+                                  variant="outline" 
+                                  className="w-full h-11 justify-start text-left font-normal min-w-0"
+                                >
+                                  <span className="truncate flex-1">
+                                    {recurrenceEndDate 
+                                      ? format(recurrenceEndDate, "MMM dd, yyyy") 
+                                      : t('form.recurrence.noEndDate')}
+                                  </span>
+                                  <CalendarIcon className="ml-2 h-4 w-4 opacity-50 shrink-0" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={recurrenceEndDate}
+                                  onSelect={setRecurrenceEndDate}
+                                  disabled={(date) => date < new Date()}
+                                  className="pointer-events-auto"
+                                />
+                              </PopoverContent>
+                            </Popover>
                           </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Add Participant Limit Toggle */}
+            <AnimatePresence mode="sync">
+              {!showParticipantLimit && (
+                <motion.div
+                  key="add-participant-toggle"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowParticipantLimit(true)}
+                    className="w-full justify-start text-muted-foreground h-10 gap-2 hover:text-foreground"
+                  >
+                    <Users className="h-4 w-4" />
+                    {t('form.addParticipantLimit')}
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Participant Limit Section - Collapsible */}
+            <AnimatePresence mode="sync">
+              {showParticipantLimit && (
+                <motion.div
+                  key="participant-limit-section"
+                  variants={fieldVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  transition={transitionConfig}
+                >
+                  <div className="p-4 bg-muted/30 rounded-xl border space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-medium flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        {t('details.participants')}
+                      </Label>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setShowParticipantLimit(false);
+                          form.setValue('maxParticipants', '');
+                        }}
+                        className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        {t('form.remove')}
+                      </Button>
+                    </div>
+
+                    {/* Max Participants */}
+                    <FormField
+                      control={form.control}
+                      name="maxParticipants"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">{t('form.maxParticipants')}</FormLabel>
                           <FormControl>
-                            <Button
-                              type="button"
-                              variant={field.value ? 'default' : 'outline'}
-                              size="sm"
-                              onClick={() => field.onChange(!field.value)}
-                            >
-                              {field.value ? 'Public' : 'Private'}
-                            </Button>
+                            <Input
+                              {...field}
+                              type="number"
+                              min="2"
+                              max="100"
+                              placeholder="10"
+                              className="h-11"
+                            />
                           </FormControl>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <AnimatePresence mode="sync">
+                      {/* Match Format - Match only */}
+                      {showMatchFormat && (
+                        <motion.div
+                          key="match-format"
+                          variants={fieldVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="hidden"
+                          transition={transitionConfig}
+                        >
+                          <FormField
+                            control={form.control}
+                            name="matchFormat"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs">{t('form.game.format')}</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    placeholder={t('form.game.formatPlaceholder')}
+                                    className="h-11"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </motion.div>
+                      )}
+
+                      {/* Public Toggle - Meetup only without team */}
+                      {showPublicToggle && (
+                        <motion.div
+                          key="public-toggle"
+                          variants={fieldVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="hidden"
+                          transition={transitionConfig}
+                        >
+                          <FormField
+                            control={form.control}
+                            name="isPublic"
+                            render={({ field }) => (
+                              <FormItem>
+                                <div className="flex items-center justify-between p-3 bg-background rounded-lg border">
+                                  <div className="flex items-center gap-2">
+                                    {field.value ? (
+                                      <Globe className="h-4 w-4 text-primary" />
+                                    ) : (
+                                      <Lock className="h-4 w-4 text-muted-foreground" />
+                                    )}
+                                    <div>
+                                      <p className="text-sm font-medium">{t('form.isPublic')}</p>
+                                      <p className="text-xs text-muted-foreground">{t('form.isPublicDesc')}</p>
+                                    </div>
+                                  </div>
+                                  <FormControl>
+                                    <Button
+                                      type="button"
+                                      variant={field.value ? 'default' : 'outline'}
+                                      size="sm"
+                                      onClick={() => field.onChange(!field.value)}
+                                    >
+                                      {field.value ? 'Public' : 'Private'}
+                                    </Button>
+                                  </FormControl>
+                                </div>
+                              </FormItem>
+                            )}
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
