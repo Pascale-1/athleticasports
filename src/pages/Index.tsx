@@ -308,7 +308,7 @@ const Index = () => {
                 <div className="space-y-2 border-b pb-3">
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary" className="text-xs">
-                      {pendingProposals.length} pending
+                      {pendingProposals.length} {t('status.pending').toLowerCase()}
                     </Badge>
                   </div>
                   {pendingProposals.slice(0, 2).map((proposal) => (

@@ -241,9 +241,9 @@ const EventDetail = () => {
                   {teamName}
                 </Badge>
               )}
-              {isPastEvent && <Badge variant="secondary">Past</Badge>}
-              {isOngoing && <Badge className="bg-success text-success-foreground animate-pulse">Live Now</Badge>}
-              {event.is_public && <Badge variant="outline" className="bg-background/80">Public</Badge>}
+              {isPastEvent && <Badge variant="secondary">{t('status.past')}</Badge>}
+              {isOngoing && <Badge className="bg-success text-success-foreground animate-pulse">{t('status.liveNow')}</Badge>}
+              {event.is_public && <Badge variant="outline" className="bg-background/80">{t('status.public')}</Badge>}
             </div>
 
             <h1 className="text-2xl font-heading font-bold tracking-tight mb-4">{event.title}</h1>
@@ -270,8 +270,8 @@ const EventDetail = () => {
             isTeamMember={isTeamMember}
             onRequestJoin={() => {
               toast({
-                title: "Request sent",
-                description: "The organizer will be notified of your interest.",
+                title: t('toast.requestSent'),
+                description: t('lookingForPlayers.requestSent', 'The organizer will be notified of your interest.'),
               });
             }}
           />

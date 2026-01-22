@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Mail, X, Clock, RefreshCw } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +39,7 @@ export const PendingInvitationsList = ({
   onCancel,
   onResend,
 }: PendingInvitationsListProps) => {
+  const { t } = useTranslation(['common', 'teams']);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [selectedInvitationId, setSelectedInvitationId] = useState<string | null>(null);
 
@@ -74,7 +76,7 @@ export const PendingInvitationsList = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <h3 className="text-lg font-semibold">Pending Invitations</h3>
+        <h3 className="text-lg font-semibold">{t('common:invitations.pending')}</h3>
         <Badge variant="secondary">{invitations.length}</Badge>
       </div>
       
@@ -94,7 +96,7 @@ export const PendingInvitationsList = ({
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="h-3 w-3" />
                     <span>
-                      Invited {formatDistanceToNow(new Date(invitation.created_at), { addSuffix: true })}
+                      {t('common:invitations.invited')} {formatDistanceToNow(new Date(invitation.created_at), { addSuffix: true })}
                     </span>
                   </div>
                 </div>
@@ -102,7 +104,7 @@ export const PendingInvitationsList = ({
 
               <div className="flex items-center gap-2">
                 <Badge variant={getRoleBadgeVariant(invitation.role)}>
-                  {invitation.role}
+                  {t(`teams:roles.${invitation.role}`)}
                 </Badge>
                 
                 {canManage && (
@@ -113,7 +115,7 @@ export const PendingInvitationsList = ({
                         size="icon"
                         onClick={() => onResend(invitation.id)}
                         className="h-8 w-8"
-                        title="Resend invitation"
+                        title={t('common:actions.resend')}
                       >
                         <RefreshCw className="h-4 w-4" />
                       </Button>
@@ -124,7 +126,7 @@ export const PendingInvitationsList = ({
                         size="icon"
                         onClick={() => handleCancelClick(invitation.id)}
                         className="h-8 w-8"
-                        title="Cancel invitation"
+                        title={t('common:actions.cancel')}
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -140,14 +142,14 @@ export const PendingInvitationsList = ({
       <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Cancel Invitation?</AlertDialogTitle>
+            <AlertDialogTitle>{t('common:invitations.cancelTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to cancel this invitation? This action cannot be undone.
+              {t('common:invitations.cancelDescription')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>No, keep it</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmCancel}>Yes, cancel</AlertDialogAction>
+            <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmCancel}>{t('common:invitations.cancelButton')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

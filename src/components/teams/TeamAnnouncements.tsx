@@ -4,6 +4,7 @@ import { CreateAnnouncement } from "./CreateAnnouncement";
 import { TeamAnnouncement } from "@/hooks/useTeamAnnouncements";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface TeamAnnouncementsProps {
   announcements: TeamAnnouncement[];
@@ -26,6 +27,7 @@ export const TeamAnnouncements = ({
   onTogglePin,
   onDelete,
 }: TeamAnnouncementsProps) => {
+  const { t } = useTranslation('teams');
   const [showAll, setShowAll] = useState(false);
   
   const pinnedAnnouncements = announcements.filter((a) => a.is_pinned);
@@ -42,7 +44,7 @@ export const TeamAnnouncements = ({
       {pinnedAnnouncements.length > 0 && (
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            Pinned Announcements
+            {t('announcement.pin')}
           </h3>
           {pinnedAnnouncements.map((announcement) => (
             <AnnouncementCard
@@ -60,7 +62,7 @@ export const TeamAnnouncements = ({
       <div className="space-y-3">
         {pinnedAnnouncements.length > 0 && displayedRegular.length > 0 && (
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            Recent Announcements
+            {t('announcement.title')}
           </h3>
         )}
         {displayedRegular.map((announcement) => (
@@ -84,12 +86,12 @@ export const TeamAnnouncements = ({
             {showAll ? (
               <>
                 <ChevronUp className="h-4 w-4 mr-2" />
-                Show less
+                {t('common:actions.showLess', 'Show less')}
               </>
             ) : (
               <>
                 <ChevronDown className="h-4 w-4 mr-2" />
-                View all {allRegularAnnouncements.length} announcements
+                {t('announcement.viewAll', { count: allRegularAnnouncements.length })}
               </>
             )}
           </Button>
@@ -98,8 +100,8 @@ export const TeamAnnouncements = ({
 
       {announcements.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
-          <p>No announcements yet.</p>
-          {canPost && <p className="text-sm mt-2">Be the first to post!</p>}
+          <p>{t('announcement.noAnnouncements')}</p>
+          {canPost && <p className="text-sm mt-2">{t('announcement.createAnnouncement')}</p>}
         </div>
       )}
     </div>
