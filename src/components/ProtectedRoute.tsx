@@ -31,7 +31,23 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false }: Protec
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Re-check session on visibility change (for iframe sync after OAuth)
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user) {
+            setUser(session.user);
+          }
+        });
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      subscription.unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, []);
 
   // Check onboarding status when user is available
