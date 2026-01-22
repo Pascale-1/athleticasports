@@ -177,7 +177,20 @@
       "players": "Players",
       "venue": "Venue (Optional)",
       "venuePlaceholder": "e.g., Central Stadium",
-      "create": "Create Game"
+      "create": "Create Game",
+      "pickupGame": "Pickup Game (no team)",
+      "pickupGameDescription": "Create a public game and find players",
+      "pickupOrTeam": "Pickup game or select team"
+    },
+    "visibility": {
+      "public": "Public - Anyone can join",
+      "teamOnly": "Team members only"
+    },
+    "createTeam": {
+      "noTeams": "You don't have any teams yet",
+      "noMatchingTeams": "None of your teams play {{sport}}",
+      "createFirst": "Create your first team",
+      "createForSport": "Create {{sport}} Team"
     }
   },
   "game": {

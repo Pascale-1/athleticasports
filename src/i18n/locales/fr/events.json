@@ -177,7 +177,20 @@
       "players": "Joueurs",
       "venue": "Stade/Terrain (optionnel)",
       "venuePlaceholder": "ex: Stade Central",
-      "create": "Créer la partie"
+      "create": "Créer la partie",
+      "pickupGame": "Partie ouverte (sans équipe)",
+      "pickupGameDescription": "Créer une partie publique et trouver des joueurs",
+      "pickupOrTeam": "Partie ouverte ou sélectionner équipe"
+    },
+    "visibility": {
+      "public": "Public - Tout le monde peut rejoindre",
+      "teamOnly": "Membres de l'équipe uniquement"
+    },
+    "createTeam": {
+      "noTeams": "Vous n'avez pas encore d'équipe",
+      "noMatchingTeams": "Aucune de vos équipes n'est configurée pour {{sport}}",
+      "createFirst": "Créer votre première équipe",
+      "createForSport": "Créer une équipe {{sport}}"
     }
   },
   "game": {
