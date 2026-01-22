@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface Attendee {
   user_id: string;
@@ -22,51 +23,40 @@ interface EventAttendeesProps {
   currentUserId: string | null;
 }
 
-const statusConfig = {
-  attending: {
-    label: "Going",
-    icon: CheckCircle2,
-    color: "text-success",
-    bgColor: "bg-success/10",
-  },
-  maybe: {
-    label: "Maybe",
-    icon: HelpCircle,
-    color: "text-warning",
-    bgColor: "bg-warning/10",
-  },
-  not_attending: {
-    label: "Can't Go",
-    icon: XCircle,
-    color: "text-destructive",
-    bgColor: "bg-destructive/10",
-  },
-};
-
-const AvatarStack = ({ attendees, maxVisible = 5 }: { attendees: Attendee[]; maxVisible?: number }) => {
-  const visible = attendees.slice(0, maxVisible);
-  const remaining = attendees.length - maxVisible;
-
+const AttendeeRow = ({ 
+  attendee, 
+  currentUserId 
+}: { 
+  attendee: Attendee; 
+  currentUserId: string | null;
+}) => {
+  const displayName = attendee.profiles?.display_name || attendee.profiles?.username || 'Unknown';
+  const isCurrentUser = attendee.user_id === currentUserId;
+  
   return (
-    <div className="flex -space-x-2">
-      {visible.map((attendee) => (
-        <Avatar key={attendee.user_id} className="h-8 w-8 border-2 border-background">
-          <AvatarImage src={attendee.profiles?.avatar_url || ''} />
-          <AvatarFallback className="text-xs">
-            {attendee.profiles?.display_name?.[0] || attendee.profiles?.username?.[0] || '?'}
-          </AvatarFallback>
-        </Avatar>
-      ))}
-      {remaining > 0 && (
-        <div className="h-8 w-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs font-medium">
-          +{remaining}
-        </div>
+    <div className="flex items-center gap-3 py-2">
+      <Avatar className="h-8 w-8">
+        <AvatarImage src={attendee.profiles?.avatar_url || ''} />
+        <AvatarFallback className="text-xs bg-muted">
+          {displayName[0]?.toUpperCase() || '?'}
+        </AvatarFallback>
+      </Avatar>
+      <span className="text-sm flex-1">
+        {displayName}
+        {isCurrentUser && (
+          <span className="text-muted-foreground ml-1">(You)</span>
+        )}
+      </span>
+      {attendee.is_committed && (
+        <Badge variant="secondary" className="text-xs bg-warning/20 text-warning-foreground">
+          ⭐ Committed
+        </Badge>
       )}
     </div>
   );
 };
 
-const AttendeeGroup = ({ 
+const StatusSection = ({ 
   status, 
   attendees, 
   currentUserId 
@@ -75,87 +65,158 @@ const AttendeeGroup = ({
   attendees: Attendee[]; 
   currentUserId: string | null;
 }) => {
-  const [expanded, setExpanded] = useState(false);
-  const config = statusConfig[status];
-  const StatusIcon = config.icon;
+  const config = {
+    attending: {
+      label: "Going",
+      icon: CheckCircle2,
+      color: "text-success",
+      bgColor: "bg-success/10",
+    },
+    maybe: {
+      label: "Maybe",
+      icon: HelpCircle,
+      color: "text-warning",
+      bgColor: "bg-warning/10",
+    },
+    not_attending: {
+      label: "Can't Go",
+      icon: XCircle,
+      color: "text-destructive",
+      bgColor: "bg-destructive/10",
+    },
+  };
+
+  const cfg = config[status];
+  const StatusIcon = cfg.icon;
 
   if (attendees.length === 0) return null;
 
   return (
-    <div className="space-y-2">
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <div className={cn("p-1.5 rounded-full", config.bgColor)}>
-            <StatusIcon className={cn("h-4 w-4", config.color)} />
-          </div>
-          <span className="font-medium text-sm">{config.label}</span>
-          <Badge variant="secondary" className="text-xs">
-            {attendees.length}
-          </Badge>
+    <div className="space-y-1">
+      <div className="flex items-center gap-2 py-1">
+        <div className={cn("p-1 rounded-full", cfg.bgColor)}>
+          <StatusIcon className={cn("h-3.5 w-3.5", cfg.color)} />
         </div>
-        <div className="flex items-center gap-2">
-          <AvatarStack attendees={attendees} maxVisible={3} />
-          {attendees.length > 0 && (
-            expanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          )}
-        </div>
-      </button>
-
-      {expanded && (
-        <div className="pl-11 space-y-1">
-          {attendees.map((attendee) => (
-            <div
-              key={attendee.user_id}
-              className="flex items-center gap-3 p-2 rounded-lg"
-            >
-              <Avatar className="h-7 w-7">
-                <AvatarImage src={attendee.profiles?.avatar_url || ''} />
-                <AvatarFallback className="text-xs">
-                  {attendee.profiles?.display_name?.[0] || attendee.profiles?.username?.[0] || '?'}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm flex-1">
-                {attendee.profiles?.display_name || attendee.profiles?.username || 'Unknown'}
-                {attendee.user_id === currentUserId && (
-                  <span className="text-muted-foreground ml-1">(You)</span>
-                )}
-              </span>
-              {attendee.is_committed && (
-                <Badge variant="secondary" className="text-xs bg-amber-500/20 text-amber-600">
-                  ⭐ Committed
-                </Badge>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+        <span className="text-sm font-medium text-muted-foreground">{cfg.label}</span>
+        <span className="text-xs text-muted-foreground">({attendees.length})</span>
+      </div>
+      <div className="pl-7 space-y-0.5">
+        {attendees.map((attendee) => (
+          <AttendeeRow 
+            key={attendee.user_id} 
+            attendee={attendee} 
+            currentUserId={currentUserId} 
+          />
+        ))}
+      </div>
     </div>
   );
 };
 
 export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps) => {
+  const { t } = useTranslation('events');
+  const [showAll, setShowAll] = useState(false);
+  
   const grouped = {
     attending: attendees.filter((a) => a.status === 'attending'),
     maybe: attendees.filter((a) => a.status === 'maybe'),
     not_attending: attendees.filter((a) => a.status === 'not_attending'),
   };
 
+  const previewAttendees = [...grouped.attending, ...grouped.maybe].slice(0, 5);
+  const totalResponses = attendees.length;
+
   if (attendees.length === 0) {
     return (
       <div className="text-center py-6 text-muted-foreground text-sm">
-        No responses yet. Be the first to RSVP!
+        {t('attendees.noResponses', 'No responses yet. Be the first to RSVP!')}
       </div>
     );
   }
 
+  const previewNames = previewAttendees
+    .slice(0, 3)
+    .map(a => {
+      const name = a.profiles?.display_name || a.profiles?.username || '';
+      return name.split(' ')[0];
+    })
+    .filter(Boolean);
+
+  const othersCount = totalResponses - previewNames.length;
+
   return (
-    <div className="space-y-1">
-      <AttendeeGroup status="attending" attendees={grouped.attending} currentUserId={currentUserId} />
-      <AttendeeGroup status="maybe" attendees={grouped.maybe} currentUserId={currentUserId} />
-      <AttendeeGroup status="not_attending" attendees={grouped.not_attending} currentUserId={currentUserId} />
+    <div className="space-y-4">
+      {/* Summary Stats Row */}
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1.5">
+          <CheckCircle2 className="h-4 w-4 text-success" />
+          <span className="text-sm font-medium">{grouped.attending.length} {t('attendees.going', 'going')}</span>
+        </div>
+        {grouped.maybe.length > 0 && (
+          <div className="flex items-center gap-1.5">
+            <HelpCircle className="h-4 w-4 text-warning" />
+            <span className="text-sm text-muted-foreground">{grouped.maybe.length} {t('attendees.maybe', 'maybe')}</span>
+          </div>
+        )}
+        {grouped.not_attending.length > 0 && (
+          <div className="flex items-center gap-1.5">
+            <XCircle className="h-4 w-4 text-destructive" />
+            <span className="text-sm text-muted-foreground">{grouped.not_attending.length}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Avatar Stack with Names */}
+      {previewAttendees.length > 0 && (
+        <div className="flex items-center gap-3">
+          <div className="flex -space-x-2">
+            {previewAttendees.map((attendee) => (
+              <Avatar key={attendee.user_id} className="h-9 w-9 border-2 border-background ring-1 ring-border/50">
+                <AvatarImage src={attendee.profiles?.avatar_url || ''} />
+                <AvatarFallback className="text-xs bg-muted">
+                  {(attendee.profiles?.display_name?.[0] || attendee.profiles?.username?.[0] || '?').toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            ))}
+            {totalResponses > 5 && (
+              <div className="h-9 w-9 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs font-medium ring-1 ring-border/50">
+                +{totalResponses - 5}
+              </div>
+            )}
+          </div>
+          <span className="text-sm text-muted-foreground">
+            {previewNames.join(', ')}
+            {othersCount > 0 && ` ${t('attendees.andOthers', 'and {{count}} others', { count: othersCount })}`}
+          </span>
+        </div>
+      )}
+
+      {/* Expandable Details */}
+      {totalResponses > 0 && (
+        <>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="w-full justify-between hover:bg-muted/50 -mx-2 px-2"
+            onClick={() => setShowAll(!showAll)}
+          >
+            <span className="text-sm">
+              {showAll 
+                ? t('attendees.hideDetails', 'Hide details') 
+                : t('attendees.seeAll', 'See all {{count}} responses', { count: totalResponses })}
+            </span>
+            {showAll ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </Button>
+
+          {showAll && (
+            <div className="space-y-3 pt-2 border-t">
+              <StatusSection status="attending" attendees={grouped.attending} currentUserId={currentUserId} />
+              <StatusSection status="maybe" attendees={grouped.maybe} currentUserId={currentUserId} />
+              <StatusSection status="not_attending" attendees={grouped.not_attending} currentUserId={currentUserId} />
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };
