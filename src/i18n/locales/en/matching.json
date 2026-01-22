@@ -1,18 +1,26 @@
 {
   "findGame": {
-    "title": "Set My Availability",
+    "title": "Find a Match",
     "subtitle": "Tell us when and where you can play. We'll notify you when a matching game is found.",
     "sport": "Sport",
     "sportPlaceholder": "Select a sport",
+    "sportQuestion": "What sport do you want to play?",
     "location": "Location",
     "locationPlaceholder": "Enter a location",
+    "locationQuestion": "Where can you play?",
+    "venueOptional": "Specific venue (optional)",
     "when": "When",
+    "availableFrom": "Available from",
+    "availableUntil": "Available until",
     "skillLevel": "Skill Level",
+    "yourLevel": "Your skill level",
     "searching": "Searching...",
     "noResults": "No players available",
     "noResultsDesc": "Try broadening your search criteria",
     "distance": "{{distance}} km away",
-    "makeAvailable": "Make Me Available"
+    "makeAvailable": "Make Me Available",
+    "settingUp": "Setting up...",
+    "expiryNote": "Your availability will expire in 7 days. You can cancel anytime."
   },
   "createGame": {
     "title": "Create a Game",
@@ -37,17 +45,23 @@
   },
   "availability": {
     "title": "My Availability",
+    "lookingTitle": "You're Looking for Matches",
+    "lookingDesc": "We'll notify you when we find a match that fits your availability.",
     "setAvailable": "Set Available",
     "notAvailable": "Not Available",
     "available": "Available for games",
-    "activeUntil": "Active until",
+    "activeUntil": "Until",
     "cancel": "Cancel Availability"
   },
   "skillLevels": {
     "1": "Beginner",
-    "2": "Intermediate",
-    "3": "Advanced",
-    "4": "Expert",
-    "5": "Professional"
+    "2": "Novice",
+    "3": "Intermediate",
+    "4": "Advanced",
+    "5": "Expert"
+  },
+  "sports": {
+    "popular": "⭐ Popular",
+    "other": "Other sports"
   }
 }

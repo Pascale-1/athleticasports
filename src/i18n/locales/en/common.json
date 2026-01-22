@@ -106,6 +106,28 @@
     "anyLocation": "Any location",
     "open": "Open"
   },
+  "activity": {
+    "title": "Activity",
+    "recentActivity": "Recent Activity",
+    "noActivity": "No recent activity",
+    "noActivityDesc": "Your activity feed will appear here",
+    "createdTeam": "Created a team",
+    "joinedTeam": "Joined a team",
+    "createdEvent": "Created an event",
+    "rsvp": "RSVP'd to an event",
+    "attending": "Attending an event",
+    "loggedActivity": "Logged an activity",
+    "created": "Created \"{{name}}\"",
+    "joined": "Joined \"{{name}}\""
+  },
+  "invitations": {
+    "pending": "Pending Invitations",
+    "cancelTitle": "Cancel Invitation?",
+    "cancelDescription": "Are you sure you want to cancel this invitation? This action cannot be undone.",
+    "cancelButton": "Cancel Invitation",
+    "invited": "Invited",
+    "resending": "Resending..."
+  },
   "profile": {
     "title": "Profile",
     "about": "About",

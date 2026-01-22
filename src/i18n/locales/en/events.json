@@ -48,16 +48,49 @@
   },
   "rsvp": {
     "going": "Going",
-    "notGoing": "Not Going",
+    "notGoing": "Can't Go",
     "maybe": "Maybe",
     "respond": "RSVP",
     "attending": "Attending",
     "notAttending": "Not Attending",
     "pass": "Pass",
     "committed": "Committed",
+    "committedToMatch": "Committed to this game",
     "count": "{{count}} going",
+    "count_one": "{{count}} going",
+    "count_other": "{{count}} going",
     "countWithMax": "{{count}}/{{max}} going",
-    "full": "Full"
+    "full": "Full",
+    "closed": "RSVPs closed",
+    "stats": "{{going}} going · {{maybe}} maybe",
+    "changeRsvp": "Change RSVP"
+  },
+  "attendees": {
+    "title": "Attendees",
+    "going": "Going",
+    "maybe": "Maybe",
+    "cantGo": "Can't Go",
+    "committed": "Committed",
+    "you": "(You)",
+    "noResponses": "No responses yet. Be the first to RSVP!",
+    "count": "{{count}} attending",
+    "count_one": "{{count}} attending",
+    "count_other": "{{count}} attending"
+  },
+  "status": {
+    "past": "Past",
+    "liveNow": "Live Now",
+    "public": "Public",
+    "private": "Private"
+  },
+  "preview": {
+    "nextEvent": "Next Event",
+    "upcomingEvents": "Upcoming Events",
+    "viewAll": "View all",
+    "noUpcoming": "No upcoming events scheduled"
+  },
+  "toast": {
+    "requestSent": "Request sent"
   },
   "form": {
     "title": "Title",

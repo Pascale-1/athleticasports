@@ -1,18 +1,26 @@
 {
   "findGame": {
-    "title": "Ma disponibilité",
+    "title": "Trouver une partie",
     "subtitle": "Indiquez quand et où vous pouvez jouer. Nous vous notifierons quand une partie correspondante sera trouvée.",
     "sport": "Sport",
     "sportPlaceholder": "Sélectionnez un sport",
+    "sportQuestion": "Quel sport voulez-vous jouer ?",
     "location": "Lieu",
     "locationPlaceholder": "Entrez un lieu",
+    "locationQuestion": "Où pouvez-vous jouer ?",
+    "venueOptional": "Lieu précis (optionnel)",
     "when": "Quand",
+    "availableFrom": "Disponible à partir du",
+    "availableUntil": "Disponible jusqu'au",
     "skillLevel": "Niveau",
+    "yourLevel": "Votre niveau",
     "searching": "Recherche en cours...",
     "noResults": "Aucun joueur disponible",
     "noResultsDesc": "Essayez d'élargir vos critères de recherche",
     "distance": "à {{distance}} km",
-    "makeAvailable": "Indiquer ma disponibilité"
+    "makeAvailable": "Me rendre disponible",
+    "settingUp": "Configuration...",
+    "expiryNote": "Votre disponibilité expirera dans 7 jours. Vous pouvez annuler à tout moment."
   },
   "createGame": {
     "title": "Créer une partie",
@@ -37,17 +45,23 @@
   },
   "availability": {
     "title": "Ma disponibilité",
+    "lookingTitle": "Vous recherchez des matchs",
+    "lookingDesc": "Nous vous notifierons quand nous trouverons un match adapté.",
     "setAvailable": "Indiquer ma disponibilité",
     "notAvailable": "Non disponible",
     "available": "Disponible pour jouer",
-    "activeUntil": "Actif jusqu'à",
+    "activeUntil": "Jusqu'au",
     "cancel": "Annuler ma disponibilité"
   },
   "skillLevels": {
     "1": "Débutant",
-    "2": "Intermédiaire",
-    "3": "Avancé",
-    "4": "Expert",
-    "5": "Professionnel"
+    "2": "Novice",
+    "3": "Intermédiaire",
+    "4": "Avancé",
+    "5": "Expert"
+  },
+  "sports": {
+    "popular": "⭐ Populaires",
+    "other": "Autres sports"
   }
 }

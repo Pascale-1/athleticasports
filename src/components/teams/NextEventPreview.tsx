@@ -5,6 +5,7 @@ import { Calendar, MapPin, Users, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Event, formatEventDate } from "@/lib/events";
 import { useEventAttendance } from "@/hooks/useEventAttendance";
+import { useTranslation } from "react-i18next";
 
 interface NextEventPreviewProps {
   event: Event | null;
@@ -13,6 +14,7 @@ interface NextEventPreviewProps {
 }
 
 export const NextEventPreview = ({ event, teamId, canRSVP }: NextEventPreviewProps) => {
+  const { t } = useTranslation(['events', 'common']);
   const { userStatus, stats, updateAttendance } = useEventAttendance(event?.id || null);
 
   if (!event) {
@@ -20,15 +22,15 @@ export const NextEventPreview = ({ event, teamId, canRSVP }: NextEventPreviewPro
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-body-large font-semibold">Next Event</h3>
+            <h3 className="text-body-large font-semibold">{t('events:preview.nextEvent')}</h3>
             <Link to={`/teams/${teamId}/events`}>
               <Button variant="ghost" size="sm" className="text-primary">
-                View all <ArrowRight className="h-4 w-4 ml-1" />
+                {t('events:preview.viewAll')} <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>
           </div>
           <p className="text-caption text-muted-foreground text-center py-4">
-            No upcoming events scheduled
+            {t('events:preview.noUpcoming')}
           </p>
         </CardContent>
       </Card>
@@ -39,10 +41,10 @@ export const NextEventPreview = ({ event, teamId, canRSVP }: NextEventPreviewPro
     <Card>
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-body-large font-semibold">Next Event</h3>
+          <h3 className="text-body-large font-semibold">{t('events:preview.nextEvent')}</h3>
           <Link to={`/teams/${teamId}/events`}>
             <Button variant="ghost" size="sm" className="text-primary">
-              View all <ArrowRight className="h-4 w-4 ml-1" />
+              {t('events:preview.viewAll')} <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           </Link>
         </div>
@@ -52,7 +54,7 @@ export const NextEventPreview = ({ event, teamId, canRSVP }: NextEventPreviewPro
             <div className="flex items-start justify-between gap-2">
               <h4 className="font-semibold text-body">{event.title}</h4>
               <Badge variant="secondary" className="text-caption shrink-0">
-                {event.type}
+                {t(`events:types.${event.type}`)}
               </Badge>
             </div>
 
@@ -69,7 +71,7 @@ export const NextEventPreview = ({ event, teamId, canRSVP }: NextEventPreviewPro
               )}
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
-                <span>{stats.attending} attending</span>
+                <span>{t('events:rsvp.count', { count: stats.attending })}</span>
               </div>
             </div>
 
@@ -84,7 +86,7 @@ export const NextEventPreview = ({ event, teamId, canRSVP }: NextEventPreviewPro
                   }}
                   className="text-xs"
                 >
-                  Going
+                  {t('events:rsvp.going')}
                 </Button>
                 <Button
                   size="sm"
@@ -95,7 +97,7 @@ export const NextEventPreview = ({ event, teamId, canRSVP }: NextEventPreviewPro
                   }}
                   className="text-xs"
                 >
-                  Maybe
+                  {t('events:rsvp.maybe')}
                 </Button>
                 <Button
                   size="sm"
@@ -106,7 +108,7 @@ export const NextEventPreview = ({ event, teamId, canRSVP }: NextEventPreviewPro
                   }}
                   className="text-xs"
                 >
-                  Can't go
+                  {t('events:rsvp.notGoing')}
                 </Button>
               </div>
             )}
