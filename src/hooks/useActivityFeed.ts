@@ -26,7 +26,7 @@ export const useActivityFeed = (userId?: string) => {
   const [error, setError] = useState<Error | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [lastCursor, setLastCursor] = useState<string | null>(null);
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = 10;
 
   const transformActivityLog = (log: any): Activity => {
     const profile = log.profiles;
