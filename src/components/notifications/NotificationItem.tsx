@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
-import { UserPlus, Users, Megaphone, Calendar } from "lucide-react";
+import { UserPlus, Megaphone, Calendar, UserCheck } from "lucide-react";
 import { useNotifications, type Notification } from "@/hooks/useNotifications";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +13,7 @@ const iconMap = {
   new_follower: UserPlus,
   team_announcement: Megaphone,
   training_session: Calendar,
+  event_join_request: UserCheck,
 };
 
 const colorMap = {
@@ -20,6 +21,7 @@ const colorMap = {
   new_follower: "text-green-500",
   team_announcement: "text-orange-500",
   training_session: "text-purple-500",
+  event_join_request: "text-teal-500",
 };
 
 export const NotificationItem = ({ notification }: NotificationItemProps) => {
