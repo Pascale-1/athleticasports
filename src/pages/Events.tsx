@@ -122,13 +122,13 @@ const Events = () => {
                         size="sm" 
                         variant="ghost"
                         className={cn(
-                          "h-9 px-2 md:px-3 text-xs rounded-lg transition-all gap-1.5 whitespace-nowrap",
+                          "h-9 px-2 md:px-3 text-xs rounded-lg transition-all gap-1.5 whitespace-nowrap overflow-hidden",
                           activeEventType === type && "bg-primary/10 text-primary font-medium"
                         )}
                         onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
                       >
                         <Icon className={cn("h-4 w-4 flex-shrink-0", color)} />
-                        <span className="hidden sm:inline">{t(labelKey)}</span>
+                        <span className="hidden sm:inline truncate">{t(labelKey)}</span>
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom">

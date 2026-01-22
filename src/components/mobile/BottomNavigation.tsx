@@ -40,7 +40,7 @@ export const BottomNavigation = () => {
                 )} 
               />
               <span className={cn(
-                "text-xs font-medium transition-all duration-150",
+                "text-xs font-medium transition-all duration-150 truncate max-w-[56px]",
                 isActive && "font-semibold"
               )}>
                 {t(item.titleKey)}

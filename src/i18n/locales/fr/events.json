@@ -17,9 +17,9 @@
   "createFirst": "Créer votre premier événement",
   "types": {
     "all": "Tous",
-    "training": "Entraînement",
+    "training": "Entraîn.",
     "game": "Partie",
-    "meetup": "Rencontre"
+    "meetup": "Meetup"
   },
   "timeGroups": {
     "today": "Aujourd'hui",

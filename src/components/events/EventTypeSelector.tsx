@@ -40,8 +40,8 @@ export const EventTypeSelector = ({ value, onChange }: EventTypeSelectorProps) =
             )}
             aria-pressed={value === type}
           >
-            <Icon className="h-5 w-5" />
-            <span className="text-xs font-medium">{t(`types.${type === 'match' ? 'game' : type}`)}</span>
+            <Icon className="h-5 w-5 flex-shrink-0" />
+            <span className="text-xs font-medium truncate max-w-full">{t(`types.${type === 'match' ? 'game' : type}`)}</span>
           </Button>
         ))}
       </div>

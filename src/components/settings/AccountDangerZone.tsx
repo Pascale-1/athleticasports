@@ -122,11 +122,11 @@ export function AccountDangerZone() {
         </p>
         <Button
           variant="outline"
-          className="border-destructive text-destructive hover:bg-destructive hover:text-white"
+          className="border-destructive text-destructive hover:bg-destructive hover:text-white w-full sm:w-auto"
           onClick={handleOpenDialog}
         >
-          <Trash2 className="h-4 w-4 mr-2" />
-          {t("accountDeletion.button")}
+          <Trash2 className="h-4 w-4 mr-2 flex-shrink-0" />
+          <span className="truncate">{t("accountDeletion.button")}</span>
         </Button>
       </div>
 
