@@ -184,8 +184,8 @@
     "away": "Extérieur",
     "neutral": "Neutre",
     "format": "Format de la partie",
-    "lookingForPlayers": "Recherche de joueurs",
-    "playersNeeded": "Joueurs recherchés",
+    "lookingForPlayers": "Recherche de participants",
+    "playersNeeded": "Participants recherchés",
     "needPlayers": "Besoin de {{count}}"
   },
   "filters": {
@@ -240,15 +240,15 @@
     "downloadICS": "Télécharger fichier .ics"
   },
   "lookingForPlayers": {
-    "title": "Recherche de joueurs",
-    "description": "Trouvez des joueurs pour votre événement",
+    "title": "Recherche de participants",
+    "description": "Trouvez des personnes pour votre événement",
     "spotsLeft": "{{count}} place restante",
     "spotsLeft_other": "{{count}} places restantes",
     "requestJoin": "Demander à rejoindre",
-    "toggle": "Rechercher plus de joueurs ?",
-    "playersNeeded": "Combien de joueurs ?",
-    "player": "joueur",
-    "players": "joueurs"
+    "toggle": "Besoin de plus de participants ?",
+    "playersNeeded": "Combien de participants ?",
+    "player": "participant",
+    "players": "participants"
   },
   "rsvpDeadline": {
     "title": "Date limite de réponse",
