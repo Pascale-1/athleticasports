@@ -16,7 +16,7 @@ import { AnimatedCard } from "@/components/animations/AnimatedCard";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { useEvents } from "@/hooks/useEvents";
-import { CreateMatchSheet } from "@/components/matching/CreateMatchSheet";
+import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { FindMatchSheet } from "@/components/matching/FindMatchSheet";
 import { usePlayerAvailability } from "@/hooks/usePlayerAvailability";
 import { useMatchProposals } from "@/hooks/useMatchProposals";
@@ -50,7 +50,7 @@ const Index = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState<Stats>({ teams: 0, upcomingMatches: 0, followers: 0 });
   const [loading, setLoading] = useState(true);
-  const [createMatchSheetOpen, setCreateMatchSheetOpen] = useState(false);
+  const [createEventDialogOpen, setCreateEventDialogOpen] = useState(false);
   const [findMatchSheetOpen, setFindMatchSheetOpen] = useState(false);
   const { activities, loading: feedLoading, loadingMore, hasMore, loadMore } = useActivityFeed();
   
@@ -267,10 +267,10 @@ const Index = () => {
               <Button 
                 variant="outline"
                 className="flex flex-col items-center justify-center gap-2 h-16 px-2"
-                onClick={() => setCreateMatchSheetOpen(true)}
+                onClick={() => setCreateEventDialogOpen(true)}
               >
                 <Plus className="h-5 w-5 text-primary" />
-                <span className="text-xs font-medium text-center">{t('home.organizeGame')}</span>
+                <span className="text-xs font-medium text-center">{t('home.organizeEvent')}</span>
               </Button>
               
               <Button 
@@ -390,10 +390,10 @@ const Index = () => {
                       <Button 
                         size="sm"
                         variant="outline"
-                        onClick={() => setCreateMatchSheetOpen(true)}
+                        onClick={() => setCreateEventDialogOpen(true)}
                       >
                         <Plus className="h-4 w-4 mr-1" />
-                        {t('home.createGame')}
+                        {t('home.createEvent')}
                       </Button>
                     </div>
                   </div>
@@ -450,9 +450,9 @@ const Index = () => {
         </motion.div>
       </PullToRefresh>
 
-      <CreateMatchSheet
-        open={createMatchSheetOpen}
-        onOpenChange={setCreateMatchSheetOpen}
+      <CreateEventDialog
+        open={createEventDialogOpen}
+        onOpenChange={setCreateEventDialogOpen}
       />
       
       <FindMatchSheet

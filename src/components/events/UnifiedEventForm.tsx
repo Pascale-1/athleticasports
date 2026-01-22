@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
 import { AnimatePresence, motion, Easing } from "framer-motion";
-import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Plus, Users } from "lucide-react";
+import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Plus, Users, UserPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
 import { EventType } from "@/lib/eventConfig";
@@ -136,6 +137,10 @@ export const UnifiedEventForm = ({
   const [showDescription, setShowDescription] = useState(false);
   const [showRecurrence, setShowRecurrence] = useState(false);
   const [showParticipantLimit, setShowParticipantLimit] = useState(false);
+  
+  // Looking for Players state (for match and training)
+  const [lookingForPlayers, setLookingForPlayers] = useState(false);
+  const [playersNeeded, setPlayersNeeded] = useState("4");
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -264,6 +269,9 @@ export const UnifiedEventForm = ({
       match_format: eventType === 'match' ? values.matchFormat || undefined : undefined,
       // Meetup-specific
       meetup_category: eventType === 'meetup' ? selectedCategory || undefined : undefined,
+      // Looking for players - only for match and training
+      looking_for_players: showLookingForPlayersSection ? lookingForPlayers : undefined,
+      players_needed: showLookingForPlayersSection && lookingForPlayers ? parseInt(playersNeeded, 10) : undefined,
       // Recurrence
       is_recurring: isRecurring,
       recurrence_rule: generateRecurrenceRule(),
@@ -282,6 +290,7 @@ export const UnifiedEventForm = ({
   const showLocationMode = eventType === 'meetup';
   const showVirtualLink = eventType === 'meetup' && (locationMode === 'virtual' || locationMode === 'hybrid');
   const showPublicToggle = eventType === 'meetup' && !teamId;
+  const showLookingForPlayersSection = eventType === 'match' || eventType === 'training';
 
   return (
     <Form {...form}>
@@ -993,6 +1002,65 @@ export const UnifiedEventForm = ({
                               </FormItem>
                             )}
                           />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Looking for Players Section - Match & Training only */}
+            <AnimatePresence mode="sync">
+              {showLookingForPlayersSection && (
+                <motion.div
+                  key="looking-for-players-section"
+                  variants={fieldVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  transition={transitionConfig}
+                >
+                  <div className="p-4 bg-primary/5 rounded-xl border border-primary/20 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <UserPlus className="h-4 w-4 text-primary" />
+                        <div>
+                          <p className="text-sm font-medium">{t('lookingForPlayers.title')}</p>
+                          <p className="text-xs text-muted-foreground">{t('lookingForPlayers.description')}</p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={lookingForPlayers}
+                        onCheckedChange={setLookingForPlayers}
+                      />
+                    </div>
+
+                    <AnimatePresence mode="sync">
+                      {lookingForPlayers && (
+                        <motion.div
+                          key="players-needed-input"
+                          variants={fieldVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="hidden"
+                          transition={transitionConfig}
+                        >
+                          <div className="space-y-2">
+                            <Label className="text-xs">{t('lookingForPlayers.playersNeeded')}</Label>
+                            <Select value={playersNeeded} onValueChange={setPlayersNeeded}>
+                              <SelectTrigger className="h-11">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 20].map((num) => (
+                                  <SelectItem key={num} value={num.toString()}>
+                                    {num} {num === 1 ? t('lookingForPlayers.player', { defaultValue: 'player' }) : t('lookingForPlayers.players', { defaultValue: 'players' })}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </motion.div>
                       )}
                     </AnimatePresence>

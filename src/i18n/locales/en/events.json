@@ -241,12 +241,14 @@
   },
   "lookingForPlayers": {
     "title": "Looking for Players",
-    "description": "This event needs more participants",
+    "description": "Find players to join your event",
     "spotsLeft": "{{count}} spot left",
     "spotsLeft_other": "{{count}} spots left",
     "requestJoin": "Request to Join",
     "toggle": "Looking for more players?",
-    "playersNeeded": "Players needed"
+    "playersNeeded": "How many players?",
+    "player": "player",
+    "players": "players"
   },
   "rsvpDeadline": {
     "title": "RSVP Deadline",
