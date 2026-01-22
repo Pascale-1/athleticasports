@@ -258,7 +258,8 @@ export const UnifiedEventForm = ({
       location_type: locationType,
       location_url: eventType === 'meetup' && values.locationUrl ? values.locationUrl : undefined,
       max_participants: values.maxParticipants ? parseInt(values.maxParticipants, 10) : undefined,
-      is_public: eventType === 'meetup' ? (values.isPublic ?? !teamId) : false,
+      // Pickup games are always public, team events are private, meetups follow toggle
+      is_public: isPickupGame ? true : (eventType === 'meetup' ? (values.isPublic ?? !teamId) : false),
       team_id: selectedTeamId || teamId || undefined,
       // Match-specific
       opponent_name: eventType === 'match' 
@@ -280,17 +281,26 @@ export const UnifiedEventForm = ({
     await onSubmit(eventData);
   };
 
+  // Detect pickup game mode - match type without team selected
+  const isPickupGame = eventType === 'match' && !selectedTeamId && !teamId;
+
   // Visibility conditions
   const showSportSelector = !teamId && (eventType === 'match' || eventType === 'training');
   const showTeamSelector = !teamId && (eventType === 'match' || eventType === 'training');
-  const showOpponentSection = eventType === 'match';
-  const showHomeAwayToggle = eventType === 'match';
+  const showOpponentSection = eventType === 'match' && !isPickupGame;
+  const showHomeAwayToggle = eventType === 'match' && !isPickupGame;
   const showMatchFormat = eventType === 'match';
   const showCategorySelector = eventType === 'meetup';
   const showLocationMode = eventType === 'meetup';
   const showVirtualLink = eventType === 'meetup' && (locationMode === 'virtual' || locationMode === 'hybrid');
   const showPublicToggle = eventType === 'meetup' && !teamId;
   const showLookingForPlayersSection = eventType === 'match' || eventType === 'training';
+  
+  // Determine actual visibility for display
+  const isPublicEvent = isPickupGame || (eventType === 'meetup' && form.watch('isPublic'));
+  const eventVisibilityLabel = isPublicEvent 
+    ? t('form.visibility.public') 
+    : t('form.visibility.teamOnly');
 
   return (
     <Form {...form}>
@@ -338,12 +348,36 @@ export const UnifiedEventForm = ({
                   onChange={handleTeamSelect}
                   sportFilter={selectedSport || undefined}
                   label={eventType === 'match' ? t('form.game.yourTeam') : t('details.team')}
-                  placeholder={t('form.game.selectTeam')}
+                  placeholder={eventType === 'match' ? t('form.game.pickupOrTeam') : t('form.game.selectTeam')}
+                  forEventCreation={true}
+                  showCreateButton={true}
+                  showPickupOption={eventType === 'match'}
+                  onTeamCreated={(teamId, teamName) => {
+                    setSelectedTeamId(teamId);
+                    setSelectedTeamName(teamName);
+                  }}
                 />
+                
+                {/* Visibility Indicator for Match events */}
+                {eventType === 'match' && (
+                  <div className="flex items-center gap-2 text-sm mt-2">
+                    {isPickupGame ? (
+                      <>
+                        <Globe className="h-4 w-4 text-accent-foreground" />
+                        <span className="text-muted-foreground">{t('form.visibility.public')}</span>
+                      </>
+                    ) : selectedTeamId ? (
+                      <>
+                        <Lock className="h-4 w-4 text-warning" />
+                        <span className="text-muted-foreground">{t('form.visibility.teamOnly')}</span>
+                      </>
+                    ) : null}
+                  </div>
+                )}
               </motion.div>
             )}
 
-            {/* Opponent Section - Match only */}
+            {/* Opponent Section - Match only (hidden for pickup games) */}
             {showOpponentSection && (
               <motion.div
                 key="opponent-section"
