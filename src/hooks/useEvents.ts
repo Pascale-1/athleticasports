@@ -29,6 +29,8 @@ export interface CreateEventData {
   players_needed?: number;
   // RSVP deadline
   rsvp_deadline?: string;
+  // Sport for matching
+  sport?: string;
 }
 
 export const useEvents = (teamId?: string | null, filters?: {

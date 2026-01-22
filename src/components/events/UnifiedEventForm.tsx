@@ -261,6 +261,8 @@ export const UnifiedEventForm = ({
       // Pickup games are always public, team events are private, meetups follow toggle
       is_public: isPickupGame ? true : (eventType === 'meetup' ? (values.isPublic ?? !teamId) : false),
       team_id: selectedTeamId || teamId || undefined,
+      // Sport for matching - save selected sport for pickup games and team events
+      sport: selectedSport || undefined,
       // Match-specific
       opponent_name: eventType === 'match' 
         ? (opponentInputMode === 'select' ? opponentTeamName : values.opponentName) || undefined
