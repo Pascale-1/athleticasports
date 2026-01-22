@@ -58,16 +58,22 @@ const Onboarding = () => {
         ? `other:${otherCity.trim()}`
         : selectedDistrict;
 
-      // Update profile with onboarding data
+      // Use upsert to handle case where profile might not exist (e.g., trigger failure)
       const { error } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          user_id: user.id,
+          username: `user_${user.id.substring(0, 8)}`,
+          display_name: user.user_metadata?.full_name || user.user_metadata?.name || null,
+          avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
           primary_sport: selectedSport,
           preferred_district: preferredDistrict,
           onboarding_completed: true,
           is_founding_member: true, // Beta users are founding members
-        })
-        .eq('user_id', user.id);
+        }, {
+          onConflict: 'user_id',
+          ignoreDuplicates: false,
+        });
 
       if (error) throw error;
 
