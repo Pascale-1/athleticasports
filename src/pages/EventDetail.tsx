@@ -292,6 +292,7 @@ const EventDetail = () => {
             maxParticipants={event.max_participants || undefined}
             allowPublicJoin={event.allow_public_join}
             isTeamMember={isTeamMember}
+            isCreator={currentUserId === event.created_by}
             requestStatus={userRequest?.status}
             isLoading={joinRequestsLoading}
             onRequestJoin={() => sendRequest()}

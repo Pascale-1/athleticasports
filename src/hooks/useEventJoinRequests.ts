@@ -169,21 +169,8 @@ export const useEventJoinRequests = (eventId: string) => {
 
       if (error) throw error;
 
-      // If approved, add user to event attendance
-      if (status === "approved") {
-        const request = requests.find(r => r.id === requestId);
-        if (request) {
-          await supabase
-            .from("event_attendance")
-            .upsert({
-              event_id: eventId,
-              user_id: request.user_id,
-              status: "attending",
-            }, {
-              onConflict: "event_id,user_id",
-            });
-        }
-      }
+      // Note: Attendance is automatically created by database trigger
+      // when status changes to 'approved'
 
       toast({
         title: status === "approved" ? t("joinRequests.approved") : t("joinRequests.rejected"),

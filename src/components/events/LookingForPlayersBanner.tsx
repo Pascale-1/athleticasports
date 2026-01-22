@@ -10,6 +10,7 @@ interface LookingForPlayersBannerProps {
   maxParticipants?: number;
   allowPublicJoin?: boolean;
   isTeamMember?: boolean;
+  isCreator?: boolean;
   onRequestJoin?: () => void;
   requestStatus?: "pending" | "approved" | "rejected" | null;
   isLoading?: boolean;
@@ -22,6 +23,7 @@ export const LookingForPlayersBanner = ({
   maxParticipants,
   allowPublicJoin = true,
   isTeamMember = false,
+  isCreator = false,
   onRequestJoin,
   requestStatus,
   isLoading = false,
@@ -39,7 +41,8 @@ export const LookingForPlayersBanner = ({
   }
 
   const renderActionButton = () => {
-    if (isTeamMember || !allowPublicJoin) return null;
+    // Hide button for creator, team members, or if public join disabled
+    if (isCreator || isTeamMember || !allowPublicJoin) return null;
 
     // Show status badge if user already requested
     if (requestStatus === "pending") {
