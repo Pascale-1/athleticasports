@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_deletion_requests: {
+        Row: {
+          confirmation_token: string | null
+          confirmed_at: string | null
+          created_at: string | null
+          email: string
+          expires_at: string | null
+          id: string
+          language: string
+          user_id: string
+        }
+        Insert: {
+          confirmation_token?: string | null
+          confirmed_at?: string | null
+          created_at?: string | null
+          email: string
+          expires_at?: string | null
+          id?: string
+          language?: string
+          user_id: string
+        }
+        Update: {
+          confirmation_token?: string | null
+          confirmed_at?: string | null
+          created_at?: string | null
+          email?: string
+          expires_at?: string | null
+          id?: string
+          language?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       activities: {
         Row: {
           calories: number | null
