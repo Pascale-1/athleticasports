@@ -81,6 +81,9 @@
     "isPublicDesc": "Visible to all users",
     "sport": "Sport",
     "selectSport": "Select a sport",
+    "selectEventType": "Which event type are you creating?",
+    "preview": "Preview",
+    "cancel": "Cancel",
     "training": {
       "title": "Training Title",
       "titlePlaceholder": "e.g., Tuesday Practice Session",
