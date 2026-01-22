@@ -40,11 +40,19 @@
   "details": {
     "when": "When",
     "where": "Where",
-    "participants": "Participants",
-    "maxParticipants": "Available spots",
+    "participants": "spots filled",
+    "maxParticipants": "available spots",
     "description": "Description",
     "organizer": "Organizer",
-    "team": "Team"
+    "team": "Team",
+    "whoComing": "Who's Coming",
+    "whereAndWhen": "When & Where",
+    "matchInfo": "Match Info",
+    "tapToOpenMaps": "Tap to open in Maps",
+    "openVenueLink": "Open Venue Link",
+    "about": "About",
+    "showLess": "Show less",
+    "readMore": "Read more"
   },
   "rsvp": {
     "going": "Going",
@@ -187,8 +195,19 @@
   },
   "invite": {
     "title": "Invite Participants",
+    "shareEvent": "Share Event",
     "shareLink": "Share Link",
-    "linkCopied": "Link copied!"
+    "linkCopied": "Link copied to clipboard",
+    "paused": "Paused",
+    "allowJoining": "Allow joining",
+    "anyoneCanRsvp": "Anyone with link can RSVP",
+    "regenerateCode": "Regenerate Code",
+    "codeRegenerated": "Code regenerated!",
+    "oldLinksInvalid": "Old invite links will no longer work",
+    "publicJoinEnabled": "Public joining enabled",
+    "publicJoinDisabled": "Public joining disabled",
+    "sharingPaused": "Link sharing is paused",
+    "joinMessage": "Join me for {{title}}!"
   },
   "edit": {
     "title": "Edit Event",

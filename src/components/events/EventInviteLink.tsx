@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ export const EventInviteLink = ({
   allowPublicJoin,
   eventTitle,
 }: EventInviteLinkProps) => {
+  const { t } = useTranslation(['events', 'common']);
   const { toast } = useToast();
   const { openExternalUrl } = useExternalLink();
   const [isRegenerating, setIsRegenerating] = useState(false);
@@ -42,8 +44,8 @@ export const EventInviteLink = ({
   const copyToClipboard = () => {
     navigator.clipboard.writeText(inviteLink);
     toast({
-      title: "Copied!",
-      description: "Link copied to clipboard",
+      title: t('common:actions.copied'),
+      description: t('events:invite.linkCopied'),
     });
   };
 
@@ -62,14 +64,14 @@ export const EventInviteLink = ({
       if (error) throw error;
 
       toast({
-        title: "Code regenerated!",
-        description: "Old invite links will no longer work",
+        title: t('events:invite.codeRegenerated'),
+        description: t('events:invite.oldLinksInvalid'),
       });
 
       window.location.reload();
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t('common:errors.generic'),
         description: error.message,
         variant: "destructive",
       });
@@ -89,14 +91,14 @@ export const EventInviteLink = ({
 
       setLocalAllowPublicJoin(enabled);
       toast({
-        title: enabled ? "Public joining enabled" : "Public joining disabled",
+        title: enabled ? t('events:invite.publicJoinEnabled') : t('events:invite.publicJoinDisabled'),
         description: enabled 
-          ? "Anyone with the link can join" 
-          : "Link sharing is paused",
+          ? t('events:invite.anyoneCanRsvp')
+          : t('events:invite.sharingPaused'),
       });
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t('common:errors.generic'),
         description: error.message,
         variant: "destructive",
       });
@@ -104,12 +106,12 @@ export const EventInviteLink = ({
   };
 
   const shareViaWhatsApp = async () => {
-    const message = `Join me for ${eventTitle}! ${inviteLink}`;
+    const message = t('events:invite.joinMessage', { title: eventTitle }) + ' ' + inviteLink;
     await openExternalUrl(`https://wa.me/?text=${encodeURIComponent(message)}`);
   };
 
   const shareViaSMS = () => {
-    const message = `Join me for ${eventTitle}! ${inviteLink}`;
+    const message = t('events:invite.joinMessage', { title: eventTitle }) + ' ' + inviteLink;
     // SMS uses native URL scheme, handled directly by the OS
     window.location.href = `sms:?body=${encodeURIComponent(message)}`;
   };
@@ -119,11 +121,11 @@ export const EventInviteLink = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Share2 className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium">Share Event</span>
+          <span className="text-sm font-medium">{t('events:invite.shareEvent')}</span>
           {localAllowPublicJoin ? (
-            <span className="text-xs text-success">Active</span>
+            <span className="text-xs text-success">{t('common:status.active')}</span>
           ) : (
-            <span className="text-xs text-muted-foreground">Paused</span>
+            <span className="text-xs text-muted-foreground">{t('events:invite.paused')}</span>
           )}
         </div>
         
@@ -137,9 +139,9 @@ export const EventInviteLink = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-sm">Allow joining</Label>
+                  <Label className="text-sm">{t('events:invite.allowJoining')}</Label>
                   <p className="text-xs text-muted-foreground">
-                    Anyone with link can RSVP
+                    {t('events:invite.anyoneCanRsvp')}
                   </p>
                 </div>
                 <Switch
@@ -155,7 +157,7 @@ export const EventInviteLink = ({
                 disabled={isRegenerating}
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${isRegenerating ? 'animate-spin' : ''}`} />
-                Regenerate Code
+                {t('events:invite.regenerateCode')}
               </Button>
             </div>
           </PopoverContent>

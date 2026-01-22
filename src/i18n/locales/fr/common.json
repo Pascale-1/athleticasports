@@ -111,14 +111,15 @@
     "recentActivity": "Activité récente",
     "noActivity": "Aucune activité récente",
     "noActivityDesc": "Votre fil d'activité apparaîtra ici",
-    "createdTeam": "A créé une équipe",
-    "joinedTeam": "A rejoint une équipe",
-    "createdEvent": "A créé un événement",
-    "rsvp": "S'est inscrit à un événement",
-    "attending": "Participe à un événement",
-    "loggedActivity": "A enregistré une activité",
-    "created": "A créé \"{{name}}\"",
-    "joined": "A rejoint \"{{name}}\""
+    "createdTeam": "Équipe créée",
+    "joinedTeam": "A rejoint",
+    "createdEvent": "Événement créé",
+    "rsvp": "Inscription",
+    "attending": "Participe à",
+    "loggedActivity": "Activité enregistrée",
+    "created": "A créé « {{name}} »",
+    "joined": "A rejoint « {{name}} »",
+    "attendingEvent": "Participe à « {{name}} »"
   },
   "invitations": {
     "pending": "Invitations en attente",

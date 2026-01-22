@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
+import { fr, enUS } from 'date-fns/locale';
+import i18n from '@/i18n';
 import { useRealtimeSubscription } from '@/lib/realtimeManager';
 
 export interface Activity {
@@ -8,13 +10,9 @@ export interface Activity {
   username: string;
   displayName?: string;
   avatarUrl?: string;
-  activityType: string;
+  actionType: string; // Raw action type for translation in component
   timeAgo: string;
-  description?: string;
-  achievements?: string[];
-  likes?: number;
-  comments?: number;
-  imageUrl?: string;
+  metadata?: Record<string, any>; // Raw metadata for translation
   createdAt: string;
   actionIcon?: 'users' | 'user-plus' | 'calendar' | 'check' | 'activity';
 }
@@ -30,45 +28,29 @@ export const useActivityFeed = (userId?: string) => {
 
   const transformActivityLog = (log: any): Activity => {
     const profile = log.profiles;
-    const timeAgo = formatDistanceToNow(new Date(log.created_at), { addSuffix: true });
+    const locale = i18n.language === 'fr' ? fr : enUS;
+    const timeAgo = formatDistanceToNow(new Date(log.created_at), { addSuffix: true, locale });
     
-    let description = '';
-    let activityType = '';
     let actionIcon: Activity['actionIcon'] = 'activity';
     
     switch (log.action_type) {
       case 'team_created':
-        activityType = 'Created Team';
-        description = `Created "${log.metadata.team_name}"`;
         actionIcon = 'users';
         break;
       case 'team_joined':
-        activityType = 'Joined Team';
-        description = `Joined "${log.metadata.team_name}"`;
         actionIcon = 'user-plus';
         break;
       case 'event_created':
-        activityType = 'Created Event';
-        const eventTypeEmoji = log.metadata.event_type === 'training' ? '🏋️' : 
-                              log.metadata.event_type === 'match' ? '⚽' : '👥';
-        description = `${eventTypeEmoji} ${log.metadata.event_title}`;
         actionIcon = 'calendar';
         break;
       case 'event_rsvp':
-        activityType = 'RSVP';
-        description = `Attending "${log.metadata.event_title}"`;
         actionIcon = 'check';
         break;
       case 'activity_logged':
-        activityType = log.metadata.activity_type || 'Activity';
-        const distanceStr = log.metadata.distance ? ` - ${log.metadata.distance}km` : '';
-        const durationStr = log.metadata.duration ? ` • ${Math.round(log.metadata.duration / 60)}min` : '';
-        description = `${log.metadata.title}${distanceStr}${durationStr}`;
         actionIcon = 'activity';
         break;
       default:
-        activityType = 'Activity';
-        description = 'Logged an activity';
+        actionIcon = 'activity';
     }
     
     return {
@@ -76,11 +58,9 @@ export const useActivityFeed = (userId?: string) => {
       username: profile?.username || 'Unknown',
       displayName: profile?.display_name,
       avatarUrl: profile?.avatar_url,
-      activityType,
+      actionType: log.action_type, // Pass raw action type
       timeAgo,
-      description,
-      likes: 0,
-      comments: 0,
+      metadata: log.metadata, // Pass raw metadata for translation in component
       createdAt: log.created_at,
       actionIcon,
     };

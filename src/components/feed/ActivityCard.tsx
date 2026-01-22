@@ -9,9 +9,9 @@ interface ActivityCardProps {
   username: string;
   displayName?: string;
   avatarUrl?: string;
-  activityType: string;
+  actionType: string; // Raw action type for translation
   timeAgo: string;
-  description?: string;
+  metadata?: Record<string, any>; // Raw metadata for translation
   achievements?: string[];
   likes?: number;
   comments?: number;
@@ -23,9 +23,9 @@ export const ActivityCard = memo(({
   username,
   displayName,
   avatarUrl,
-  activityType,
+  actionType,
   timeAgo,
-  description,
+  metadata,
   achievements,
   likes = 0,
   comments = 0,
@@ -61,18 +61,47 @@ export const ActivityCard = memo(({
     }
   };
 
-  // Translate activity type
-  const getTranslatedActivityType = (type: string) => {
-    const typeMap: Record<string, string> = {
-      'Created Team': t('activity.createdTeam'),
-      'Joined Team': t('activity.joinedTeam'),
-      'Created Event': t('activity.createdEvent'),
-      'RSVP': t('activity.rsvp'),
-      'Attending': t('activity.attending'),
-      'Activity': t('activity.title'),
-    };
-    return typeMap[type] || type;
+  // Translate activity type based on raw action type
+  const getTranslatedActivityType = (): string => {
+    switch (actionType) {
+      case 'team_created':
+        return t('activity.createdTeam');
+      case 'team_joined':
+        return t('activity.joinedTeam');
+      case 'event_created':
+        return t('activity.createdEvent');
+      case 'event_rsvp':
+        return t('activity.rsvp');
+      case 'activity_logged':
+        return t('activity.loggedActivity');
+      default:
+        return t('activity.title');
+    }
   };
+
+  // Translate description with proper localization
+  const getTranslatedDescription = (): string => {
+    switch (actionType) {
+      case 'team_created':
+        return t('activity.created', { name: metadata?.team_name || '' });
+      case 'team_joined':
+        return t('activity.joined', { name: metadata?.team_name || '' });
+      case 'event_created':
+        const eventTypeEmoji = metadata?.event_type === 'training' ? '🏋️' : 
+                              metadata?.event_type === 'match' ? '⚽' : '👥';
+        return `${eventTypeEmoji} ${metadata?.event_title || ''}`;
+      case 'event_rsvp':
+        return t('activity.attendingEvent', { name: metadata?.event_title || '' });
+      case 'activity_logged':
+        const distanceStr = metadata?.distance ? ` - ${metadata.distance}km` : '';
+        const durationStr = metadata?.duration ? ` • ${Math.round(metadata.duration / 60)}min` : '';
+        return `${metadata?.title || ''}${distanceStr}${durationStr}`;
+      default:
+        return '';
+    }
+  };
+
+  const translatedDescription = getTranslatedDescription();
 
   return (
     <Card className="overflow-hidden hover-lift transition-all duration-200 active:scale-[0.98] w-full max-w-full min-w-0">
@@ -90,7 +119,7 @@ export const ActivityCard = memo(({
           </p>
           <div className="flex items-center gap-2 text-caption text-muted-foreground flex-wrap">
             {getActionIcon()}
-            <span>{getTranslatedActivityType(activityType)}</span>
+            <span>{getTranslatedActivityType()}</span>
             <span>•</span>
             <Clock className="h-3 w-3" />
             <span>{timeAgo}</span>
@@ -110,10 +139,10 @@ export const ActivityCard = memo(({
         </div>
       )}
 
-      {/* Content */}
-      {description && (
+      {/* Content - translated description */}
+      {translatedDescription && (
         <div className="px-4 py-3">
-          <p className="text-body leading-relaxed break-words hyphens-auto max-w-full">{description}</p>
+          <p className="text-body leading-relaxed break-words hyphens-auto max-w-full">{translatedDescription}</p>
         </div>
       )}
 
