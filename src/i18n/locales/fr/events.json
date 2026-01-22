@@ -81,6 +81,9 @@
     "isPublicDesc": "Visible par tous les utilisateurs",
     "sport": "Sport",
     "selectSport": "Sélectionner un sport",
+    "selectEventType": "Quel type d'événement créez-vous ?",
+    "preview": "Aperçu",
+    "cancel": "Annuler",
     "training": {
       "title": "Titre de l'entraînement",
       "titlePlaceholder": "ex: Entraînement du mardi",
