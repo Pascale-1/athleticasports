@@ -12,6 +12,7 @@ import { AddToCalendarButton } from "@/components/events/AddToCalendarButton";
 import { LookingForPlayersBanner } from "@/components/events/LookingForPlayersBanner";
 import { RSVPDeadlineDisplay } from "@/components/events/RSVPDeadlineDisplay";
 import { EventJoinRequests } from "@/components/events/EventJoinRequests";
+import { MatchProposalInlineCard } from "@/components/matching/MatchProposalInlineCard";
 import { 
   ArrowLeft, 
   Clock, 
@@ -36,7 +37,7 @@ import { useEventAttendance } from "@/hooks/useEventAttendance";
 import { useEventJoinRequests } from "@/hooks/useEventJoinRequests";
 import { useExternalLink } from "@/hooks/useExternalLink";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { format, isSameDay } from "date-fns";
 import { EVENT_CONFIG } from "@/lib/eventConfig";
@@ -75,6 +76,7 @@ const EventDetail = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [isTeamMember, setIsTeamMember] = useState(false);
+  const [userProposal, setUserProposal] = useState<{ id: string; status: string } | null>(null);
 
   const { events, loading, deleteEvent, updateEvent } = useEvents();
   const event = events.find(e => e.id === eventId);
@@ -87,6 +89,47 @@ const EventDetail = () => {
     rejectRequest, 
     loading: joinRequestsLoading 
   } = useEventJoinRequests(eventId || '');
+
+  // Fetch user's match proposal for this event
+  useEffect(() => {
+    const fetchUserProposal = async () => {
+      if (!currentUserId || !eventId) return;
+      
+      const { data } = await supabase
+        .from("match_proposals")
+        .select("id, status")
+        .eq("event_id", eventId)
+        .eq("player_user_id", currentUserId)
+        .maybeSingle();
+      
+      setUserProposal(data);
+    };
+    fetchUserProposal();
+  }, [currentUserId, eventId]);
+
+  // Determine if user should see RSVP bar vs proposal card
+  const canDirectRSVP = useMemo(() => {
+    // Already attending/responded - show RSVP bar for status updates
+    if (userStatus) return true;
+    
+    // Creator can always RSVP
+    if (currentUserId === event?.created_by) return true;
+    
+    // Team members can directly RSVP
+    if (isTeamMember) return true;
+    
+    // User with pending proposal should use proposal flow instead
+    if (userProposal?.status === 'pending') return false;
+    
+    // For "looking for players" events, non-members must request to join
+    if (event?.looking_for_players && !isTeamMember) {
+      // They should use the join request flow, not direct RSVP
+      return false;
+    }
+    
+    // Otherwise, for public events, allow direct RSVP
+    return event?.is_public ?? false;
+  }, [currentUserId, event, isTeamMember, userProposal, userStatus]);
 
   // Wrap approve/reject handlers to refetch attendance after approval
   const handleApproveRequest = async (requestId: string) => {
@@ -511,16 +554,32 @@ const EventDetail = () => {
         )}
       </motion.div>
 
-      {/* Sticky RSVP Bar */}
-      <EventRSVPBar
-        userStatus={userStatus}
-        isCommitted={isCommitted}
-        stats={stats}
-        onUpdateAttendance={handleAttendanceUpdate}
-        onRemoveAttendance={handleRemoveAttendance}
-        loading={attendanceLoading}
-        rsvpDeadline={event.rsvp_deadline}
-      />
+      {/* Match Proposal Card - for users matched via the matching system */}
+      {userProposal?.status === 'pending' && (
+        <MatchProposalInlineCard
+          proposalId={userProposal.id}
+          onAccepted={() => {
+            setUserProposal({ ...userProposal, status: 'accepted' });
+            refetchAttendance();
+          }}
+          onDeclined={() => {
+            setUserProposal({ ...userProposal, status: 'declined' });
+          }}
+        />
+      )}
+
+      {/* Sticky RSVP Bar - only show if user can directly RSVP */}
+      {canDirectRSVP && (
+        <EventRSVPBar
+          userStatus={userStatus}
+          isCommitted={isCommitted}
+          stats={stats}
+          onUpdateAttendance={handleAttendanceUpdate}
+          onRemoveAttendance={handleRemoveAttendance}
+          loading={attendanceLoading}
+          rsvpDeadline={event.rsvp_deadline}
+        />
+      )}
 
       {/* Edit Event Dialog */}
       {event && (

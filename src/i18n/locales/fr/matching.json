@@ -41,7 +41,13 @@
     "expired": "Expirée",
     "sentAt": "Envoyée",
     "wantsToPlay": "{{name}} veut jouer avec vous",
-    "youProposed": "Vous avez proposé une partie"
+    "youProposed": "Vous avez proposé une partie",
+    "matchedWithGame": "Vous avez été matché avec cette partie !",
+    "respondBelow": "Acceptez ou refusez pour répondre",
+    "commitTitle": "Confirmez votre engagement",
+    "commitDescription": "En acceptant, vous vous engagez à participer. L'organisateur compte sur vous !",
+    "commitCheckbox": "Je comprends et m'engage à participer",
+    "confirmAccept": "Confirmer et rejoindre"
   },
   "availability": {
     "title": "Ma disponibilité",
