@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
 import { AnimatePresence, motion, Easing } from "framer-motion";
-import { CalendarIcon, Globe, Lock, Link2, MapPin, Video } from "lucide-react";
+import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,9 @@ import { SportQuickSelector } from "./SportQuickSelector";
 import { DistrictSelector } from "@/components/location/DistrictSelector";
 import { MyTeamSelector } from "@/components/teams/MyTeamSelector";
 import { TeamSelector } from "@/components/teams/TeamSelector";
+
+// Recurrence types
+type RecurrenceType = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
 
 // Meetup categories
 const MEETUP_CATEGORIES = [
@@ -122,6 +125,11 @@ export const UnifiedEventForm = ({
   // Meetup-specific states
   const [locationMode, setLocationMode] = useState<'physical' | 'virtual' | 'hybrid'>('physical');
   const [selectedCategory, setSelectedCategory] = useState('');
+  
+  // Recurrence states
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('none');
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState<Date | undefined>(undefined);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -196,6 +204,25 @@ export const UnifiedEventForm = ({
     return categoryMap[value] || value;
   };
 
+  // Generate RRULE string from recurrence settings
+  const generateRecurrenceRule = (): string | undefined => {
+    if (!isRecurring || recurrenceType === 'none') return undefined;
+    
+    const freqMap: Record<RecurrenceType, string> = {
+      none: '',
+      daily: 'DAILY',
+      weekly: 'WEEKLY',
+      monthly: 'MONTHLY',
+      yearly: 'YEARLY'
+    };
+    
+    let rule = `FREQ=${freqMap[recurrenceType]}`;
+    if (recurrenceEndDate) {
+      rule += `;UNTIL=${format(recurrenceEndDate, "yyyyMMdd'T'235959'Z'")}`;
+    }
+    return rule;
+  };
+
   const handleSubmit = async (values: FormData) => {
     const [hours, minutes] = values.startTime.split(':').map(Number);
     const startDate = new Date(values.date);
@@ -231,6 +258,9 @@ export const UnifiedEventForm = ({
       match_format: eventType === 'match' ? values.matchFormat || undefined : undefined,
       // Meetup-specific
       meetup_category: eventType === 'meetup' ? selectedCategory || undefined : undefined,
+      // Recurrence
+      is_recurring: isRecurring,
+      recurrence_rule: generateRecurrenceRule(),
     };
 
     await onSubmit(eventData);
@@ -467,16 +497,16 @@ export const UnifiedEventForm = ({
           />
 
           {/* When Section */}
-          <div className="p-4 bg-muted/30 rounded-xl border space-y-4">
+          <div className="p-4 bg-muted/30 rounded-xl border space-y-4 overflow-hidden">
             <Label className="text-sm font-medium">{t('details.when')}</Label>
             
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* Date */}
               <FormField
                 control={form.control}
                 name="date"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
+                  <FormItem className="flex flex-col min-w-0">
                     <FormLabel className="text-xs">{t('form.date')}</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -484,12 +514,14 @@ export const UnifiedEventForm = ({
                           <Button
                             variant="outline"
                             className={cn(
-                              "h-11 pl-3 text-left font-normal",
+                              "h-11 pl-3 text-left font-normal w-full min-w-0",
                               !field.value && "text-muted-foreground"
                             )}
                           >
-                            {field.value ? format(field.value, "PPP") : t('form.pickDate')}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            <span className="truncate flex-1">
+                              {field.value ? format(field.value, "MMM dd, yyyy") : t('form.pickDate')}
+                            </span>
+                            <CalendarIcon className="ml-2 h-4 w-4 opacity-50 shrink-0" />
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
@@ -514,7 +546,7 @@ export const UnifiedEventForm = ({
                 control={form.control}
                 name="startTime"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="min-w-0">
                     <FormLabel className="text-xs">{t('form.startTime')}</FormLabel>
                     <FormControl>
                       <Input
@@ -537,6 +569,74 @@ export const UnifiedEventForm = ({
                 onChange={setDuration}
               />
             </div>
+          </div>
+
+          {/* Repeat Section */}
+          <div className="p-4 bg-muted/30 rounded-xl border space-y-4 overflow-hidden">
+            <Label className="text-sm font-medium flex items-center gap-2">
+              <Repeat className="h-4 w-4" />
+              {t('form.repeat')}
+            </Label>
+            
+            <div className="grid grid-cols-5 gap-2">
+              {(['none', 'daily', 'weekly', 'monthly', 'yearly'] as const).map((option) => (
+                <Button
+                  key={option}
+                  type="button"
+                  variant={recurrenceType === option ? 'default' : 'outline'}
+                  onClick={() => {
+                    setRecurrenceType(option);
+                    setIsRecurring(option !== 'none');
+                    if (option === 'none') setRecurrenceEndDate(undefined);
+                  }}
+                  className="h-10 text-xs px-1"
+                >
+                  {t(`form.recurrence.${option}`)}
+                </Button>
+              ))}
+            </div>
+            
+            {/* End date for recurring events */}
+            <AnimatePresence mode="sync">
+              {isRecurring && (
+                <motion.div
+                  key="recurrence-end"
+                  variants={fieldVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  transition={transitionConfig}
+                >
+                  <div className="space-y-2">
+                    <Label className="text-xs">{t('form.recurrence.until')}</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className="w-full h-11 justify-start text-left font-normal min-w-0"
+                        >
+                          <span className="truncate flex-1">
+                            {recurrenceEndDate 
+                              ? format(recurrenceEndDate, "MMM dd, yyyy") 
+                              : t('form.recurrence.noEndDate')}
+                          </span>
+                          <CalendarIcon className="ml-2 h-4 w-4 opacity-50 shrink-0" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={recurrenceEndDate}
+                          onSelect={setRecurrenceEndDate}
+                          disabled={(date) => date < new Date()}
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Where Section */}
