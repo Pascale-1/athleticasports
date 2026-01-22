@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { EventInviteLink } from "@/components/events/EventInviteLink";
 import { EventRSVPBar } from "@/components/events/EventRSVPBar";
 import { EventAttendees } from "@/components/events/EventAttendees";
@@ -12,7 +13,6 @@ import { LookingForPlayersBanner } from "@/components/events/LookingForPlayersBa
 import { RSVPDeadlineDisplay } from "@/components/events/RSVPDeadlineDisplay";
 import { 
   ArrowLeft, 
-  Calendar, 
   Clock, 
   MapPin, 
   Users, 
@@ -24,7 +24,9 @@ import {
   Shield,
   MoreVertical,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Plane,
+  Users2
 } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { useEventAttendance } from "@/hooks/useEventAttendance";
@@ -53,6 +55,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+
+// Helper to generate Google Maps URL from address
+const getGoogleMapsUrl = (address: string): string => {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+};
 
 const EventDetail = () => {
   const { eventId } = useParams();
@@ -106,7 +113,6 @@ const EventDetail = () => {
           if (data) setTeamName(data.name);
         });
 
-      // Check if current user is a team member
       if (currentUserId) {
         supabase.rpc('is_team_member', {
           _user_id: currentUserId,
@@ -161,193 +167,245 @@ const EventDetail = () => {
   const startDate = new Date(event.start_time);
   const endDate = new Date(event.end_time);
   const now = new Date();
-  const isPast = endDate < now;
+  const isPastEvent = endDate < now;
   const isOngoing = startDate <= now && endDate >= now;
 
-  // Format date/time
-  const dateStr = format(startDate, "EEEE, MMMM d, yyyy");
   const timeStr = isSameDay(startDate, endDate)
     ? `${format(startDate, "h:mm a")} - ${format(endDate, "h:mm a")}`
     : `${format(startDate, "MMM d, h:mm a")} - ${format(endDate, "MMM d, h:mm a")}`;
 
-  // Check if description needs truncation
   const descriptionLength = event.description?.length || 0;
   const shouldTruncateDescription = descriptionLength > 150;
+  const hasMatchDetails = event.type === 'match' && (event.opponent_name || event.match_format || event.home_away);
 
   return (
     <PageContainer className="pb-36 lg:pb-8">
       <motion.div 
-        className="space-y-6"
+        className="space-y-5"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        {/* Hero Header */}
-        <div className="relative -mx-4 -mt-4 px-4 pt-4 pb-6 bg-muted/30">
-          {/* Top bar */}
-          <div className="flex items-center justify-between mb-4">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => navigate(-1)}
-              className="h-9 -ml-2"
-            >
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              Back
-            </Button>
-            
-            {canEdit && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-9 w-9">
-                    <MoreVertical className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
-                    <Pencil className="h-4 w-4 mr-2" />
-                    {t('edit.title')}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setShowDeleteDialog(true)} className="text-destructive">
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    {t('common:actions.delete')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
+        {/* Hero Header with Color Accent */}
+        <div className="relative -mx-4 -mt-4">
+          <div 
+            className="h-1.5 rounded-b-sm" 
+            style={{ backgroundColor: eventConfig.bgColor }}
+          />
+          
+          <div className="px-4 pt-4 pb-5 bg-gradient-to-b from-muted/40 to-transparent">
+            <div className="flex items-center justify-between mb-4">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate(-1)}
+                className="h-9 -ml-2"
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                {t('common:actions.back', 'Back')}
+              </Button>
+              
+              {canEdit && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-9 w-9">
+                      <MoreVertical className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-popover">
+                    <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
+                      <Pencil className="h-4 w-4 mr-2" />
+                      {t('edit.title')}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => setShowDeleteDialog(true)} className="text-destructive">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      {t('common:actions.delete')}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
 
-          {/* Event type + status */}
-          <div className="flex items-center gap-2 mb-3">
-            <Badge 
-              variant="secondary"
-              className={cn("text-sm", eventConfig.color)}
-              style={{ backgroundColor: eventConfig.bgColor }}
-            >
-              <EventIcon className="h-3.5 w-3.5 mr-1" />
-              {eventConfig.label}
-            </Badge>
-            {isPast && <Badge variant="outline" className="bg-background/50">Past</Badge>}
-            {isOngoing && <Badge variant="default">Happening Now</Badge>}
-            {event.is_public && <Badge variant="outline" className="bg-background/50">Public</Badge>}
-          </div>
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <Badge 
+                variant="secondary"
+                className="text-sm font-medium"
+                style={{ backgroundColor: eventConfig.bgColor, color: eventConfig.color }}
+              >
+                <EventIcon className="h-3.5 w-3.5 mr-1" />
+                {eventConfig.label}
+              </Badge>
+              {teamName && (
+                <Badge variant="outline" className="bg-background/80">
+                  {teamName}
+                </Badge>
+              )}
+              {isPastEvent && <Badge variant="secondary">Past</Badge>}
+              {isOngoing && <Badge className="bg-success text-success-foreground animate-pulse">Live Now</Badge>}
+              {event.is_public && <Badge variant="outline" className="bg-background/80">Public</Badge>}
+            </div>
 
-          {/* Title */}
-          <h1 className="text-h1 font-heading font-bold mb-2">{event.title}</h1>
+            <h1 className="text-2xl font-heading font-bold tracking-tight mb-4">{event.title}</h1>
 
-          {/* Date & Time prominent */}
-          <div className="flex items-center gap-2 text-sm">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>{dateStr}</span>
+            <div className="flex items-center gap-2">
+              <AddToCalendarButton event={event} />
+              {canEdit && (
+                <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)}>
+                  <Pencil className="h-4 w-4 mr-1" />
+                  {t('edit.title')}
+                </Button>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-2 text-sm mt-1">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            <span>{timeStr}</span>
-          </div>
-
-          {/* Add to Calendar Button */}
-          <div className="mt-3">
-            <AddToCalendarButton event={event} />
-          </div>
-
-          {/* Team badge */}
-          {teamName && (
-            <Badge variant="outline" className="mt-3 bg-background/50">
-              {teamName}
-            </Badge>
-          )}
         </div>
 
-        {/* Details Section */}
-        <div className="space-y-4">
-          {/* Looking for Players Banner */}
-          {event.looking_for_players && event.players_needed && (
-            <LookingForPlayersBanner
-              playersNeeded={event.players_needed}
-              currentAttending={stats.attending}
-              maxParticipants={event.max_participants || undefined}
-              allowPublicJoin={event.allow_public_join}
-              isTeamMember={isTeamMember}
-              onRequestJoin={() => {
-                toast({
-                  title: "Request sent",
-                  description: "The organizer will be notified of your interest.",
-                });
-              }}
-            />
-          )}
+        {/* Looking for Players Banner */}
+        {event.looking_for_players && event.players_needed && (
+          <LookingForPlayersBanner
+            playersNeeded={event.players_needed}
+            currentAttending={stats.attending}
+            maxParticipants={event.max_participants || undefined}
+            allowPublicJoin={event.allow_public_join}
+            isTeamMember={isTeamMember}
+            onRequestJoin={() => {
+              toast({
+                title: "Request sent",
+                description: "The organizer will be notified of your interest.",
+              });
+            }}
+          />
+        )}
 
-          {/* RSVP Deadline */}
-          {event.rsvp_deadline && (
-            <RSVPDeadlineDisplay deadline={event.rsvp_deadline} />
-          )}
+        {/* RSVP Deadline */}
+        {event.rsvp_deadline && (
+          <RSVPDeadlineDisplay deadline={event.rsvp_deadline} />
+        )}
 
-          {/* Location */}
-          {event.location && (
-            <div className="flex items-start gap-3">
-              <MapPin className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm">{event.location}</p>
-                {event.location_url && (
-                  <a 
-                    href={event.location_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline inline-flex items-center gap-1 mt-0.5"
-                  >
-                    View Map <ExternalLink className="h-3 w-3" />
-                  </a>
-                )}
+        {/* When & Where Card */}
+        <Card className="overflow-hidden">
+          <CardContent className="p-4 space-y-4">
+            <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">
+              {t('details.whereAndWhen', 'When & Where')}
+            </h3>
+            
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex flex-col items-center justify-center shrink-0">
+                <span className="text-[10px] font-semibold text-primary uppercase leading-none">
+                  {format(startDate, "MMM")}
+                </span>
+                <span className="text-lg font-bold text-primary leading-none">
+                  {format(startDate, "d")}
+                </span>
+              </div>
+              <div className="min-w-0">
+                <p className="font-medium">{format(startDate, "EEEE")}</p>
+                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Clock className="h-3.5 w-3.5" />
+                  <span>{timeStr}</span>
+                </div>
               </div>
             </div>
-          )}
 
-          {/* Capacity */}
-          {event.max_participants && (
-            <div className="flex items-center gap-3">
-              <Users className="h-5 w-5 text-muted-foreground shrink-0" />
-              <p className="text-sm">
-                {stats.attending} / {event.max_participants} spots filled
-              </p>
-            </div>
-          )}
+            {/* Location - Clickable with Google Maps */}
+            {event.location && (
+              <a 
+                href={event.location_url || getGoogleMapsUrl(event.location)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-3 -mx-1 rounded-lg hover:bg-muted/50 transition-colors group"
+              >
+                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0 group-hover:bg-muted/80">
+                  <MapPin className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+                    {event.location}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('details.tapToOpenMaps', 'Tap to open in Maps')}
+                  </p>
+                </div>
+                <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+              </a>
+            )}
 
-          {/* Match-specific: Opponent, Venue, Format */}
-          {event.type === 'match' && (
-            <>
+            {/* Capacity */}
+            {event.max_participants && (
+              <div className="flex items-center gap-3 pt-1">
+                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                  <Users className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">
+                    {stats.attending} / {event.max_participants} {t('details.participants', 'spots filled')}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {event.max_participants - stats.attending} {t('details.maxParticipants', 'available spots')}
+                  </p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Match Details Card */}
+        {hasMatchDetails && (
+          <Card>
+            <CardContent className="p-4 space-y-4">
+              <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">
+                {t('details.matchInfo', 'Match Info')}
+              </h3>
+              
               {event.opponent_name && (
                 <div className="flex items-center gap-3">
-                  <Shield className="h-5 w-5 text-muted-foreground shrink-0" />
-                  <p className="text-sm">vs {event.opponent_name}</p>
+                  <div className="h-10 w-10 rounded-full bg-warning/10 flex items-center justify-center shrink-0">
+                    <Shield className="h-5 w-5 text-warning" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">{t('game.opponent', 'Opponent')}</p>
+                    <p className="font-medium">{event.opponent_name}</p>
+                  </div>
                 </div>
               )}
-              {event.home_away && (
-                <div className="flex items-center gap-3">
-                  <Home className="h-5 w-5 text-muted-foreground shrink-0" />
-                  <p className="text-sm capitalize">{event.home_away} game</p>
-                </div>
-              )}
-              {event.match_format && (
-                <div className="flex items-center gap-3">
-                  <Trophy className="h-5 w-5 text-muted-foreground shrink-0" />
-                  <p className="text-sm">{event.match_format}</p>
-                </div>
-              )}
-            </>
-          )}
+              
+              <div className="flex flex-wrap gap-2">
+                {event.home_away && (
+                  <Badge variant="outline" className="capitalize">
+                    {event.home_away === 'home' && <Home className="h-3 w-3 mr-1" />}
+                    {event.home_away === 'away' && <Plane className="h-3 w-3 mr-1" />}
+                    {event.home_away}
+                  </Badge>
+                )}
+                {event.match_format && (
+                  <Badge variant="outline">
+                    <Trophy className="h-3 w-3 mr-1" />
+                    {event.match_format}
+                  </Badge>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-          {/* Meetup category */}
-          {event.type === 'meetup' && event.meetup_category && (
-            <div className="flex items-center gap-3">
-              <Users className="h-5 w-5 text-muted-foreground shrink-0" />
-              <p className="text-sm capitalize">{event.meetup_category.replace('_', ' ')}</p>
-            </div>
-          )}
+        {/* Who's Coming Card */}
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide mb-4">
+              <Users2 className="h-3.5 w-3.5 inline mr-1.5" />
+              {t('details.whoComing', "Who's Coming")}
+            </h3>
+            <EventAttendees attendees={attendees} currentUserId={currentUserId} />
+          </CardContent>
+        </Card>
 
-          {/* Description */}
-          {event.description && (
-            <div className="pt-2">
+        {/* About / Description Card */}
+        {event.description && (
+          <Card>
+            <CardContent className="p-4">
+              <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide mb-3">
+                {t('details.about', 'About')}
+              </h3>
               <p className={cn(
                 "text-sm text-muted-foreground whitespace-pre-wrap",
                 !descriptionExpanded && shouldTruncateDescription && "line-clamp-3"
@@ -358,7 +416,7 @@ const EventDetail = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="h-8 px-0 text-primary"
+                  className="h-8 px-0 text-primary mt-1"
                   onClick={() => setDescriptionExpanded(!descriptionExpanded)}
                 >
                   {descriptionExpanded ? (
@@ -368,27 +426,32 @@ const EventDetail = () => {
                   )}
                 </Button>
               )}
-            </div>
-          )}
-        </div>
+            </CardContent>
+          </Card>
+        )}
 
-        {/* Share Section (Admin only) */}
-        {canEdit && event.invite_code && (
-          <div className="border-t pt-4">
-            <EventInviteLink
-              eventId={event.id}
-              inviteCode={event.invite_code}
-              allowPublicJoin={event.allow_public_join ?? true}
-              eventTitle={event.title}
-            />
+        {/* Meetup category */}
+        {event.type === 'meetup' && event.meetup_category && (
+          <div className="flex items-center gap-2 px-1">
+            <Badge variant="secondary" className="capitalize">
+              {event.meetup_category.replace('_', ' ')}
+            </Badge>
           </div>
         )}
 
-        {/* Attendees Section */}
-        <div className="border-t pt-4">
-          <h2 className="text-base font-heading font-semibold mb-3">Who's Coming</h2>
-          <EventAttendees attendees={attendees} currentUserId={currentUserId} />
-        </div>
+        {/* Share Section (Admin only) */}
+        {canEdit && event.invite_code && (
+          <Card>
+            <CardContent className="p-4">
+              <EventInviteLink
+                eventId={event.id}
+                inviteCode={event.invite_code}
+                allowPublicJoin={event.allow_public_join ?? true}
+                eventTitle={event.title}
+              />
+            </CardContent>
+          </Card>
+        )}
       </motion.div>
 
       {/* Sticky RSVP Bar */}
