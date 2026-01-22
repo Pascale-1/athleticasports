@@ -63,6 +63,17 @@ const Auth = () => {
   });
 
   useEffect(() => {
+    // If we have a stale session (e.g., user was deleted), clear it so sign-in works again.
+    // This prevents: "403: User from sub claim in JWT does not exist".
+    supabase.auth.getUser().then(({ data, error }) => {
+      if (!error) return;
+      const msg = error.message || "";
+      if (msg.includes("User from sub claim in JWT does not exist") || msg.includes("user_not_found")) {
+        console.warn("[Auth] Detected invalid session, signing out.");
+        supabase.auth.signOut();
+      }
+    });
+
     // Check for OAuth errors in URL params
     const error = searchParams.get("error");
     const errorDescription = searchParams.get("error_description");
@@ -93,6 +104,48 @@ const Auth = () => {
         : "/auth";
       window.history.replaceState({}, "", cleanUrl);
     }
+  }, [searchParams, toast]);
+
+  useEffect(() => {
+    // When using skipBrowserRedirect, we must exchange the OAuth `code` for a session ourselves.
+    // This runs after the provider redirects back to /auth.
+    const code = searchParams.get("code");
+    if (!code) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        setGoogleLoading(true);
+        const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+        if (error) throw error;
+
+        // Clean URL (remove code/state) but preserve invitationId if present
+        const invitationIdParam = searchParams.get("invitationId");
+        const cleanUrl = invitationIdParam
+          ? `/auth?invitationId=${invitationIdParam}`
+          : "/auth";
+        window.history.replaceState({}, "", cleanUrl);
+      } catch (err: any) {
+        if (cancelled) return;
+        console.error("[Auth] OAuth code exchange failed", err);
+
+        // Also clear any broken session that may have been set
+        await supabase.auth.signOut();
+
+        toast({
+          variant: "destructive",
+          title: "Google Sign In Error",
+          description:
+            err?.message || "Something went wrong while finishing Google sign-in. Please try again.",
+        });
+      } finally {
+        if (!cancelled) setGoogleLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [searchParams, toast]);
 
   useEffect(() => {
