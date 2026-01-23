@@ -69,5 +69,35 @@
   "sports": {
     "popular": "⭐ Populaires",
     "other": "Autres sports"
+  },
+  "browseGames": "Trouver des matchs",
+  "browseGamesDesc": "Parcours les matchs qui cherchent des joueurs",
+  "scoringActive": "Matchs classés selon ta disponibilité en {{sport}}",
+  "filterBySport": "Sport",
+  "filterByLocation": "Lieu",
+  "noGamesFound": "Aucun match trouvé",
+  "noGamesDesc": "Reviens plus tard ou crée ton propre match",
+  "tryBroaderFilters": "Retire des filtres pour voir plus de matchs",
+  "gamesFound": "{{count}} matchs disponibles",
+  "expressInterest": "Ça m'intéresse",
+  "alreadyInterested": "Tu es déjà intéressé",
+  "interestExpressed": "Intérêt exprimé !",
+  "interestDesc": "L'organisateur verra ton intérêt",
+  "organizedBy": "par {{name}}",
+  "spotsLeft": "{{count}} places",
+  "full": "Complet",
+  "youreAvailable": "Tu es disponible",
+  "active": "Actif",
+  "until": "Jusqu'au",
+  "matchesWaiting": "{{count}} matchs en attente",
+  "readyToPlay": "Prêt à jouer ?",
+  "toggleDesc": "Active pour être matché",
+  "setAvailability": "Définir dispo",
+  "settingUp": "Configuration...",
+  "labels": {
+    "perfect": "Match parfait",
+    "great": "Excellent",
+    "good": "Bon match",
+    "fair": "Match"
   }
 }

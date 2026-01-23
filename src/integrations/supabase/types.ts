@@ -330,6 +330,7 @@ export type Database = {
           is_public: boolean
           is_recurring: boolean
           location: string | null
+          location_district: string | null
           location_type: Database["public"]["Enums"]["location_type"] | null
           location_url: string | null
           looking_for_players: boolean | null
@@ -344,6 +345,8 @@ export type Database = {
           players_needed: number | null
           recurrence_rule: string | null
           rsvp_deadline: string | null
+          skill_level_max: number | null
+          skill_level_min: number | null
           sport: string | null
           start_time: string
           team_id: string | null
@@ -364,6 +367,7 @@ export type Database = {
           is_public?: boolean
           is_recurring?: boolean
           location?: string | null
+          location_district?: string | null
           location_type?: Database["public"]["Enums"]["location_type"] | null
           location_url?: string | null
           looking_for_players?: boolean | null
@@ -378,6 +382,8 @@ export type Database = {
           players_needed?: number | null
           recurrence_rule?: string | null
           rsvp_deadline?: string | null
+          skill_level_max?: number | null
+          skill_level_min?: number | null
           sport?: string | null
           start_time: string
           team_id?: string | null
@@ -398,6 +404,7 @@ export type Database = {
           is_public?: boolean
           is_recurring?: boolean
           location?: string | null
+          location_district?: string | null
           location_type?: Database["public"]["Enums"]["location_type"] | null
           location_url?: string | null
           looking_for_players?: boolean | null
@@ -412,6 +419,8 @@ export type Database = {
           players_needed?: number | null
           recurrence_rule?: string | null
           rsvp_deadline?: string | null
+          skill_level_max?: number | null
+          skill_level_min?: number | null
           sport?: string | null
           start_time?: string
           team_id?: string | null
@@ -520,6 +529,8 @@ export type Database = {
           commitment_acknowledged_at: string | null
           event_id: string
           id: string
+          interest_level: string | null
+          match_score: number | null
           player_user_id: string
           proposed_at: string | null
           responded_at: string | null
@@ -529,6 +540,8 @@ export type Database = {
           commitment_acknowledged_at?: string | null
           event_id: string
           id?: string
+          interest_level?: string | null
+          match_score?: number | null
           player_user_id: string
           proposed_at?: string | null
           responded_at?: string | null
@@ -538,6 +551,8 @@ export type Database = {
           commitment_acknowledged_at?: string | null
           event_id?: string
           id?: string
+          interest_level?: string | null
+          match_score?: number | null
           player_user_id?: string
           proposed_at?: string | null
           responded_at?: string | null
@@ -605,6 +620,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           location: string | null
+          location_district: string | null
           skill_level: number | null
           sport: string
           user_id: string
@@ -617,6 +633,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           location?: string | null
+          location_district?: string | null
           skill_level?: number | null
           sport: string
           user_id: string
@@ -629,6 +646,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           location?: string | null
+          location_district?: string | null
           skill_level?: number | null
           sport?: string
           user_id?: string
