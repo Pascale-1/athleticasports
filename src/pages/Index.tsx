@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@supabase/supabase-js";
-import { Trophy, Users, TrendingUp, Swords, UserPlus, Search, Sparkles, Plus, CalendarCheck, ChevronRight, CheckCircle2 } from "lucide-react";
+import { Trophy, Users, TrendingUp, Swords, UserPlus, Search, Sparkles, Plus, CalendarCheck, ChevronRight, CheckCircle2, Camera } from "lucide-react";
 import { ActivityCard } from "@/components/feed/ActivityCard";
 import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
@@ -20,14 +20,11 @@ import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { FindMatchSheet } from "@/components/matching/FindMatchSheet";
 import { usePlayerAvailability } from "@/hooks/usePlayerAvailability";
 import { formatDateTimeShort } from "@/lib/dateUtils";
-import { LanguageToggle } from "@/components/settings/LanguageToggle";
 import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
 import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
-import { LogoutButton } from "@/components/settings/LogoutButton";
 import { useAvailableGames } from "@/hooks/useAvailableGames";
 import { AvailableGameCard } from "@/components/matching/AvailableGameCard";
 import { isToday, isTomorrow } from "date-fns";
-import { toast } from "sonner";
 
 interface Profile {
   id: string;
@@ -196,55 +193,72 @@ const Index = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          {/* Hero Section with Merged Stats */}
+          {/* Hero Section - Clean & Compact */}
           <AnimatedCard delay={0.1}>
-            <Card data-walkthrough="profile" className="p-3 space-y-2.5 relative">
-              {/* Language Toggle & Logout */}
-              <div className="absolute top-2 right-2 flex items-center gap-1">
-                <LanguageToggle />
-                <LogoutButton variant="header" />
-              </div>
-              
-              <div className="flex items-center gap-2.5">
-                <Avatar size="lg" ring="coral">
-                  <AvatarImage src={profile.avatar_url || undefined} />
-                  <AvatarFallback className="text-base bg-primary/10 text-primary">
-                    {profile.username.substring(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <h1 className="text-sm font-heading font-bold break-words max-w-full">
+            <Card data-walkthrough="profile" className="p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                {/* Avatar with camera overlay */}
+                <div className="relative group">
+                  <Avatar className="h-14 w-14 border-2 border-primary/20">
+                    <AvatarImage src={profile.avatar_url || undefined} />
+                    <AvatarFallback className="text-lg bg-primary/10 text-primary font-bold">
+                      {profile.username.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <button 
+                    onClick={() => navigate("/settings")}
+                    className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Camera className="h-4 w-4 text-white" />
+                  </button>
+                </div>
+                
+                {/* Greeting */}
+                <div className="flex-1 min-w-0 pt-1">
+                  <h1 className="text-section font-heading font-bold truncate">
                     {t('home.welcome', { name: profile.display_name || profile.username })}
                   </h1>
-                  <p className="text-xs text-muted-foreground">{t('home.readyToPlay')}</p>
+                  <p className="text-caption text-muted-foreground">{t('home.readyToPlay')}</p>
                 </div>
               </div>
 
-              {/* Compact Stats Row */}
-              <div className="flex items-center justify-around border-t pt-2.5">
+              {/* Stats Row - Larger touch targets */}
+              <div className="flex items-center justify-around border-t border-border/50 pt-3 -mx-1">
                 <button 
                   onClick={() => navigate("/teams?filter=my-teams")}
-                  className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all hover:bg-muted active:scale-95 min-h-[40px] min-w-[40px]"
+                  className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[56px]"
                 >
-                  <Users className="h-4 w-4 text-primary" />
-                  <p className="text-xs font-bold">{stats.teams}</p>
-                  <p className="text-[10px] text-muted-foreground">{t('home.teams')}</p>
+                  <div className="flex items-center gap-1.5">
+                    <Users className="h-4 w-4 text-primary" />
+                    <span className="text-base font-bold">{stats.teams}</span>
+                  </div>
+                  <span className="text-[11px] text-muted-foreground">{t('home.teams')}</span>
                 </button>
+                
+                <div className="w-px h-8 bg-border/50" />
+                
                 <button
                   onClick={() => navigate("/events?type=match")}
-                  className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all hover:bg-muted active:scale-95 min-h-[40px] min-w-[40px]"
+                  className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[56px]"
                 >
-                  <Swords className="h-4 w-4 text-primary" />
-                  <p className="text-xs font-bold">{stats.upcomingMatches}</p>
-                  <p className="text-[10px] text-muted-foreground">{t('home.games')}</p>
+                  <div className="flex items-center gap-1.5">
+                    <Swords className="h-4 w-4 text-primary" />
+                    <span className="text-base font-bold">{stats.upcomingMatches}</span>
+                  </div>
+                  <span className="text-[11px] text-muted-foreground">{t('home.games')}</span>
                 </button>
+                
+                <div className="w-px h-8 bg-border/50" />
+                
                 <button
                   onClick={() => navigate("/settings")}
-                  className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all hover:bg-muted active:scale-95 min-h-[40px] min-w-[40px]"
+                  className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[56px]"
                 >
-                  <TrendingUp className="h-4 w-4 text-primary" />
-                  <p className="text-xs font-bold">{stats.followers}</p>
-                  <p className="text-[10px] text-muted-foreground">{t('home.followers')}</p>
+                  <div className="flex items-center gap-1.5">
+                    <TrendingUp className="h-4 w-4 text-primary" />
+                    <span className="text-base font-bold">{stats.followers}</span>
+                  </div>
+                  <span className="text-[11px] text-muted-foreground">{t('home.followers')}</span>
                 </button>
               </div>
             </Card>
@@ -259,219 +273,226 @@ const Index = () => {
             variant="tip"
           />
 
-          {/* Quick Actions - 3 buttons: Availability, Organize, Create Team */}
+          {/* Quick Actions - 2x2 Grid Primary + Secondary */}
           <AnimatedCard delay={0.2}>
-            <div data-walkthrough="quick-actions" className="grid grid-cols-3 gap-2">
-              <Button 
-                variant="default"
-                className="flex flex-col items-center justify-center gap-1.5 h-14 px-2 bg-green-600 hover:bg-green-700 overflow-hidden"
-                onClick={() => setFindMatchSheetOpen(true)}
-              >
-                <CalendarCheck className="h-4 w-4 flex-shrink-0" />
-                <span className="text-[11px] font-medium text-center truncate max-w-full">{t('home.findGame')}</span>
-              </Button>
+            <div data-walkthrough="quick-actions" className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <Button 
+                  variant="default"
+                  className="flex flex-col items-center justify-center gap-1.5 h-16 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98]"
+                  onClick={() => setFindMatchSheetOpen(true)}
+                >
+                  <Search className="h-5 w-5" />
+                  <span className="text-xs font-medium leading-tight text-center">{t('home.findGame')}</span>
+                </Button>
+                
+                <Button 
+                  variant="default"
+                  className="flex flex-col items-center justify-center gap-1.5 h-16 active:scale-[0.98]"
+                  onClick={() => setCreateEventDialogOpen(true)}
+                >
+                  <Plus className="h-5 w-5" />
+                  <span className="text-xs font-medium leading-tight text-center">{t('home.organizeEvent')}</span>
+                </Button>
+              </div>
               
               <Button 
                 variant="outline"
-                className="flex flex-col items-center justify-center gap-1.5 h-14 px-2 overflow-hidden"
-                onClick={() => setCreateEventDialogOpen(true)}
-              >
-                <Plus className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="text-[11px] font-medium text-center truncate max-w-full">{t('home.organizeEvent')}</span>
-              </Button>
-              
-              <Button 
-                type="button"
-                variant="outline"
-                className="flex flex-col items-center justify-center gap-1.5 h-14 px-2 overflow-hidden"
+                className="w-full h-10 text-xs active:scale-[0.98]"
                 onClick={() => navigate("/teams/create")}
               >
-                <Users className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="text-[11px] font-medium text-center truncate max-w-full">{t('home.createTeam')}</span>
+                <Users className="h-4 w-4 mr-2" />
+                {t('home.createTeam')}
               </Button>
             </div>
           </AnimatedCard>
 
-          {/* Unified Games Section - Combines open games + your matches */}
+          {/* Games Section - Clear Separation */}
           <AnimatedCard delay={0.25}>
-            <Card data-walkthrough="games" className="p-3 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Swords className="h-4 w-4 text-primary" />
-                  <h2 className="text-xs font-heading font-semibold">{t('common:home.games')}</h2>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-primary min-h-[36px] text-xs"
-                  onClick={() => navigate("/events?type=match")}
-                >
-                  {t('common:actions.viewAll')}
-                </Button>
-              </div>
-              
-              {/* Active Availability Status */}
-              {availability && (
-                <div className="p-2.5 rounded-lg bg-primary/5 border border-primary/20 text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <Search className="h-3.5 w-3.5 text-primary" />
-                    <span className="font-medium">{t('common:home.lookingFor', { sport: availability.sport })}</span>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {availability.location_district || availability.location || t('common:home.anyLocation')}
-                  </p>
-                </div>
-              )}
-              
-              {/* Games to Join Section - with Quick Join */}
+            <div data-walkthrough="games" className="space-y-3">
+              {/* Games to Join */}
               {!gamesLoading && topAvailableGames.length > 0 && (
-                <div className="rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 p-2.5 space-y-1.5 border border-emerald-200/50 dark:border-emerald-800/30">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <UserPlus className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                      <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">{t('matching:gamesToJoin')}</span>
-                      <Badge variant="secondary" className="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-[10px]">
+                <Card className="p-3 bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200/50 dark:border-emerald-800/30">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/50">
+                        <UserPlus className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                      </div>
+                      <h2 className="text-section font-semibold text-emerald-700 dark:text-emerald-300">
+                        {t('matching:gamesToJoin')}
+                      </h2>
+                      <Badge className="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-[10px] border-0">
                         {topAvailableGames.length}
                       </Badge>
                     </div>
                     <Button
-                      variant="link"
+                      variant="ghost"
                       size="sm"
-                      className="text-[10px] p-0 h-auto text-emerald-600 dark:text-emerald-400"
+                      className="h-8 px-2 text-[11px] text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:bg-emerald-100/50"
                       onClick={() => navigate("/events?tab=open")}
                     >
-                      {t('matching:viewAll')}
+                      {t('actions.viewAll')}
+                      <ChevronRight className="h-3 w-3 ml-0.5" />
                     </Button>
                   </div>
-                  {topAvailableGames.map((game) => (
-                    <AvailableGameCard 
-                      key={game.id} 
-                      game={game} 
-                      compact
-                      showJoinBadge
-                    />
-                  ))}
-                </div>
+                  <div className="space-y-2">
+                    {topAvailableGames.map((game) => (
+                      <AvailableGameCard 
+                        key={game.id} 
+                        game={game} 
+                        compact
+                        showJoinBadge
+                      />
+                    ))}
+                  </div>
+                </Card>
               )}
               
-              {/* Your Upcoming Games Section */}
+              {/* Active Availability Status */}
+              {availability && (
+                <Card className="p-3 bg-primary/5 border-primary/20">
+                  <div className="flex items-center gap-2">
+                    <Search className="h-4 w-4 text-primary" />
+                    <div className="flex-1">
+                      <span className="text-sm font-medium">{t('home.lookingFor', { sport: availability.sport })}</span>
+                      <p className="text-[11px] text-muted-foreground">
+                        {availability.location_district || availability.location || t('home.anyLocation')}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              )}
+              
+              {/* Your Upcoming Games */}
               {matchesLoading ? (
-                <div className="space-y-1.5">
-                  {[1, 2].map((i) => (
-                    <div key={i} className="h-14 bg-muted animate-pulse rounded-lg" />
-                  ))}
-                </div>
+                <Card className="p-3">
+                  <div className="space-y-2">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="h-14 bg-muted animate-pulse rounded-lg" />
+                    ))}
+                  </div>
+                </Card>
               ) : upcomingMatches.length > 0 ? (
-                <div className="rounded-xl bg-slate-50/50 dark:bg-slate-900/20 p-2.5 space-y-1.5 border border-slate-200/50 dark:border-slate-700/30">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <CalendarCheck className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" />
-                      <span className="text-xs font-semibold">{t('matching:yourUpcomingGames')}</span>
+                <Card className="p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-muted">
+                        <CalendarCheck className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <h2 className="text-section font-semibold">{t('matching:yourUpcomingGames')}</h2>
                       <Badge variant="secondary" className="text-[10px]">
                         {upcomingMatches.length}
                       </Badge>
                     </div>
                     <Button
-                      variant="link"
+                      variant="ghost"
                       size="sm"
-                      className="text-[10px] p-0 h-auto text-muted-foreground"
+                      className="h-8 px-2 text-[11px] text-muted-foreground"
                       onClick={() => navigate("/events?tab=my")}
                     >
-                      {t('common:actions.viewAll')}
+                      {t('actions.viewAll')}
+                      <ChevronRight className="h-3 w-3 ml-0.5" />
                     </Button>
                   </div>
-                  {upcomingMatches.map((match) => {
-                    const matchDate = new Date(match.start_time);
-                    const dateLabel = isToday(matchDate) ? t('common:time.today') : isTomorrow(matchDate) ? t('common:time.tomorrow') : null;
-                    
-                    return (
-                      <div 
-                        key={match.id}
-                        onClick={() => navigate(`/events/${match.id}`)}
-                        className="flex items-center gap-2.5 p-2.5 rounded-lg bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 cursor-pointer transition-colors"
-                      >
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                          <Trophy className="h-4 w-4 text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <p className="font-medium text-xs truncate">{match.title}</p>
-                            {dateLabel && (
-                              <Badge 
-                                variant="secondary" 
-                                className={`text-[9px] px-1 py-0 ${
-                                  isToday(matchDate) 
-                                    ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300' 
-                                    : 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300'
-                                }`}
-                              >
-                                {dateLabel.toUpperCase()}
-                              </Badge>
-                            )}
+                  <div className="space-y-2">
+                    {upcomingMatches.map((match) => {
+                      const matchDate = new Date(match.start_time);
+                      const dateLabel = isToday(matchDate) ? t('time.today') : isTomorrow(matchDate) ? t('time.tomorrow') : null;
+                      
+                      return (
+                        <div 
+                          key={match.id}
+                          onClick={() => navigate(`/events/${match.id}`)}
+                          className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted cursor-pointer transition-colors active:scale-[0.99]"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <Trophy className="h-5 w-5 text-primary" />
                           </div>
-                          <p className="text-[11px] text-muted-foreground">
-                            {formatDateTimeShort(match.start_time)}
-                          </p>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-sm truncate">{match.title}</p>
+                              {dateLabel && (
+                                <Badge 
+                                  variant="secondary" 
+                                  className={`text-[9px] px-1.5 py-0 shrink-0 ${
+                                    isToday(matchDate) 
+                                      ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300' 
+                                      : 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300'
+                                  }`}
+                                >
+                                  {dateLabel.toUpperCase()}
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {formatDateTimeShort(match.start_time)}
+                            </p>
+                          </div>
+                          <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
                         </div>
-                        <CheckCircle2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : !gamesLoading && topAvailableGames.length === 0 && !availability ? (
-                <div className="text-center py-4">
-                  <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-muted flex items-center justify-center">
-                    <CalendarCheck className="h-5 w-5 text-muted-foreground" />
+                      );
+                    })}
                   </div>
-                  <p className="text-muted-foreground text-xs mb-2">{t('common:home.noUpcomingGames')}</p>
+                </Card>
+              ) : !gamesLoading && topAvailableGames.length === 0 && !availability ? (
+                <Card className="p-6 text-center">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-muted flex items-center justify-center">
+                    <CalendarCheck className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <p className="text-muted-foreground text-sm mb-4">{t('home.noUpcomingGames')}</p>
                   <div className="flex gap-2 justify-center">
                     <Button 
                       variant="outline" 
                       size="sm"
+                      className="h-10"
                       onClick={() => setFindMatchSheetOpen(true)}
                     >
-                      <Search className="h-3.5 w-3.5 mr-1.5" />
-                      {t('common:home.lookingToPlay')}
+                      <Search className="h-4 w-4 mr-1.5" />
+                      {t('home.lookingToPlay')}
                     </Button>
                     <Button 
                       size="sm"
+                      className="h-10"
                       onClick={() => setCreateEventDialogOpen(true)}
                     >
-                      <Plus className="h-3.5 w-3.5 mr-1.5" />
-                      {t('common:home.createEvent')}
+                      <Plus className="h-4 w-4 mr-1.5" />
+                      {t('home.createEvent')}
                     </Button>
                   </div>
-                </div>
+                </Card>
               ) : null}
-            </Card>
+            </div>
           </AnimatedCard>
 
           {/* Activity Feed */}
           <motion.div 
             data-walkthrough="feed"
-            className="space-y-2.5"
+            className="space-y-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <h2 className="text-heading-3 font-semibold">{t('home.activityFeed')}</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-section font-semibold">{t('activity.recentActivity')}</h2>
+            </div>
 
             {feedLoading ? (
               <FeedSkeleton />
             ) : activities.length > 0 ? (
-              <div className="space-y-2.5">
-                {activities.map((activity, index) => (
-                  <AnimatedCard key={activity.id} delay={0.4 + index * 0.05} hover={false}>
+              <div className="space-y-2">
+                {activities.slice(0, 5).map((activity, index) => (
+                  <AnimatedCard key={activity.id} delay={0.35 + index * 0.05} hover={false}>
                     <ActivityCard {...activity} />
                   </AnimatedCard>
                 ))}
                 {hasMore && (
-                  <div className="flex justify-center pt-3">
+                  <div className="flex justify-center pt-2">
                     <Button
                       variant="outline"
+                      size="sm"
                       onClick={loadMore}
                       disabled={loadingMore}
-                      className="min-h-[44px]"
+                      className="h-10"
                     >
                       {loadingMore ? t('actions.loading') : t('actions.loadMore')}
                     </Button>

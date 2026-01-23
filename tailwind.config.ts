@@ -25,6 +25,15 @@ export default {
         body: ["Inter", "system-ui", "sans-serif"],
       },
       fontSize: {
+        // Semantic Typography Scale - Use these for consistency
+        "page-title": ["1.25rem", { lineHeight: "1.75rem", fontWeight: "700" }],
+        "section": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "600" }],
+        "card-title": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],
+        "body": ["0.8125rem", { lineHeight: "1.25rem" }],
+        "body-sm": ["0.75rem", { lineHeight: "1.125rem" }],
+        "caption": ["0.6875rem", { lineHeight: "1rem" }],
+        "micro": ["0.625rem", { lineHeight: "0.875rem" }],
+        // Legacy - keeping for backwards compatibility
         "xxs": ["0.625rem", { lineHeight: "1.4" }],
         "display": ["1.75rem", { lineHeight: "2.25rem", fontWeight: "700" }],
         "h1": ["1.25rem", { lineHeight: "1.75rem", fontWeight: "700" }],
@@ -32,8 +41,6 @@ export default {
         "h3": ["1rem", { lineHeight: "1.375rem", fontWeight: "600" }],
         "h4": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "600" }],
         "body-lg": ["0.9375rem", { lineHeight: "1.375rem" }],
-        "body": ["0.8125rem", { lineHeight: "1.25rem" }],
-        "caption": ["0.6875rem", { lineHeight: "1rem" }],
         "small": ["0.8125rem", { lineHeight: "1.25rem" }],
       },
       colors: {

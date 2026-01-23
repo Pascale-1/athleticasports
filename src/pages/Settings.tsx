@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Loader2, Upload, Share2 } from "lucide-react";
+import { Loader2, Upload, Share2, Camera } from "lucide-react";
 import { ProfileStats } from "@/components/settings/ProfileStats";
 import { ProfileTabs } from "@/components/settings/ProfileTabs";
 import { PageContainer } from "@/components/mobile/PageContainer";
@@ -104,20 +105,17 @@ const Settings = () => {
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop()?.toLowerCase();
 
-      // Valider le type MIME
       if (!file.type.startsWith('image/')) {
         toast.error("Only image files are allowed");
         return;
       }
 
-      // Limiter la taille (5MB)
       const MAX_FILE_SIZE = 5 * 1024 * 1024;
       if (file.size > MAX_FILE_SIZE) {
         toast.error("File is too large (max 5MB)");
         return;
       }
 
-      // Verifier l'extension
       const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
       if (!fileExt || !allowedExtensions.includes(fileExt)) {
         toast.error("Invalid file type. Allowed: jpg, jpeg, png, webp, gif");
@@ -201,7 +199,7 @@ const Settings = () => {
 
   return (
     <PageContainer>
-      <div className="max-w-4xl mx-auto space-y-4">
+      <div className="max-w-2xl mx-auto space-y-4">
         {/* Header */}
         <PageHeader
           title={t("profile.title")}
@@ -210,25 +208,25 @@ const Settings = () => {
           rightAction={<LogoutButton variant="header" />}
         />
 
-        {/* Hero Section */}
-        <div className="bg-card rounded-lg border border-border p-4">
-          <div className="flex flex-col items-center text-center space-y-3">
-            {/* Avatar */}
-            <div className="relative group">
-              <Avatar className="h-20 w-20 border-4 border-background shadow-lg">
+        {/* Hero Section - Left-aligned on mobile */}
+        <Card className="p-4">
+          <div className="flex items-start gap-4">
+            {/* Avatar with persistent camera icon */}
+            <div className="relative shrink-0">
+              <Avatar className="h-20 w-20 border-2 border-primary/20">
                 <AvatarImage src={profile.avatar_url || ""} />
-                <AvatarFallback className="text-2xl">
+                <AvatarFallback className="text-2xl font-bold bg-primary/10 text-primary">
                   {profile.display_name?.[0] || profile.username[0]}
                 </AvatarFallback>
               </Avatar>
               <label
                 htmlFor="avatar-upload"
-                className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                className="absolute -bottom-1 -right-1 p-1.5 bg-primary text-primary-foreground rounded-full cursor-pointer hover:bg-primary/90 transition-colors shadow-md"
               >
                 {uploading ? (
-                  <Loader2 className="h-6 w-6 text-white animate-spin" />
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (
-                  <Upload className="h-6 w-6 text-white" />
+                  <Camera className="h-3.5 w-3.5" />
                 )}
               </label>
               <input
@@ -241,36 +239,34 @@ const Settings = () => {
               />
             </div>
 
-            {/* Name and Username */}
-            <div className="space-y-1">
-              <h1 className="text-lg font-bold">
+            {/* Name and Info */}
+            <div className="flex-1 min-w-0 space-y-1">
+              <h1 className="text-lg font-bold truncate">
                 {profile.display_name || profile.username}
               </h1>
-              <p className="text-muted-foreground">@{profile.username}</p>
+              <p className="text-sm text-muted-foreground">@{profile.username}</p>
               {profile.is_founding_member && (
                 <FoundingMemberBadge size="sm" />
               )}
+              {profile.bio && (
+                <p className="text-xs text-muted-foreground line-clamp-2 mt-2">
+                  {profile.bio}
+                </p>
+              )}
             </div>
+          </div>
 
-            {/* Bio */}
-            {profile.bio && (
-              <p className="text-sm text-muted-foreground max-w-md">
-                {profile.bio}
-              </p>
-            )}
-
-            {/* Action Buttons */}
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleShare}>
-                <Share2 className="h-4 w-4 mr-2" />
-                Share Profile
-              </Button>
-            </div>
+          {/* Action Button */}
+          <div className="mt-4">
+            <Button variant="outline" size="sm" onClick={handleShare} className="w-full h-9">
+              <Share2 className="h-4 w-4 mr-2" />
+              {t('profile.shareProfile')}
+            </Button>
           </div>
 
           {/* Stats Row */}
           <ProfileStats userId={profile.user_id} />
-        </div>
+        </Card>
 
         {/* Tabbed Content */}
         <ProfileTabs

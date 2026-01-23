@@ -21,6 +21,8 @@ import { motion } from "framer-motion";
 import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getActiveSports } from "@/lib/sports";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const Teams = () => {
   const navigate = useNavigate();
@@ -79,8 +81,6 @@ const Teams = () => {
       allTeamIds.push(...(publicTeamsData || []).map((t: any) => t.id));
 
       if (allTeamIds.length > 0) {
-        // Single query to get member counts for all teams at once
-        // This eliminates the N+1 problem (previously: N RPC calls, now: 1 query)
         const uniqueTeamIds = [...new Set(allTeamIds)];
         const { data: countData } = await supabase
           .from("team_members")
@@ -89,11 +89,9 @@ const Teams = () => {
           .eq("status", "active");
 
         const newCounts: Record<string, number> = {};
-        // Initialize all team counts to 0
         uniqueTeamIds.forEach(teamId => {
           newCounts[teamId] = 0;
         });
-        // Count members per team
         countData?.forEach(member => {
           newCounts[member.team_id] = (newCounts[member.team_id] || 0) + 1;
         });
@@ -122,11 +120,9 @@ const Teams = () => {
     fetchTeams();
   }, []);
 
-  // Use ref to store fetchTeams for stable callback
   const fetchTeamsRef = useRef(fetchTeams);
   fetchTeamsRef.current = fetchTeams;
 
-  // Realtime subscription using centralized manager
   const handleRealtimeChange = useCallback(() => {
     fetchTeamsRef.current();
   }, []);
@@ -158,7 +154,7 @@ const Teams = () => {
     <PageContainer>
       <PullToRefresh onRefresh={handleRefresh}>
         <motion.div 
-          className="space-y-4"
+          className="space-y-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
@@ -166,16 +162,16 @@ const Teams = () => {
           {/* Header */}
           <PageHeader
             title={t('title')}
-            subtitle={`${myTeams.length} ${myTeams.length !== 1 ? t('memberPlural') : t('member')} • ${publicTeams.length} ${t('common:status.active').toLowerCase()}`}
+            subtitle={`${myTeams.length} ${t('myTeams').toLowerCase()} • ${publicTeams.length} ${t('discover').toLowerCase()}`}
             rightAction={
-              <Button onClick={() => navigate("/teams/create")} className="gap-2">
+              <Button onClick={() => navigate("/teams/create")} size="sm" className="gap-1.5 h-9">
                 <Plus className="h-4 w-4" />
-                {t('createTeam')}
+                <span className="hidden sm:inline">{t('createTeam')}</span>
               </Button>
             }
           />
 
-          {/* Teams Onboarding Hint - show only when user has no teams */}
+          {/* Teams Onboarding Hint */}
           {myTeams.length === 0 && (
             <OnboardingHint
               id="hint-teams"
@@ -190,7 +186,7 @@ const Teams = () => {
             />
           )}
 
-          {/* Search & Sport Dropdown */}
+          {/* Search & Sport Filter - Combined Row */}
           <motion.div
             className="flex gap-2"
             initial={{ opacity: 0, y: 10 }}
@@ -201,7 +197,7 @@ const Teams = () => {
               <TeamSearchBar value={searchQuery} onChange={setSearchQuery} placeholder={t('search.placeholder')} />
             </div>
             <Select value={activeSport} onValueChange={setActiveSport}>
-              <SelectTrigger className="w-[140px] h-10">
+              <SelectTrigger className="w-[100px] h-10">
                 <SelectValue placeholder={t('filters.sport')} />
               </SelectTrigger>
               <SelectContent>
@@ -217,45 +213,53 @@ const Teams = () => {
             </Select>
           </motion.div>
 
-          {/* View Toggle */}
+          {/* View Toggle - Compact */}
           <motion.div
-            className="flex items-center gap-1 bg-muted p-1 rounded-lg"
+            className="flex items-center gap-1 bg-muted/50 p-1 rounded-xl"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
           >
-            <Button
-              variant={showAllTeams ? "ghost" : "default"}
-              size="sm"
+            <button
+              className={cn(
+                "flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-xs font-medium transition-all active:scale-[0.98]",
+                !showAllTeams 
+                  ? "bg-background text-foreground shadow-sm" 
+                  : "text-muted-foreground hover:text-foreground"
+              )}
               onClick={() => setShowAllTeams(false)}
-              className="flex-1 h-10"
             >
-              {t('myTeams')} ({myTeams.length})
-            </Button>
-            <Button
-              variant={showAllTeams ? "default" : "ghost"}
-              size="sm"
+              {t('myTeams')}
+              <Badge variant={!showAllTeams ? "default" : "secondary"} className="text-[9px] h-4 px-1">
+                {myTeams.length}
+              </Badge>
+            </button>
+            <button
+              className={cn(
+                "flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-xs font-medium transition-all active:scale-[0.98]",
+                showAllTeams 
+                  ? "bg-background text-foreground shadow-sm" 
+                  : "text-muted-foreground hover:text-foreground"
+              )}
               onClick={() => setShowAllTeams(true)}
-              className="flex-1 h-10"
             >
-              {t('filters.all')} ({publicTeams.length})
-            </Button>
+              {t('discover')}
+              <Badge variant={showAllTeams ? "default" : "secondary"} className="text-[9px] h-4 px-1">
+                {publicTeams.length}
+              </Badge>
+            </button>
           </motion.div>
 
           {/* My Teams Section */}
           {!showAllTeams && (
             <motion.div 
-              className="space-y-3"
+              className="space-y-2"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <h2 className="text-h3 font-heading font-semibold">
-                {t('myTeams')} ({filteredMyTeams.length})
-              </h2>
-
               {filteredMyTeams.length > 0 ? (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-2">
                   {filteredMyTeams.map((team, index) => (
                     <AnimatedCard key={team.id} delay={0.25 + index * 0.05} hover={false}>
                       <TeamCard
@@ -285,23 +289,19 @@ const Teams = () => {
           {/* All Teams Section */}
           {showAllTeams && (
             <motion.div 
-              className="space-y-3"
+              className="space-y-2"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <h2 className="text-h3 font-heading font-semibold">
-                {searchQuery ? `${t('common:actions.search')} (${filteredPublicTeams.length})` : t('filters.all')}
-              </h2>
-            
               {loading ? (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-2">
                   {[...Array(6)].map((_, i) => (
                     <TeamCardSkeleton key={i} />
                   ))}
                 </div>
               ) : filteredPublicTeams.length > 0 ? (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-2">
                   {filteredPublicTeams.map((team, index) => (
                     <AnimatedCard key={team.id} delay={0.25 + index * 0.05} hover={false}>
                       <TeamCard
