@@ -3,7 +3,24 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Users, Clock, Trophy, Coffee, UserCheck, UserX, HelpCircle, UserPlus, Swords, ChevronDown, Repeat } from "lucide-react";
+import { 
+  Calendar, 
+  MapPin, 
+  Users, 
+  Clock, 
+  Trophy, 
+  Coffee, 
+  UserCheck, 
+  UserX, 
+  HelpCircle, 
+  UserPlus, 
+  Swords, 
+  ChevronDown, 
+  Repeat,
+  MoreVertical,
+  Pencil,
+  Trash2
+} from "lucide-react";
 import { Event } from "@/lib/events";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -12,6 +29,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
 interface EventCardProps {
@@ -30,6 +48,8 @@ interface EventCardProps {
   onRSVPChange?: (status: 'attending' | 'maybe' | 'not_attending') => void;
   isCommitted?: boolean;
   isOrganizerView?: boolean;
+  onEdit?: (e: React.MouseEvent) => void;
+  onDelete?: (e: React.MouseEvent) => void;
 }
 
 export const EventCard = memo(({ 
@@ -40,7 +60,9 @@ export const EventCard = memo(({
   showInlineRSVP = false,
   onRSVPChange,
   isCommitted = false,
-  isOrganizerView = false
+  isOrganizerView = false,
+  onEdit,
+  onDelete
 }: EventCardProps) => {
   const { t, i18n } = useTranslation('events');
   const [isHovered, setIsHovered] = useState(false);
@@ -109,6 +131,7 @@ export const EventCard = memo(({
 
   const isPartOfSeries = !!event.parent_event_id;
   const isRecurringParent = event.is_recurring && !event.parent_event_id;
+  const hasOrganizerActions = isOrganizerView && (onEdit || onDelete);
 
   return (
     <Link to={`/events/${event.id}`}>
@@ -119,7 +142,7 @@ export const EventCard = memo(({
         onMouseLeave={() => setIsHovered(false)}
       >
         <CardContent className="p-2.5 space-y-1.5">
-          {/* Row 1: Type icon + Title + Recurring badge + RSVP status/action */}
+          {/* Row 1: Type icon + Title + Recurring badge + RSVP status/action + Organizer menu */}
           <div className="flex items-center gap-1.5">
             <div className={`p-1 rounded-md ${getEventTypeColor()}`}>
               {getEventIcon()}
@@ -208,6 +231,48 @@ export const EventCard = memo(({
                  userStatus === 'maybe' ? `? ${t('rsvp.maybe')}` : `✕ ${t('rsvp.pass')}`}
               </Badge>
             ) : null}
+
+            {/* Organizer quick actions menu */}
+            {hasOrganizerActions && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 shrink-0"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-36">
+                  {onEdit && (
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onEdit(e as unknown as React.MouseEvent);
+                      }}
+                      className="gap-2"
+                    >
+                      <Pencil className="h-4 w-4" />
+                      {t('edit.title')}
+                    </DropdownMenuItem>
+                  )}
+                  {onEdit && onDelete && <DropdownMenuSeparator />}
+                  {onDelete && (
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onDelete(e as unknown as React.MouseEvent);
+                      }}
+                      className="gap-2 text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      {t('details.deleteEvent')}
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
 
           {/* Row 2: Date, time, location - compact single line */}

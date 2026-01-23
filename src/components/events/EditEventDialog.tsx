@@ -98,12 +98,12 @@ export const EditEventDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto p-4 sm:p-6">
+        <DialogHeader className="pb-2">
           <DialogTitle>{t('edit.title')}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           {/* Title */}
           <div className="space-y-2">
             <Label htmlFor="title">{t('form.title')}</Label>
@@ -128,8 +128,8 @@ export const EditEventDialog = ({
             />
           </div>
 
-          {/* Date & Time */}
-          <div className="grid grid-cols-3 gap-3">
+          {/* Date & Time - Improved responsive layout */}
+          <div className="space-y-3">
             <div className="space-y-2">
               <Label htmlFor="date">{t('form.date')}</Label>
               <Input
@@ -138,27 +138,30 @@ export const EditEventDialog = ({
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 required
+                className="w-full"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="startTime">{t('form.startTime')}</Label>
-              <Input
-                id="startTime"
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="endTime">{t('form.endTime')}</Label>
-              <Input
-                id="endTime"
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                required
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="startTime">{t('form.startTime')}</Label>
+                <Input
+                  id="startTime"
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="endTime">{t('form.endTime')}</Label>
+                <Input
+                  id="endTime"
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  required
+                />
+              </div>
             </div>
           </div>
 
