@@ -8,6 +8,7 @@ interface LookingForPlayersBannerProps {
   playersNeeded: number;
   currentAttending?: number;
   maxParticipants?: number;
+  isUserAttending?: boolean;
   className?: string;
 }
 
@@ -15,6 +16,7 @@ export const LookingForPlayersBanner = ({
   playersNeeded,
   currentAttending = 0,
   maxParticipants,
+  isUserAttending = false,
   className,
 }: LookingForPlayersBannerProps) => {
   const { t } = useTranslation("events");
@@ -58,6 +60,9 @@ export const LookingForPlayersBanner = ({
         
         <p className="text-xs text-muted-foreground mt-1">
           {currentAttending}/{totalSpots} {t("lookingForPlayers.joined", "players joined")}
+          {isUserAttending && (
+            <span className="text-primary"> {t("lookingForPlayers.includingYou", "(including you)")}</span>
+          )}
         </p>
       </div>
     </div>

@@ -123,6 +123,17 @@ export const EventRSVPBar = ({
           </Button>
         </div>
         
+        {userStatus && !isCommitted && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRemoveAttendance}
+            className="w-full text-xs text-muted-foreground hover:text-destructive"
+          >
+            {t('rsvp.cancelAttendance')}
+          </Button>
+        )}
+        
         <p className="text-xs text-center text-muted-foreground">
           {t('rsvp.stats', { going: stats.attending, maybe: stats.maybe })}
         </p>

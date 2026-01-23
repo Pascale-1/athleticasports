@@ -100,7 +100,8 @@
     "full": "Complet",
     "closed": "Inscriptions fermées",
     "stats": "{{going}} inscrits · {{maybe}} peut-être",
-    "changeRsvp": "Modifier ma réponse"
+    "changeRsvp": "Modifier ma réponse",
+    "cancelAttendance": "Annuler ma participation"
   },
   "attendees": {
     "title": "Participants",
@@ -293,6 +294,7 @@
     "spotsLeft": "{{count}} place restante",
     "spotsLeft_other": "{{count}} places restantes",
     "joined": "inscrits",
+    "includingYou": "(vous inclus)",
     "toggle": "Besoin de plus de participants ?",
     "playersNeeded": "Combien de participants ?",
     "player": "participant",

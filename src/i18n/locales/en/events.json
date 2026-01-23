@@ -100,7 +100,8 @@
     "full": "Full",
     "closed": "RSVPs closed",
     "stats": "{{going}} going · {{maybe}} maybe",
-    "changeRsvp": "Change RSVP"
+    "changeRsvp": "Change RSVP",
+    "cancelAttendance": "Cancel my attendance"
   },
   "attendees": {
     "title": "Attendees",
@@ -293,6 +294,7 @@
     "spotsLeft": "{{count}} spot left",
     "spotsLeft_other": "{{count}} spots left",
     "joined": "players joined",
+    "includingYou": "(including you)",
     "toggle": "Looking for more people?",
     "playersNeeded": "How many participants?",
     "player": "participant",
