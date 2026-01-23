@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@supabase/supabase-js";
-import { Trophy, Users, TrendingUp, Swords, UserPlus, Search, Sparkles, Plus, CalendarCheck } from "lucide-react";
+import { Trophy, Users, TrendingUp, Swords, UserPlus, Search, Sparkles, Plus, CalendarCheck, ChevronRight } from "lucide-react";
 import { ActivityCard } from "@/components/feed/ActivityCard";
 import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
@@ -26,6 +26,8 @@ import { LanguageToggle } from "@/components/settings/LanguageToggle";
 import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
 import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
 import { LogoutButton } from "@/components/settings/LogoutButton";
+import { useAvailableGames } from "@/hooks/useAvailableGames";
+import { AvailableGameCard } from "@/components/matching/AvailableGameCard";
 
 interface Profile {
   id: string;
@@ -57,6 +59,10 @@ const Index = () => {
   // Fetch upcoming matches
   const { events: allMatches, loading: matchesLoading } = useEvents(undefined, { status: 'upcoming' });
   const upcomingMatches = allMatches.filter(e => e.type === 'match').slice(0, 3);
+  
+  // Fetch available games (looking for players)
+  const { games: availableGames, loading: gamesLoading } = useAvailableGames();
+  const topAvailableGames = availableGames.slice(0, 3);
   
   // Fetch match status (proposals & availability)
   const { availability } = usePlayerAvailability();
@@ -285,8 +291,41 @@ const Index = () => {
             </div>
           </AnimatedCard>
 
+          {/* Games This Week Section - Open games looking for players */}
+          {!gamesLoading && topAvailableGames.length > 0 && (
+            <AnimatedCard delay={0.25}>
+              <Card className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-5 w-5 text-primary" />
+                    <h2 className="text-heading-3 font-semibold">{t('matching.gamesThisWeek')}</h2>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-primary min-h-[44px]"
+                    onClick={() => navigate("/events?tab=open")}
+                  >
+                    {t('matching.viewAll')}
+                    <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
+                
+                <div className="space-y-2">
+                  {topAvailableGames.map((game) => (
+                    <AvailableGameCard 
+                      key={game.id} 
+                      game={game} 
+                      compact 
+                    />
+                  ))}
+                </div>
+              </Card>
+            </AnimatedCard>
+          )}
+
           {/* Unified Matches Section - Combines status + upcoming */}
-          <AnimatedCard delay={0.25}>
+          <AnimatedCard delay={0.3}>
             <Card data-walkthrough="games" className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -330,7 +369,7 @@ const Index = () => {
                     <span className="font-medium">{t('home.lookingFor', { sport: availability.sport })}</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {availability.location || t('home.anyLocation')}
+                    {availability.location_district || availability.location || t('home.anyLocation')}
                   </p>
                 </div>
               )}
@@ -378,7 +417,6 @@ const Index = () => {
                       <Button 
                         size="sm"
                         variant="default"
-                        className="bg-green-600 hover:bg-green-700"
                         onClick={() => setFindMatchSheetOpen(true)}
                       >
                         <CalendarCheck className="h-4 w-4 mr-1" />

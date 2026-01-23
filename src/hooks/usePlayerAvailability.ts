@@ -9,6 +9,7 @@ export interface PlayerAvailability {
   available_from: string;
   available_until: string;
   location: string | null;
+  location_district: string | null;
   skill_level: number | null;
   is_active: boolean;
   created_at: string;
@@ -19,7 +20,7 @@ export interface CreateAvailabilityData {
   sport: string;
   available_from: string;
   available_until: string;
-  location?: string;
+  location_district?: string;
   skill_level?: number;
 }
 
@@ -78,7 +79,7 @@ export const usePlayerAvailability = () => {
           sport: data.sport,
           available_from: data.available_from,
           available_until: data.available_until,
-          location: data.location || null,
+          location_district: data.location_district || null,
           skill_level: data.skill_level || null,
         })
         .select()

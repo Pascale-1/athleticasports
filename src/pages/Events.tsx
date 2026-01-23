@@ -1,14 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar as CalendarIcon, List, Search, Dumbbell, Users, Swords } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, List, Search, Dumbbell, Users, Swords, UserPlus } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { useEventFilters } from "@/hooks/useEventFilters";
+import { useAvailableGames } from "@/hooks/useAvailableGames";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { EventsList } from "@/components/events/EventsList";
 import { EventCalendar } from "@/components/events/EventCalendar";
+import { AvailableGameCard } from "@/components/matching/AvailableGameCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { isToday, isTomorrow, isThisWeek, isFuture } from "date-fns";
@@ -28,11 +31,24 @@ const EVENT_TYPE_LEGEND = [
 
 const Events = () => {
   const { t } = useTranslation('events');
+  const { t: tMatching } = useTranslation('matching');
+  const [searchParams, setSearchParams] = useSearchParams();
+  
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [activeEventType, setActiveEventType] = useState<'all' | 'training' | 'meetup' | 'match'>('all');
+  const [activeTab, setActiveTab] = useState<'my' | 'open'>('my');
   
   const { events, loading, createEvent, refetch } = useEvents(undefined, { status: 'upcoming' });
+  const { games: openGames, loading: openGamesLoading } = useAvailableGames();
+  
+  // Read tab from URL params
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'open') {
+      setActiveTab('open');
+    }
+  }, [searchParams]);
   
   const {
     filters,
@@ -45,6 +61,15 @@ const Events = () => {
     setSearchQuery('');
     setActiveEventType('all');
     setTypeFilter('all');
+  };
+
+  const handleTabChange = (tab: 'my' | 'open') => {
+    setActiveTab(tab);
+    if (tab === 'open') {
+      setSearchParams({ tab: 'open' });
+    } else {
+      setSearchParams({});
+    }
   };
 
   // Group events by time period
@@ -78,7 +103,9 @@ const Events = () => {
         {/* Header */}
         <PageHeader
           title={t('title')}
-          subtitle={`${events.length} ${t('title').toLowerCase()}`}
+          subtitle={activeTab === 'open' 
+            ? `${openGames.length} ${tMatching('openGamesDesc')}`
+            : `${events.length} ${t('title').toLowerCase()}`}
           rightAction={
             <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
               <Plus className="h-4 w-4" />
@@ -96,172 +123,233 @@ const Events = () => {
           variant="info"
         />
 
-        {/* Controls Row - Unified Modern Design */}
-        <TooltipProvider delayDuration={0}>
-          <div className="space-y-3">
-            {/* Unified Filter Bar */}
-            <div className="flex items-center gap-2 bg-card/50 backdrop-blur-sm border rounded-xl p-1.5">
-              {/* Type Filters - Segmented Control */}
-              <div className="flex-1 flex items-center gap-0.5 overflow-x-auto scrollbar-hide">
-                <Button 
-                  size="sm" 
-                  variant="ghost"
-                  className={cn(
-                    "h-9 px-3 text-xs rounded-lg transition-all whitespace-nowrap",
-                    activeEventType === 'all' && "bg-primary/10 text-primary font-medium"
-                  )}
-                  onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
-                >
-                  {t('types.all')}
-                </Button>
-                
-                {EVENT_TYPE_LEGEND.map(({ type, labelKey, icon: Icon, color }) => (
-                  <Tooltip key={type}>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        size="sm" 
-                        variant="ghost"
-                        className={cn(
-                          "h-9 px-2 md:px-3 text-xs rounded-lg transition-all gap-1.5 whitespace-nowrap overflow-hidden",
-                          activeEventType === type && "bg-primary/10 text-primary font-medium"
-                        )}
-                        onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
-                      >
-                        <Icon className={cn("h-4 w-4 flex-shrink-0", color)} />
-                        <span className="hidden sm:inline truncate">{t(labelKey)}</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">
-                      {t(labelKey)}
-                    </TooltipContent>
-                  </Tooltip>
+        {/* Tab Switcher: My Events / Open Games */}
+        <div className="flex gap-2 p-1 bg-muted/50 rounded-lg">
+          <Button
+            variant={activeTab === 'my' ? 'default' : 'ghost'}
+            size="sm"
+            className="flex-1 h-9"
+            onClick={() => handleTabChange('my')}
+          >
+            <CalendarIcon className="h-4 w-4 mr-2" />
+            {t('title')}
+          </Button>
+          <Button
+            variant={activeTab === 'open' ? 'default' : 'ghost'}
+            size="sm"
+            className="flex-1 h-9"
+            onClick={() => handleTabChange('open')}
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            {tMatching('openGames')}
+            {openGames.length > 0 && (
+              <Badge variant="secondary" className="ml-2 text-xs">
+                {openGames.length}
+              </Badge>
+            )}
+          </Button>
+        </div>
+
+        {activeTab === 'open' ? (
+          // Open Games Tab
+          <div className="space-y-4">
+            {openGamesLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-32 w-full" />
                 ))}
               </div>
-
-              {/* Divider */}
-              <div className="h-6 w-px bg-border flex-shrink-0" />
-
-              {/* View Toggle */}
-              <div className="flex gap-0.5 flex-shrink-0">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      className={cn(
-                        "h-9 w-9 p-0 rounded-lg",
-                        viewMode === 'list' && "bg-primary/10 text-primary"
-                      )}
-                      onClick={() => setViewMode('list')}
-                    >
-                      <List className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">{t('views.list')}</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      className={cn(
-                        "h-9 w-9 p-0 rounded-lg",
-                        viewMode === 'calendar' && "bg-primary/10 text-primary"
-                      )}
-                      onClick={() => setViewMode('calendar')}
-                    >
-                      <CalendarIcon className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">{t('views.calendar')}</TooltipContent>
-                </Tooltip>
-              </div>
-            </div>
-
-            {/* Search Input */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder={t('search.placeholder')} 
-                value={filters.searchQuery} 
-                onChange={(e) => setSearchQuery(e.target.value)} 
-                className="pl-9 h-10 bg-card/50 backdrop-blur-sm" 
-              />
-            </div>
-          </div>
-        </TooltipProvider>
-
-        {/* Content */}
-        {loading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-32 w-full" />
-            ))}
-          </div>
-        ) : viewMode === 'calendar' ? (
-          <EventCalendar events={filteredEvents} />
-        ) : (
-          <div className="space-y-6">
-            {groupedEvents.today.length > 0 && (
+            ) : openGames.length > 0 ? (
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-h3 font-heading font-semibold text-primary">{t('timeGroups.today')}</h3>
-                  <Badge variant="secondary" className="text-xs">{groupedEvents.today.length}</Badge>
-                </div>
-                <EventsList events={groupedEvents.today} showInlineRSVP />
+                {openGames.map((game) => (
+                  <AvailableGameCard key={game.id} game={game} />
+                ))}
               </div>
-            )}
-
-            {groupedEvents.tomorrow.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-h3 font-heading font-semibold text-primary">{t('timeGroups.tomorrow')}</h3>
-                  <Badge variant="secondary" className="text-xs">{groupedEvents.tomorrow.length}</Badge>
-                </div>
-                <EventsList events={groupedEvents.tomorrow} showInlineRSVP />
-              </div>
-            )}
-
-            {groupedEvents.thisWeek.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-h3 font-heading font-semibold text-primary">{t('timeGroups.thisWeek')}</h3>
-                  <Badge variant="secondary" className="text-xs">{groupedEvents.thisWeek.length}</Badge>
-                </div>
-                <EventsList events={groupedEvents.thisWeek} showInlineRSVP />
-              </div>
-            )}
-
-            {groupedEvents.later.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-h3 font-heading font-semibold text-primary">{t('timeGroups.comingUp')}</h3>
-                  <Badge variant="secondary" className="text-xs">{groupedEvents.later.length}</Badge>
-                </div>
-                <EventsList events={groupedEvents.later} showInlineRSVP />
-              </div>
-            )}
-
-            {filteredEvents.length === 0 && (
+            ) : (
               <EmptyState
-                icon={CalendarIcon}
-                title={t('empty.noUpcoming')}
-                description={
-                  filters.searchQuery
-                    ? t('empty.tryAdjusting')
-                    : t('empty.createFirst')
-                }
+                icon={UserPlus}
+                title={tMatching('noGamesFound')}
+                description={tMatching('noGamesDesc')}
                 action={
-                  !filters.searchQuery && (
-                    <Button onClick={() => setCreateDialogOpen(true)}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      {t('createEvent')}
-                    </Button>
-                  )
+                  <Button onClick={() => setCreateDialogOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    {t('createEvent')}
+                  </Button>
                 }
               />
             )}
           </div>
+        ) : (
+          // My Events Tab
+          <>
+            {/* Controls Row - Unified Modern Design */}
+            <TooltipProvider delayDuration={0}>
+              <div className="space-y-3">
+                {/* Unified Filter Bar */}
+                <div className="flex items-center gap-2 bg-card/50 backdrop-blur-sm border rounded-xl p-1.5">
+                  {/* Type Filters - Segmented Control */}
+                  <div className="flex-1 flex items-center gap-0.5 overflow-x-auto scrollbar-hide">
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      className={cn(
+                        "h-9 px-3 text-xs rounded-lg transition-all whitespace-nowrap",
+                        activeEventType === 'all' && "bg-primary/10 text-primary font-medium"
+                      )}
+                      onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
+                    >
+                      {t('types.all')}
+                    </Button>
+                    
+                    {EVENT_TYPE_LEGEND.map(({ type, labelKey, icon: Icon, color }) => (
+                      <Tooltip key={type}>
+                        <TooltipTrigger asChild>
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            className={cn(
+                              "h-9 px-2 md:px-3 text-xs rounded-lg transition-all gap-1.5 whitespace-nowrap overflow-hidden",
+                              activeEventType === type && "bg-primary/10 text-primary font-medium"
+                            )}
+                            onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
+                          >
+                            <Icon className={cn("h-4 w-4 flex-shrink-0", color)} />
+                            <span className="hidden sm:inline truncate">{t(labelKey)}</span>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                          {t(labelKey)}
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
+                  </div>
+
+                  {/* Divider */}
+                  <div className="h-6 w-px bg-border flex-shrink-0" />
+
+                  {/* View Toggle */}
+                  <div className="flex gap-0.5 flex-shrink-0">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          className={cn(
+                            "h-9 w-9 p-0 rounded-lg",
+                            viewMode === 'list' && "bg-primary/10 text-primary"
+                          )}
+                          onClick={() => setViewMode('list')}
+                        >
+                          <List className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">{t('views.list')}</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          className={cn(
+                            "h-9 w-9 p-0 rounded-lg",
+                            viewMode === 'calendar' && "bg-primary/10 text-primary"
+                          )}
+                          onClick={() => setViewMode('calendar')}
+                        >
+                          <CalendarIcon className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">{t('views.calendar')}</TooltipContent>
+                    </Tooltip>
+                  </div>
+                </div>
+
+                {/* Search Input */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input 
+                    placeholder={t('search.placeholder')} 
+                    value={filters.searchQuery} 
+                    onChange={(e) => setSearchQuery(e.target.value)} 
+                    className="pl-9 h-10 bg-card/50 backdrop-blur-sm" 
+                  />
+                </div>
+              </div>
+            </TooltipProvider>
+
+            {/* Content */}
+            {loading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-32 w-full" />
+                ))}
+              </div>
+            ) : viewMode === 'calendar' ? (
+              <EventCalendar events={filteredEvents} />
+            ) : (
+              <div className="space-y-6">
+                {groupedEvents.today.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-h3 font-heading font-semibold text-primary">{t('timeGroups.today')}</h3>
+                      <Badge variant="secondary" className="text-xs">{groupedEvents.today.length}</Badge>
+                    </div>
+                    <EventsList events={groupedEvents.today} showInlineRSVP />
+                  </div>
+                )}
+
+                {groupedEvents.tomorrow.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-h3 font-heading font-semibold text-primary">{t('timeGroups.tomorrow')}</h3>
+                      <Badge variant="secondary" className="text-xs">{groupedEvents.tomorrow.length}</Badge>
+                    </div>
+                    <EventsList events={groupedEvents.tomorrow} showInlineRSVP />
+                  </div>
+                )}
+
+                {groupedEvents.thisWeek.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-h3 font-heading font-semibold text-primary">{t('timeGroups.thisWeek')}</h3>
+                      <Badge variant="secondary" className="text-xs">{groupedEvents.thisWeek.length}</Badge>
+                    </div>
+                    <EventsList events={groupedEvents.thisWeek} showInlineRSVP />
+                  </div>
+                )}
+
+                {groupedEvents.later.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-h3 font-heading font-semibold text-primary">{t('timeGroups.comingUp')}</h3>
+                      <Badge variant="secondary" className="text-xs">{groupedEvents.later.length}</Badge>
+                    </div>
+                    <EventsList events={groupedEvents.later} showInlineRSVP />
+                  </div>
+                )}
+
+                {filteredEvents.length === 0 && (
+                  <EmptyState
+                    icon={CalendarIcon}
+                    title={t('empty.noUpcoming')}
+                    description={
+                      filters.searchQuery
+                        ? t('empty.tryAdjusting')
+                        : t('empty.createFirst')
+                    }
+                    action={
+                      !filters.searchQuery && (
+                        <Button onClick={() => setCreateDialogOpen(true)}>
+                          <Plus className="h-4 w-4 mr-2" />
+                          {t('createEvent')}
+                        </Button>
+                      )
+                    }
+                  />
+                )}
+              </div>
+            )}
+          </>
         )}
       </div>
 
