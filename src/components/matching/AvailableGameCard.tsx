@@ -130,7 +130,7 @@ export const AvailableGameCard = ({
             {sport?.emoji || '⚽'}
           </div>
           <div>
-            <h3 className="font-semibold text-base line-clamp-1">{game.title}</h3>
+            <h3 className="font-semibold text-sm line-clamp-1">{game.title}</h3>
             <p className="text-sm text-muted-foreground">
               {sport?.label[lang] || game.sport}
             </p>
