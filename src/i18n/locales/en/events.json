@@ -70,6 +70,13 @@
     "deleteSuccess": "Event deleted",
     "eventDeleted": "The event has been permanently removed"
   },
+  "detail": {
+    "notFound": {
+      "title": "Event not found",
+      "description": "This event may have been cancelled or deleted by the organizer.",
+      "backToEvents": "Browse Events"
+    }
+  },
   "recurrence": {
     "daily": "Daily",
     "weekly": "Weekly",
@@ -145,6 +152,7 @@
     "locationOptional": "Location (Optional)",
     "locationPlaceholder": "Address or venue name",
     "venueName": "Venue Name",
+    "locationRequired": "Please enter a location",
     "type": "Event Type",
     "maxParticipants": "Max Participants",
     "participants": "Participants",

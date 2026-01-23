@@ -55,6 +55,7 @@ const formSchema = z.object({
   description: z.string().max(500).optional(),
   date: z.date({ required_error: "Date is required" }),
   startTime: z.string().min(1, "Start time is required"),
+  location: z.string().min(1, "Location is required"),
   maxParticipants: z.string().optional(),
   // Match-specific
   opponentName: z.string().optional(),
@@ -148,6 +149,7 @@ export const UnifiedEventForm = ({
       title: '',
       description: '',
       startTime: '19:00',
+      location: '',
       maxParticipants: '',
       opponentName: '',
       matchFormat: '',
@@ -657,10 +659,24 @@ export const UnifiedEventForm = ({
 
             {/* Physical Location */}
             {(locationMode !== 'virtual' || eventType !== 'meetup') && (
-              <DistrictSelector
-                value={locationValue}
-                onChange={setLocationValue}
-                placeholder={t('form.locationPlaceholder')}
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <DistrictSelector
+                      value={locationValue}
+                      onChange={(val) => {
+                        setLocationValue(val);
+                        field.onChange(val.venueName || '');
+                      }}
+                      placeholder={t('form.locationPlaceholder')}
+                    />
+                    {fieldState.error && (
+                      <FormMessage>{t('form.locationRequired')}</FormMessage>
+                    )}
+                  </FormItem>
+                )}
               />
             )}
 

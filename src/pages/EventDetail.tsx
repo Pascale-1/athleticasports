@@ -214,11 +214,19 @@ const EventDetail = () => {
   if (!event) {
     return (
       <PageContainer>
-        <div className="text-center space-y-4 py-12">
-          <h1 className="text-2xl font-bold">Event not found</h1>
+        <div className="text-center space-y-6 py-12">
+          <div className="mx-auto h-16 w-16 rounded-full bg-muted flex items-center justify-center">
+            <Clock className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-xl font-semibold">{t('detail.notFound.title')}</h1>
+            <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+              {t('detail.notFound.description')}
+            </p>
+          </div>
           <Button onClick={() => navigate("/events")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Events
+            {t('detail.notFound.backToEvents')}
           </Button>
         </div>
       </PageContainer>
