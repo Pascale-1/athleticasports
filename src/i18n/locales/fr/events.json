@@ -70,6 +70,13 @@
     "deleteSuccess": "Événement supprimé",
     "eventDeleted": "L'événement a été définitivement supprimé"
   },
+  "detail": {
+    "notFound": {
+      "title": "Événement introuvable",
+      "description": "Cet événement a peut-être été annulé ou supprimé par l'organisateur.",
+      "backToEvents": "Parcourir les événements"
+    }
+  },
   "recurrence": {
     "daily": "Quotidien",
     "weekly": "Hebdomadaire",
@@ -145,6 +152,7 @@
     "locationOptional": "Lieu (optionnel)",
     "locationPlaceholder": "Adresse ou nom du lieu",
     "venueName": "Nom du lieu",
+    "locationRequired": "Veuillez indiquer un lieu",
     "type": "Type d'événement",
     "maxParticipants": "Nombre max de participants",
     "participants": "Participants",
