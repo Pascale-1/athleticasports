@@ -11,6 +11,13 @@
   "members": "Membres",
   "member": "membre",
   "memberPlural": "membres",
+  "stats": {
+    "events": "Événements",
+    "members": "Membres",
+    "posts": "Messages"
+  },
+  "pendingInvites": "Vous avez {{count}} invitation en attente",
+  "pendingInvites_plural": "Vous avez {{count}} invitations en attente",
   "about": "À propos",
   "events": "Événements",
   "announcements": "Annonces",

@@ -3,49 +3,85 @@ import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeSubscription } from "@/lib/realtimeManager";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 export const BottomNavigation = () => {
   const location = useLocation();
   const { t } = useTranslation();
   const [pendingInvites, setPendingInvites] = useState(0);
   const [todayEvents, setTodayEvents] = useState(0);
+  const [userId, setUserId] = useState<string | null>(null);
 
   // Fetch notification badges
-  useEffect(() => {
-    const fetchBadges = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+  const fetchBadges = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    setUserId(user.id);
 
-      // Get pending team invitations
+    // Get pending team invitations - match by user_id OR email
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('username, email')
+      .eq('user_id', user.id)
+      .single();
+
+    if (profile) {
       const { count: inviteCount } = await supabase
         .from('team_invitations')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'pending')
-        .eq('email', user.email);
+        .or(`invited_user_id.eq.${user.id},email.eq.${profile.username},email.eq.${profile.email || ''}`);
 
       setPendingInvites(inviteCount || 0);
+    }
 
-      // Get today's events count
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
+    // Get today's events count
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
-      const { count: eventCount } = await supabase
-        .from('event_attendance')
-        .select('*, events!inner(*)', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('status', 'attending')
-        .gte('events.start_time', today.toISOString())
-        .lt('events.start_time', tomorrow.toISOString());
+    const { count: eventCount } = await supabase
+      .from('event_attendance')
+      .select('*, events!inner(*)', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('status', 'attending')
+      .gte('events.start_time', today.toISOString())
+      .lt('events.start_time', tomorrow.toISOString());
 
-      setTodayEvents(eventCount || 0);
-    };
+    setTodayEvents(eventCount || 0);
+  }, []);
 
+  useEffect(() => {
     fetchBadges();
-  }, [location.pathname]);
+  }, [location.pathname, fetchBadges]);
+
+  // Realtime subscription for badge updates
+  useRealtimeSubscription(
+    `nav-badges-invitations-${userId}`,
+    [{ table: "team_invitations", event: "*" }],
+    fetchBadges,
+    !!userId
+  );
+
+  useRealtimeSubscription(
+    `nav-badges-attendance-${userId}`,
+    [{ table: "event_attendance", event: "*" }],
+    fetchBadges,
+    !!userId
+  );
+
+  // Haptic feedback handler
+  const handleNavPress = async () => {
+    try {
+      await Haptics.impact({ style: ImpactStyle.Light });
+    } catch {
+      // Haptics not available (web browser)
+    }
+  };
 
   const navItems = [
     { titleKey: "nav.home", url: "/", icon: Home, badge: 0 },
@@ -66,8 +102,9 @@ export const BottomNavigation = () => {
             <NavLink
               key={item.url}
               to={item.url}
+              onClick={handleNavPress}
               className={cn(
-                "relative flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-lg transition-all duration-150 active:scale-95 min-w-[64px] min-h-[44px]",
+                "relative flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-lg transition-all duration-150 active:scale-[0.92] min-w-[64px] min-h-[44px]",
                 isActive
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"

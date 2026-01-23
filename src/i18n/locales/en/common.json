@@ -31,6 +31,7 @@
   },
   "actions": {
     "save": "Save",
+    "saveAll": "Save All",
     "cancel": "Cancel",
     "create": "Create",
     "join": "Join",
@@ -44,6 +45,7 @@
     "search": "Search",
     "filter": "Filter",
     "viewAll": "View All",
+    "view": "View",
     "loadMore": "Load More",
     "loading": "Loading...",
     "submit": "Submit",

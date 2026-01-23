@@ -31,6 +31,7 @@
   },
   "actions": {
     "save": "Enregistrer",
+    "saveAll": "Tout enregistrer",
     "cancel": "Annuler",
     "create": "Créer",
     "join": "Rejoindre",
@@ -44,6 +45,7 @@
     "search": "Rechercher",
     "filter": "Filtrer",
     "viewAll": "Voir tout",
+    "view": "Voir",
     "loadMore": "Charger plus",
     "loading": "Chargement...",
     "submit": "Soumettre",

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { PageContainer } from "@/components/mobile/PageContainer";
@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { FAB } from "@/components/mobile/FAB";
 import { EmptyState } from "@/components/EmptyState";
 import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
+import { PullToRefresh } from "@/components/animations/PullToRefresh";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -66,15 +67,24 @@ const Events = () => {
   const [deletingEvent, setDeletingEvent] = useState<Event | null>(null);
   
   // Use useUserEvents for "Attending" tab - shows only events user has RSVP'd to
-  const { events: attendingEvents, loading: attendingLoading } = useUserEvents({ 
+  const { events: attendingEvents, loading: attendingLoading, refetch: refetchAttending } = useUserEvents({ 
     status: 'upcoming',
     includeNotAttending: false // Only show Going/Maybe
   });
-  const { games: openGames, loading: openGamesLoading } = useAvailableGames();
+  const { games: openGames, loading: openGamesLoading, refetch: refetchOpenGames } = useAvailableGames();
   const { events: createdEvents, loading: createdEventsLoading, refetch: refetchCreatedEvents } = useCreatedEvents({ status: 'upcoming' });
   
   // Hook for updating/deleting events
   const { updateEvent, deleteEvent } = useEvents();
+
+  // Unified refresh handler
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([
+      refetchAttending(),
+      refetchOpenGames(),
+      refetchCreatedEvents(),
+    ]);
+  }, [refetchAttending, refetchOpenGames, refetchCreatedEvents]);
   
   // Read tab from URL params
   useEffect(() => {
@@ -193,8 +203,8 @@ const Events = () => {
 
   return (
     <PageContainer>
-      <div className="space-y-3 animate-fade-in">
-        {/* Header */}
+      <PullToRefresh onRefresh={handleRefresh}>
+        <div className="space-y-3 animate-fade-in">
         <PageHeader
           title={t('title')}
           subtitle={getTabSubtitle()}
@@ -489,8 +499,8 @@ const Events = () => {
             )}
           </>
         )}
-      </div>
-
+        </div>
+      </PullToRefresh>
       <CreateEventDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
