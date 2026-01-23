@@ -58,21 +58,23 @@ export const AvailableGameCard = ({
     return t('common:location.tbd');
   };
 
-  // Match score badge
+  // Match score badge - enhanced for visibility
   const getMatchBadge = () => {
     if (!game.matchScore) return null;
     
     const { label, total } = game.matchScore;
-    const badgeConfig = {
-      perfect: { bg: 'bg-green-500', text: t('matching:labels.perfect') },
-      great: { bg: 'bg-green-400', text: t('matching:labels.great') },
-      good: { bg: 'bg-yellow-500', text: t('matching:labels.good') },
-      fair: { bg: 'bg-gray-400', text: t('matching:labels.fair') },
+    const badgeConfig: Record<string, { className: string; text: string }> = {
+      perfect: { className: 'bg-green-500 text-white', text: t('matching:labels.perfect') },
+      great: { className: 'bg-blue-500 text-white', text: t('matching:labels.great') },
+      good: { className: 'bg-amber-500 text-white', text: t('matching:labels.good') },
+      fair: { className: 'bg-slate-400 text-white', text: t('matching:labels.fair') },
     };
     
     const config = badgeConfig[label];
+    if (!config) return null;
+    
     return (
-      <Badge className={cn("text-white text-xs", config.bg)}>
+      <Badge className={cn("text-xs font-medium", config.className)}>
         <Sparkles className="h-3 w-3 mr-1" />
         {config.text}
       </Badge>

@@ -19,8 +19,7 @@ import { useUserEvents } from "@/hooks/useUserEvents";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { FindMatchSheet } from "@/components/matching/FindMatchSheet";
 import { usePlayerAvailability } from "@/hooks/usePlayerAvailability";
-import { useMatchProposals } from "@/hooks/useMatchProposals";
-import { MatchProposalCard } from "@/components/matching/MatchProposalCard";
+// Match proposals now integrated into available games - removed redundant section
 import { formatDateTimeShort } from "@/lib/dateUtils";
 import { LanguageToggle } from "@/components/settings/LanguageToggle";
 import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
@@ -69,8 +68,6 @@ const Index = () => {
   
   // Fetch match status (proposals & availability)
   const { availability } = usePlayerAvailability();
-  const { proposals, acceptProposal, declineProposal, loading: proposalsLoading } = useMatchProposals();
-  const pendingProposals = proposals.filter(p => p.status === 'pending');
   
   // Walkthrough
   const { startWalkthrough, shouldTrigger, clearTrigger } = useAppWalkthrough();
@@ -325,26 +322,7 @@ const Index = () => {
                 </div>
               )}
               
-              {/* Pending Match Proposals */}
-              {pendingProposals.length > 0 && (
-                <div className="space-y-2 border-b pb-3">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs">
-                      {pendingProposals.length} {t('common:status.pending').toLowerCase()}
-                    </Badge>
-                  </div>
-                  {pendingProposals.slice(0, 2).map((proposal) => (
-                    <MatchProposalCard
-                      key={proposal.id}
-                      proposal={proposal}
-                      onAccept={() => acceptProposal(proposal.id)}
-                      onDecline={() => declineProposal(proposal.id)}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Open Games Looking for Players */}
+              {/* Open Games Looking for Players - with match quality indicators */}
               {!gamesLoading && topAvailableGames.length > 0 && (
                 <div className="rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 p-3 space-y-2 border border-emerald-200/50 dark:border-emerald-800/30">
                   <div className="flex items-center justify-between">
@@ -410,7 +388,7 @@ const Index = () => {
                     </div>
                   ))}
                 </div>
-              ) : !gamesLoading && topAvailableGames.length === 0 && !availability && pendingProposals.length === 0 ? (
+              ) : !gamesLoading && topAvailableGames.length === 0 && !availability ? (
                 <div className="text-center py-6">
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-muted flex items-center justify-center">
                     <CalendarCheck className="h-6 w-6 text-muted-foreground" />
