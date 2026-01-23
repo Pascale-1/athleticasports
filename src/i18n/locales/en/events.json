@@ -15,6 +15,16 @@
   "noEvents": "No Events",
   "noEventsDesc": "No events scheduled at the moment.",
   "createFirst": "Create your first event",
+  "tabs": {
+    "myEvents": "My Events",
+    "organized": "Organized",
+    "openGames": "Open Games",
+    "organizedSubtitle": "events you're organizing"
+  },
+  "organized": {
+    "empty": "No events organized yet",
+    "emptyDesc": "Events you create will appear here"
+  },
   "types": {
     "all": "All",
     "training": "Training",

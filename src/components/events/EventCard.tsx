@@ -20,6 +20,7 @@ interface EventCardProps {
     parent_event_id?: string | null;
     is_recurring?: boolean;
     recurrence_rule?: string | null;
+    pendingRequestsCount?: number;
   };
   onAttendanceClick?: () => void;
   attendeeCount?: number;
@@ -27,6 +28,7 @@ interface EventCardProps {
   showInlineRSVP?: boolean;
   onRSVPChange?: (status: 'attending' | 'maybe' | 'not_attending') => void;
   isCommitted?: boolean;
+  isOrganizerView?: boolean;
 }
 
 export const EventCard = memo(({ 
@@ -36,7 +38,8 @@ export const EventCard = memo(({
   userStatus,
   showInlineRSVP = false,
   onRSVPChange,
-  isCommitted = false
+  isCommitted = false,
+  isOrganizerView = false
 }: EventCardProps) => {
   const { t, i18n } = useTranslation('events');
   const [isHovered, setIsHovered] = useState(false);
@@ -137,8 +140,19 @@ export const EventCard = memo(({
               </Badge>
             )}
             
-            {/* RSVP: Show current status or compact dropdown */}
-            {showInlineRSVP && onRSVPChange ? (
+            {/* Organizer badge or RSVP actions */}
+            {isOrganizerView ? (
+              <>
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 border-primary/40 text-primary shrink-0">
+                  {t('details.organizer')}
+                </Badge>
+                {event.pendingRequestsCount && event.pendingRequestsCount > 0 && (
+                  <Badge className="bg-amber-500 text-white border-0 text-[10px] px-1.5 py-0 h-5 shrink-0">
+                    {event.pendingRequestsCount} {t('joinRequests.pending').toLowerCase()}
+                  </Badge>
+                )}
+              </>
+            ) : showInlineRSVP && onRSVPChange ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
                   <Button
