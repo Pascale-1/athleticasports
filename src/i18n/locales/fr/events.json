@@ -16,9 +16,9 @@
   "noEventsDesc": "Aucun événement prévu pour le moment.",
   "createFirst": "Créer votre premier événement",
   "tabs": {
-    "myEvents": "Mes événements",
+    "myEvents": "Mes participations",
     "organized": "Organisés",
-    "openGames": "Parties ouvertes",
+    "openGames": "Matchs ouverts",
     "organizedSubtitle": "événements que vous organisez"
   },
   "organized": {

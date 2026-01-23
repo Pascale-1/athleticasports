@@ -419,7 +419,7 @@ const Index = () => {
           {/* Activity Feed */}
           <motion.div 
             data-walkthrough="feed"
-            className="space-y-4"
+            className="space-y-2.5"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
@@ -429,14 +429,14 @@ const Index = () => {
             {feedLoading ? (
               <FeedSkeleton />
             ) : activities.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-2.5">
                 {activities.map((activity, index) => (
                   <AnimatedCard key={activity.id} delay={0.4 + index * 0.05} hover={false}>
                     <ActivityCard {...activity} />
                   </AnimatedCard>
                 ))}
                 {hasMore && (
-                  <div className="flex justify-center pt-4">
+                  <div className="flex justify-center pt-3">
                     <Button
                       variant="outline"
                       onClick={loadMore}
@@ -449,13 +449,13 @@ const Index = () => {
                 )}
               </div>
             ) : (
-              <Card className="p-8 text-center">
-                <Users className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-                <h3 className="font-semibold mb-2">{t('home.noActivities')}</h3>
-                <p className="text-sm text-muted-foreground mb-4">
+              <Card className="p-6 text-center">
+                <Users className="h-10 w-10 mx-auto mb-2 text-muted-foreground" />
+                <h3 className="text-sm font-semibold mb-1.5">{t('home.noActivities')}</h3>
+                <p className="text-xs text-muted-foreground mb-3">
                   {t('home.noActivitiesDesc')}
                 </p>
-                <Button onClick={() => navigate("/teams")} variant="outline">
+                <Button onClick={() => navigate("/teams")} variant="outline" size="sm">
                   {t('home.browseTeams')}
                 </Button>
               </Card>

@@ -46,7 +46,7 @@ export const ActivityCard = memo(({
   };
 
   const getActionIcon = () => {
-    const iconClass = "h-4 w-4";
+    const iconClass = "h-3 w-3";
     switch (actionIcon) {
       case 'users':
         return <Users className={iconClass} />;
@@ -106,22 +106,22 @@ export const ActivityCard = memo(({
   return (
     <Card className="overflow-hidden hover-lift transition-all duration-200 active:scale-[0.98] w-full max-w-full min-w-0">
       {/* Header */}
-      <div className="p-3 flex items-center gap-2.5">
-        <Avatar className="h-9 w-9">
+      <div className="p-2.5 flex items-center gap-2">
+        <Avatar className="h-8 w-8">
           <AvatarImage src={avatarUrl} loading="lazy" />
-          <AvatarFallback className="text-xs bg-primary/10 text-primary">
+          <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
             {username.substring(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0 overflow-hidden">
-          <p className="text-sm font-semibold break-words max-w-full">
+          <p className="text-xs font-semibold break-words max-w-full">
             {displayName || username}
           </p>
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground flex-wrap">
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground flex-wrap">
             {getActionIcon()}
             <span>{getTranslatedActivityType()}</span>
             <span>•</span>
-            <Clock className="h-3 w-3" />
+            <Clock className="h-2.5 w-2.5" />
             <span>{timeAgo}</span>
           </div>
         </div>
@@ -141,20 +141,20 @@ export const ActivityCard = memo(({
 
       {/* Content - translated description */}
       {translatedDescription && (
-        <div className="px-3 py-2">
-          <p className="text-sm leading-relaxed break-words hyphens-auto max-w-full">{translatedDescription}</p>
+        <div className="px-2.5 py-1.5">
+          <p className="text-xs leading-relaxed break-words hyphens-auto max-w-full">{translatedDescription}</p>
         </div>
       )}
 
       {/* Achievements */}
       {achievements && achievements.length > 0 && (
-        <div className="px-3 pb-2 flex flex-wrap gap-1.5">
+        <div className="px-2.5 pb-1.5 flex flex-wrap gap-1">
           {achievements.map((achievement, index) => (
             <span
               key={index}
-              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-[11px] font-medium text-primary"
+              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-primary/10 text-[10px] font-medium text-primary"
             >
-              <Trophy className="h-3 w-3" />
+              <Trophy className="h-2.5 w-2.5" />
               {achievement}
             </span>
           ))}
@@ -162,23 +162,23 @@ export const ActivityCard = memo(({
       )}
 
       {/* Actions */}
-      <div className="px-3 py-2 border-t border-border/50 flex items-center gap-4">
+      <div className="px-2.5 py-1.5 border-t border-border/50 flex items-center gap-3">
         <button
           onClick={handleLike}
           className={cn(
-            "flex items-center gap-1.5 text-sm font-medium transition-all duration-200 active:scale-95 min-h-[36px] min-w-[36px] -m-1.5 p-1.5",
+            "flex items-center gap-1 text-xs font-medium transition-all duration-200 active:scale-95 min-h-[36px] min-w-[36px] -m-1.5 p-1.5",
             isLiked ? "text-destructive" : "text-muted-foreground hover:text-foreground"
           )}
           aria-label={isLiked ? "Unlike" : "Like"}
         >
-          <Heart className={cn("h-4 w-4 transition-transform", isLiked && "fill-current scale-110")} />
+          <Heart className={cn("h-3.5 w-3.5 transition-transform", isLiked && "fill-current scale-110")} />
           <span>{likeCount}</span>
         </button>
         <button 
-          className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors active:scale-95 min-h-[36px] min-w-[36px] -m-1.5 p-1.5"
+          className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors active:scale-95 min-h-[36px] min-w-[36px] -m-1.5 p-1.5"
           aria-label="Comment"
         >
-          <MessageCircle className="h-4 w-4" />
+          <MessageCircle className="h-3.5 w-3.5" />
           <span>{comments}</span>
         </button>
       </div>
