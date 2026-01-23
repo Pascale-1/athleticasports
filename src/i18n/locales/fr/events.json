@@ -63,7 +63,18 @@
     "openVenueLink": "Ouvrir le lien du lieu",
     "about": "À propos",
     "showLess": "Voir moins",
-    "readMore": "Lire la suite"
+    "readMore": "Lire la suite",
+    "confirmDelete": "Supprimer cet événement ?",
+    "deleteWarning": "Cette action est irréversible. Tous les participants seront notifiés.",
+    "deleteEvent": "Supprimer",
+    "deleteSuccess": "Événement supprimé",
+    "eventDeleted": "L'événement a été définitivement supprimé"
+  },
+  "recurrence": {
+    "daily": "Quotidien",
+    "weekly": "Hebdomadaire",
+    "monthly": "Mensuel",
+    "recurring": "Récurrent"
   },
   "rsvp": {
     "going": "J'y vais",

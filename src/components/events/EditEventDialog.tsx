@@ -192,31 +192,31 @@ export const EditEventDialog = ({
           {event.type === 'match' && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="opponent">{t('match.opponent')}</Label>
+                <Label htmlFor="opponent">{t('game.opponent')}</Label>
                 <Input
                   id="opponent"
                   value={opponentName}
                   onChange={(e) => setOpponentName(e.target.value)}
-                  placeholder={t('match.opponentPlaceholder')}
+                  placeholder={t('game.opponentPlaceholder')}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>{t('match.homeAway')}</Label>
+                <Label>{t('game.homeAway')}</Label>
                 <Select value={homeAway} onValueChange={(v) => setHomeAway(v as 'home' | 'away' | 'neutral')}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="home">{t('match.home')}</SelectItem>
-                    <SelectItem value="away">{t('match.away')}</SelectItem>
-                    <SelectItem value="neutral">{t('match.neutral')}</SelectItem>
+                    <SelectItem value="home">{t('game.home')}</SelectItem>
+                    <SelectItem value="away">{t('game.away')}</SelectItem>
+                    <SelectItem value="neutral">{t('game.neutral')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="format">{t('match.format')}</Label>
+                <Label htmlFor="format">{t('game.format')}</Label>
                 <Input
                   id="format"
                   value={matchFormat}
