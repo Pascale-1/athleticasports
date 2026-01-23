@@ -19,7 +19,6 @@ import { useUserEvents } from "@/hooks/useUserEvents";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { FindMatchSheet } from "@/components/matching/FindMatchSheet";
 import { usePlayerAvailability } from "@/hooks/usePlayerAvailability";
-// Match proposals now integrated into available games - removed redundant section
 import { formatDateTimeShort } from "@/lib/dateUtils";
 import { LanguageToggle } from "@/components/settings/LanguageToggle";
 import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
@@ -27,6 +26,8 @@ import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
 import { LogoutButton } from "@/components/settings/LogoutButton";
 import { useAvailableGames } from "@/hooks/useAvailableGames";
 import { AvailableGameCard } from "@/components/matching/AvailableGameCard";
+import { isToday, isTomorrow } from "date-fns";
+import { toast } from "sonner";
 
 interface Profile {
   id: string;
@@ -322,13 +323,13 @@ const Index = () => {
                 </div>
               )}
               
-              {/* Open Games Looking for Players - with match quality indicators */}
+              {/* Games to Join Section - with Quick Join */}
               {!gamesLoading && topAvailableGames.length > 0 && (
                 <div className="rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 p-2.5 space-y-1.5 border border-emerald-200/50 dark:border-emerald-800/30">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
                       <UserPlus className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                      <span className="text-xs font-medium">{t('matching:joinAGame')}</span>
+                      <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">{t('matching:gamesToJoin')}</span>
                       <Badge variant="secondary" className="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-[10px]">
                         {topAvailableGames.length}
                       </Badge>
@@ -353,7 +354,7 @@ const Index = () => {
                 </div>
               )}
               
-              {/* Your Upcoming Matches */}
+              {/* Your Upcoming Games Section */}
               {matchesLoading ? (
                 <div className="space-y-1.5">
                   {[1, 2].map((i) => (
@@ -362,31 +363,60 @@ const Index = () => {
                 </div>
               ) : upcomingMatches.length > 0 ? (
                 <div className="rounded-xl bg-slate-50/50 dark:bg-slate-900/20 p-2.5 space-y-1.5 border border-slate-200/50 dark:border-slate-700/30">
-                  <div className="flex items-center gap-1.5">
-                    <CalendarCheck className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" />
-                    <span className="text-xs font-medium">{t('matching:yourMatches')}</span>
-                    <Badge variant="secondary" className="text-[10px]">
-                      {upcomingMatches.length}
-                    </Badge>
-                  </div>
-                  {upcomingMatches.map((match) => (
-                    <div 
-                      key={match.id}
-                      onClick={() => navigate(`/events/${match.id}`)}
-                      className="flex items-center gap-2.5 p-2.5 rounded-lg bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 cursor-pointer transition-colors"
-                    >
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Trophy className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-xs truncate">{match.title}</p>
-                        <p className="text-[11px] text-muted-foreground">
-                          {formatDateTimeShort(match.start_time)}
-                        </p>
-                      </div>
-                      <CheckCircle2 className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400 flex-shrink-0" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <CalendarCheck className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" />
+                      <span className="text-xs font-semibold">{t('matching:yourUpcomingGames')}</span>
+                      <Badge variant="secondary" className="text-[10px]">
+                        {upcomingMatches.length}
+                      </Badge>
                     </div>
-                  ))}
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="text-[10px] p-0 h-auto text-muted-foreground"
+                      onClick={() => navigate("/events?tab=my")}
+                    >
+                      {t('common:actions.viewAll')}
+                    </Button>
+                  </div>
+                  {upcomingMatches.map((match) => {
+                    const matchDate = new Date(match.start_time);
+                    const dateLabel = isToday(matchDate) ? t('common:time.today') : isTomorrow(matchDate) ? t('common:time.tomorrow') : null;
+                    
+                    return (
+                      <div 
+                        key={match.id}
+                        onClick={() => navigate(`/events/${match.id}`)}
+                        className="flex items-center gap-2.5 p-2.5 rounded-lg bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 cursor-pointer transition-colors"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <Trophy className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-medium text-xs truncate">{match.title}</p>
+                            {dateLabel && (
+                              <Badge 
+                                variant="secondary" 
+                                className={`text-[9px] px-1 py-0 ${
+                                  isToday(matchDate) 
+                                    ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300' 
+                                    : 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300'
+                                }`}
+                              >
+                                {dateLabel.toUpperCase()}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-muted-foreground">
+                            {formatDateTimeShort(match.start_time)}
+                          </p>
+                        </div>
+                        <CheckCircle2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                      </div>
+                    );
+                  })}
                 </div>
               ) : !gamesLoading && topAvailableGames.length === 0 && !availability ? (
                 <div className="text-center py-4">

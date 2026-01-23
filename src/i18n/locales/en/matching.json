@@ -119,6 +119,9 @@
     "joined": "Joined"
   },
   "joinAGame": "Join a Game",
+  "gamesToJoin": "Games to Join",
+  "yourUpcomingGames": "Your Upcoming Games",
+  "joinedSuccess": "You've joined this game!",
   "actions": {
     "join": "Join"
   }
