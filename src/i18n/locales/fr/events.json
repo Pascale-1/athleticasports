@@ -284,7 +284,7 @@
     "description": "Trouvez des personnes pour votre événement",
     "spotsLeft": "{{count}} place restante",
     "spotsLeft_other": "{{count}} places restantes",
-    "requestJoin": "Demander à rejoindre",
+    "joined": "inscrits",
     "toggle": "Besoin de plus de participants ?",
     "playersNeeded": "Combien de participants ?",
     "player": "participant",

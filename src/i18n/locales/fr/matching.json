@@ -53,10 +53,12 @@
     "youProposed": "Tu as proposé une partie",
     "matchedWithGame": "Tu as été matché avec cette partie !",
     "respondBelow": "Accepte ou refuse pour répondre",
-    "commitTitle": "Confirme ton engagement",
-    "commitDescription": "En acceptant, tu t'engages à participer. L'organisateur compte sur toi !",
-    "commitCheckbox": "Je comprends et m'engage à participer",
-    "confirmAccept": "Confirmer et rejoindre"
+    "matchFoundTitle": "Match parfait trouvé !",
+    "matchFoundDesc": "Cette partie correspond à ta disponibilité",
+    "joinMatch": "Rejoindre",
+    "notInterested": "Pas intéressé",
+    "youreIn": "C'est bon !",
+    "committedDesc": "Tu es inscrit à cette partie"
   },
   "availability": {
     "title": "Ma disponibilité",

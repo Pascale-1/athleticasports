@@ -109,6 +109,9 @@ const EventDetail = () => {
 
   // Determine if user should see RSVP bar vs proposal card
   const canDirectRSVP = useMemo(() => {
+    // If they have a pending proposal, use proposal flow instead (hide RSVP bar)
+    if (userProposal?.status === 'pending') return false;
+    
     // Already attending/responded - show RSVP bar for status updates
     if (userStatus) return true;
     
@@ -118,17 +121,10 @@ const EventDetail = () => {
     // Team members can directly RSVP
     if (isTeamMember) return true;
     
-    // User with pending proposal should use proposal flow instead
-    if (userProposal?.status === 'pending') return false;
+    // Public events or looking_for_players = direct RSVP (no approval needed)
+    if (event?.is_public || event?.looking_for_players) return true;
     
-    // For "looking for players" events, non-members must request to join
-    if (event?.looking_for_players && !isTeamMember) {
-      // They should use the join request flow, not direct RSVP
-      return false;
-    }
-    
-    // Otherwise, for public events, allow direct RSVP
-    return event?.is_public ?? false;
+    return false;
   }, [currentUserId, event, isTeamMember, userProposal, userStatus]);
 
   // Wrap approve/reject handlers to refetch attendance after approval
@@ -322,18 +318,26 @@ const EventDetail = () => {
           </div>
         </div>
 
-        {/* Looking for Players Banner */}
+        {/* Match Proposal Card - Priority CTA at TOP for matched users */}
+        {userProposal?.status === 'pending' && (
+          <MatchProposalInlineCard
+            proposalId={userProposal.id}
+            onAccepted={() => {
+              setUserProposal(prev => prev ? { ...prev, status: 'accepted' } : null);
+              refetchAttendance();
+            }}
+            onDeclined={() => {
+              setUserProposal(prev => prev ? { ...prev, status: 'declined' } : null);
+            }}
+          />
+        )}
+
+        {/* Looking for Players Banner - Now purely informational with dynamic spots */}
         {event.looking_for_players && event.players_needed && (
           <LookingForPlayersBanner
             playersNeeded={event.players_needed}
             currentAttending={stats.attending}
             maxParticipants={event.max_participants || undefined}
-            allowPublicJoin={event.allow_public_join}
-            isTeamMember={isTeamMember}
-            isCreator={currentUserId === event.created_by}
-            requestStatus={userRequest?.status}
-            isLoading={joinRequestsLoading}
-            onRequestJoin={() => sendRequest()}
           />
         )}
 
@@ -549,19 +553,7 @@ const EventDetail = () => {
         )}
       </motion.div>
 
-      {/* Match Proposal Card - for users matched via the matching system */}
-      {userProposal?.status === 'pending' && (
-        <MatchProposalInlineCard
-          proposalId={userProposal.id}
-          onAccepted={() => {
-            setUserProposal({ ...userProposal, status: 'accepted' });
-            refetchAttendance();
-          }}
-          onDeclined={() => {
-            setUserProposal({ ...userProposal, status: 'declined' });
-          }}
-        />
-      )}
+      {/* Match Proposal Card moved to top of page for visibility */}
 
       {/* Sticky RSVP Bar - only show if user can directly RSVP */}
       {canDirectRSVP && (
