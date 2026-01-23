@@ -346,6 +346,7 @@ const EventDetail = () => {
             playersNeeded={event.players_needed}
             currentAttending={stats.attending}
             maxParticipants={event.max_participants || undefined}
+            isUserAttending={userStatus === 'attending'}
           />
         )}
 
