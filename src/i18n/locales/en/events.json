@@ -165,6 +165,18 @@
     "preview": "Preview",
     "cancel": "Cancel",
     "repeat": "Repeat",
+    "addRsvpDeadline": "Set RSVP deadline",
+    "rsvpDeadline": "RSVP Deadline",
+    "rsvpDeadlineDesc": "After this time, players can no longer respond",
+    "deadlinePreview": "Responses close: {{time}}",
+    "deadline": {
+      "1h": "1 hour before",
+      "3h": "3 hours before",
+      "24h": "1 day before",
+      "48h": "2 days before",
+      "1week": "1 week before",
+      "custom": "Custom"
+    },
     "recurrence": {
       "none": "None",
       "daily": "Daily",
