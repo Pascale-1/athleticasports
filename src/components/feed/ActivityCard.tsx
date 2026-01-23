@@ -106,18 +106,18 @@ export const ActivityCard = memo(({
   return (
     <Card className="overflow-hidden hover-lift transition-all duration-200 active:scale-[0.98] w-full max-w-full min-w-0">
       {/* Header */}
-      <div className="p-4 flex items-center gap-3">
-        <Avatar size="md">
+      <div className="p-3 flex items-center gap-2.5">
+        <Avatar className="h-9 w-9">
           <AvatarImage src={avatarUrl} loading="lazy" />
-          <AvatarFallback className="text-body bg-primary/10 text-primary">
+          <AvatarFallback className="text-xs bg-primary/10 text-primary">
             {username.substring(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0 overflow-hidden">
-          <p className="text-body-large font-semibold break-words max-w-full">
+          <p className="text-sm font-semibold break-words max-w-full">
             {displayName || username}
           </p>
-          <div className="flex items-center gap-2 text-caption text-muted-foreground flex-wrap">
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground flex-wrap">
             {getActionIcon()}
             <span>{getTranslatedActivityType()}</span>
             <span>•</span>
@@ -141,18 +141,18 @@ export const ActivityCard = memo(({
 
       {/* Content - translated description */}
       {translatedDescription && (
-        <div className="px-4 py-3">
-          <p className="text-body leading-relaxed break-words hyphens-auto max-w-full">{translatedDescription}</p>
+        <div className="px-3 py-2">
+          <p className="text-sm leading-relaxed break-words hyphens-auto max-w-full">{translatedDescription}</p>
         </div>
       )}
 
       {/* Achievements */}
       {achievements && achievements.length > 0 && (
-        <div className="px-4 pb-3 flex flex-wrap gap-2">
+        <div className="px-3 pb-2 flex flex-wrap gap-1.5">
           {achievements.map((achievement, index) => (
             <span
               key={index}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-caption font-medium text-primary"
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-[11px] font-medium text-primary"
             >
               <Trophy className="h-3 w-3" />
               {achievement}
@@ -162,23 +162,23 @@ export const ActivityCard = memo(({
       )}
 
       {/* Actions */}
-      <div className="px-4 py-3 border-t border-border/50 flex items-center gap-6">
+      <div className="px-3 py-2 border-t border-border/50 flex items-center gap-4">
         <button
           onClick={handleLike}
           className={cn(
-            "flex items-center gap-2 text-body font-medium transition-all duration-200 active:scale-95 min-h-[44px] min-w-[44px] -m-2 p-2",
+            "flex items-center gap-1.5 text-sm font-medium transition-all duration-200 active:scale-95 min-h-[36px] min-w-[36px] -m-1.5 p-1.5",
             isLiked ? "text-destructive" : "text-muted-foreground hover:text-foreground"
           )}
           aria-label={isLiked ? "Unlike" : "Like"}
         >
-          <Heart className={cn("h-5 w-5 transition-transform", isLiked && "fill-current scale-110")} />
+          <Heart className={cn("h-4 w-4 transition-transform", isLiked && "fill-current scale-110")} />
           <span>{likeCount}</span>
         </button>
         <button 
-          className="flex items-center gap-2 text-body font-medium text-muted-foreground hover:text-foreground transition-colors active:scale-95 min-h-[44px] min-w-[44px] -m-2 p-2"
+          className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors active:scale-95 min-h-[36px] min-w-[36px] -m-1.5 p-1.5"
           aria-label="Comment"
         >
-          <MessageCircle className="h-5 w-5" />
+          <MessageCircle className="h-4 w-4" />
           <span>{comments}</span>
         </button>
       </div>

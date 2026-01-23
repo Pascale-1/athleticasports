@@ -111,7 +111,7 @@ const Events = () => {
 
   return (
     <PageContainer>
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-4 animate-fade-in">
         {/* Header */}
         <PageHeader
           title={t('title')}
@@ -371,7 +371,7 @@ const Events = () => {
             ) : viewMode === 'calendar' ? (
               <EventCalendar events={filteredEvents} />
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {groupedEvents.today.length > 0 && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">

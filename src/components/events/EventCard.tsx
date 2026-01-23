@@ -54,13 +54,13 @@ export const EventCard = memo(({
   const getEventIcon = () => {
     switch (event.type) {
       case 'training':
-        return <Trophy className="h-4 w-4" />;
+        return <Trophy className="h-3.5 w-3.5" />;
       case 'match':
-        return <Swords className="h-4 w-4" />;
+        return <Swords className="h-3.5 w-3.5" />;
       case 'meetup':
-        return <Coffee className="h-4 w-4" />;
+        return <Coffee className="h-3.5 w-3.5" />;
       default:
-        return <Calendar className="h-4 w-4" />;
+        return <Calendar className="h-3.5 w-3.5" />;
     }
   };
 
@@ -117,10 +117,10 @@ export const EventCard = memo(({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <CardContent className="p-3 space-y-2">
+        <CardContent className="p-2.5 space-y-1.5">
           {/* Row 1: Type icon + Title + Recurring badge + RSVP status/action */}
-          <div className="flex items-center gap-2">
-            <div className={`p-1.5 rounded-md ${getEventTypeColor()}`}>
+          <div className="flex items-center gap-1.5">
+            <div className={`p-1 rounded-md ${getEventTypeColor()}`}>
               {getEventIcon()}
             </div>
             <h3 className="flex-1 text-sm font-heading font-semibold truncate">
@@ -209,8 +209,8 @@ export const EventCard = memo(({
           </div>
 
           {/* Row 2: Date, time, location - compact single line */}
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-wrap">
-            <Calendar className="h-3.5 w-3.5 shrink-0" />
+          <div className="flex items-center gap-1 text-[11px] text-muted-foreground flex-wrap">
+            <Calendar className="h-3 w-3 shrink-0" />
             <span className="font-medium">
               {new Date(event.start_time).toLocaleDateString(lang, { 
                 weekday: 'short', 
@@ -219,7 +219,7 @@ export const EventCard = memo(({
               })}
             </span>
             <span className="text-muted-foreground/50">•</span>
-            <Clock className="h-3.5 w-3.5 shrink-0" />
+            <Clock className="h-3 w-3 shrink-0" />
             <span>
               {new Date(event.start_time).toLocaleTimeString(lang, { 
                 hour: 'numeric', 
@@ -229,15 +229,15 @@ export const EventCard = memo(({
             {event.location && (
               <>
                 <span className="text-muted-foreground/50">•</span>
-                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <MapPin className="h-3 w-3 shrink-0" />
                 <span className="truncate max-w-[120px]">{event.location}</span>
               </>
             )}
           </div>
 
           {/* Row 3: Attendee count vs capacity + Looking for players */}
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Users className="h-3.5 w-3.5" />
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <Users className="h-3 w-3" />
             {event.max_participants ? (
               <>
                 <span className={attendeeCount >= event.max_participants ? 'text-amber-600 font-medium' : ''}>

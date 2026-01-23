@@ -122,16 +122,16 @@ export const AvailableGameCard = ({
   }
 
   return (
-    <Card className="p-4 space-y-3 hover:shadow-md transition-shadow">
+    <Card className="p-3 space-y-2 hover:shadow-md transition-shadow">
       {/* Header with sport and match score */}
       <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl">
+        <div className="flex items-center gap-2.5">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-xl">
             {sport?.emoji || '⚽'}
           </div>
           <div>
             <h3 className="font-semibold text-sm line-clamp-1">{game.title}</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {sport?.label[lang] || game.sport}
             </p>
           </div>
@@ -140,18 +140,18 @@ export const AvailableGameCard = ({
       </div>
 
       {/* Details */}
-      <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
-        <div className="flex items-center gap-1.5">
-          <Clock className="h-4 w-4" />
+      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1">
+          <Clock className="h-3.5 w-3.5" />
           <span>{formatGameDate()}</span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <MapPin className="h-4 w-4" />
+        <div className="flex items-center gap-1">
+          <MapPin className="h-3.5 w-3.5" />
           <span>{getLocationLabel()}</span>
         </div>
         {game.spotsLeft !== undefined && (
-          <div className="flex items-center gap-1.5">
-            <Users className="h-4 w-4" />
+          <div className="flex items-center gap-1">
+            <Users className="h-3.5 w-3.5" />
             <span>
               {game.spotsLeft === 0 
                 ? t('matching:full')
@@ -163,10 +163,10 @@ export const AvailableGameCard = ({
 
       {/* Organizer */}
       {game.organizerName && (
-        <div className="flex items-center gap-2 text-sm">
-          <Avatar className="h-6 w-6">
+        <div className="flex items-center gap-1.5 text-xs">
+          <Avatar className="h-5 w-5">
             <AvatarImage src={game.organizerAvatar || undefined} />
-            <AvatarFallback className="text-xs">
+            <AvatarFallback className="text-[10px]">
               {game.organizerName.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
@@ -177,7 +177,7 @@ export const AvailableGameCard = ({
       )}
 
       {/* Actions */}
-      <div className="flex gap-2 pt-1">
+      <div className="flex gap-2">
         {onExpressInterest && game.spotsLeft !== 0 && (
           <Button 
             size="sm" 
@@ -197,7 +197,7 @@ export const AvailableGameCard = ({
           onClick={() => navigate(`/events/${game.id}`)}
         >
           {t('common:actions.viewDetails')}
-          <ChevronRight className="h-4 w-4 ml-1" />
+          <ChevronRight className="h-3.5 w-3.5 ml-1" />
         </Button>
       </div>
     </Card>

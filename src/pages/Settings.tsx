@@ -201,7 +201,7 @@ const Settings = () => {
 
   return (
     <PageContainer>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-4">
         {/* Header */}
         <PageHeader
           title={t("profile.title")}
@@ -211,11 +211,11 @@ const Settings = () => {
         />
 
         {/* Hero Section */}
-        <div className="bg-card rounded-lg border border-border p-6">
-          <div className="flex flex-col items-center text-center space-y-4">
+        <div className="bg-card rounded-lg border border-border p-4">
+          <div className="flex flex-col items-center text-center space-y-3">
             {/* Avatar */}
             <div className="relative group">
-              <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
+              <Avatar className="h-20 w-20 border-4 border-background shadow-lg">
                 <AvatarImage src={profile.avatar_url || ""} />
                 <AvatarFallback className="text-2xl">
                   {profile.display_name?.[0] || profile.username[0]}
@@ -242,8 +242,8 @@ const Settings = () => {
             </div>
 
             {/* Name and Username */}
-            <div className="space-y-2">
-              <h1 className="text-xl font-bold">
+            <div className="space-y-1">
+              <h1 className="text-lg font-bold">
                 {profile.display_name || profile.username}
               </h1>
               <p className="text-muted-foreground">@{profile.username}</p>

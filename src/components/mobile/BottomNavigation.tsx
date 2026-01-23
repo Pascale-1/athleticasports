@@ -16,7 +16,7 @@ export const BottomNavigation = () => {
   ];
 
   return (
-    <nav data-walkthrough="navigation" className="lg:hidden fixed bottom-0 left-0 right-0 z-50 h-16 border-t border-border/50 bg-background/95 backdrop-blur-lg shadow-lg">
+    <nav data-walkthrough="navigation" className="lg:hidden fixed bottom-0 left-0 right-0 z-50 h-14 border-t border-border/50 bg-background/95 backdrop-blur-lg shadow-lg">
       <div className="flex h-full items-center justify-around px-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.url;
@@ -27,7 +27,7 @@ export const BottomNavigation = () => {
               key={item.url}
               to={item.url}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-all duration-150 active:scale-95 min-w-[72px]",
+                "flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-lg transition-all duration-150 active:scale-95 min-w-[64px]",
                 isActive
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
@@ -35,12 +35,12 @@ export const BottomNavigation = () => {
             >
               <Icon 
                 className={cn(
-                  "h-5 w-5 transition-all duration-150",
+                  "h-4 w-4 transition-all duration-150",
                   isActive && "fill-current"
                 )} 
               />
               <span className={cn(
-                "text-xs font-medium transition-all duration-150 truncate max-w-[80px]",
+                "text-[11px] font-medium transition-all duration-150 truncate max-w-[72px]",
                 isActive && "font-semibold"
               )}>
                 {t(item.titleKey)}
