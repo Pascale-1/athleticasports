@@ -113,7 +113,8 @@
     "perfect": "Perfect Match",
     "great": "Great Match",
     "good": "Good Match",
-    "fair": "Match"
+    "fair": "Match",
+    "joined": "Joined"
   },
   "joinAGame": "Join a Game",
   "actions": {

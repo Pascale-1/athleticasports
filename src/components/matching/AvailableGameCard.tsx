@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Clock, Users, Sparkles, ChevronRight } from "lucide-react";
+import { MapPin, Clock, Users, Sparkles, ChevronRight, CheckCircle2 } from "lucide-react";
 import { format, isToday, isTomorrow } from "date-fns";
 import { getSportById } from "@/lib/sports";
 import { AvailableGame } from "@/hooks/useAvailableGames";
@@ -16,9 +16,16 @@ interface AvailableGameCardProps {
   onExpressInterest?: (gameId: string) => void;
   compact?: boolean;
   showJoinBadge?: boolean;
+  isUserAttending?: boolean;
 }
 
-export const AvailableGameCard = ({ game, onExpressInterest, compact = false, showJoinBadge = false }: AvailableGameCardProps) => {
+export const AvailableGameCard = ({ 
+  game, 
+  onExpressInterest, 
+  compact = false, 
+  showJoinBadge = false,
+  isUserAttending = false
+}: AvailableGameCardProps) => {
   const { t, i18n } = useTranslation(['common', 'matching']);
   const navigate = useNavigate();
   const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
@@ -97,7 +104,12 @@ export const AvailableGameCard = ({ game, onExpressInterest, compact = false, sh
               {game.spotsLeft}
             </Badge>
           )}
-          {showJoinBadge && (
+          {isUserAttending ? (
+            <Badge className="bg-primary text-primary-foreground text-xs px-1.5 py-0.5">
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+              {t('matching:labels.joined')}
+            </Badge>
+          ) : showJoinBadge && (
             <Badge className="bg-emerald-500 text-white text-xs px-1.5 py-0.5">
               {t('matching:actions.join')}
             </Badge>

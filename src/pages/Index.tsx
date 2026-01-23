@@ -15,7 +15,7 @@ import { PullToRefresh } from "@/components/animations/PullToRefresh";
 import { AnimatedCard } from "@/components/animations/AnimatedCard";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { useEvents } from "@/hooks/useEvents";
+import { useUserEvents } from "@/hooks/useUserEvents";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { FindMatchSheet } from "@/components/matching/FindMatchSheet";
 import { usePlayerAvailability } from "@/hooks/usePlayerAvailability";
@@ -56,9 +56,12 @@ const Index = () => {
   const [findMatchSheetOpen, setFindMatchSheetOpen] = useState(false);
   const { activities, loading: feedLoading, loadingMore, hasMore, loadMore } = useActivityFeed();
   
-  // Fetch upcoming matches
-  const { events: allMatches, loading: matchesLoading } = useEvents(undefined, { status: 'upcoming' });
-  const upcomingMatches = allMatches.filter(e => e.type === 'match').slice(0, 3);
+  // Fetch user's matches (where they are attending or maybe)
+  const { events: userMatches, loading: matchesLoading } = useUserEvents({ 
+    type: 'match', 
+    status: 'upcoming' 
+  });
+  const upcomingMatches = userMatches.slice(0, 3);
   
   // Fetch available games (looking for players)
   const { games: availableGames, loading: gamesLoading } = useAvailableGames();
