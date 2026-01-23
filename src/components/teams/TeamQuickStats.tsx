@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Users, MessageSquare } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 interface TeamQuickStatsProps {
   eventCount: number;
@@ -10,6 +11,8 @@ interface TeamQuickStatsProps {
 }
 
 export const TeamQuickStats = ({ eventCount, activeMemberCount, weeklyPosts, loading }: TeamQuickStatsProps) => {
+  const { t } = useTranslation('teams');
+
   if (loading) {
     return (
       <div className="grid grid-cols-3 gap-3">
@@ -28,25 +31,25 @@ export const TeamQuickStats = ({ eventCount, activeMemberCount, weeklyPosts, loa
 
   return (
     <div className="grid grid-cols-3 gap-3">
-      <Card>
+      <Card className="active:scale-[0.97] transition-transform duration-150">
         <CardContent className="p-4 text-center">
           <Calendar className="h-8 w-8 mx-auto mb-2 text-primary" />
           <p className="text-2xl font-bold">{eventCount}</p>
-          <p className="text-caption text-muted-foreground">Events</p>
+          <p className="text-caption text-muted-foreground">{t('stats.events')}</p>
         </CardContent>
       </Card>
-      <Card>
+      <Card className="active:scale-[0.97] transition-transform duration-150">
         <CardContent className="p-4 text-center">
           <Users className="h-8 w-8 mx-auto mb-2 text-primary" />
           <p className="text-2xl font-bold">{activeMemberCount}</p>
-          <p className="text-caption text-muted-foreground">Members</p>
+          <p className="text-caption text-muted-foreground">{t('stats.members')}</p>
         </CardContent>
       </Card>
-      <Card>
+      <Card className="active:scale-[0.97] transition-transform duration-150">
         <CardContent className="p-4 text-center">
           <MessageSquare className="h-8 w-8 mx-auto mb-2 text-primary" />
           <p className="text-2xl font-bold">{weeklyPosts}</p>
-          <p className="text-caption text-muted-foreground">Posts</p>
+          <p className="text-caption text-muted-foreground">{t('stats.posts')}</p>
         </CardContent>
       </Card>
     </div>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trophy, Users, User, Mail, Calendar, Swords, Globe, MessageSquare, PlayCircle } from "lucide-react";
+import { Trophy, Users, User, Mail, Calendar, Swords, Globe, MessageSquare, PlayCircle, Pencil, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -45,6 +45,7 @@ export const ProfileTabs = ({
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const { resetWalkthrough, startWalkthrough } = useAppWalkthrough();
 
   const handleRestartWalkthrough = () => {
@@ -53,12 +54,47 @@ export const ProfileTabs = ({
     setTimeout(() => startWalkthrough(), 500);
   };
 
+  const handleEnterEditMode = () => {
+    setIsEditMode(true);
+    setTempValues({
+      fullName: profile?.full_name || '',
+      displayName: profile?.display_name || '',
+      primarySport: profile?.primary_sport || '',
+      teamName: profile?.team_name || '',
+      bio: profile?.bio || '',
+    });
+  };
+
+  const handleSaveAll = () => {
+    // Save all fields in sequence
+    ['fullName', 'displayName', 'primarySport', 'teamName', 'bio'].forEach(field => {
+      setEditingField(field);
+    });
+    onSaveField();
+    setIsEditMode(false);
+    setEditingField(null);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+    setEditingField(null);
+  };
+
   return (
     <Tabs defaultValue="overview" className="w-full">
       <TabsList className="grid w-full grid-cols-3">
-        <TabsTrigger value="overview">{t('profile.title')}</TabsTrigger>
-        <TabsTrigger value="about">{t('profile.about')}</TabsTrigger>
-        <TabsTrigger value="settings">{t('profile.settings')}</TabsTrigger>
+        <TabsTrigger value="overview" className="flex items-center gap-1.5">
+          <User className="h-3.5 w-3.5" />
+          <span className="hidden xs:inline">{t('profile.title')}</span>
+        </TabsTrigger>
+        <TabsTrigger value="about" className="flex items-center gap-1.5">
+          <Pencil className="h-3.5 w-3.5" />
+          <span className="hidden xs:inline">{t('profile.about')}</span>
+        </TabsTrigger>
+        <TabsTrigger value="settings" className="flex items-center gap-1.5">
+          <Settings className="h-3.5 w-3.5" />
+          <span className="hidden xs:inline">{t('profile.settings')}</span>
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="overview" className="space-y-4">
@@ -121,149 +157,105 @@ export const ProfileTabs = ({
       <TabsContent value="about" className="space-y-4">
         <Card>
           <CardContent className="pt-6 space-y-4">
-            <div className="space-y-2">
-              <Label>{t('profile.fullName')}</Label>
-              {editingField === 'fullName' ? (
+            {/* Edit Mode Toggle */}
+            <div className="flex justify-between items-center">
+              <h3 className="font-semibold">{t('profile.about')}</h3>
+              {isEditMode ? (
                 <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={handleCancelEdit}>
+                    {t('actions.cancel')}
+                  </Button>
+                  <Button size="sm" onClick={handleSaveAll}>
+                    {t('actions.saveAll')}
+                  </Button>
+                </div>
+              ) : (
+                <Button size="sm" variant="ghost" onClick={handleEnterEditMode}>
+                  <Pencil className="h-4 w-4 mr-1" />
+                  {t('actions.edit')}
+                </Button>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>{t('profile.fullName')}</Label>
+                {isEditMode ? (
                   <Input
                     value={tempValues.fullName}
                     onChange={(e) => setTempValues({ ...tempValues, fullName: e.target.value })}
+                    placeholder={t('profile.fullName')}
                   />
-                  <Button onClick={onSaveField} size="sm">{t('actions.save')}</Button>
-                  <Button onClick={() => setEditingField(null)} size="sm" variant="outline">{t('actions.cancel')}</Button>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <p className="text-sm">{profile?.full_name || t('empty.description')}</p>
-                  <Button
-                    onClick={() => {
-                      setEditingField('fullName');
-                      setTempValues({ ...tempValues, fullName: profile?.full_name || '' });
-                    }}
-                    size="sm"
-                    variant="ghost"
-                  >
-                    {t('actions.edit')}
-                  </Button>
-                </div>
-              )}
-            </div>
+                ) : (
+                  <p className="text-sm py-2 px-3 bg-muted/50 rounded-md min-h-[40px] flex items-center">
+                    {profile?.full_name || <span className="text-muted-foreground">{t('empty.description')}</span>}
+                  </p>
+                )}
+              </div>
 
-            <div className="space-y-2">
-              <Label>{t('profile.displayName')}</Label>
-              {editingField === 'displayName' ? (
-                <div className="flex gap-2">
+              <div className="space-y-2">
+                <Label>{t('profile.displayName')}</Label>
+                {isEditMode ? (
                   <Input
                     value={tempValues.displayName}
                     onChange={(e) => setTempValues({ ...tempValues, displayName: e.target.value })}
+                    placeholder={t('profile.displayName')}
                   />
-                  <Button onClick={onSaveField} size="sm">{t('actions.save')}</Button>
-                  <Button onClick={() => setEditingField(null)} size="sm" variant="outline">{t('actions.cancel')}</Button>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <p className="text-sm">{profile?.display_name || t('empty.description')}</p>
-                  <Button
-                    onClick={() => {
-                      setEditingField('displayName');
-                      setTempValues({ ...tempValues, displayName: profile?.display_name || '' });
-                    }}
-                    size="sm"
-                    variant="ghost"
-                  >
-                    {t('actions.edit')}
-                  </Button>
-                </div>
-              )}
-            </div>
+                ) : (
+                  <p className="text-sm py-2 px-3 bg-muted/50 rounded-md min-h-[40px] flex items-center">
+                    {profile?.display_name || <span className="text-muted-foreground">{t('empty.description')}</span>}
+                  </p>
+                )}
+              </div>
 
-            <div className="space-y-2">
-              <Label>{t('profile.sport')}</Label>
-              {editingField === 'primarySport' ? (
-                <div className="space-y-2">
+              <div className="space-y-2">
+                <Label>{t('profile.sport')}</Label>
+                {isEditMode ? (
                   <SportSelector
                     value={tempValues.primarySport}
                     onChange={(value) => setTempValues({ ...tempValues, primarySport: value })}
                   />
-                  <div className="flex gap-2">
-                    <Button onClick={onSaveField} size="sm">{t('actions.save')}</Button>
-                    <Button onClick={() => setEditingField(null)} size="sm" variant="outline">{t('actions.cancel')}</Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <p className="text-sm">{profile?.primary_sport || t('empty.description')}</p>
-                  <Button
-                    onClick={() => {
-                      setEditingField('primarySport');
-                      setTempValues({ ...tempValues, primarySport: profile?.primary_sport || '' });
-                    }}
-                    size="sm"
-                    variant="ghost"
-                  >
-                    {t('actions.edit')}
-                  </Button>
-                </div>
-              )}
-            </div>
+                ) : (
+                  <p className="text-sm py-2 px-3 bg-muted/50 rounded-md min-h-[40px] flex items-center">
+                    {profile?.primary_sport ? (
+                      <Badge variant="secondary">{profile.primary_sport}</Badge>
+                    ) : (
+                      <span className="text-muted-foreground">{t('empty.description')}</span>
+                    )}
+                  </p>
+                )}
+              </div>
 
-            <div className="space-y-2">
-              <Label>{t('profile.team')}</Label>
-              {editingField === 'teamName' ? (
-                <div className="flex gap-2">
+              <div className="space-y-2">
+                <Label>{t('profile.team')}</Label>
+                {isEditMode ? (
                   <Input
                     value={tempValues.teamName}
                     onChange={(e) => setTempValues({ ...tempValues, teamName: e.target.value })}
+                    placeholder={t('profile.team')}
                   />
-                  <Button onClick={onSaveField} size="sm">{t('actions.save')}</Button>
-                  <Button onClick={() => setEditingField(null)} size="sm" variant="outline">{t('actions.cancel')}</Button>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <p className="text-sm">{profile?.team_name || t('empty.description')}</p>
-                  <Button
-                    onClick={() => {
-                      setEditingField('teamName');
-                      setTempValues({ ...tempValues, teamName: profile?.team_name || '' });
-                    }}
-                    size="sm"
-                    variant="ghost"
-                  >
-                    {t('actions.edit')}
-                  </Button>
-                </div>
-              )}
-            </div>
+                ) : (
+                  <p className="text-sm py-2 px-3 bg-muted/50 rounded-md min-h-[40px] flex items-center">
+                    {profile?.team_name || <span className="text-muted-foreground">{t('empty.description')}</span>}
+                  </p>
+                )}
+              </div>
 
-            <div className="space-y-2">
-              <Label>{t('profile.bio')}</Label>
-              {editingField === 'bio' ? (
-                <div className="space-y-2">
+              <div className="space-y-2">
+                <Label>{t('profile.bio')}</Label>
+                {isEditMode ? (
                   <Textarea
                     value={tempValues.bio}
                     onChange={(e) => setTempValues({ ...tempValues, bio: e.target.value })}
                     rows={4}
+                    placeholder={t('profile.bio')}
                   />
-                  <div className="flex gap-2">
-                    <Button onClick={onSaveField} size="sm">{t('actions.save')}</Button>
-                    <Button onClick={() => setEditingField(null)} size="sm" variant="outline">{t('actions.cancel')}</Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <p className="text-sm">{profile?.bio || t('empty.description')}</p>
-                  <Button
-                    onClick={() => {
-                      setEditingField('bio');
-                      setTempValues({ ...tempValues, bio: profile?.bio || '' });
-                    }}
-                    size="sm"
-                    variant="ghost"
-                  >
-                    {t('actions.edit')}
-                  </Button>
-                </div>
-              )}
+                ) : (
+                  <p className="text-sm py-2 px-3 bg-muted/50 rounded-md min-h-[80px]">
+                    {profile?.bio || <span className="text-muted-foreground">{t('empty.description')}</span>}
+                  </p>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
