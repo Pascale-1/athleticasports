@@ -114,5 +114,9 @@
     "great": "Excellent",
     "good": "Bon match",
     "fair": "Match"
+  },
+  "joinAGame": "Rejoindre une partie",
+  "actions": {
+    "join": "Rejoindre"
   }
 }

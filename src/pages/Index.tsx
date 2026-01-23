@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@supabase/supabase-js";
-import { Trophy, Users, TrendingUp, Swords, UserPlus, Search, Sparkles, Plus, CalendarCheck, ChevronRight } from "lucide-react";
+import { Trophy, Users, TrendingUp, Swords, UserPlus, Search, Sparkles, Plus, CalendarCheck, ChevronRight, CheckCircle2 } from "lucide-react";
 import { ActivityCard } from "@/components/feed/ActivityCard";
 import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
@@ -343,16 +343,19 @@ const Index = () => {
 
               {/* Open Games Looking for Players */}
               {!gamesLoading && topAvailableGames.length > 0 && (
-                <div className="space-y-2">
+                <div className="rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 p-3 space-y-2 border border-emerald-200/50 dark:border-emerald-800/30">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                      <Sparkles className="h-4 w-4 text-primary" />
-                      {t('matching:openGamesNearby')}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <UserPlus className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-sm font-medium">{t('matching:joinAGame')}</span>
+                      <Badge variant="secondary" className="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-xs">
+                        {topAvailableGames.length}
+                      </Badge>
+                    </div>
                     <Button
                       variant="link"
                       size="sm"
-                      className="text-xs p-0 h-auto"
+                      className="text-xs p-0 h-auto text-emerald-600 dark:text-emerald-400"
                       onClick={() => navigate("/events?tab=open")}
                     >
                       {t('matching:viewAll')}
@@ -362,7 +365,8 @@ const Index = () => {
                     <AvailableGameCard 
                       key={game.id} 
                       game={game} 
-                      compact 
+                      compact
+                      showJoinBadge
                     />
                   ))}
                 </div>
@@ -376,13 +380,19 @@ const Index = () => {
                   ))}
                 </div>
               ) : upcomingMatches.length > 0 ? (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">{t('matching:yourMatches')}</p>
+                <div className="rounded-xl bg-slate-50/50 dark:bg-slate-900/20 p-3 space-y-2 border border-slate-200/50 dark:border-slate-700/30">
+                  <div className="flex items-center gap-2">
+                    <CalendarCheck className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                    <span className="text-sm font-medium">{t('matching:yourMatches')}</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {upcomingMatches.length}
+                    </Badge>
+                  </div>
                   {upcomingMatches.map((match) => (
                     <div 
                       key={match.id}
                       onClick={() => navigate(`/events/${match.id}`)}
-                      className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted cursor-pointer transition-colors"
+                      className="flex items-center gap-3 p-3 rounded-lg bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 cursor-pointer transition-colors"
                     >
                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                         <Trophy className="h-5 w-5 text-primary" />
@@ -393,6 +403,7 @@ const Index = () => {
                           {formatDateTimeShort(match.start_time)}
                         </p>
                       </div>
+                      <CheckCircle2 className="h-4 w-4 text-slate-500 dark:text-slate-400 flex-shrink-0" />
                     </div>
                   ))}
                 </div>

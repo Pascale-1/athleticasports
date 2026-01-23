@@ -15,9 +15,10 @@ interface AvailableGameCardProps {
   game: AvailableGame;
   onExpressInterest?: (gameId: string) => void;
   compact?: boolean;
+  showJoinBadge?: boolean;
 }
 
-export const AvailableGameCard = ({ game, onExpressInterest, compact = false }: AvailableGameCardProps) => {
+export const AvailableGameCard = ({ game, onExpressInterest, compact = false, showJoinBadge = false }: AvailableGameCardProps) => {
   const { t, i18n } = useTranslation(['common', 'matching']);
   const navigate = useNavigate();
   const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
@@ -74,10 +75,10 @@ export const AvailableGameCard = ({ game, onExpressInterest, compact = false }: 
   if (compact) {
     return (
       <div 
-        className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted cursor-pointer transition-colors"
+        className="flex items-center gap-3 p-3 rounded-lg bg-white/50 dark:bg-emerald-900/20 hover:bg-white dark:hover:bg-emerald-900/30 cursor-pointer transition-colors"
         onClick={() => navigate(`/events/${game.id}`)}
       >
-        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 text-lg">
+        <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center flex-shrink-0 text-lg">
           {sport?.emoji || '⚽'}
         </div>
         <div className="flex-1 min-w-0">
@@ -89,12 +90,19 @@ export const AvailableGameCard = ({ game, onExpressInterest, compact = false }: 
             {formatGameDate()} • {getLocationLabel()}
           </p>
         </div>
-        {game.spotsLeft !== undefined && (
-          <Badge variant="secondary" className="flex-shrink-0">
-            <Users className="h-3 w-3 mr-1" />
-            {game.spotsLeft}
-          </Badge>
-        )}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {game.spotsLeft !== undefined && (
+            <Badge variant="secondary" className="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">
+              <Users className="h-3 w-3 mr-1" />
+              {game.spotsLeft}
+            </Badge>
+          )}
+          {showJoinBadge && (
+            <Badge className="bg-emerald-500 text-white text-xs px-1.5 py-0.5">
+              {t('matching:actions.join')}
+            </Badge>
+          )}
+        </div>
       </div>
     );
   }
