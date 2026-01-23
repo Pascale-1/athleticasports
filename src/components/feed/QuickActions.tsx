@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Users, UserPlus, Trophy, Compass } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface QuickAction {
-  label: string;
+  labelKey: string;
   icon: React.ReactNode;
   href: string;
   variant?: "default" | "outline";
@@ -12,28 +12,29 @@ interface QuickAction {
 
 export const QuickActions = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation('common');
 
   const actions: QuickAction[] = [
     {
-      label: "Create Team",
+      labelKey: "quickActions.createTeam",
       icon: <Users className="h-4 w-4" />,
       href: "/teams/create",
       variant: "default",
     },
     {
-      label: "Find Partners",
+      labelKey: "quickActions.findPartners",
       icon: <UserPlus className="h-4 w-4" />,
       href: "/users",
       variant: "outline",
     },
     {
-      label: "Join Challenge",
+      labelKey: "quickActions.joinChallenge",
       icon: <Trophy className="h-4 w-4" />,
       href: "/teams",
       variant: "outline",
     },
     {
-      label: "Explore Teams",
+      labelKey: "quickActions.exploreTeams",
       icon: <Compass className="h-4 w-4" />,
       href: "/teams",
       variant: "outline",
@@ -52,7 +53,7 @@ export const QuickActions = () => {
             className="flex items-center gap-2 whitespace-nowrap snap-start transition-transform active:scale-95"
           >
             {action.icon}
-            <span className="font-medium">{action.label}</span>
+            <span className="font-medium">{t(action.labelKey)}</span>
           </Button>
         ))}
       </div>
