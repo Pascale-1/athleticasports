@@ -138,44 +138,40 @@ const Events = () => {
         />
 
         {/* Tab Switcher: My Events / Organized / Open Games */}
-        <div className="flex gap-1 p-1 bg-muted/50 rounded-lg overflow-x-auto">
-          <Button
-            variant={activeTab === 'my' ? 'default' : 'ghost'}
-            size="sm"
-            className="flex-1 h-9 min-w-0"
+        <div className="flex gap-1 p-1 bg-muted/50 rounded-lg">
+          <button
+            className={cn(
+              "flex-1 h-9 px-2 rounded-md text-xs font-medium transition-all text-center leading-tight",
+              activeTab === 'my' 
+                ? "bg-background text-foreground shadow-sm" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
             onClick={() => handleTabChange('my')}
           >
-            <CalendarIcon className="h-4 w-4 mr-1.5 shrink-0" />
-            <span className="truncate">{t('tabs.myEvents')}</span>
-          </Button>
-          <Button
-            variant={activeTab === 'organized' ? 'default' : 'ghost'}
-            size="sm"
-            className="flex-1 h-9 min-w-0"
+            {t('tabs.myEvents')}
+          </button>
+          <button
+            className={cn(
+              "flex-1 h-9 px-2 rounded-md text-xs font-medium transition-all text-center leading-tight",
+              activeTab === 'organized' 
+                ? "bg-background text-foreground shadow-sm" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
             onClick={() => handleTabChange('organized')}
           >
-            <ClipboardList className="h-4 w-4 mr-1.5 shrink-0" />
-            <span className="truncate">{t('tabs.organized')}</span>
-            {createdEvents.length > 0 && (
-              <Badge variant="secondary" className="ml-1.5 text-xs shrink-0">
-                {createdEvents.length}
-              </Badge>
+            {t('tabs.organized')}
+          </button>
+          <button
+            className={cn(
+              "flex-1 h-9 px-2 rounded-md text-xs font-medium transition-all text-center leading-tight",
+              activeTab === 'open' 
+                ? "bg-background text-foreground shadow-sm" 
+                : "text-muted-foreground hover:text-foreground"
             )}
-          </Button>
-          <Button
-            variant={activeTab === 'open' ? 'default' : 'ghost'}
-            size="sm"
-            className="flex-1 h-9 min-w-0"
             onClick={() => handleTabChange('open')}
           >
-            <UserPlus className="h-4 w-4 mr-1.5 shrink-0" />
-            <span className="truncate">{tMatching('openGames')}</span>
-            {openGames.length > 0 && (
-              <Badge variant="secondary" className="ml-1.5 text-xs shrink-0">
-                {openGames.length}
-              </Badge>
-            )}
-          </Button>
+            {tMatching('openGames')}
+          </button>
         </div>
 
         {activeTab === 'open' ? (
