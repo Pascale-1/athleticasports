@@ -119,8 +119,8 @@
   "activity": {
     "title": "Activity",
     "recentActivity": "Recent Activity",
-    "noActivity": "No recent activity",
-    "noActivityDesc": "Your activity feed will appear here",
+    "noActivity": "No activity yet",
+    "noActivityDesc": "Join a team or event to see updates here",
     "createdTeam": "Created Team",
     "joinedTeam": "Joined Team",
     "createdEvent": "Created Event",
@@ -245,5 +245,11 @@
     "expiredDesc": "This confirmation link has expired. Please request a new deletion if you still want to delete your account.",
     "errorTitle": "Invalid Link",
     "errorDesc": "This confirmation link is invalid or has already been used."
+  },
+  "quickActions": {
+    "createTeam": "Create Team",
+    "findPartners": "Find Partners",
+    "joinChallenge": "Join Challenge",
+    "exploreTeams": "Explore Teams"
   }
 }

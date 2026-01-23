@@ -101,7 +101,7 @@
   "interestExpressed": "Intérêt exprimé !",
   "interestDesc": "L'organisateur verra ton intérêt",
   "organizedBy": "par {{name}}",
-  "spotsLeft": "{{count}} places",
+  "spotsLeft": "{{count}} restantes",
   "full": "Complet",
   "youreAvailable": "Tu es dispo",
   "active": "Actif",

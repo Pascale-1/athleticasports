@@ -119,8 +119,8 @@
   "activity": {
     "title": "Activité",
     "recentActivity": "Activité récente",
-    "noActivity": "Aucune activité récente",
-    "noActivityDesc": "Votre fil d'activité apparaîtra ici",
+    "noActivity": "Pas encore d'activité",
+    "noActivityDesc": "Rejoignez une équipe ou un événement pour voir les mises à jour",
     "createdTeam": "Équipe créée",
     "joinedTeam": "A rejoint",
     "createdEvent": "Événement créé",
@@ -245,5 +245,11 @@
     "expiredDesc": "Ce lien de confirmation a expiré. Veuillez faire une nouvelle demande de suppression si vous souhaitez toujours supprimer votre compte.",
     "errorTitle": "Lien invalide",
     "errorDesc": "Ce lien de confirmation est invalide ou a déjà été utilisé."
+  },
+  "quickActions": {
+    "createTeam": "Créer équipe",
+    "findPartners": "Trouver joueurs",
+    "joinChallenge": "Défis",
+    "exploreTeams": "Explorer"
   }
 }

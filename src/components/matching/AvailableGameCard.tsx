@@ -126,7 +126,7 @@ export const AvailableGameCard = ({
               <div className="flex items-center justify-between mt-1.5">
                 <div className="flex items-center gap-1 text-caption text-muted-foreground">
                   <Users className="h-2.5 w-2.5" />
-                  <span>{game.spotsLeft !== undefined ? `${game.spotsLeft} left` : ''}</span>
+                  <span>{t('matching:spotsLeft', { count: game.spotsLeft })}</span>
                 </div>
                 {hasJoined ? (
                   <Badge size="xs" className="bg-success text-success-foreground">
@@ -172,8 +172,8 @@ export const AvailableGameCard = ({
                 {game.spotsLeft !== undefined && (
                   <>
                     <span className="text-muted-foreground/50">·</span>
-                    <Users className="h-3 w-3" />
-                    <span>{game.spotsLeft} left</span>
+              <Users className="h-3 w-3" />
+              <span>{t('matching:spotsLeft', { count: game.spotsLeft })}</span>
                   </>
                 )}
               </div>

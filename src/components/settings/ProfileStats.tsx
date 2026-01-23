@@ -108,16 +108,16 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
           onClick={onClick}
           disabled={!onClick}
           className={cn(
-            "flex flex-col items-center gap-0.5 min-h-[44px] px-2 py-1 rounded-lg transition-colors",
-            onClick && "hover:bg-muted active:scale-95 cursor-pointer",
+            "flex flex-col items-center gap-1 min-h-[52px] min-w-[60px] px-3 py-2 rounded-xl transition-all duration-200",
+            onClick && "hover:bg-muted/80 active:scale-95 cursor-pointer",
             !onClick && "cursor-default"
           )}
         >
-          <div className="flex items-center gap-1">
-            <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="font-bold text-sm">{value}</span>
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted/60">
+            <Icon className="h-4 w-4 text-primary" />
           </div>
-          <span className="text-[10px] text-muted-foreground">{label}</span>
+          <span className="font-bold text-base tabular-nums">{value}</span>
+          <span className="text-[10px] text-muted-foreground leading-tight">{label}</span>
         </button>
       ))}
     </div>

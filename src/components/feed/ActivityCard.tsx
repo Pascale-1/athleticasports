@@ -1,8 +1,8 @@
-import { memo, useState } from "react";
+import { memo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MessageCircle, Trophy, Share2 } from "lucide-react";
+import { Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { formatRelativeDate } from "@/lib/dateUtils";
@@ -29,24 +29,10 @@ export const ActivityCard = memo(({
   timeAgo,
   metadata,
   achievements,
-  likes = 0,
-  comments = 0,
   imageUrl,
   createdAt,
 }: ActivityCardProps) => {
   const { t } = useTranslation('common');
-  const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(likes);
-
-  const handleLike = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isLiked) {
-      setLikeCount(prev => prev - 1);
-    } else {
-      setLikeCount(prev => prev + 1);
-    }
-    setIsLiked(!isLiked);
-  };
 
   // Translate description with proper localization
   const getTranslatedDescription = (): string => {
@@ -157,33 +143,6 @@ export const ActivityCard = memo(({
         </div>
       )}
 
-      {/* Actions */}
-      <div className="px-3 py-2 border-t border-border/50 flex items-center gap-4">
-        <button
-          onClick={handleLike}
-          className={cn(
-            "flex items-center gap-1.5 text-caption font-medium transition-all duration-200 active:scale-95 min-h-[32px] -m-1 p-1",
-            isLiked ? "text-destructive" : "text-muted-foreground hover:text-foreground"
-          )}
-          aria-label={isLiked ? "Unlike" : "Like"}
-        >
-          <Heart className={cn("h-4 w-4 transition-transform", isLiked && "fill-current scale-110")} />
-          <span>{likeCount}</span>
-        </button>
-        <button 
-          className="flex items-center gap-1.5 text-caption font-medium text-muted-foreground hover:text-foreground transition-colors active:scale-95 min-h-[32px] -m-1 p-1"
-          aria-label="Comment"
-        >
-          <MessageCircle className="h-4 w-4" />
-          <span>{comments}</span>
-        </button>
-        <button 
-          className="flex items-center gap-1.5 text-caption font-medium text-muted-foreground hover:text-foreground transition-colors active:scale-95 min-h-[32px] -m-1 p-1 ml-auto"
-          aria-label="Share"
-        >
-          <Share2 className="h-4 w-4" />
-        </button>
-      </div>
     </Card>
   );
 });
