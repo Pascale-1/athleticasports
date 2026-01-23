@@ -77,7 +77,12 @@
     "cancelled": "Annulé",
     "completed": "Terminé",
     "success": "Succès",
-    "error": "Erreur"
+    "error": "Erreur",
+    "going": "Inscrit",
+    "maybe": "Peut-être",
+    "declined": "Pas dispo",
+    "full": "Complet",
+    "available": "Ouvert"
   },
   "errors": {
     "generic": "Une erreur s'est produite",
