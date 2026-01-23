@@ -149,7 +149,11 @@
     "displayName": "Nom d'affichage",
     "username": "Nom d'utilisateur",
     "email": "Email",
-    "phone": "Téléphone"
+    "phone": "Téléphone",
+    "followers": "Abonnés",
+    "following": "Abonnements",
+    "teamsLabel": "Équipes",
+    "eventsLabel": "Matchs"
   },
   "sports": {
     "football": "Football",

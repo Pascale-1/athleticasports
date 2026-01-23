@@ -1,19 +1,23 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Clock, Users, Sparkles, ChevronRight, CheckCircle2 } from "lucide-react";
+import { MapPin, Clock, Users, Sparkles, ChevronRight, CheckCircle2, Loader2 } from "lucide-react";
 import { format, isToday, isTomorrow } from "date-fns";
 import { getSportById } from "@/lib/sports";
 import { AvailableGame } from "@/hooks/useAvailableGames";
 import { getDistrictLabel } from "@/lib/parisDistricts";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface AvailableGameCardProps {
   game: AvailableGame;
   onExpressInterest?: (gameId: string) => void;
+  onQuickJoin?: (gameId: string) => void;
   compact?: boolean;
   showJoinBadge?: boolean;
   isUserAttending?: boolean;
@@ -22,6 +26,7 @@ interface AvailableGameCardProps {
 export const AvailableGameCard = ({ 
   game, 
   onExpressInterest, 
+  onQuickJoin,
   compact = false, 
   showJoinBadge = false,
   isUserAttending = false
@@ -29,9 +34,46 @@ export const AvailableGameCard = ({
   const { t, i18n } = useTranslation(['common', 'matching']);
   const navigate = useNavigate();
   const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
+  const [isJoining, setIsJoining] = useState(false);
+  const [hasJoined, setHasJoined] = useState(isUserAttending);
   
   const sport = getSportById(game.sport || '');
   const startDate = new Date(game.start_time);
+  
+  // Quick Join handler
+  const handleQuickJoin = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsJoining(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error(t('common:errors.unauthorized'));
+        return;
+      }
+
+      const { error } = await supabase
+        .from("event_attendance" as any)
+        .upsert({
+          event_id: game.id,
+          user_id: user.id,
+          status: 'attending',
+        }, {
+          onConflict: 'event_id,user_id'
+        });
+
+      if (error) throw error;
+
+      setHasJoined(true);
+      toast.success(t('matching:joinedSuccess'));
+      onQuickJoin?.(game.id);
+    } catch (error: any) {
+      console.error("Error joining game:", error);
+      toast.error(error.message || t('common:errors.generic'));
+    } finally {
+      setIsJoining(false);
+    }
+  };
   
   // Format date smartly
   const formatGameDate = () => {
@@ -100,22 +142,31 @@ export const AvailableGameCard = ({
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          {game.spotsLeft !== undefined && (
+          {game.spotsLeft !== undefined && game.spotsLeft > 0 && !hasJoined && (
             <Badge variant="secondary" className="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">
               <Users className="h-3 w-3 mr-1" />
               {game.spotsLeft}
             </Badge>
           )}
-          {isUserAttending ? (
+          {hasJoined ? (
             <Badge className="bg-primary text-primary-foreground text-xs px-1.5 py-0.5">
               <CheckCircle2 className="h-3 w-3 mr-1" />
               {t('matching:labels.joined')}
             </Badge>
-          ) : showJoinBadge && (
-            <Badge className="bg-emerald-500 text-white text-xs px-1.5 py-0.5">
-              {t('matching:actions.join')}
-            </Badge>
-          )}
+          ) : showJoinBadge && game.spotsLeft !== 0 ? (
+            <Button
+              size="sm"
+              className="h-7 text-xs bg-emerald-500 hover:bg-emerald-600 text-white px-2.5"
+              onClick={handleQuickJoin}
+              disabled={isJoining}
+            >
+              {isJoining ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                t('matching:actions.join')
+              )}
+            </Button>
+          ) : null}
         </div>
       </div>
     );

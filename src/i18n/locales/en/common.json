@@ -149,7 +149,11 @@
     "displayName": "Display Name",
     "username": "Username",
     "email": "Email",
-    "phone": "Phone"
+    "phone": "Phone",
+    "followers": "Followers",
+    "following": "Following",
+    "teamsLabel": "Teams",
+    "eventsLabel": "Events"
   },
   "sports": {
     "football": "Football",
