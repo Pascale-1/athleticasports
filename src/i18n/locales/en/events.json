@@ -16,7 +16,7 @@
   "noEventsDesc": "No events scheduled at the moment.",
   "createFirst": "Create your first event",
   "tabs": {
-    "myEvents": "My Events",
+    "myEvents": "Attending",
     "organized": "Organized",
     "openGames": "Open Games",
     "organizedSubtitle": "events you're organizing"
