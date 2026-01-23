@@ -9,6 +9,7 @@ interface EventWithUserStatus extends Event {
   userStatus?: 'attending' | 'maybe' | 'not_attending' | null;
   attendingCount?: number;
   maybeCount?: number;
+  pendingRequestsCount?: number;
 }
 
 interface EventsListProps {
@@ -17,6 +18,8 @@ interface EventsListProps {
   emptyDescription?: string;
   showInlineRSVP?: boolean;
   isOrganizerView?: boolean;
+  onEditEvent?: (event: Event) => void;
+  onDeleteEvent?: (event: Event) => void;
 }
 
 export const EventsList = ({ 
@@ -24,7 +27,9 @@ export const EventsList = ({
   emptyTitle = "No events yet",
   emptyDescription = "Create your first event to get started",
   showInlineRSVP = false,
-  isOrganizerView = false
+  isOrganizerView = false,
+  onEditEvent,
+  onDeleteEvent
 }: EventsListProps) => {
   if (events.length === 0) {
     return (
@@ -46,6 +51,8 @@ export const EventsList = ({
           isOrganizerView={isOrganizerView}
           prefetchedUserStatus={event.userStatus}
           prefetchedAttendingCount={event.attendingCount}
+          onEdit={onEditEvent ? (e) => { e.stopPropagation(); onEditEvent(event); } : undefined}
+          onDelete={onDeleteEvent ? (e) => { e.stopPropagation(); onDeleteEvent(event); } : undefined}
         />
       ))}
     </div>
@@ -57,13 +64,17 @@ const EventCardWithAttendance = ({
   showInlineRSVP,
   isOrganizerView,
   prefetchedUserStatus,
-  prefetchedAttendingCount
+  prefetchedAttendingCount,
+  onEdit,
+  onDelete
 }: { 
-  event: Event;
+  event: Event & { pendingRequestsCount?: number };
   showInlineRSVP?: boolean;
   isOrganizerView?: boolean;
   prefetchedUserStatus?: 'attending' | 'maybe' | 'not_attending' | null;
   prefetchedAttendingCount?: number;
+  onEdit?: (e: React.MouseEvent) => void;
+  onDelete?: (e: React.MouseEvent) => void;
 }) => {
   const { stats, userStatus, updateAttendance } = useEventAttendance(event.id);
 
@@ -79,6 +90,8 @@ const EventCardWithAttendance = ({
       showInlineRSVP={showInlineRSVP}
       onRSVPChange={updateAttendance}
       isOrganizerView={isOrganizerView}
+      onEdit={isOrganizerView ? onEdit : undefined}
+      onDelete={isOrganizerView ? onDelete : undefined}
     />
   );
 };

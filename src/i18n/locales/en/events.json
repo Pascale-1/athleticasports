@@ -240,6 +240,7 @@
   "edit": {
     "title": "Edit Event",
     "success": "Event updated!",
+    "successDesc": "Your changes have been saved",
     "error": "Failed to update event"
   },
   "calendar": {

@@ -9,7 +9,9 @@ import { useUserEvents, UserEvent } from "@/hooks/useUserEvents";
 import { useEventFilters } from "@/hooks/useEventFilters";
 import { useAvailableGames } from "@/hooks/useAvailableGames";
 import { useCreatedEvents } from "@/hooks/useCreatedEvents";
+import { useEvents } from "@/hooks/useEvents";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
+import { EditEventDialog } from "@/components/events/EditEventDialog";
 import { EventsList } from "@/components/events/EventsList";
 import { EventCalendar } from "@/components/events/EventCalendar";
 import { AvailableGameCard } from "@/components/matching/AvailableGameCard";
@@ -23,6 +25,17 @@ import { EmptyState } from "@/components/EmptyState";
 import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "@/hooks/use-toast";
 
 const EVENT_TYPE_LEGEND = [
   { type: 'training', labelKey: 'types.training', icon: Dumbbell, color: 'text-blue-500' },
@@ -40,13 +53,30 @@ const Events = () => {
   const [activeEventType, setActiveEventType] = useState<'all' | 'training' | 'meetup' | 'match'>('all');
   const [activeTab, setActiveTab] = useState<'my' | 'organized' | 'open'>('my');
   
+  // Edit/Delete state for Organized tab
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [deletingEvent, setDeletingEvent] = useState<Event | null>(null);
+  
   // Use useUserEvents for "Attending" tab - shows only events user has RSVP'd to
   const { events: attendingEvents, loading: attendingLoading } = useUserEvents({ 
     status: 'upcoming',
     includeNotAttending: false // Only show Going/Maybe
   });
   const { games: openGames, loading: openGamesLoading } = useAvailableGames();
-  const { events: createdEvents, loading: createdEventsLoading } = useCreatedEvents({ status: 'upcoming' });
+  const { events: createdEvents, loading: createdEventsLoading, refetch: refetchCreatedEvents } = useCreatedEvents({ status: 'upcoming' });
+  
+  // Hook for updating/deleting events
+  const { updateEvent, deleteEvent } = useEvents();
+  
+  // Read tab from URL params
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'open') {
+      setActiveTab('open');
+    } else if (tabParam === 'organized') {
+      setActiveTab('organized');
+    }
+  }, [searchParams]);
   
   // Read tab from URL params
   useEffect(() => {
@@ -75,6 +105,44 @@ const Events = () => {
     setSearchQuery('');
     setActiveEventType('all');
     setTypeFilter('all');
+  };
+
+  // Handle event edit
+  const handleEditEvent = (event: Event) => {
+    setEditingEvent(event);
+  };
+
+  // Handle event update from edit dialog
+  const handleUpdateEvent = async (eventId: string, data: any) => {
+    const success = await updateEvent(eventId, data);
+    if (success) {
+      refetchCreatedEvents();
+      toast({
+        title: t('edit.success'),
+        description: t('edit.successDesc'),
+      });
+    }
+    return success;
+  };
+
+  // Handle event delete confirmation
+  const handleDeleteEvent = (event: Event) => {
+    setDeletingEvent(event);
+  };
+
+  // Confirm delete
+  const handleConfirmDelete = async () => {
+    if (!deletingEvent) return;
+    
+    const success = await deleteEvent(deletingEvent.id);
+    if (success) {
+      refetchCreatedEvents();
+      toast({
+        title: t('details.deleteSuccess'),
+        description: t('details.eventDeleted'),
+      });
+    }
+    setDeletingEvent(null);
   };
 
   const handleTabChange = (tab: 'my' | 'organized' | 'open') => {
@@ -252,6 +320,8 @@ const Events = () => {
                 events={filteredCreatedEvents} 
                 showInlineRSVP={false}
                 isOrganizerView
+                onEditEvent={handleEditEvent}
+                onDeleteEvent={handleDeleteEvent}
               />
             ) : (
               <EmptyState
@@ -445,6 +515,37 @@ const Events = () => {
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
       />
+
+      {/* Edit Event Dialog */}
+      {editingEvent && (
+        <EditEventDialog
+          open={!!editingEvent}
+          onOpenChange={(open) => !open && setEditingEvent(null)}
+          event={editingEvent}
+          onUpdate={handleUpdateEvent}
+        />
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deletingEvent} onOpenChange={(open) => !open && setDeletingEvent(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('details.confirmDelete')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('details.deleteWarning')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t('details.deleteEvent')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Mobile FAB */}
       <FAB

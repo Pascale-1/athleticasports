@@ -237,9 +237,10 @@ const EventDetail = () => {
   const isPastEvent = endDate < now;
   const isOngoing = startDate <= now && endDate >= now;
 
+  // Use 24h format and en-dash for time display
   const timeStr = isSameDay(startDate, endDate)
-    ? `${format(startDate, "h:mm a")} - ${format(endDate, "h:mm a")}`
-    : `${format(startDate, "MMM d, h:mm a")} - ${format(endDate, "MMM d, h:mm a")}`;
+    ? `${format(startDate, "HH:mm")} – ${format(endDate, "HH:mm")}`
+    : `${format(startDate, "d MMM, HH:mm")} – ${format(endDate, "d MMM, HH:mm")}`;
 
   const descriptionLength = event.description?.length || 0;
   const shouldTruncateDescription = descriptionLength > 150;
@@ -317,12 +318,6 @@ const EventDetail = () => {
 
             <div className="flex items-center gap-2">
               <AddToCalendarButton event={event} />
-              {canEdit && (
-                <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)}>
-                  <Pencil className="h-4 w-4 mr-1" />
-                  {t('edit.title')}
-                </Button>
-              )}
             </div>
           </div>
         </div>
