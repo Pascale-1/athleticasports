@@ -111,7 +111,7 @@ export const FindMatchSheet = ({ open, onOpenChange }: FindMatchSheetProps) => {
         sport,
         available_from: dateRange.from.toISOString(),
         available_until: dateRange.to.toISOString(),
-        location_district: district || undefined,
+        location_district: district && district !== 'any' ? district : undefined,
         skill_level: skillLevel[0],
       });
       
@@ -272,7 +272,7 @@ export const FindMatchSheet = ({ open, onOpenChange }: FindMatchSheetProps) => {
                     <SelectValue placeholder={t('presets.anyArea')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">{t('presets.anyArea')}</SelectItem>
+                    <SelectItem value="any">{t('presets.anyArea')}</SelectItem>
                     {allDistricts.map((d) => (
                       <SelectItem key={d.id} value={d.id}>
                         {d.name[lang]}

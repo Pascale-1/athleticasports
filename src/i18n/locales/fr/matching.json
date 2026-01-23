@@ -89,6 +89,8 @@
   "tryBroaderFilters": "Retire des filtres pour voir plus de matchs",
   "gamesFound": "{{count}} matchs disponibles",
   "gamesThisWeek": "Matchs cette semaine",
+  "openGamesNearby": "Matchs ouverts près de chez toi",
+  "yourMatches": "Tes prochains matchs",
   "viewAll": "Voir tout",
   "openGames": "Matchs ouverts",
   "openGamesDesc": "Matchs qui cherchent des joueurs",

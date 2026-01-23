@@ -51,7 +51,8 @@
     "copied": "Copied!",
     "invite": "Invite",
     "accept": "Accept",
-    "decline": "Decline"
+    "decline": "Decline",
+    "viewDetails": "View Details"
   },
   "time": {
     "today": "Today",
@@ -174,6 +175,12 @@
     "title": "Nothing to show",
     "description": "No items found"
   },
+  "location": {
+    "tbd": "Location TBD"
+  },
+  "filters": "Filters",
+  "all": "All",
+  "clearFilters": "Clear Filters",
   "settings": {
     "walkthrough": "App Walkthrough",
     "walkthroughDescription": "Take a guided tour of the app's main features",

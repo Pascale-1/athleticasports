@@ -47,7 +47,7 @@ interface Stats {
 
 const Index = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t } = useTranslation(['common', 'matching']);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState<Stats>({ teams: 0, upcomingMatches: 0, followers: 0 });
@@ -291,46 +291,13 @@ const Index = () => {
             </div>
           </AnimatedCard>
 
-          {/* Games This Week Section - Open games looking for players */}
-          {!gamesLoading && topAvailableGames.length > 0 && (
-            <AnimatedCard delay={0.25}>
-              <Card className="p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Users className="h-5 w-5 text-primary" />
-                    <h2 className="text-heading-3 font-semibold">{t('matching.gamesThisWeek')}</h2>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-primary min-h-[44px]"
-                    onClick={() => navigate("/events?tab=open")}
-                  >
-                    {t('matching.viewAll')}
-                    <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </div>
-                
-                <div className="space-y-2">
-                  {topAvailableGames.map((game) => (
-                    <AvailableGameCard 
-                      key={game.id} 
-                      game={game} 
-                      compact 
-                    />
-                  ))}
-                </div>
-              </Card>
-            </AnimatedCard>
-          )}
-
-          {/* Unified Matches Section - Combines status + upcoming */}
-          <AnimatedCard delay={0.3}>
+          {/* Unified Games Section - Combines open games + your matches */}
+          <AnimatedCard delay={0.25}>
             <Card data-walkthrough="games" className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Swords className="h-5 w-5 text-primary" />
-                  <h2 className="text-heading-3 font-semibold">{t('home.games')}</h2>
+                  <h2 className="text-heading-3 font-semibold">{t('common:home.games')}</h2>
                 </div>
                 <Button 
                   variant="ghost" 
@@ -338,16 +305,29 @@ const Index = () => {
                   className="text-primary min-h-[44px]"
                   onClick={() => navigate("/events?type=match")}
                 >
-                  {t('actions.viewAll')}
+                  {t('common:actions.viewAll')}
                 </Button>
               </div>
+              
+              {/* Active Availability Status */}
+              {availability && (
+                <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Search className="h-4 w-4 text-primary" />
+                    <span className="font-medium">{t('common:home.lookingFor', { sport: availability.sport })}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {availability.location_district || availability.location || t('common:home.anyLocation')}
+                  </p>
+                </div>
+              )}
               
               {/* Pending Match Proposals */}
               {pendingProposals.length > 0 && (
                 <div className="space-y-2 border-b pb-3">
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary" className="text-xs">
-                      {pendingProposals.length} {t('status.pending').toLowerCase()}
+                      {pendingProposals.length} {t('common:status.pending').toLowerCase()}
                     </Badge>
                   </div>
                   {pendingProposals.slice(0, 2).map((proposal) => (
@@ -360,21 +340,35 @@ const Index = () => {
                   ))}
                 </div>
               )}
-              
-              {/* Active Availability Status */}
-              {availability && (
-                <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Search className="h-4 w-4 text-primary" />
-                    <span className="font-medium">{t('home.lookingFor', { sport: availability.sport })}</span>
+
+              {/* Open Games Looking for Players */}
+              {!gamesLoading && topAvailableGames.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      {t('matching:openGamesNearby')}
+                    </p>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="text-xs p-0 h-auto"
+                      onClick={() => navigate("/events?tab=open")}
+                    >
+                      {t('matching:viewAll')}
+                    </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {availability.location_district || availability.location || t('home.anyLocation')}
-                  </p>
+                  {topAvailableGames.map((game) => (
+                    <AvailableGameCard 
+                      key={game.id} 
+                      game={game} 
+                      compact 
+                    />
+                  ))}
                 </div>
               )}
               
-              {/* Upcoming Matches List */}
+              {/* Your Upcoming Matches */}
               {matchesLoading ? (
                 <div className="space-y-2">
                   {[1, 2].map((i) => (
@@ -383,6 +377,7 @@ const Index = () => {
                 </div>
               ) : upcomingMatches.length > 0 ? (
                 <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">{t('matching:yourMatches')}</p>
                   {upcomingMatches.map((match) => (
                     <div 
                       key={match.id}
@@ -398,42 +393,31 @@ const Index = () => {
                           {formatDateTimeShort(match.start_time)}
                         </p>
                       </div>
-                      {match.max_participants && (
-                        <Badge variant="secondary" className="flex-shrink-0">
-                          <UserPlus className="h-3 w-3 mr-1" />
-                          {t('home.open')}
-                        </Badge>
-                      )}
                     </div>
                   ))}
                 </div>
-              ) : !pendingProposals.length && !availability ? (
+              ) : !gamesLoading && topAvailableGames.length === 0 && !availability && pendingProposals.length === 0 ? (
                 <div className="text-center py-6">
-                  <Swords className="h-10 w-10 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground mb-4">{t('home.noUpcomingGames')}</p>
-                  <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                    <div className="text-center">
-                      <p className="text-xs text-muted-foreground mb-1">{t('home.lookingToPlay')}</p>
-                      <Button 
-                        size="sm"
-                        variant="default"
-                        onClick={() => setFindMatchSheetOpen(true)}
-                      >
-                        <CalendarCheck className="h-4 w-4 mr-1" />
-                        {t('home.setAvailability')}
-                      </Button>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-xs text-muted-foreground mb-1">{t('home.wantToOrganize')}</p>
-                      <Button 
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setCreateEventDialogOpen(true)}
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        {t('home.createEvent')}
-                      </Button>
-                    </div>
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-muted flex items-center justify-center">
+                    <CalendarCheck className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <p className="text-muted-foreground text-sm mb-3">{t('common:home.noUpcomingGames')}</p>
+                  <div className="flex gap-2 justify-center">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setFindMatchSheetOpen(true)}
+                    >
+                      <Search className="h-4 w-4 mr-2" />
+                      {t('common:home.lookingToPlay')}
+                    </Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => setCreateEventDialogOpen(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      {t('common:home.createEvent')}
+                    </Button>
                   </div>
                 </div>
               ) : null}

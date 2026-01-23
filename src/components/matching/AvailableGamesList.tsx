@@ -21,7 +21,7 @@ interface AvailableGamesListProps {
 }
 
 export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListProps) => {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation(['common', 'matching']);
   const { toast } = useToast();
   const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
   
@@ -38,8 +38,8 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast({
-          title: t('errors.notAuthenticated'),
-          description: t('errors.loginRequired'),
+          title: t('common:errors.notAuthenticated'),
+          description: t('common:errors.loginRequired'),
           variant: "destructive",
         });
         return;
@@ -55,7 +55,7 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
 
       if (existing) {
         toast({
-          title: t('matching.alreadyInterested'),
+          title: t('matching:alreadyInterested'),
           variant: "default",
         });
         return;
@@ -74,15 +74,15 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
       if (error) throw error;
 
       toast({
-        title: t('matching.interestExpressed'),
-        description: t('matching.interestDesc'),
+        title: t('matching:interestExpressed'),
+        description: t('matching:interestDesc'),
       });
 
       refetch();
     } catch (error: any) {
       console.error("Error expressing interest:", error);
       toast({
-        title: t('errors.generic'),
+        title: t('common:errors.generic'),
         description: error.message,
         variant: "destructive",
       });
@@ -101,10 +101,10 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
         <SheetHeader className="flex-shrink-0">
           <SheetTitle className="flex items-center gap-2">
             <Gamepad2 className="h-5 w-5 text-primary" />
-            {t('matching.browseGames')}
+            {t('matching:browseGames')}
           </SheetTitle>
           <SheetDescription>
-            {t('matching.browseGamesDesc')}
+            {t('matching:browseGamesDesc')}
           </SheetDescription>
         </SheetHeader>
 
@@ -113,7 +113,7 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
           <div className="flex-shrink-0 mt-4 p-3 rounded-lg bg-primary/5 border border-primary/20 flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary flex-shrink-0" />
             <span className="text-sm">
-              {t('matching.scoringActive', { sport: userAvailability.sport })}
+              {t('matching:scoringActive', { sport: userAvailability.sport })}
             </span>
           </div>
         )}
@@ -128,7 +128,7 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
               className="gap-1"
             >
               <Filter className="h-4 w-4" />
-              {t('common.filters')}
+              {t('common:filters')}
               {hasActiveFilters && (
                 <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 justify-center">
                   {[filters.sport, filters.district].filter(Boolean).length}
@@ -144,7 +144,7 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
                 className="gap-1 text-muted-foreground"
               >
                 <X className="h-4 w-4" />
-                {t('common.clearFilters')}
+                {t('common:clearFilters')}
               </Button>
             )}
           </div>
@@ -158,16 +158,16 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
             >
               {/* Sport filter */}
               <Select 
-                value={filters.sport || ""} 
-                onValueChange={(v) => setFilters(f => ({ ...f, sport: v || undefined }))}
+                value={filters.sport || "all"} 
+                onValueChange={(v) => setFilters(f => ({ ...f, sport: v === 'all' ? undefined : v }))}
               >
                 <SelectTrigger className="h-9">
-                  <SelectValue placeholder={t('matching.filterBySport')} />
+                  <SelectValue placeholder={t('matching:filterBySport')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{t('common.all')}</SelectItem>
+                  <SelectItem value="all">{t('common:all')}</SelectItem>
                   <SelectGroup>
-                    <SelectLabel>{t('matching.sports.popular')}</SelectLabel>
+                    <SelectLabel>{t('matching:sports.popular')}</SelectLabel>
                     {featuredSports.map((s) => (
                       <SelectItem key={s.id} value={s.id}>
                         {s.emoji} {s.label[lang]}
@@ -175,7 +175,7 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
                     ))}
                   </SelectGroup>
                   <SelectGroup>
-                    <SelectLabel>{t('matching.sports.other')}</SelectLabel>
+                    <SelectLabel>{t('matching:sports.other')}</SelectLabel>
                     {regularSports.map((s) => (
                       <SelectItem key={s.id} value={s.id}>
                         {s.emoji} {s.label[lang]}
@@ -187,14 +187,14 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
 
               {/* Location filter */}
               <Select 
-                value={filters.district || ""} 
-                onValueChange={(v) => setFilters(f => ({ ...f, district: v || undefined }))}
+                value={filters.district || "all"} 
+                onValueChange={(v) => setFilters(f => ({ ...f, district: v === 'all' ? undefined : v }))}
               >
                 <SelectTrigger className="h-9">
-                  <SelectValue placeholder={t('matching.filterByLocation')} />
+                  <SelectValue placeholder={t('matching:filterByLocation')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{t('common.all')}</SelectItem>
+                  <SelectItem value="all">{t('common:all')}</SelectItem>
                   <SelectGroup>
                     <SelectLabel>Paris</SelectLabel>
                     {PARIS_DISTRICTS.map((d) => (
@@ -204,7 +204,7 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
                     ))}
                   </SelectGroup>
                   <SelectGroup>
-                    <SelectLabel>{t('location.nearbyCities')}</SelectLabel>
+                    <SelectLabel>{t('matching:location.nearbyCities')}</SelectLabel>
                     {NEARBY_CITIES.map((d) => (
                       <SelectItem key={d.id} value={d.id}>
                         {d.nameFr}
@@ -228,22 +228,22 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
           ) : games.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Search className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="font-medium text-lg mb-2">{t('matching.noGamesFound')}</h3>
+              <h3 className="font-medium text-lg mb-2">{t('matching:noGamesFound')}</h3>
               <p className="text-muted-foreground text-sm max-w-xs">
                 {hasActiveFilters 
-                  ? t('matching.tryBroaderFilters')
-                  : t('matching.noGamesDesc')}
+                  ? t('matching:tryBroaderFilters')
+                  : t('matching:noGamesDesc')}
               </p>
               {hasActiveFilters && (
                 <Button variant="outline" size="sm" className="mt-4" onClick={clearFilters}>
-                  {t('common.clearFilters')}
+                  {t('common:clearFilters')}
                 </Button>
               )}
             </div>
           ) : (
             <>
               <p className="text-sm text-muted-foreground">
-                {t('matching.gamesFound', { count: games.length })}
+                {t('matching:gamesFound', { count: games.length })}
               </p>
               {games.map((game, index) => (
                 <motion.div
