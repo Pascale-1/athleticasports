@@ -127,6 +127,30 @@ export const useEventAttendance = (eventId: string) => {
 
       if (error) throw error;
 
+      // Sync with match proposals - auto-decline if not attending, auto-accept if attending
+      if (status === 'not_attending') {
+        await supabase
+          .from("match_proposals")
+          .update({
+            status: "declined",
+            responded_at: new Date().toISOString(),
+          })
+          .eq("event_id", eventId)
+          .eq("player_user_id", user.id)
+          .eq("status", "pending");
+      } else if (status === 'attending') {
+        await supabase
+          .from("match_proposals")
+          .update({
+            status: "accepted",
+            responded_at: new Date().toISOString(),
+            commitment_acknowledged_at: new Date().toISOString(),
+          })
+          .eq("event_id", eventId)
+          .eq("player_user_id", user.id)
+          .eq("status", "pending");
+      }
+
       setUserStatus(status);
       
       toast({
