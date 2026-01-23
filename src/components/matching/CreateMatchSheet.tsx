@@ -118,6 +118,7 @@ export const CreateMatchSheet = ({ open, onOpenChange, onSuccess }: CreateMatchS
           start_time: startDateTime.toISOString(),
           end_time: endDateTime.toISOString(),
           location: locationString,
+          location_district: location.district || null,
           is_public: true,
           looking_for_players: lookingForPlayers,
           players_needed: lookingForPlayers ? parseInt(playersNeeded) : null,
