@@ -85,4 +85,10 @@ export const getSportIdsForFilter = (includeAll = true): string[] => {
 export const getSportsLegacy = (): { value: string; label: string }[] =>
   getActiveSports().map(s => ({ value: s.id, label: s.label.en }));
 
+// Get just the emoji for a sport
+export const getSportEmoji = (id: string): string => {
+  const sport = getSportById(id);
+  return sport?.emoji || '🏅';
+};
+
 export type SportId = typeof SPORTS[number]['id'];

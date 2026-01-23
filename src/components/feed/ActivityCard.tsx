@@ -1,22 +1,24 @@
 import { memo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import { Heart, MessageCircle, Trophy, Clock, Users, UserPlus, Calendar, Check, Activity as ActivityIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Heart, MessageCircle, Trophy, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { formatRelativeDate } from "@/lib/dateUtils";
 
 interface ActivityCardProps {
   username: string;
   displayName?: string;
   avatarUrl?: string;
-  actionType: string; // Raw action type for translation
+  actionType: string;
   timeAgo: string;
-  metadata?: Record<string, any>; // Raw metadata for translation
+  metadata?: Record<string, any>;
   achievements?: string[];
   likes?: number;
   comments?: number;
   imageUrl?: string;
-  actionIcon?: 'users' | 'user-plus' | 'calendar' | 'check' | 'activity';
+  createdAt?: string;
 }
 
 export const ActivityCard = memo(({
@@ -30,53 +32,20 @@ export const ActivityCard = memo(({
   likes = 0,
   comments = 0,
   imageUrl,
-  actionIcon = 'activity',
+  createdAt,
 }: ActivityCardProps) => {
   const { t } = useTranslation('common');
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
 
-  const handleLike = () => {
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (isLiked) {
       setLikeCount(prev => prev - 1);
     } else {
       setLikeCount(prev => prev + 1);
     }
     setIsLiked(!isLiked);
-  };
-
-  const getActionIcon = () => {
-    const iconClass = "h-3 w-3";
-    switch (actionIcon) {
-      case 'users':
-        return <Users className={iconClass} />;
-      case 'user-plus':
-        return <UserPlus className={iconClass} />;
-      case 'calendar':
-        return <Calendar className={iconClass} />;
-      case 'check':
-        return <Check className={iconClass} />;
-      default:
-        return <Trophy className={iconClass} />;
-    }
-  };
-
-  // Translate activity type based on raw action type
-  const getTranslatedActivityType = (): string => {
-    switch (actionType) {
-      case 'team_created':
-        return t('activity.createdTeam');
-      case 'team_joined':
-        return t('activity.joinedTeam');
-      case 'event_created':
-        return t('activity.createdEvent');
-      case 'event_rsvp':
-        return t('activity.rsvp');
-      case 'activity_logged':
-        return t('activity.loggedActivity');
-      default:
-        return t('activity.title');
-    }
   };
 
   // Translate description with proper localization
@@ -87,9 +56,7 @@ export const ActivityCard = memo(({
       case 'team_joined':
         return t('activity.joined', { name: metadata?.team_name || '' });
       case 'event_created':
-        const eventTypeEmoji = metadata?.event_type === 'training' ? '🏋️' : 
-                              metadata?.event_type === 'match' ? '⚽' : '👥';
-        return `${eventTypeEmoji} ${metadata?.event_title || ''}`;
+        return metadata?.event_title || '';
       case 'event_rsvp':
         return t('activity.attendingEvent', { name: metadata?.event_title || '' });
       case 'activity_logged':
@@ -101,28 +68,53 @@ export const ActivityCard = memo(({
     }
   };
 
+  // Get activity type icon and label
+  const getActivityInfo = () => {
+    switch (actionType) {
+      case 'team_created':
+        return { emoji: '🏆', label: t('activity.createdTeam') };
+      case 'team_joined':
+        return { emoji: '🤝', label: t('activity.joinedTeam') };
+      case 'event_created':
+        const eventEmoji = metadata?.event_type === 'training' ? '🏋️' : 
+                          metadata?.event_type === 'match' ? '⚽' : '👥';
+        return { emoji: eventEmoji, label: t('activity.createdEvent') };
+      case 'event_rsvp':
+        return { emoji: '✓', label: t('activity.rsvp') };
+      case 'activity_logged':
+        return { emoji: '📊', label: t('activity.loggedActivity') };
+      default:
+        return { emoji: '📌', label: t('activity.title') };
+    }
+  };
+
   const translatedDescription = getTranslatedDescription();
+  const activityInfo = getActivityInfo();
+  const formattedTime = createdAt ? formatRelativeDate(createdAt) : timeAgo;
 
   return (
-    <Card className="overflow-hidden hover-lift transition-all duration-200 active:scale-[0.98] w-full max-w-full min-w-0">
+    <Card variant="default" className="overflow-hidden">
       {/* Header */}
-      <div className="p-2.5 flex items-center gap-2">
-        <Avatar className="h-8 w-8">
+      <div className="p-3 flex items-center gap-2.5">
+        <Avatar className="h-9 w-9">
           <AvatarImage src={avatarUrl} loading="lazy" />
-          <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+          <AvatarFallback className="text-xs bg-primary/10 text-primary font-medium">
             {username.substring(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
-        <div className="flex-1 min-w-0 overflow-hidden">
-          <p className="text-xs font-semibold break-words max-w-full">
-            {displayName || username}
-          </p>
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground flex-wrap">
-            {getActionIcon()}
-            <span>{getTranslatedActivityType()}</span>
-            <span>•</span>
-            <Clock className="h-2.5 w-2.5" />
-            <span>{timeAgo}</span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <span className="text-card-title font-semibold truncate">
+              {displayName || username}
+            </span>
+            <span className="text-caption text-muted-foreground">·</span>
+            <span className="text-caption text-muted-foreground shrink-0">
+              {formattedTime}
+            </span>
+          </div>
+          <div className="flex items-center gap-1 text-caption text-muted-foreground">
+            <span>{activityInfo.emoji}</span>
+            <span>{activityInfo.label}</span>
           </div>
         </div>
       </div>
@@ -139,47 +131,57 @@ export const ActivityCard = memo(({
         </div>
       )}
 
-      {/* Content - translated description */}
+      {/* Quoted Description */}
       {translatedDescription && (
-        <div className="px-2.5 py-1.5">
-          <p className="text-xs leading-relaxed break-words hyphens-auto max-w-full">{translatedDescription}</p>
+        <div className="px-3 py-2 border-l-2 border-primary/30 mx-3 bg-muted/30 rounded-r">
+          <p className="text-body-sm italic text-foreground/80">
+            "{translatedDescription}"
+          </p>
         </div>
       )}
 
       {/* Achievements */}
       {achievements && achievements.length > 0 && (
-        <div className="px-2.5 pb-1.5 flex flex-wrap gap-1">
+        <div className="px-3 py-2 flex flex-wrap gap-1.5">
           {achievements.map((achievement, index) => (
-            <span
+            <Badge
               key={index}
-              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-primary/10 text-[10px] font-medium text-primary"
+              variant="secondary"
+              size="sm"
+              className="gap-1"
             >
               <Trophy className="h-2.5 w-2.5" />
               {achievement}
-            </span>
+            </Badge>
           ))}
         </div>
       )}
 
       {/* Actions */}
-      <div className="px-2.5 py-1.5 border-t border-border/50 flex items-center gap-3">
+      <div className="px-3 py-2 border-t border-border/50 flex items-center gap-4">
         <button
           onClick={handleLike}
           className={cn(
-            "flex items-center gap-1 text-xs font-medium transition-all duration-200 active:scale-95 min-h-[36px] min-w-[36px] -m-1.5 p-1.5",
+            "flex items-center gap-1.5 text-caption font-medium transition-all duration-200 active:scale-95 min-h-[32px] -m-1 p-1",
             isLiked ? "text-destructive" : "text-muted-foreground hover:text-foreground"
           )}
           aria-label={isLiked ? "Unlike" : "Like"}
         >
-          <Heart className={cn("h-3.5 w-3.5 transition-transform", isLiked && "fill-current scale-110")} />
+          <Heart className={cn("h-4 w-4 transition-transform", isLiked && "fill-current scale-110")} />
           <span>{likeCount}</span>
         </button>
         <button 
-          className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors active:scale-95 min-h-[36px] min-w-[36px] -m-1.5 p-1.5"
+          className="flex items-center gap-1.5 text-caption font-medium text-muted-foreground hover:text-foreground transition-colors active:scale-95 min-h-[32px] -m-1 p-1"
           aria-label="Comment"
         >
-          <MessageCircle className="h-3.5 w-3.5" />
+          <MessageCircle className="h-4 w-4" />
           <span>{comments}</span>
+        </button>
+        <button 
+          className="flex items-center gap-1.5 text-caption font-medium text-muted-foreground hover:text-foreground transition-colors active:scale-95 min-h-[32px] -m-1 p-1 ml-auto"
+          aria-label="Share"
+        >
+          <Share2 className="h-4 w-4" />
         </button>
       </div>
     </Card>

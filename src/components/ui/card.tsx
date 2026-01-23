@@ -5,15 +5,26 @@ import { cn } from "@/lib/utils";
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
-    variant?: "default" | "elevated" | "bordered" | "gradient-border" | "glass";
+    variant?: "default" | "elevated" | "bordered" | "gradient-border" | "glass" | "highlighted" | "muted" | "interactive";
+    accent?: "training" | "match" | "meetup" | "primary";
   }
->(({ className, variant = "default", ...props }, ref) => {
+>(({ className, variant = "default", accent, ...props }, ref) => {
   const variantStyles = {
-    default: "rounded-xl border bg-card text-card-foreground shadow-card transition-all hover:shadow-card-hover",
+    default: "rounded-xl border bg-card text-card-foreground shadow-card transition-all",
     elevated: "rounded-xl bg-card text-card-foreground shadow-card-hover hover:shadow-strong transition-all",
     bordered: "rounded-xl border-2 border-border bg-card text-card-foreground shadow-card transition-all hover:border-primary/30",
     "gradient-border": "rounded-xl bg-primary p-[2px] transition-all hover:shadow-colored",
     glass: "rounded-xl bg-background/80 backdrop-blur-md border border-border/50 text-card-foreground shadow-card transition-all",
+    highlighted: "rounded-xl border bg-primary/5 ring-2 ring-primary/20 text-card-foreground shadow-card transition-all",
+    muted: "rounded-xl border border-muted bg-muted/30 text-card-foreground transition-all",
+    interactive: "rounded-xl border bg-card text-card-foreground shadow-card transition-all cursor-pointer active:scale-[0.98] hover:shadow-card-hover",
+  };
+
+  const accentStyles = {
+    training: "border-t-[3px] border-t-info",
+    match: "border-t-[3px] border-t-warning",
+    meetup: "border-t-[3px] border-t-success",
+    primary: "border-t-[3px] border-t-primary",
   };
 
   const content = variant === "gradient-border" ? (
@@ -23,7 +34,16 @@ const Card = React.forwardRef<
   ) : null;
 
   return (
-    <div ref={ref} className={cn(variantStyles[variant], "hover-lift w-full max-w-full min-w-0", className)} {...props}>
+    <div 
+      ref={ref} 
+      className={cn(
+        variantStyles[variant], 
+        accent && accentStyles[accent],
+        "w-full max-w-full min-w-0", 
+        className
+      )} 
+      {...props}
+    >
       {content || props.children}
     </div>
   );
