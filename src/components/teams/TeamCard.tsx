@@ -20,12 +20,12 @@ export const TeamCard = memo(({ team, memberCount = 0, isMember }: TeamCardProps
   return (
     <Link to={`/teams/${team.id}`}>
       <Card className="group hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer active:scale-[0.99]">
-        <CardContent className="p-3">
-          <div className="flex items-center gap-3">
+        <CardContent className="p-2.5">
+          <div className="flex items-center gap-2.5">
             {/* Compact avatar */}
-            <Avatar className="h-12 w-12 rounded-lg shrink-0">
+            <Avatar className="h-10 w-10 rounded-lg shrink-0">
               <AvatarImage src={team.avatar_url || ""} />
-              <AvatarFallback className="text-lg font-heading font-bold bg-primary/10 text-primary rounded-lg">
+              <AvatarFallback className="text-base font-heading font-bold bg-primary/10 text-primary rounded-lg">
                 {team.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>

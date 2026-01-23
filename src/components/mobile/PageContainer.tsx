@@ -13,9 +13,9 @@ interface PageContainerProps {
 
 const paddingClasses: Record<PaddingVariant, string> = {
   none: "",
-  compact: "px-3 py-3 sm:px-4 sm:py-4",
-  default: "px-4 py-4 sm:px-6 sm:py-6",
-  spacious: "px-6 py-6 sm:px-8 sm:py-8",
+  compact: "px-3 py-2 sm:px-4 sm:py-3",
+  default: "px-4 py-3 sm:px-5 sm:py-4",
+  spacious: "px-5 py-4 sm:px-6 sm:py-5",
 };
 
 export const PageContainer = ({ 
@@ -32,7 +32,7 @@ export const PageContainer = ({
       className={cn(
         "w-full max-w-full overflow-x-hidden",
         paddingClasses[resolvedPadding],
-        bottomPadding && "pb-20",
+        bottomPadding && "pb-16",
         className
       )}
     >

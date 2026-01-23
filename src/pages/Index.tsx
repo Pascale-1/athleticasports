@@ -190,60 +190,60 @@ const Index = () => {
     <PageContainer bottomPadding={false}>
       <PullToRefresh onRefresh={handleRefresh}>
         <motion.div 
-          className="space-y-6 pb-20"
+          className="space-y-4 pb-16"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
           {/* Hero Section with Merged Stats */}
           <AnimatedCard delay={0.1}>
-            <Card data-walkthrough="profile" className="p-4 space-y-3 relative">
+            <Card data-walkthrough="profile" className="p-3 space-y-2.5 relative">
               {/* Language Toggle & Logout */}
               <div className="absolute top-2 right-2 flex items-center gap-1">
                 <LanguageToggle />
                 <LogoutButton variant="header" />
               </div>
               
-              <div className="flex items-center gap-3">
-                <Avatar size="xl" ring="coral">
+              <div className="flex items-center gap-2.5">
+                <Avatar size="lg" ring="coral">
                   <AvatarImage src={profile.avatar_url || undefined} />
-                  <AvatarFallback className="text-heading-3 bg-primary/10 text-primary">
+                  <AvatarFallback className="text-base bg-primary/10 text-primary">
                     {profile.username.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-base font-heading font-bold break-words max-w-full">
+                  <h1 className="text-sm font-heading font-bold break-words max-w-full">
                     {t('home.welcome', { name: profile.display_name || profile.username })}
                   </h1>
-                  <p className="text-sm text-muted-foreground">{t('home.readyToPlay')}</p>
+                  <p className="text-xs text-muted-foreground">{t('home.readyToPlay')}</p>
                 </div>
               </div>
 
               {/* Compact Stats Row */}
-              <div className="flex items-center justify-around border-t pt-3">
+              <div className="flex items-center justify-around border-t pt-2.5">
                 <button 
                   onClick={() => navigate("/teams?filter=my-teams")}
-                  className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all hover:bg-muted active:scale-95 min-h-[44px] min-w-[44px]"
+                  className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all hover:bg-muted active:scale-95 min-h-[40px] min-w-[40px]"
                 >
                   <Users className="h-4 w-4 text-primary" />
-                  <p className="text-sm font-bold">{stats.teams}</p>
-                  <p className="text-xs text-muted-foreground">{t('home.teams')}</p>
+                  <p className="text-xs font-bold">{stats.teams}</p>
+                  <p className="text-[10px] text-muted-foreground">{t('home.teams')}</p>
                 </button>
                 <button
                   onClick={() => navigate("/events?type=match")}
-                  className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all hover:bg-muted active:scale-95 min-h-[44px] min-w-[44px]"
+                  className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all hover:bg-muted active:scale-95 min-h-[40px] min-w-[40px]"
                 >
                   <Swords className="h-4 w-4 text-primary" />
-                  <p className="text-sm font-bold">{stats.upcomingMatches}</p>
-                  <p className="text-xs text-muted-foreground">{t('home.games')}</p>
+                  <p className="text-xs font-bold">{stats.upcomingMatches}</p>
+                  <p className="text-[10px] text-muted-foreground">{t('home.games')}</p>
                 </button>
                 <button
                   onClick={() => navigate("/settings")}
-                  className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all hover:bg-muted active:scale-95 min-h-[44px] min-w-[44px]"
+                  className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all hover:bg-muted active:scale-95 min-h-[40px] min-w-[40px]"
                 >
                   <TrendingUp className="h-4 w-4 text-primary" />
-                  <p className="text-sm font-bold">{stats.followers}</p>
-                  <p className="text-xs text-muted-foreground">{t('home.followers')}</p>
+                  <p className="text-xs font-bold">{stats.followers}</p>
+                  <p className="text-[10px] text-muted-foreground">{t('home.followers')}</p>
                 </button>
               </div>
             </Card>
@@ -263,46 +263,46 @@ const Index = () => {
             <div data-walkthrough="quick-actions" className="grid grid-cols-3 gap-2">
               <Button 
                 variant="default"
-                className="flex flex-col items-center justify-center gap-2 h-16 px-2 bg-green-600 hover:bg-green-700 overflow-hidden"
+                className="flex flex-col items-center justify-center gap-1.5 h-14 px-2 bg-green-600 hover:bg-green-700 overflow-hidden"
                 onClick={() => setFindMatchSheetOpen(true)}
               >
-                <CalendarCheck className="h-5 w-5 flex-shrink-0" />
-                <span className="text-xs font-medium text-center truncate max-w-full">{t('home.findGame')}</span>
+                <CalendarCheck className="h-4 w-4 flex-shrink-0" />
+                <span className="text-[11px] font-medium text-center truncate max-w-full">{t('home.findGame')}</span>
               </Button>
               
               <Button 
                 variant="outline"
-                className="flex flex-col items-center justify-center gap-2 h-16 px-2 overflow-hidden"
+                className="flex flex-col items-center justify-center gap-1.5 h-14 px-2 overflow-hidden"
                 onClick={() => setCreateEventDialogOpen(true)}
               >
-                <Plus className="h-5 w-5 text-primary flex-shrink-0" />
-                <span className="text-xs font-medium text-center truncate max-w-full">{t('home.organizeEvent')}</span>
+                <Plus className="h-4 w-4 text-primary flex-shrink-0" />
+                <span className="text-[11px] font-medium text-center truncate max-w-full">{t('home.organizeEvent')}</span>
               </Button>
               
               <Button 
                 type="button"
                 variant="outline"
-                className="flex flex-col items-center justify-center gap-2 h-16 px-2 overflow-hidden"
+                className="flex flex-col items-center justify-center gap-1.5 h-14 px-2 overflow-hidden"
                 onClick={() => navigate("/teams/create")}
               >
-                <Users className="h-5 w-5 text-primary flex-shrink-0" />
-                <span className="text-xs font-medium text-center truncate max-w-full">{t('home.createTeam')}</span>
+                <Users className="h-4 w-4 text-primary flex-shrink-0" />
+                <span className="text-[11px] font-medium text-center truncate max-w-full">{t('home.createTeam')}</span>
               </Button>
             </div>
           </AnimatedCard>
 
           {/* Unified Games Section - Combines open games + your matches */}
           <AnimatedCard delay={0.25}>
-            <Card data-walkthrough="games" className="p-4 space-y-3">
+            <Card data-walkthrough="games" className="p-3 space-y-2.5">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Swords className="h-5 w-5 text-primary" />
-                  <h2 className="text-sm font-heading font-semibold">{t('common:home.games')}</h2>
+                <div className="flex items-center gap-1.5">
+                  <Swords className="h-4 w-4 text-primary" />
+                  <h2 className="text-xs font-heading font-semibold">{t('common:home.games')}</h2>
                 </div>
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="text-primary min-h-[44px]"
+                  className="text-primary min-h-[36px] text-xs"
                   onClick={() => navigate("/events?type=match")}
                 >
                   {t('common:actions.viewAll')}
@@ -311,12 +311,12 @@ const Index = () => {
               
               {/* Active Availability Status */}
               {availability && (
-                <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Search className="h-4 w-4 text-primary" />
+                <div className="p-2.5 rounded-lg bg-primary/5 border border-primary/20 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <Search className="h-3.5 w-3.5 text-primary" />
                     <span className="font-medium">{t('common:home.lookingFor', { sport: availability.sport })}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
                     {availability.location_district || availability.location || t('common:home.anyLocation')}
                   </p>
                 </div>
@@ -324,19 +324,19 @@ const Index = () => {
               
               {/* Open Games Looking for Players - with match quality indicators */}
               {!gamesLoading && topAvailableGames.length > 0 && (
-                <div className="rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 p-3 space-y-2 border border-emerald-200/50 dark:border-emerald-800/30">
+                <div className="rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 p-2.5 space-y-1.5 border border-emerald-200/50 dark:border-emerald-800/30">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <UserPlus className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                      <span className="text-sm font-medium">{t('matching:joinAGame')}</span>
-                      <Badge variant="secondary" className="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-xs">
+                    <div className="flex items-center gap-1.5">
+                      <UserPlus className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-xs font-medium">{t('matching:joinAGame')}</span>
+                      <Badge variant="secondary" className="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-[10px]">
                         {topAvailableGames.length}
                       </Badge>
                     </div>
                     <Button
                       variant="link"
                       size="sm"
-                      className="text-xs p-0 h-auto text-emerald-600 dark:text-emerald-400"
+                      className="text-[10px] p-0 h-auto text-emerald-600 dark:text-emerald-400"
                       onClick={() => navigate("/events?tab=open")}
                     >
                       {t('matching:viewAll')}
@@ -355,17 +355,17 @@ const Index = () => {
               
               {/* Your Upcoming Matches */}
               {matchesLoading ? (
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {[1, 2].map((i) => (
-                    <div key={i} className="h-16 bg-muted animate-pulse rounded-lg" />
+                    <div key={i} className="h-14 bg-muted animate-pulse rounded-lg" />
                   ))}
                 </div>
               ) : upcomingMatches.length > 0 ? (
-                <div className="rounded-xl bg-slate-50/50 dark:bg-slate-900/20 p-3 space-y-2 border border-slate-200/50 dark:border-slate-700/30">
-                  <div className="flex items-center gap-2">
-                    <CalendarCheck className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-                    <span className="text-sm font-medium">{t('matching:yourMatches')}</span>
-                    <Badge variant="secondary" className="text-xs">
+                <div className="rounded-xl bg-slate-50/50 dark:bg-slate-900/20 p-2.5 space-y-1.5 border border-slate-200/50 dark:border-slate-700/30">
+                  <div className="flex items-center gap-1.5">
+                    <CalendarCheck className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" />
+                    <span className="text-xs font-medium">{t('matching:yourMatches')}</span>
+                    <Badge variant="secondary" className="text-[10px]">
                       {upcomingMatches.length}
                     </Badge>
                   </div>
@@ -373,41 +373,41 @@ const Index = () => {
                     <div 
                       key={match.id}
                       onClick={() => navigate(`/events/${match.id}`)}
-                      className="flex items-center gap-3 p-3 rounded-lg bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 cursor-pointer transition-colors"
+                      className="flex items-center gap-2.5 p-2.5 rounded-lg bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 cursor-pointer transition-colors"
                     >
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Trophy className="h-5 w-5 text-primary" />
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Trophy className="h-4 w-4 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate">{match.title}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="font-medium text-xs truncate">{match.title}</p>
+                        <p className="text-[11px] text-muted-foreground">
                           {formatDateTimeShort(match.start_time)}
                         </p>
                       </div>
-                      <CheckCircle2 className="h-4 w-4 text-slate-500 dark:text-slate-400 flex-shrink-0" />
+                      <CheckCircle2 className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400 flex-shrink-0" />
                     </div>
                   ))}
                 </div>
               ) : !gamesLoading && topAvailableGames.length === 0 && !availability ? (
-                <div className="text-center py-6">
-                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-muted flex items-center justify-center">
-                    <CalendarCheck className="h-6 w-6 text-muted-foreground" />
+                <div className="text-center py-4">
+                  <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-muted flex items-center justify-center">
+                    <CalendarCheck className="h-5 w-5 text-muted-foreground" />
                   </div>
-                  <p className="text-muted-foreground text-sm mb-3">{t('common:home.noUpcomingGames')}</p>
+                  <p className="text-muted-foreground text-xs mb-2">{t('common:home.noUpcomingGames')}</p>
                   <div className="flex gap-2 justify-center">
                     <Button 
                       variant="outline" 
                       size="sm"
                       onClick={() => setFindMatchSheetOpen(true)}
                     >
-                      <Search className="h-4 w-4 mr-2" />
+                      <Search className="h-3.5 w-3.5 mr-1.5" />
                       {t('common:home.lookingToPlay')}
                     </Button>
                     <Button 
                       size="sm"
                       onClick={() => setCreateEventDialogOpen(true)}
                     >
-                      <Plus className="h-4 w-4 mr-2" />
+                      <Plus className="h-3.5 w-3.5 mr-1.5" />
                       {t('common:home.createEvent')}
                     </Button>
                   </div>
