@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Users, Clock, Trophy, Coffee, UserCheck, UserX, HelpCircle, UserPlus, Swords, ChevronDown, Repeat } from "lucide-react";
 import { Event } from "@/lib/events";
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -191,16 +192,17 @@ export const EventCard = memo(({
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : isCommitted && userStatus === 'attending' ? (
-              <Badge className="bg-amber-600 text-white border-0 text-xs">
+              <Badge className="bg-amber-500 text-white border-0 text-xs ring-2 ring-amber-200 shadow-sm">
                 ⭐ {t('rsvp.committed')}
               </Badge>
             ) : userStatus ? (
               <Badge 
-                className={`text-xs border-0 text-white ${
-                  userStatus === 'attending' ? 'bg-green-600' :
-                  userStatus === 'maybe' ? 'bg-yellow-600' :
-                  'bg-red-600'
-                }`}
+                className={cn(
+                  "text-xs border-0 text-white shadow-sm",
+                  userStatus === 'attending' && "bg-green-500 ring-2 ring-green-200",
+                  userStatus === 'maybe' && "bg-amber-500 ring-2 ring-amber-200",
+                  userStatus === 'not_attending' && "bg-muted-foreground/60 ring-2 ring-muted"
+                )}
               >
                 {userStatus === 'attending' ? `✓ ${t('rsvp.going')}` : 
                  userStatus === 'maybe' ? `? ${t('rsvp.maybe')}` : `✕ ${t('rsvp.pass')}`}

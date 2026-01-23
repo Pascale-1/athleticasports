@@ -17,6 +17,7 @@
   "createFirst": "Create your first event",
   "tabs": {
     "myEvents": "Attending",
+    "myEventsSubtitle": "events you're attending",
     "organized": "Organized",
     "openGames": "Open Games",
     "organizedSubtitle": "events you're organizing"
