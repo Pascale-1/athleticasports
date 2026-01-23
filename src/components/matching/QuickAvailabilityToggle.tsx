@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -8,17 +9,21 @@ import { Badge } from "@/components/ui/badge";
 import { 
   CalendarCheck, 
   MapPin, 
-  Clock, 
   X, 
   Sparkles,
   ChevronRight,
-  Loader2
+  Loader2,
+  Swords,
+  Users
 } from "lucide-react";
 import { format, addDays } from "date-fns";
 import { usePlayerAvailability } from "@/hooks/usePlayerAvailability";
 import { useMatchProposals } from "@/hooks/useMatchProposals";
+import { useAvailableGames } from "@/hooks/useAvailableGames";
 import { getSportById } from "@/lib/sports";
+import { getDistrictLabel } from "@/lib/parisDistricts";
 import { supabase } from "@/integrations/supabase/client";
+import { AvailableGameCard } from "./AvailableGameCard";
 
 interface QuickAvailabilityToggleProps {
   onOpenFindMatch: () => void;
@@ -29,12 +34,19 @@ export const QuickAvailabilityToggle = ({
   onOpenFindMatch, 
   onOpenBrowseGames 
 }: QuickAvailabilityToggleProps) => {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation('matching');
+  const navigate = useNavigate();
   const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
   
   const { availability, loading, cancelAvailability, createAvailability } = usePlayerAvailability();
   const { proposals } = useMatchProposals();
   const pendingProposals = proposals.filter(p => p.status === 'pending');
+  
+  // Fetch available games when user has availability
+  const { games: availableGames, loading: gamesLoading } = useAvailableGames(
+    availability ? { sport: availability.sport } : undefined
+  );
+  const topGames = availableGames.slice(0, 2);
   
   const [userSport, setUserSport] = useState<string | null>(null);
   const [userDistrict, setUserDistrict] = useState<string | null>(null);
@@ -74,7 +86,7 @@ export const QuickAvailabilityToggle = ({
         sport: userSport,
         available_from: new Date().toISOString(),
         available_until: addDays(new Date(), 7).toISOString(),
-        location: userDistrict || undefined,
+        location_district: userDistrict || undefined,
         skill_level: 3, // Default to intermediate
       });
     } finally {
@@ -100,9 +112,12 @@ export const QuickAvailabilityToggle = ({
     );
   }
 
-  // If availability is active, show status card
+  // If availability is active, show status card with inline games
   if (availability) {
     const sport = getSportById(availability.sport);
+    const districtLabel = availability.location_district 
+      ? getDistrictLabel(availability.location_district, lang) 
+      : null;
     
     return (
       <Card className="p-4 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
@@ -114,20 +129,20 @@ export const QuickAvailabilityToggle = ({
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-sm truncate">
-                  {t('matching.youreAvailable')}
+                  {t('youreAvailable')}
                 </h3>
                 <Badge variant="default" className="text-xs">
                   <Sparkles className="h-3 w-3 mr-1" />
-                  {t('matching.active')}
+                  {t('active')}
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {sport?.label[lang] || availability.sport} • {t('matching.until')} {format(new Date(availability.available_until), "d MMM")}
+                {sport?.label[lang] || availability.sport} • {t('until')} {format(new Date(availability.available_until), "d MMM")}
               </p>
-              {availability.location && (
+              {districtLabel && (
                 <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                   <MapPin className="h-3 w-3" />
-                  <span className="truncate">{availability.location}</span>
+                  <span className="truncate">{districtLabel}</span>
                 </div>
               )}
             </div>
@@ -148,6 +163,43 @@ export const QuickAvailabilityToggle = ({
           </Button>
         </div>
 
+        {/* Inline Available Games Preview */}
+        {!gamesLoading && topGames.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 pt-3 border-t space-y-2"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Swords className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">
+                  {t('gamesFound', { count: availableGames.length })}
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={onOpenBrowseGames}
+              >
+                {t('viewAll')}
+                <ChevronRight className="h-3 w-3 ml-1" />
+              </Button>
+            </div>
+            
+            <div className="space-y-2">
+              {topGames.map((game) => (
+                <AvailableGameCard 
+                  key={game.id} 
+                  game={game} 
+                  compact 
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         {/* Pending proposals count */}
         {pendingProposals.length > 0 && (
           <motion.div
@@ -165,7 +217,7 @@ export const QuickAvailabilityToggle = ({
                   {pendingProposals.length}
                 </Badge>
                 <span className="text-sm">
-                  {t('matching.matchesWaiting', { count: pendingProposals.length })}
+                  {t('matchesWaiting', { count: pendingProposals.length })}
                 </span>
               </div>
               <ChevronRight className="h-4 w-4" />
@@ -185,9 +237,9 @@ export const QuickAvailabilityToggle = ({
             <CalendarCheck className="h-5 w-5 text-muted-foreground" />
           </div>
           <div>
-            <h3 className="font-medium text-sm">{t('matching.readyToPlay')}</h3>
+            <h3 className="font-medium text-sm">{t('readyToPlay')}</h3>
             <p className="text-xs text-muted-foreground">
-              {t('matching.toggleDesc')}
+              {t('toggleDesc')}
             </p>
           </div>
         </div>
@@ -200,16 +252,16 @@ export const QuickAvailabilityToggle = ({
               disabled={quickEnabling}
             />
           ) : (
-          <Button 
-            size="sm" 
-            onClick={onOpenFindMatch}
-            variant="default"
-          >
-            {t('matching.setAvailability')}
-          </Button>
-        )}
+            <Button 
+              size="sm" 
+              onClick={onOpenFindMatch}
+              variant="default"
+            >
+              {t('setAvailability')}
+            </Button>
+          )}
+        </div>
       </div>
-    </div>
 
       {quickEnabling && (
         <motion.div
@@ -218,7 +270,7 @@ export const QuickAvailabilityToggle = ({
           className="mt-3 flex items-center gap-2 text-sm text-muted-foreground"
         >
           <Loader2 className="h-4 w-4 animate-spin" />
-          {t('matching.settingUp')}
+          {t('settingUp')}
         </motion.div>
       )}
     </Card>

@@ -18,8 +18,8 @@
   "types": {
     "all": "Tous",
     "training": "Entraîn.",
-    "game": "Partie",
-    "meetup": "Meetup"
+    "game": "Match",
+    "meetup": "Sortie"
   },
   "timeGroups": {
     "today": "Aujourd'hui",
