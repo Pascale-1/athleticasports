@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Plus, Calendar as CalendarIcon, List, Search, Dumbbell, Users, Swords, UserPlus, ClipboardList } from "lucide-react";
-import { useEvents } from "@/hooks/useEvents";
+import { useUserEvents, UserEvent } from "@/hooks/useUserEvents";
 import { useEventFilters } from "@/hooks/useEventFilters";
 import { useAvailableGames } from "@/hooks/useAvailableGames";
 import { useCreatedEvents } from "@/hooks/useCreatedEvents";
@@ -40,7 +40,11 @@ const Events = () => {
   const [activeEventType, setActiveEventType] = useState<'all' | 'training' | 'meetup' | 'match'>('all');
   const [activeTab, setActiveTab] = useState<'my' | 'organized' | 'open'>('my');
   
-  const { events, loading, createEvent, refetch } = useEvents(undefined, { status: 'upcoming' });
+  // Use useUserEvents for "Attending" tab - shows only events user has RSVP'd to
+  const { events: attendingEvents, loading: attendingLoading } = useUserEvents({ 
+    status: 'upcoming',
+    includeNotAttending: false // Only show Going/Maybe
+  });
   const { games: openGames, loading: openGamesLoading } = useAvailableGames();
   const { events: createdEvents, loading: createdEventsLoading } = useCreatedEvents({ status: 'upcoming' });
   
@@ -59,7 +63,7 @@ const Events = () => {
     filteredEvents,
     setTypeFilter,
     setSearchQuery,
-  } = useEventFilters(events);
+  } = useEventFilters(attendingEvents);
 
   // Filter created events by type
   const filteredCreatedEvents = createdEvents.filter(event => {
@@ -119,7 +123,7 @@ const Events = () => {
             ? `${openGames.length} ${tMatching('openGamesDesc')}`
             : activeTab === 'organized'
             ? `${createdEvents.length} ${t('tabs.organizedSubtitle')}`
-            : `${events.length} ${t('title').toLowerCase()}`}
+            : `${attendingEvents.length} ${t('tabs.myEventsSubtitle', { defaultValue: 'events you\'re attending' })}`}
           rightAction={
             <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
               <Plus className="h-4 w-4" />
@@ -362,7 +366,7 @@ const Events = () => {
             </TooltipProvider>
 
             {/* Content */}
-            {loading ? (
+            {attendingLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
                   <Skeleton key={i} className="h-32 w-full" />
@@ -440,8 +444,6 @@ const Events = () => {
       <CreateEventDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
-        createEvent={createEvent}
-        onCreated={refetch}
       />
 
       {/* Mobile FAB */}

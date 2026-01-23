@@ -17,6 +17,7 @@
   "createFirst": "Créer votre premier événement",
   "tabs": {
     "myEvents": "Mes participations",
+    "myEventsSubtitle": "événements auxquels vous participez",
     "organized": "Organisés",
     "openGames": "Matchs ouverts",
     "organizedSubtitle": "événements que vous organisez"

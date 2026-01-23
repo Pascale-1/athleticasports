@@ -22,6 +22,7 @@ export interface AvailableGame {
   organizerName?: string;
   organizerAvatar?: string;
   isUserAttending?: boolean;
+  userDeclined?: boolean;
 }
 
 export interface AvailableGamesFilters {
@@ -136,6 +137,14 @@ export const useAvailableGames = (filters?: AvailableGamesFilters) => {
             )
           : false;
         
+        // Check if current user has declined this game
+        const userDeclined = currentUserId 
+          ? attendance.some(
+              (a: { user_id: string; status: string }) => 
+                a.user_id === currentUserId && a.status === "not_attending"
+            )
+          : false;
+        
         const spotsLeft = event.players_needed 
           ? Math.max(0, event.players_needed - attendingCount)
           : event.max_participants 
@@ -174,10 +183,11 @@ export const useAvailableGames = (filters?: AvailableGamesFilters) => {
           organizerName: organizer?.display_name || organizer?.username,
           organizerAvatar: organizer?.avatar_url,
           isUserAttending,
+          userDeclined,
         };
       })
-      // Filter out games where user is already attending
-      .filter(game => game !== null && !game.isUserAttending) as AvailableGame[];
+      // Filter out games where user is already attending OR has declined
+      .filter(game => game !== null && !game.isUserAttending && !game.userDeclined) as AvailableGame[];
 
       // Sort by match score if available, otherwise by date
       processedGames.sort((a, b) => {
