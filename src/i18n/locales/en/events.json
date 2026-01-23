@@ -63,7 +63,18 @@
     "openVenueLink": "Open Venue Link",
     "about": "About",
     "showLess": "Show less",
-    "readMore": "Read more"
+    "readMore": "Read more",
+    "confirmDelete": "Delete this event?",
+    "deleteWarning": "This action cannot be undone. All attendees will be notified.",
+    "deleteEvent": "Delete",
+    "deleteSuccess": "Event deleted",
+    "eventDeleted": "The event has been permanently removed"
+  },
+  "recurrence": {
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "recurring": "Recurring"
   },
   "rsvp": {
     "going": "Going",

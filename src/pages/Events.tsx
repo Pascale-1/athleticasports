@@ -78,16 +78,6 @@ const Events = () => {
     }
   }, [searchParams]);
   
-  // Read tab from URL params
-  useEffect(() => {
-    const tabParam = searchParams.get('tab');
-    if (tabParam === 'open') {
-      setActiveTab('open');
-    } else if (tabParam === 'organized') {
-      setActiveTab('organized');
-    }
-  }, [searchParams]);
-  
   const {
     filters,
     filteredEvents,
