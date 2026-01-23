@@ -284,7 +284,7 @@
     "description": "Find people to join your event",
     "spotsLeft": "{{count}} spot left",
     "spotsLeft_other": "{{count}} spots left",
-    "requestJoin": "Request to Join",
+    "joined": "players joined",
     "toggle": "Looking for more people?",
     "playersNeeded": "How many participants?",
     "player": "participant",
