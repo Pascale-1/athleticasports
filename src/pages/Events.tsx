@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar as CalendarIcon, List, Search, Dumbbell, Users, Swords, UserPlus, ClipboardList } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, List, Search, Dumbbell, Users, Swords, UserPlus, ClipboardList, CalendarCheck, Crown } from "lucide-react";
 import { useUserEvents, UserEvent } from "@/hooks/useUserEvents";
 import { useEventFilters } from "@/hooks/useEventFilters";
 import { useAvailableGames } from "@/hooks/useAvailableGames";
@@ -43,15 +43,23 @@ const EVENT_TYPE_LEGEND = [
   { type: 'meetup', labelKey: 'types.meetup', icon: Users, color: 'text-emerald-500' },
 ] as const;
 
+const TAB_CONFIG = [
+  { key: 'my', icon: CalendarCheck, labelKey: 'tabs.myEvents' },
+  { key: 'organized', icon: Crown, labelKey: 'tabs.organized' },
+  { key: 'open', icon: UserPlus, labelKey: 'matching:openGames' },
+] as const;
+
 const Events = () => {
   const { t } = useTranslation('events');
   const { t: tMatching } = useTranslation('matching');
+  const { t: tCommon } = useTranslation('common');
   const [searchParams, setSearchParams] = useSearchParams();
   
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [activeEventType, setActiveEventType] = useState<'all' | 'training' | 'meetup' | 'match'>('all');
   const [activeTab, setActiveTab] = useState<'my' | 'organized' | 'open'>('my');
+  const [showSearch, setShowSearch] = useState(false);
   
   // Edit/Delete state for Organized tab
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -171,21 +179,29 @@ const Events = () => {
 
   const groupedEvents = groupEventsByTime(filteredEvents);
 
+  // Get current tab subtitle
+  const getTabSubtitle = () => {
+    switch (activeTab) {
+      case 'open':
+        return `${openGames.length} ${tMatching('openGamesDesc')}`;
+      case 'organized':
+        return `${createdEvents.length} ${t('tabs.organizedSubtitle')}`;
+      default:
+        return `${attendingEvents.length} ${t('tabs.myEventsSubtitle', { defaultValue: 'events' })}`;
+    }
+  };
+
   return (
     <PageContainer>
-      <div className="space-y-4 animate-fade-in">
+      <div className="space-y-3 animate-fade-in">
         {/* Header */}
         <PageHeader
           title={t('title')}
-          subtitle={activeTab === 'open' 
-            ? `${openGames.length} ${tMatching('openGamesDesc')}`
-            : activeTab === 'organized'
-            ? `${createdEvents.length} ${t('tabs.organizedSubtitle')}`
-            : `${attendingEvents.length} ${t('tabs.myEventsSubtitle', { defaultValue: 'events you\'re attending' })}`}
+          subtitle={getTabSubtitle()}
           rightAction={
-            <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
+            <Button onClick={() => setCreateDialogOpen(true)} size="sm" className="gap-1.5 h-9">
               <Plus className="h-4 w-4" />
-              {t('createEvent')}
+              <span className="hidden sm:inline">{t('createEvent')}</span>
             </Button>
           }
         />
@@ -199,54 +215,46 @@ const Events = () => {
           variant="info"
         />
 
-        {/* Tab Switcher: My Events / Organized / Open Games */}
-        <div className="flex gap-1 p-1 bg-muted/50 rounded-lg">
-          <button
-            className={cn(
-              "flex-1 h-9 px-2 rounded-md text-xs font-medium transition-all text-center leading-tight",
-              activeTab === 'my' 
-                ? "bg-background text-foreground shadow-sm" 
-                : "text-muted-foreground hover:text-foreground"
-            )}
-            onClick={() => handleTabChange('my')}
-          >
-            {t('tabs.myEvents')}
-          </button>
-          <button
-            className={cn(
-              "flex-1 h-9 px-2 rounded-md text-xs font-medium transition-all text-center leading-tight",
-              activeTab === 'organized' 
-                ? "bg-background text-foreground shadow-sm" 
-                : "text-muted-foreground hover:text-foreground"
-            )}
-            onClick={() => handleTabChange('organized')}
-          >
-            {t('tabs.organized')}
-          </button>
-          <button
-            className={cn(
-              "flex-1 h-9 px-2 rounded-md text-xs font-medium transition-all text-center leading-tight",
-              activeTab === 'open' 
-                ? "bg-background text-foreground shadow-sm" 
-                : "text-muted-foreground hover:text-foreground"
-            )}
-            onClick={() => handleTabChange('open')}
-          >
-            {tMatching('openGames')}
-          </button>
+        {/* Modern Tab Bar with Icons */}
+        <div className="flex gap-1 p-1 bg-muted/50 rounded-xl overflow-x-auto scrollbar-hide">
+          {TAB_CONFIG.map(({ key, icon: Icon, labelKey }) => {
+            const isActive = activeTab === key;
+            const count = key === 'my' ? attendingEvents.length : key === 'organized' ? createdEvents.length : openGames.length;
+            
+            return (
+              <button
+                key={key}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium transition-all whitespace-nowrap active:scale-[0.98]",
+                  isActive 
+                    ? "bg-background text-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+                onClick={() => handleTabChange(key as any)}
+              >
+                <Icon className={cn("h-3.5 w-3.5 shrink-0", isActive && "text-primary")} />
+                <span className="truncate">{key === 'open' ? tMatching('openGames') : t(labelKey)}</span>
+                {count > 0 && (
+                  <Badge variant={isActive ? "default" : "secondary"} className="text-[9px] h-4 px-1 min-w-[16px]">
+                    {count}
+                  </Badge>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {activeTab === 'open' ? (
           // Open Games Tab
-          <div className="space-y-4">
+          <div className="space-y-3">
             {openGamesLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-32 w-full" />
+                  <Skeleton key={i} className="h-28 w-full rounded-xl" />
                 ))}
               </div>
             ) : openGames.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {openGames.map((game) => (
                   <AvailableGameCard key={game.id} game={game} />
                 ))}
@@ -267,16 +275,13 @@ const Events = () => {
           </div>
         ) : activeTab === 'organized' ? (
           // Organized Events Tab
-          <div className="space-y-4">
-            {/* Type Filter for Organized */}
-            <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-hide bg-card/50 backdrop-blur-sm border rounded-xl p-1.5">
+          <div className="space-y-3">
+            {/* Compact Type Filter */}
+            <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide pb-1">
               <Button 
                 size="sm" 
-                variant="ghost"
-                className={cn(
-                  "h-9 px-3 text-xs rounded-lg transition-all whitespace-nowrap",
-                  activeEventType === 'all' && "bg-primary/10 text-primary font-medium"
-                )}
+                variant={activeEventType === 'all' ? "default" : "outline"}
+                className="h-8 px-3 text-xs shrink-0"
                 onClick={() => setActiveEventType('all')}
               >
                 {t('types.all')}
@@ -286,15 +291,12 @@ const Events = () => {
                 <Button 
                   key={type}
                   size="sm" 
-                  variant="ghost"
-                  className={cn(
-                    "h-9 px-2 md:px-3 text-xs rounded-lg transition-all gap-1.5 whitespace-nowrap",
-                    activeEventType === type && "bg-primary/10 text-primary font-medium"
-                  )}
+                  variant={activeEventType === type ? "default" : "outline"}
+                  className="h-8 px-2.5 text-xs gap-1 shrink-0"
                   onClick={() => setActiveEventType(type as any)}
                 >
-                  <Icon className={cn("h-4 w-4 flex-shrink-0", color)} />
-                  <span className="hidden sm:inline">{t(labelKey)}</span>
+                  <Icon className={cn("h-3.5 w-3.5", activeEventType !== type && color)} />
+                  <span className="hidden xs:inline">{t(labelKey)}</span>
                 </Button>
               ))}
             </div>
@@ -302,7 +304,7 @@ const Events = () => {
             {createdEventsLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-32 w-full" />
+                  <Skeleton key={i} className="h-28 w-full rounded-xl" />
                 ))}
               </div>
             ) : filteredCreatedEvents.length > 0 ? (
@@ -330,106 +332,86 @@ const Events = () => {
         ) : (
           // My Events Tab
           <>
-            {/* Controls Row - Unified Modern Design */}
-            <TooltipProvider delayDuration={0}>
-              <div className="space-y-3">
-                {/* Unified Filter Bar */}
-                <div className="flex items-center gap-2 bg-card/50 backdrop-blur-sm border rounded-xl p-1.5">
-                  {/* Type Filters - Segmented Control */}
-                  <div className="flex-1 flex items-center gap-0.5 overflow-x-auto scrollbar-hide">
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      className={cn(
-                        "h-9 px-3 text-xs rounded-lg transition-all whitespace-nowrap",
-                        activeEventType === 'all' && "bg-primary/10 text-primary font-medium"
-                      )}
-                      onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
-                    >
-                      {t('types.all')}
-                    </Button>
-                    
-                    {EVENT_TYPE_LEGEND.map(({ type, labelKey, icon: Icon, color }) => (
-                      <Tooltip key={type}>
-                        <TooltipTrigger asChild>
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            className={cn(
-                              "h-9 px-2 md:px-3 text-xs rounded-lg transition-all gap-1.5 whitespace-nowrap overflow-hidden",
-                              activeEventType === type && "bg-primary/10 text-primary font-medium"
-                            )}
-                            onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
-                          >
-                            <Icon className={cn("h-4 w-4 flex-shrink-0", color)} />
-                            <span className="hidden sm:inline truncate">{t(labelKey)}</span>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">
-                          {t(labelKey)}
-                        </TooltipContent>
-                      </Tooltip>
-                    ))}
-                  </div>
+            {/* Unified Controls Row */}
+            <div className="space-y-2">
+              {/* Filter Bar */}
+              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+                {/* Type Filters */}
+                <Button 
+                  size="sm" 
+                  variant={activeEventType === 'all' ? "default" : "outline"}
+                  className="h-8 px-3 text-xs shrink-0"
+                  onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
+                >
+                  {t('types.all')}
+                </Button>
+                
+                {EVENT_TYPE_LEGEND.map(({ type, labelKey, icon: Icon, color }) => (
+                  <Button 
+                    key={type}
+                    size="sm" 
+                    variant={activeEventType === type ? "default" : "outline"}
+                    className="h-8 px-2.5 text-xs gap-1 shrink-0"
+                    onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
+                  >
+                    <Icon className={cn("h-3.5 w-3.5", activeEventType !== type && color)} />
+                    <span className="hidden xs:inline">{t(labelKey)}</span>
+                  </Button>
+                ))}
 
-                  {/* Divider */}
-                  <div className="h-6 w-px bg-border flex-shrink-0" />
+                <div className="flex-1" />
 
-                  {/* View Toggle */}
-                  <div className="flex gap-0.5 flex-shrink-0">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button 
-                          size="sm" 
-                          variant="ghost"
-                          className={cn(
-                            "h-9 w-9 p-0 rounded-lg",
-                            viewMode === 'list' && "bg-primary/10 text-primary"
-                          )}
-                          onClick={() => setViewMode('list')}
-                        >
-                          <List className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom">{t('views.list')}</TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button 
-                          size="sm" 
-                          variant="ghost"
-                          className={cn(
-                            "h-9 w-9 p-0 rounded-lg",
-                            viewMode === 'calendar' && "bg-primary/10 text-primary"
-                          )}
-                          onClick={() => setViewMode('calendar')}
-                        >
-                          <CalendarIcon className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom">{t('views.calendar')}</TooltipContent>
-                    </Tooltip>
-                  </div>
+                {/* View Toggle */}
+                <div className="flex gap-0.5 shrink-0">
+                  <Button 
+                    size="sm" 
+                    variant={viewMode === 'list' ? "default" : "ghost"}
+                    className="h-8 w-8 p-0"
+                    onClick={() => setViewMode('list')}
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant={viewMode === 'calendar' ? "default" : "ghost"}
+                    className="h-8 w-8 p-0"
+                    onClick={() => setViewMode('calendar')}
+                  >
+                    <CalendarIcon className="h-4 w-4" />
+                  </Button>
                 </div>
+                
+                {/* Search Toggle */}
+                <Button
+                  size="sm"
+                  variant={showSearch ? "default" : "ghost"}
+                  className="h-8 w-8 p-0 shrink-0"
+                  onClick={() => setShowSearch(!showSearch)}
+                >
+                  <Search className="h-4 w-4" />
+                </Button>
+              </div>
 
-                {/* Search Input */}
-                <div className="relative">
+              {/* Collapsible Search */}
+              {showSearch && (
+                <div className="relative animate-fade-in">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input 
                     placeholder={t('search.placeholder')} 
                     value={filters.searchQuery} 
                     onChange={(e) => setSearchQuery(e.target.value)} 
-                    className="pl-9 h-10 bg-card/50 backdrop-blur-sm" 
+                    className="pl-9 h-9" 
+                    autoFocus
                   />
                 </div>
-              </div>
-            </TooltipProvider>
+              )}
+            </div>
 
             {/* Content */}
             {attendingLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-32 w-full" />
+                  <Skeleton key={i} className="h-28 w-full rounded-xl" />
                 ))}
               </div>
             ) : viewMode === 'calendar' ? (
@@ -437,40 +419,48 @@ const Events = () => {
             ) : (
               <div className="space-y-4">
                 {groupedEvents.today.length > 0 && (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-h3 font-heading font-semibold text-primary">{t('timeGroups.today')}</h3>
-                      <Badge variant="secondary" className="text-xs">{groupedEvents.today.length}</Badge>
+                  <div className="space-y-2">
+                    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur py-2 -mx-1 px-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-section font-semibold text-primary">{t('timeGroups.today')}</span>
+                        <Badge className="bg-primary/10 text-primary border-0 text-[10px]">{groupedEvents.today.length}</Badge>
+                      </div>
                     </div>
                     <EventsList events={groupedEvents.today} showInlineRSVP />
                   </div>
                 )}
 
                 {groupedEvents.tomorrow.length > 0 && (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-h3 font-heading font-semibold text-primary">{t('timeGroups.tomorrow')}</h3>
-                      <Badge variant="secondary" className="text-xs">{groupedEvents.tomorrow.length}</Badge>
+                  <div className="space-y-2">
+                    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur py-2 -mx-1 px-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-section font-semibold text-primary">{t('timeGroups.tomorrow')}</span>
+                        <Badge variant="secondary" className="text-[10px]">{groupedEvents.tomorrow.length}</Badge>
+                      </div>
                     </div>
                     <EventsList events={groupedEvents.tomorrow} showInlineRSVP />
                   </div>
                 )}
 
                 {groupedEvents.thisWeek.length > 0 && (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-h3 font-heading font-semibold text-primary">{t('timeGroups.thisWeek')}</h3>
-                      <Badge variant="secondary" className="text-xs">{groupedEvents.thisWeek.length}</Badge>
+                  <div className="space-y-2">
+                    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur py-2 -mx-1 px-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-section font-semibold">{t('timeGroups.thisWeek')}</span>
+                        <Badge variant="secondary" className="text-[10px]">{groupedEvents.thisWeek.length}</Badge>
+                      </div>
                     </div>
                     <EventsList events={groupedEvents.thisWeek} showInlineRSVP />
                   </div>
                 )}
 
                 {groupedEvents.later.length > 0 && (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-h3 font-heading font-semibold text-primary">{t('timeGroups.comingUp')}</h3>
-                      <Badge variant="secondary" className="text-xs">{groupedEvents.later.length}</Badge>
+                  <div className="space-y-2">
+                    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur py-2 -mx-1 px-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-section font-semibold">{t('timeGroups.comingUp')}</span>
+                        <Badge variant="secondary" className="text-[10px]">{groupedEvents.later.length}</Badge>
+                      </div>
                     </div>
                     <EventsList events={groupedEvents.later} showInlineRSVP />
                   </div>
@@ -526,7 +516,7 @@ const Events = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t('common:actions.cancel')}</AlertDialogCancel>
+            <AlertDialogCancel>{tCommon('actions.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

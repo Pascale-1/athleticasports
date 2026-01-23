@@ -355,6 +355,15 @@ All colors MUST be HSL.
     @apply text-muted-foreground;
   }
 
+  /* Interactive Touch States */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  .interactive-press {
+    @apply active:scale-[0.97] transition-transform duration-150;
+  }
+
   /* Calendar event indicator dot */
   .has-event-indicator {
     position: relative;
