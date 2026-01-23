@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format } from "date-fns";
+import { format, subHours } from "date-fns";
 import { AnimatePresence, motion, Easing } from "framer-motion";
-import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Plus, Users, UserPlus } from "lucide-react";
+import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Plus, Users, UserPlus, Clock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +31,18 @@ import { TeamSelector } from "@/components/teams/TeamSelector";
 
 // Recurrence types
 type RecurrenceType = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
+
+// RSVP Deadline presets
+type DeadlinePreset = '1h' | '3h' | '24h' | '48h' | '1week' | 'custom';
+
+const DEADLINE_PRESETS: { value: DeadlinePreset; hours: number }[] = [
+  { value: '1h', hours: 1 },
+  { value: '3h', hours: 3 },
+  { value: '24h', hours: 24 },
+  { value: '48h', hours: 48 },
+  { value: '1week', hours: 168 },
+  { value: 'custom', hours: 0 },
+];
 
 // Meetup categories
 const MEETUP_CATEGORIES = [
@@ -138,6 +150,11 @@ export const UnifiedEventForm = ({
   const [showDescription, setShowDescription] = useState(false);
   const [showRecurrence, setShowRecurrence] = useState(false);
   const [showParticipantLimit, setShowParticipantLimit] = useState(false);
+  
+  // RSVP Deadline state
+  const [showRsvpDeadline, setShowRsvpDeadline] = useState(false);
+  const [deadlinePreset, setDeadlinePreset] = useState<DeadlinePreset>('24h');
+  const [customDeadline, setCustomDeadline] = useState<Date | undefined>(undefined);
   
   // Looking for Players state (for match and training)
   const [lookingForPlayers, setLookingForPlayers] = useState(false);
@@ -280,9 +297,20 @@ export const UnifiedEventForm = ({
       // Recurrence
       is_recurring: isRecurring,
       recurrence_rule: generateRecurrenceRule(),
+      // RSVP Deadline
+      rsvp_deadline: showRsvpDeadline ? calculateRsvpDeadline(startDate)?.toISOString() : undefined,
     };
 
     await onSubmit(eventData);
+  };
+  
+  // Calculate RSVP deadline based on preset or custom date
+  const calculateRsvpDeadline = (eventDateTime: Date): Date | null => {
+    if (!showRsvpDeadline) return null;
+    if (deadlinePreset === 'custom') return customDeadline || null;
+    const preset = DEADLINE_PRESETS.find(p => p.value === deadlinePreset);
+    if (!preset || preset.hours === 0) return null;
+    return subHours(eventDateTime, preset.hours);
   };
 
   // Detect pickup game mode - match type without team selected
@@ -1124,6 +1152,166 @@ export const UnifiedEventForm = ({
                         </motion.div>
                       )}
                     </AnimatePresence>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* RSVP Deadline Section */}
+            <AnimatePresence mode="sync">
+              {!showRsvpDeadline && (
+                <motion.div
+                  key="add-rsvp-deadline-toggle"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowRsvpDeadline(true)}
+                    className="w-full justify-start text-muted-foreground h-10 gap-2 hover:text-foreground"
+                  >
+                    <Clock className="h-4 w-4" />
+                    {t('form.addRsvpDeadline')}
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence mode="sync">
+              {showRsvpDeadline && (
+                <motion.div
+                  key="rsvp-deadline-section"
+                  variants={fieldVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  transition={transitionConfig}
+                >
+                  <div className="p-4 bg-muted/30 rounded-xl border space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-medium flex items-center gap-2">
+                        <Clock className="h-4 w-4" />
+                        {t('form.rsvpDeadline')}
+                      </Label>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setShowRsvpDeadline(false);
+                          setDeadlinePreset('24h');
+                          setCustomDeadline(undefined);
+                        }}
+                        className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        {t('form.remove')}
+                      </Button>
+                    </div>
+                    
+                    <p className="text-xs text-muted-foreground">
+                      {t('form.rsvpDeadlineDesc')}
+                    </p>
+
+                    {/* Preset Buttons */}
+                    <div className="flex flex-wrap gap-2">
+                      {DEADLINE_PRESETS.map((preset) => (
+                        <Button
+                          key={preset.value}
+                          type="button"
+                          variant={deadlinePreset === preset.value ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setDeadlinePreset(preset.value)}
+                          className="h-8 text-xs"
+                        >
+                          {t(`form.deadline.${preset.value}`)}
+                        </Button>
+                      ))}
+                    </div>
+
+                    {/* Custom Date/Time Picker */}
+                    <AnimatePresence mode="sync">
+                      {deadlinePreset === 'custom' && (
+                        <motion.div
+                          key="custom-deadline-picker"
+                          variants={fieldVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="hidden"
+                          transition={transitionConfig}
+                        >
+                          <div className="flex gap-2">
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button 
+                                  type="button"
+                                  variant="outline" 
+                                  className="flex-1 h-11 justify-start text-left font-normal"
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
+                                  {customDeadline 
+                                    ? format(customDeadline, "MMM dd, yyyy") 
+                                    : t('form.pickDate')}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={customDeadline}
+                                  onSelect={(date) => {
+                                    if (date) {
+                                      const newDate = new Date(date);
+                                      if (customDeadline) {
+                                        newDate.setHours(customDeadline.getHours(), customDeadline.getMinutes());
+                                      } else {
+                                        newDate.setHours(18, 0);
+                                      }
+                                      setCustomDeadline(newDate);
+                                    }
+                                  }}
+                                  disabled={(date) => {
+                                    const today = new Date();
+                                    today.setHours(0, 0, 0, 0);
+                                    return date < today;
+                                  }}
+                                  className="pointer-events-auto"
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            <Input
+                              type="time"
+                              value={customDeadline ? format(customDeadline, 'HH:mm') : '18:00'}
+                              onChange={(e) => {
+                                const [hours, mins] = e.target.value.split(':').map(Number);
+                                const newDate = customDeadline ? new Date(customDeadline) : new Date();
+                                newDate.setHours(hours, mins);
+                                setCustomDeadline(newDate);
+                              }}
+                              className="w-24 h-11"
+                            />
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Deadline Preview */}
+                    {watchedDate && watchedStartTime && (
+                      <p className="text-xs text-primary">
+                        {(() => {
+                          const [hours, minutes] = watchedStartTime.split(':').map(Number);
+                          const eventDateTime = new Date(watchedDate);
+                          eventDateTime.setHours(hours, minutes, 0, 0);
+                          const deadline = calculateRsvpDeadline(eventDateTime);
+                          if (deadline) {
+                            return t('form.deadlinePreview', { time: format(deadline, 'EEE MMM d, HH:mm') });
+                          }
+                          return null;
+                        })()}
+                      </p>
+                    )}
                   </div>
                 </motion.div>
               )}
