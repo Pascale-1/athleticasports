@@ -40,6 +40,7 @@ export const useMatchProposals = () => {
         return;
       }
 
+      // First, get proposals
       const { data, error } = await supabase
         .from("match_proposals")
         .select(`
@@ -61,7 +62,22 @@ export const useMatchProposals = () => {
         .order("proposed_at", { ascending: false });
 
       if (error) throw error;
-      setProposals((data || []) as MatchProposal[]);
+
+      // Get user's existing attendance to filter out proposals for events they already responded to
+      const { data: userAttendance } = await supabase
+        .from("event_attendance")
+        .select("event_id, status")
+        .eq("user_id", user.id)
+        .in("status", ["attending", "not_attending"]);
+
+      const respondedEventIds = new Set(userAttendance?.map(a => a.event_id) || []);
+
+      // Filter out proposals for events where user already has definitive attendance
+      const filteredProposals = (data || []).filter(
+        (p) => !respondedEventIds.has(p.event_id)
+      );
+
+      setProposals(filteredProposals as MatchProposal[]);
     } catch (error) {
       console.error("Error fetching proposals:", error);
     } finally {
@@ -87,9 +103,17 @@ export const useMatchProposals = () => {
     fetchProposalsRef.current();
   }, []);
 
+  // Subscribe to both match_proposals and event_attendance for real-time updates
   useRealtimeSubscription(
     "match-proposals",
     [{ table: "match_proposals", event: "*", filter: userId ? `player_user_id=eq.${userId}` : undefined }],
+    handleRealtimeChange,
+    !!userId
+  );
+
+  useRealtimeSubscription(
+    `match-proposals-attendance-${userId}`,
+    [{ table: "event_attendance", event: "*", filter: userId ? `user_id=eq.${userId}` : undefined }],
     handleRealtimeChange,
     !!userId
   );
