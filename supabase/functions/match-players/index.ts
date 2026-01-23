@@ -150,13 +150,25 @@ Deno.serve(async (req) => {
       throw availError;
     }
 
-    // Get all matches looking for players (with sport and new columns)
-    const { data: events, error: eventsError } = await supabase
+    // Get events looking for players
+    // If event_id is provided, fetch only that specific event (for immediate matching after creation)
+    // Otherwise, fetch all events looking for players
+    let eventsQuery = supabase
       .from("events")
       .select("*")
       .eq("type", "match")
       .eq("looking_for_players", true)
       .gte("start_time", new Date().toISOString());
+
+    if (event_id) {
+      eventsQuery = supabase
+        .from("events")
+        .select("*")
+        .eq("id", event_id);
+      console.log(`[match-players] Targeting specific event: ${event_id}`);
+    }
+
+    const { data: events, error: eventsError } = await eventsQuery;
 
     if (eventsError) {
       console.error("[match-players] Error fetching events:", eventsError);

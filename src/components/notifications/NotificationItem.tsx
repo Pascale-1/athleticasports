@@ -17,6 +17,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   event_join_response: CheckCircle,
   match_proposal: Swords,
   player_available: Users,
+  event_attendance: UserCheck,
 };
 
 const colorMap: Record<string, string> = {
@@ -28,6 +29,7 @@ const colorMap: Record<string, string> = {
   event_join_response: "text-emerald-500",
   match_proposal: "text-amber-500",
   player_available: "text-indigo-500",
+  event_attendance: "text-green-600",
 };
 
 // Fallback icon for unknown notification types
