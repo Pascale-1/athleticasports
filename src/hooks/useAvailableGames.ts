@@ -76,6 +76,7 @@ export const useAvailableGames = (filters?: AvailableGamesFilters) => {
       }
 
       // Build query for games looking for players
+      // IMPORTANT: Exclude user's own events - they shouldn't join their own games
       let query = supabase
         .from("events")
         .select(`
@@ -85,6 +86,11 @@ export const useAvailableGames = (filters?: AvailableGamesFilters) => {
         .eq("looking_for_players", true)
         .gte("start_time", new Date().toISOString())
         .order("start_time", { ascending: true });
+
+      // Exclude user's own events
+      if (currentUserId) {
+        query = query.neq("created_by", currentUserId);
+      }
 
       // Apply filters
       if (filters?.sport) {
