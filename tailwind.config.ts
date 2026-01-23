@@ -25,23 +25,23 @@ export default {
         body: ["Inter", "system-ui", "sans-serif"],
       },
       fontSize: {
-        // Semantic Typography Scale - Use these for consistency
-        "page-title": ["1.25rem", { lineHeight: "1.75rem", fontWeight: "700" }],
-        "section": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "600" }],
-        "card-title": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],
-        "body": ["0.8125rem", { lineHeight: "1.25rem" }],
-        "body-sm": ["0.75rem", { lineHeight: "1.125rem" }],
-        "caption": ["0.6875rem", { lineHeight: "1rem" }],
-        "micro": ["0.625rem", { lineHeight: "0.875rem" }],
-        // Legacy - keeping for backwards compatibility
-        "xxs": ["0.625rem", { lineHeight: "1.4" }],
-        "display": ["1.75rem", { lineHeight: "2.25rem", fontWeight: "700" }],
-        "h1": ["1.25rem", { lineHeight: "1.75rem", fontWeight: "700" }],
-        "h2": ["1.125rem", { lineHeight: "1.5rem", fontWeight: "600" }],
-        "h3": ["1rem", { lineHeight: "1.375rem", fontWeight: "600" }],
-        "h4": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "600" }],
-        "body-lg": ["0.9375rem", { lineHeight: "1.375rem" }],
-        "small": ["0.8125rem", { lineHeight: "1.25rem" }],
+        // Semantic Typography Scale - Reduced ~10% for compact mobile design
+        "page-title": ["1.125rem", { lineHeight: "1.5rem", fontWeight: "700" }],    // 18px (was 20px)
+        "section": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],    // 13px (was 14px)
+        "card-title": ["0.75rem", { lineHeight: "1rem", fontWeight: "600" }],       // 12px (was 13px)
+        "body": ["0.75rem", { lineHeight: "1.125rem" }],                            // 12px (was 13px)
+        "body-sm": ["0.6875rem", { lineHeight: "1rem" }],                           // 11px (was 12px)
+        "caption": ["0.625rem", { lineHeight: "0.875rem" }],                        // 10px (was 11px)
+        "micro": ["0.5625rem", { lineHeight: "0.75rem" }],                          // 9px (was 10px)
+        // Legacy - reduced proportionally
+        "xxs": ["0.5625rem", { lineHeight: "1.4" }],                                // 9px
+        "display": ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }],           // 24px (was 28px)
+        "h1": ["1.125rem", { lineHeight: "1.5rem", fontWeight: "700" }],            // 18px
+        "h2": ["1rem", { lineHeight: "1.375rem", fontWeight: "600" }],              // 16px (was 18px)
+        "h3": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "600" }],           // 14px (was 16px)
+        "h4": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],         // 13px (was 14px)
+        "body-lg": ["0.875rem", { lineHeight: "1.25rem" }],                         // 14px (was 15px)
+        "small": ["0.75rem", { lineHeight: "1.125rem" }],                           // 12px (was 13px)
       },
       colors: {
         border: "hsl(var(--border))",

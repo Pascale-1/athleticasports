@@ -381,4 +381,20 @@ All colors MUST be HSL.
     border-radius: 50%;
     background-color: hsl(var(--primary));
   }
+
+  /* Compact mobile typography overrides for extra-small screens */
+  @media (max-width: 374px) {
+    .text-page-title { font-size: 1rem !important; line-height: 1.375rem !important; }
+    .text-section { font-size: 0.75rem !important; }
+    .text-card-title { font-size: 0.6875rem !important; }
+  }
+
+  /* Safe text overflow */
+  .line-clamp-safe {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-all;
+  }
 }

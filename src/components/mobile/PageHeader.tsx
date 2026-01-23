@@ -45,10 +45,10 @@ export const PageHeader = ({
               variant="ghost"
               size="sm"
               onClick={handleBack}
-              className="h-8 px-2 -ml-2 text-muted-foreground hover:text-foreground"
+              className="h-7 px-1.5 -ml-1.5 text-muted-foreground hover:text-foreground"
             >
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              <span className="text-xs">{t('actions.back')}</span>
+              <ArrowLeft className="h-3.5 w-3.5 mr-0.5" />
+              <span className="text-[11px]">{t('actions.back')}</span>
             </Button>
           )}
           {breadcrumb && !showBackButton && (

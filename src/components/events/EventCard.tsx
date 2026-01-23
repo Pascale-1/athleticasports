@@ -77,13 +77,13 @@ export const EventCard = memo(({
   const getEventIcon = () => {
     switch (event.type) {
       case 'training':
-        return <Trophy className="h-3.5 w-3.5" />;
+        return <Trophy className="h-3 w-3" />;
       case 'match':
-        return <Swords className="h-3.5 w-3.5" />;
+        return <Swords className="h-3 w-3" />;
       case 'meetup':
-        return <Coffee className="h-3.5 w-3.5" />;
+        return <Coffee className="h-3 w-3" />;
       default:
-        return <Calendar className="h-3.5 w-3.5" />;
+        return <Calendar className="h-3 w-3" />;
     }
   };
 
@@ -140,10 +140,10 @@ export const EventCard = memo(({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <CardContent className="p-3 space-y-2">
+        <CardContent className="p-2.5 space-y-1.5">
           {/* Row 1: Type icon + Title + Badges */}
-          <div className="flex items-center gap-2">
-            <div className={cn("p-1.5 rounded-lg", getEventTypeColor())}>
+          <div className="flex items-center gap-1.5">
+            <div className={cn("p-1 rounded-md", getEventTypeColor())}>
               {getEventIcon()}
             </div>
             <h3 className="flex-1 text-card-title font-heading font-semibold truncate">
@@ -152,25 +152,25 @@ export const EventCard = memo(({
             
             {/* Recurring indicator */}
             {isRecurringParent && (
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 gap-0.5 border-primary/30 text-primary shrink-0">
-                <Repeat className="h-3 w-3" />
+              <Badge variant="outline" size="sm" className="gap-0.5 border-primary/30 text-primary shrink-0">
+                <Repeat className="h-2.5 w-2.5" />
                 <span className="hidden sm:inline">{getRecurrenceLabel()}</span>
               </Badge>
             )}
             {isPartOfSeries && (
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 text-muted-foreground shrink-0">
-                <Repeat className="h-3 w-3" />
+              <Badge variant="outline" size="sm" className="text-muted-foreground shrink-0">
+                <Repeat className="h-2.5 w-2.5" />
               </Badge>
             )}
             
             {/* Organizer badge or RSVP */}
             {isOrganizerView ? (
               <>
-                <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 border-primary/40 text-primary shrink-0">
+                <Badge variant="outline" size="sm" className="border-primary/40 text-primary shrink-0">
                   {t('details.organizer')}
                 </Badge>
                 {event.pendingRequestsCount && event.pendingRequestsCount > 0 && (
-                  <Badge className="bg-amber-500 text-white border-0 text-[10px] px-1.5 py-0 h-5 shrink-0">
+                  <Badge size="sm" className="bg-amber-500 text-white border-0 shrink-0">
                     {event.pendingRequestsCount}
                   </Badge>
                 )}
@@ -181,20 +181,20 @@ export const EventCard = memo(({
                   <Button
                     size="sm"
                     variant={userStatus ? 'default' : 'outline'}
-                    className="h-8 px-2.5 gap-1 text-xs"
+                    className="h-7 px-2 gap-0.5 text-[11px]"
                   >
                     {currentRSVP ? (
                       <>
-                        <currentRSVP.icon className="h-3.5 w-3.5" />
+                        <currentRSVP.icon className="h-3 w-3" />
                         <span className="hidden xs:inline">{currentRSVP.label}</span>
                       </>
                     ) : (
                       <>
-                        <UserCheck className="h-3.5 w-3.5" />
+                        <UserCheck className="h-3 w-3" />
                         <span>{t('rsvp.respond')}</span>
                       </>
                     )}
-                    <ChevronDown className="h-3 w-3 opacity-50" />
+                    <ChevronDown className="h-2.5 w-2.5 opacity-50" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-32">
@@ -214,13 +214,14 @@ export const EventCard = memo(({
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : isCommitted && userStatus === 'attending' ? (
-              <Badge className="bg-amber-500 text-white border-0 text-[10px]">
+              <Badge size="sm" className="bg-amber-500 text-white border-0">
                 ⭐ {t('rsvp.committed')}
               </Badge>
             ) : userStatus ? (
               <Badge 
+                size="sm"
                 className={cn(
-                  "text-[10px] border-0 text-white",
+                  "border-0 text-white",
                   userStatus === 'attending' && "bg-green-500",
                   userStatus === 'maybe' && "bg-amber-500",
                   userStatus === 'not_attending' && "bg-muted-foreground/60"
@@ -235,8 +236,8 @@ export const EventCard = memo(({
             {hasOrganizerActions && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
-                    <MoreVertical className="h-4 w-4" />
+                  <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0">
+                    <MoreVertical className="h-3.5 w-3.5" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-36">
@@ -265,8 +266,8 @@ export const EventCard = memo(({
           </div>
 
           {/* Row 2: Date, time, location */}
-          <div className="flex items-center gap-1.5 text-caption text-muted-foreground flex-wrap">
-            <Calendar className="h-3 w-3 shrink-0" />
+          <div className="flex items-center gap-1 text-caption text-muted-foreground flex-wrap">
+            <Calendar className="h-2.5 w-2.5 shrink-0" />
             <span className="font-medium">
               {new Date(event.start_time).toLocaleDateString(lang, { 
                 weekday: 'short', 
@@ -275,7 +276,7 @@ export const EventCard = memo(({
               })}
             </span>
             <span className="text-muted-foreground/50">•</span>
-            <Clock className="h-3 w-3 shrink-0" />
+            <Clock className="h-2.5 w-2.5 shrink-0" />
             <span>
               {new Date(event.start_time).toLocaleTimeString(lang, { 
                 hour: 'numeric', 
@@ -285,16 +286,16 @@ export const EventCard = memo(({
             {event.location && (
               <>
                 <span className="text-muted-foreground/50">•</span>
-                <MapPin className="h-3 w-3 shrink-0" />
-                <span className="truncate max-w-[100px]">{event.location}</span>
+                <MapPin className="h-2.5 w-2.5 shrink-0" />
+                <span className="truncate max-w-[80px]">{event.location}</span>
               </>
             )}
           </div>
 
           {/* Row 3: Attendees + Looking for players */}
-          <div className="flex items-center gap-2 text-caption text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Users className="h-3 w-3" />
+          <div className="flex items-center gap-1.5 text-caption text-muted-foreground">
+            <div className="flex items-center gap-0.5">
+              <Users className="h-2.5 w-2.5" />
               {event.max_participants ? (
                 <span className={attendeeCount >= event.max_participants ? 'text-amber-600 font-medium' : ''}>
                   {attendeeCount}/{event.max_participants}
@@ -305,7 +306,7 @@ export const EventCard = memo(({
             </div>
             
             {attendeeCount >= (event.max_participants || Infinity) && (
-              <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 bg-amber-100 text-amber-700 border-0">
+              <Badge variant="secondary" size="xs" className="bg-amber-100 text-amber-700 border-0">
                 {t('rsvp.full')}
               </Badge>
             )}
@@ -313,9 +314,10 @@ export const EventCard = memo(({
             {event.looking_for_players && (
               <Badge 
                 variant="outline" 
-                className="text-[9px] px-1.5 py-0 h-4 border-primary/40 text-primary"
+                size="xs"
+                className="border-primary/40 text-primary"
               >
-                <UserPlus className="h-2.5 w-2.5 mr-0.5" />
+                <UserPlus className="h-2 w-2 mr-0.5" />
                 {event.players_needed ? `+${event.players_needed}` : t('common:home.open')}
               </Badge>
             )}
