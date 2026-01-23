@@ -69,5 +69,35 @@
   "sports": {
     "popular": "⭐ Popular",
     "other": "Other sports"
+  },
+  "browseGames": "Find Games",
+  "browseGamesDesc": "Browse games looking for players near you",
+  "scoringActive": "Matches scored based on your {{sport}} availability",
+  "filterBySport": "Sport",
+  "filterByLocation": "Location",
+  "noGamesFound": "No games found",
+  "noGamesDesc": "Check back later or create your own game",
+  "tryBroaderFilters": "Try removing some filters to see more games",
+  "gamesFound": "{{count}} games available",
+  "expressInterest": "I'm Interested",
+  "alreadyInterested": "You're already interested",
+  "interestExpressed": "Interest expressed!",
+  "interestDesc": "The organizer will see your interest",
+  "organizedBy": "by {{name}}",
+  "spotsLeft": "{{count}} spots left",
+  "full": "Full",
+  "youreAvailable": "You're available",
+  "active": "Active",
+  "until": "Until",
+  "matchesWaiting": "{{count}} matches waiting",
+  "readyToPlay": "Ready to play?",
+  "toggleDesc": "Turn on to get matched with games",
+  "setAvailability": "Set Availability",
+  "settingUp": "Setting up...",
+  "labels": {
+    "perfect": "Perfect Match",
+    "great": "Great Match",
+    "good": "Good Match",
+    "fair": "Match"
   }
 }
