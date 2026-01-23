@@ -18,7 +18,7 @@ interface AvailableGameCardProps {
 }
 
 export const AvailableGameCard = ({ game, onExpressInterest, compact = false }: AvailableGameCardProps) => {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation(['common', 'matching']);
   const navigate = useNavigate();
   const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
   
@@ -28,10 +28,10 @@ export const AvailableGameCard = ({ game, onExpressInterest, compact = false }: 
   // Format date smartly
   const formatGameDate = () => {
     if (isToday(startDate)) {
-      return `${t('common.today')} ${format(startDate, 'HH:mm')}`;
+      return `${t('common:time.today')} ${format(startDate, 'HH:mm')}`;
     }
     if (isTomorrow(startDate)) {
-      return `${t('common.tomorrow')} ${format(startDate, 'HH:mm')}`;
+      return `${t('common:time.tomorrow')} ${format(startDate, 'HH:mm')}`;
     }
     return format(startDate, "EEE d MMM, HH:mm");
   };
@@ -47,7 +47,7 @@ export const AvailableGameCard = ({ game, onExpressInterest, compact = false }: 
         ? game.location.substring(0, 30) + '...' 
         : game.location;
     }
-    return t('common.locationTbd');
+    return t('common:location.tbd');
   };
 
   // Match score badge
@@ -56,10 +56,10 @@ export const AvailableGameCard = ({ game, onExpressInterest, compact = false }: 
     
     const { label, total } = game.matchScore;
     const badgeConfig = {
-      perfect: { bg: 'bg-green-500', text: t('matching.labels.perfect') },
-      great: { bg: 'bg-green-400', text: t('matching.labels.great') },
-      good: { bg: 'bg-yellow-500', text: t('matching.labels.good') },
-      fair: { bg: 'bg-gray-400', text: t('matching.labels.fair') },
+      perfect: { bg: 'bg-green-500', text: t('matching:labels.perfect') },
+      great: { bg: 'bg-green-400', text: t('matching:labels.great') },
+      good: { bg: 'bg-yellow-500', text: t('matching:labels.good') },
+      fair: { bg: 'bg-gray-400', text: t('matching:labels.fair') },
     };
     
     const config = badgeConfig[label];
@@ -132,8 +132,8 @@ export const AvailableGameCard = ({ game, onExpressInterest, compact = false }: 
             <Users className="h-4 w-4" />
             <span>
               {game.spotsLeft === 0 
-                ? t('matching.full')
-                : t('matching.spotsLeft', { count: game.spotsLeft })}
+                ? t('matching:full')
+                : t('matching:spotsLeft', { count: game.spotsLeft })}
             </span>
           </div>
         )}
@@ -149,7 +149,7 @@ export const AvailableGameCard = ({ game, onExpressInterest, compact = false }: 
             </AvatarFallback>
           </Avatar>
           <span className="text-muted-foreground">
-            {t('matching.organizedBy', { name: game.organizerName })}
+            {t('matching:organizedBy', { name: game.organizerName })}
           </span>
         </div>
       )}
@@ -165,7 +165,7 @@ export const AvailableGameCard = ({ game, onExpressInterest, compact = false }: 
               onExpressInterest(game.id);
             }}
           >
-            {t('matching.expressInterest')}
+            {t('matching:expressInterest')}
           </Button>
         )}
         <Button 
@@ -174,7 +174,7 @@ export const AvailableGameCard = ({ game, onExpressInterest, compact = false }: 
           className={onExpressInterest ? "" : "flex-1"}
           onClick={() => navigate(`/events/${game.id}`)}
         >
-          {t('actions.viewDetails')}
+          {t('common:actions.viewDetails')}
           <ChevronRight className="h-4 w-4 ml-1" />
         </Button>
       </div>

@@ -51,7 +51,8 @@
     "copied": "Copié !",
     "invite": "Inviter",
     "accept": "Accepter",
-    "decline": "Refuser"
+    "decline": "Refuser",
+    "viewDetails": "Voir les détails"
   },
   "time": {
     "today": "Aujourd'hui",
@@ -174,6 +175,12 @@
     "title": "Rien à afficher",
     "description": "Aucun élément trouvé"
   },
+  "location": {
+    "tbd": "Lieu à confirmer"
+  },
+  "filters": "Filtres",
+  "all": "Tous",
+  "clearFilters": "Effacer les filtres",
   "settings": {
     "walkthrough": "Visite guidée",
     "walkthroughDescription": "Découvre les principales fonctionnalités de l'app",
