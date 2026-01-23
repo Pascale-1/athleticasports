@@ -243,7 +243,7 @@ const Settings = () => {
 
             {/* Name and Username */}
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold">
+              <h1 className="text-xl font-bold">
                 {profile.display_name || profile.username}
               </h1>
               <p className="text-muted-foreground">@{profile.username}</p>

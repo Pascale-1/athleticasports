@@ -46,7 +46,7 @@ export const PageHeader = ({
       )}
       <div className="flex items-center justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <h1 className="text-h1 font-heading font-bold truncate">{title}</h1>
+          <h1 className="text-lg font-heading font-bold truncate">{title}</h1>
           {subtitle && (
             <p className="text-body text-muted-foreground mt-0.5">{subtitle}</p>
           )}

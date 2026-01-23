@@ -212,10 +212,10 @@ const Index = () => {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-heading-2 font-bold break-words max-w-full">
+                  <h1 className="text-base font-heading font-bold break-words max-w-full">
                     {t('home.welcome', { name: profile.display_name || profile.username })}
                   </h1>
-                  <p className="text-body text-muted-foreground">{t('home.readyToPlay')}</p>
+                  <p className="text-sm text-muted-foreground">{t('home.readyToPlay')}</p>
                 </div>
               </div>
 
@@ -226,24 +226,24 @@ const Index = () => {
                   className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all hover:bg-muted active:scale-95 min-h-[44px] min-w-[44px]"
                 >
                   <Users className="h-4 w-4 text-primary" />
-                  <p className="text-body-large font-bold">{stats.teams}</p>
-                  <p className="text-caption text-muted-foreground">{t('home.teams')}</p>
+                  <p className="text-sm font-bold">{stats.teams}</p>
+                  <p className="text-xs text-muted-foreground">{t('home.teams')}</p>
                 </button>
                 <button
                   onClick={() => navigate("/events?type=match")}
                   className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all hover:bg-muted active:scale-95 min-h-[44px] min-w-[44px]"
                 >
                   <Swords className="h-4 w-4 text-primary" />
-                  <p className="text-body-large font-bold">{stats.upcomingMatches}</p>
-                  <p className="text-caption text-muted-foreground">{t('home.games')}</p>
+                  <p className="text-sm font-bold">{stats.upcomingMatches}</p>
+                  <p className="text-xs text-muted-foreground">{t('home.games')}</p>
                 </button>
                 <button
                   onClick={() => navigate("/settings")}
                   className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all hover:bg-muted active:scale-95 min-h-[44px] min-w-[44px]"
                 >
                   <TrendingUp className="h-4 w-4 text-primary" />
-                  <p className="text-body-large font-bold">{stats.followers}</p>
-                  <p className="text-caption text-muted-foreground">{t('home.followers')}</p>
+                  <p className="text-sm font-bold">{stats.followers}</p>
+                  <p className="text-xs text-muted-foreground">{t('home.followers')}</p>
                 </button>
               </div>
             </Card>
@@ -297,7 +297,7 @@ const Index = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Swords className="h-5 w-5 text-primary" />
-                  <h2 className="text-heading-3 font-semibold">{t('common:home.games')}</h2>
+                  <h2 className="text-sm font-heading font-semibold">{t('common:home.games')}</h2>
                 </div>
                 <Button 
                   variant="ghost" 

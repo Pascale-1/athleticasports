@@ -318,24 +318,24 @@ All colors MUST be HSL.
   }
   
   .heading-1 {
-    @apply font-heading text-h1 font-bold tracking-tight;
+    @apply font-heading text-lg font-bold tracking-tight;
   }
   
   .heading-2 {
-    @apply font-heading text-h2 font-semibold tracking-tight;
+    @apply font-heading text-base font-semibold tracking-tight;
   }
   
   .heading-3 {
-    @apply font-heading text-h3 font-semibold;
+    @apply font-heading text-sm font-semibold;
   }
   
   .heading-4 {
-    @apply font-heading text-h4 font-semibold;
+    @apply font-heading text-xs font-semibold;
   }
   
   /* Body Text System */
   .body-large {
-    @apply font-body text-base leading-relaxed;
+    @apply font-body text-sm leading-relaxed;
   }
   
   .body-default {
@@ -343,7 +343,7 @@ All colors MUST be HSL.
   }
   
   .body-small {
-    @apply font-body text-small leading-normal;
+    @apply font-body text-xs leading-normal;
   }
   
   /* Text Treatments */
