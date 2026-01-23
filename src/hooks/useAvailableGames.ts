@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { calculateMatchScore, MatchScore } from "@/lib/matchingScore";
+import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface AvailableGame {
   id: string;
@@ -20,6 +21,7 @@ export interface AvailableGame {
   attendingCount?: number;
   organizerName?: string;
   organizerAvatar?: string;
+  isUserAttending?: boolean;
 }
 
 export interface AvailableGamesFilters {
@@ -33,6 +35,7 @@ export interface AvailableGamesFilters {
 export const useAvailableGames = (filters?: AvailableGamesFilters) => {
   const [games, setGames] = useState<AvailableGame[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
   const [userAvailability, setUserAvailability] = useState<{
     sport: string;
     available_from: string;
@@ -41,18 +44,28 @@ export const useAvailableGames = (filters?: AvailableGamesFilters) => {
     skill_level?: number | null;
   } | null>(null);
 
+  // Get current user on mount
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
+    };
+    getUser();
+  }, []);
+
   const fetchGames = useCallback(async () => {
     try {
       setLoading(true);
       
       // Get current user's availability for scoring (if any)
       const { data: { user } } = await supabase.auth.getUser();
+      const currentUserId = user?.id;
       
-      if (user) {
+      if (currentUserId) {
         const { data: availability } = await supabase
           .from("player_availability")
           .select("*")
-          .eq("user_id", user.id)
+          .eq("user_id", currentUserId)
           .eq("is_active", true)
           .gte("expires_at", new Date().toISOString())
           .order("created_at", { ascending: false })
@@ -109,6 +122,14 @@ export const useAvailableGames = (filters?: AvailableGamesFilters) => {
           (a: { status: string }) => a.status === "attending"
         ).length;
         
+        // Check if current user is already attending this game
+        const isUserAttending = currentUserId 
+          ? attendance.some(
+              (a: { user_id: string; status: string }) => 
+                a.user_id === currentUserId && a.status === "attending"
+            )
+          : false;
+        
         const spotsLeft = event.players_needed 
           ? Math.max(0, event.players_needed - attendingCount)
           : event.max_participants 
@@ -146,8 +167,11 @@ export const useAvailableGames = (filters?: AvailableGamesFilters) => {
           attendingCount,
           organizerName: organizer?.display_name || organizer?.username,
           organizerAvatar: organizer?.avatar_url,
+          isUserAttending,
         };
-      }).filter(Boolean) as AvailableGame[];
+      })
+      // Filter out games where user is already attending
+      .filter(game => game !== null && !game.isUserAttending) as AvailableGame[];
 
       // Sort by match score if available, otherwise by date
       processedGames.sort((a, b) => {
@@ -168,6 +192,26 @@ export const useAvailableGames = (filters?: AvailableGamesFilters) => {
   useEffect(() => {
     fetchGames();
   }, [fetchGames]);
+
+  // Subscribe to events table changes (new games, updates)
+  useRealtimeSubscription(
+    "available-games-events",
+    [{ table: "events", event: "*" }],
+    () => {
+      fetchGames();
+    },
+    true
+  );
+
+  // Subscribe to event_attendance changes (someone joined/left a game)
+  useRealtimeSubscription(
+    `available-games-attendance-${userId}`,
+    [{ table: "event_attendance", event: "*" }],
+    () => {
+      fetchGames();
+    },
+    !!userId
+  );
 
   return {
     games,
