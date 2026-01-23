@@ -4,10 +4,11 @@ import { useSearchParams } from "react-router-dom";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar as CalendarIcon, List, Search, Dumbbell, Users, Swords, UserPlus } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, List, Search, Dumbbell, Users, Swords, UserPlus, ClipboardList } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { useEventFilters } from "@/hooks/useEventFilters";
 import { useAvailableGames } from "@/hooks/useAvailableGames";
+import { useCreatedEvents } from "@/hooks/useCreatedEvents";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { EventsList } from "@/components/events/EventsList";
 import { EventCalendar } from "@/components/events/EventCalendar";
@@ -37,16 +38,19 @@ const Events = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [activeEventType, setActiveEventType] = useState<'all' | 'training' | 'meetup' | 'match'>('all');
-  const [activeTab, setActiveTab] = useState<'my' | 'open'>('my');
+  const [activeTab, setActiveTab] = useState<'my' | 'organized' | 'open'>('my');
   
   const { events, loading, createEvent, refetch } = useEvents(undefined, { status: 'upcoming' });
   const { games: openGames, loading: openGamesLoading } = useAvailableGames();
+  const { events: createdEvents, loading: createdEventsLoading } = useCreatedEvents({ status: 'upcoming' });
   
   // Read tab from URL params
   useEffect(() => {
     const tabParam = searchParams.get('tab');
     if (tabParam === 'open') {
       setActiveTab('open');
+    } else if (tabParam === 'organized') {
+      setActiveTab('organized');
     }
   }, [searchParams]);
   
@@ -57,16 +61,24 @@ const Events = () => {
     setSearchQuery,
   } = useEventFilters(events);
 
+  // Filter created events by type
+  const filteredCreatedEvents = createdEvents.filter(event => {
+    if (activeEventType === 'all') return true;
+    return event.type === activeEventType;
+  });
+
   const handleResetFilters = () => {
     setSearchQuery('');
     setActiveEventType('all');
     setTypeFilter('all');
   };
 
-  const handleTabChange = (tab: 'my' | 'open') => {
+  const handleTabChange = (tab: 'my' | 'organized' | 'open') => {
     setActiveTab(tab);
     if (tab === 'open') {
       setSearchParams({ tab: 'open' });
+    } else if (tab === 'organized') {
+      setSearchParams({ tab: 'organized' });
     } else {
       setSearchParams({});
     }
@@ -105,6 +117,8 @@ const Events = () => {
           title={t('title')}
           subtitle={activeTab === 'open' 
             ? `${openGames.length} ${tMatching('openGamesDesc')}`
+            : activeTab === 'organized'
+            ? `${createdEvents.length} ${t('tabs.organizedSubtitle')}`
             : `${events.length} ${t('title').toLowerCase()}`}
           rightAction={
             <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
@@ -123,27 +137,41 @@ const Events = () => {
           variant="info"
         />
 
-        {/* Tab Switcher: My Events / Open Games */}
-        <div className="flex gap-2 p-1 bg-muted/50 rounded-lg">
+        {/* Tab Switcher: My Events / Organized / Open Games */}
+        <div className="flex gap-1 p-1 bg-muted/50 rounded-lg overflow-x-auto">
           <Button
             variant={activeTab === 'my' ? 'default' : 'ghost'}
             size="sm"
-            className="flex-1 h-9"
+            className="flex-1 h-9 min-w-0"
             onClick={() => handleTabChange('my')}
           >
-            <CalendarIcon className="h-4 w-4 mr-2" />
-            {t('title')}
+            <CalendarIcon className="h-4 w-4 mr-1.5 shrink-0" />
+            <span className="truncate">{t('tabs.myEvents')}</span>
+          </Button>
+          <Button
+            variant={activeTab === 'organized' ? 'default' : 'ghost'}
+            size="sm"
+            className="flex-1 h-9 min-w-0"
+            onClick={() => handleTabChange('organized')}
+          >
+            <ClipboardList className="h-4 w-4 mr-1.5 shrink-0" />
+            <span className="truncate">{t('tabs.organized')}</span>
+            {createdEvents.length > 0 && (
+              <Badge variant="secondary" className="ml-1.5 text-xs shrink-0">
+                {createdEvents.length}
+              </Badge>
+            )}
           </Button>
           <Button
             variant={activeTab === 'open' ? 'default' : 'ghost'}
             size="sm"
-            className="flex-1 h-9"
+            className="flex-1 h-9 min-w-0"
             onClick={() => handleTabChange('open')}
           >
-            <UserPlus className="h-4 w-4 mr-2" />
-            {tMatching('openGames')}
+            <UserPlus className="h-4 w-4 mr-1.5 shrink-0" />
+            <span className="truncate">{tMatching('openGames')}</span>
             {openGames.length > 0 && (
-              <Badge variant="secondary" className="ml-2 text-xs">
+              <Badge variant="secondary" className="ml-1.5 text-xs shrink-0">
                 {openGames.length}
               </Badge>
             )}
@@ -170,6 +198,66 @@ const Events = () => {
                 icon={UserPlus}
                 title={tMatching('noGamesFound')}
                 description={tMatching('noGamesDesc')}
+                action={
+                  <Button onClick={() => setCreateDialogOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    {t('createEvent')}
+                  </Button>
+                }
+              />
+            )}
+          </div>
+        ) : activeTab === 'organized' ? (
+          // Organized Events Tab
+          <div className="space-y-4">
+            {/* Type Filter for Organized */}
+            <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-hide bg-card/50 backdrop-blur-sm border rounded-xl p-1.5">
+              <Button 
+                size="sm" 
+                variant="ghost"
+                className={cn(
+                  "h-9 px-3 text-xs rounded-lg transition-all whitespace-nowrap",
+                  activeEventType === 'all' && "bg-primary/10 text-primary font-medium"
+                )}
+                onClick={() => setActiveEventType('all')}
+              >
+                {t('types.all')}
+              </Button>
+              
+              {EVENT_TYPE_LEGEND.map(({ type, labelKey, icon: Icon, color }) => (
+                <Button 
+                  key={type}
+                  size="sm" 
+                  variant="ghost"
+                  className={cn(
+                    "h-9 px-2 md:px-3 text-xs rounded-lg transition-all gap-1.5 whitespace-nowrap",
+                    activeEventType === type && "bg-primary/10 text-primary font-medium"
+                  )}
+                  onClick={() => setActiveEventType(type as any)}
+                >
+                  <Icon className={cn("h-4 w-4 flex-shrink-0", color)} />
+                  <span className="hidden sm:inline">{t(labelKey)}</span>
+                </Button>
+              ))}
+            </div>
+
+            {createdEventsLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-32 w-full" />
+                ))}
+              </div>
+            ) : filteredCreatedEvents.length > 0 ? (
+              <EventsList 
+                events={filteredCreatedEvents} 
+                showInlineRSVP={false}
+                isOrganizerView
+              />
+            ) : (
+              <EmptyState
+                icon={ClipboardList}
+                title={t('organized.empty')}
+                description={t('organized.emptyDesc')}
                 action={
                   <Button onClick={() => setCreateDialogOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />

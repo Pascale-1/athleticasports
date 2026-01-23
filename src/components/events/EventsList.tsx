@@ -9,13 +9,15 @@ interface EventsListProps {
   emptyTitle?: string;
   emptyDescription?: string;
   showInlineRSVP?: boolean;
+  isOrganizerView?: boolean;
 }
 
 export const EventsList = ({ 
   events, 
   emptyTitle = "No events yet",
   emptyDescription = "Create your first event to get started",
-  showInlineRSVP = false
+  showInlineRSVP = false,
+  isOrganizerView = false
 }: EventsListProps) => {
   if (events.length === 0) {
     return (
@@ -34,6 +36,7 @@ export const EventsList = ({
           key={event.id} 
           event={event}
           showInlineRSVP={showInlineRSVP}
+          isOrganizerView={isOrganizerView}
         />
       ))}
     </div>
@@ -42,10 +45,12 @@ export const EventsList = ({
 
 const EventCardWithAttendance = ({ 
   event,
-  showInlineRSVP 
+  showInlineRSVP,
+  isOrganizerView
 }: { 
   event: Event;
   showInlineRSVP?: boolean;
+  isOrganizerView?: boolean;
 }) => {
   const { stats, userStatus, updateAttendance } = useEventAttendance(event.id);
 
@@ -56,6 +61,7 @@ const EventCardWithAttendance = ({
       userStatus={userStatus as 'attending' | 'maybe' | 'not_attending' | null}
       showInlineRSVP={showInlineRSVP}
       onRSVPChange={updateAttendance}
+      isOrganizerView={isOrganizerView}
     />
   );
 };
