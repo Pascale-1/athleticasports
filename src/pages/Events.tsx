@@ -225,8 +225,8 @@ const Events = () => {
           variant="info"
         />
 
-        {/* Modern Tab Bar with Icons */}
-        <div className="flex gap-1 p-1 bg-muted/50 rounded-xl overflow-x-auto scrollbar-hide">
+        {/* Modern Tab Bar with Icons - Compact */}
+        <div className="flex gap-0.5 p-0.5 bg-muted/50 rounded-lg overflow-x-auto scrollbar-hide">
           {TAB_CONFIG.map(({ key, icon: Icon, labelKey }) => {
             const isActive = activeTab === key;
             const count = key === 'my' ? attendingEvents.length : key === 'organized' ? createdEvents.length : openGames.length;
@@ -235,17 +235,17 @@ const Events = () => {
               <button
                 key={key}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium transition-all whitespace-nowrap active:scale-[0.98]",
+                  "flex-1 flex items-center justify-center gap-1 h-8 px-2 rounded-md text-[11px] font-medium transition-all whitespace-nowrap active:scale-[0.97]",
                   isActive 
                     ? "bg-background text-foreground shadow-sm" 
                     : "text-muted-foreground hover:text-foreground"
                 )}
                 onClick={() => handleTabChange(key as any)}
               >
-                <Icon className={cn("h-3.5 w-3.5 shrink-0", isActive && "text-primary")} />
-                <span className="truncate">{key === 'open' ? tMatching('openGames') : t(labelKey)}</span>
+                <Icon className={cn("h-3 w-3 shrink-0", isActive && "text-primary")} />
+                <span className="truncate hidden xs:inline max-w-[60px]">{key === 'open' ? tMatching('openGames') : t(labelKey)}</span>
                 {count > 0 && (
-                  <Badge variant={isActive ? "default" : "secondary"} className="text-[9px] h-4 px-1 min-w-[16px]">
+                  <Badge variant={isActive ? "default" : "secondary"} size="xs">
                     {count}
                   </Badge>
                 )}
@@ -287,11 +287,11 @@ const Events = () => {
           // Organized Events Tab
           <div className="space-y-3">
             {/* Compact Type Filter */}
-            <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide pb-1">
+            <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-hide pb-1">
               <Button 
                 size="sm" 
                 variant={activeEventType === 'all' ? "default" : "outline"}
-                className="h-8 px-3 text-xs shrink-0"
+                className="h-7 px-2 text-[11px] shrink-0"
                 onClick={() => setActiveEventType('all')}
               >
                 {t('types.all')}
@@ -302,10 +302,10 @@ const Events = () => {
                   key={type}
                   size="sm" 
                   variant={activeEventType === type ? "default" : "outline"}
-                  className="h-8 px-2.5 text-xs gap-1 shrink-0"
+                  className="h-7 px-2 text-[11px] gap-0.5 shrink-0"
                   onClick={() => setActiveEventType(type as any)}
                 >
-                  <Icon className={cn("h-3.5 w-3.5", activeEventType !== type && color)} />
+                  <Icon className={cn("h-3 w-3", activeEventType !== type && color)} />
                   <span className="hidden xs:inline">{t(labelKey)}</span>
                 </Button>
               ))}
@@ -344,13 +344,13 @@ const Events = () => {
           <>
             {/* Unified Controls Row */}
             <div className="space-y-2">
-              {/* Filter Bar */}
-              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+            {/* Filter Bar */}
+              <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-hide">
                 {/* Type Filters */}
                 <Button 
                   size="sm" 
                   variant={activeEventType === 'all' ? "default" : "outline"}
-                  className="h-8 px-3 text-xs shrink-0"
+                  className="h-7 px-2 text-[11px] shrink-0"
                   onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
                 >
                   {t('types.all')}
@@ -361,10 +361,10 @@ const Events = () => {
                     key={type}
                     size="sm" 
                     variant={activeEventType === type ? "default" : "outline"}
-                    className="h-8 px-2.5 text-xs gap-1 shrink-0"
+                    className="h-7 px-2 text-[11px] gap-0.5 shrink-0"
                     onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
                   >
-                    <Icon className={cn("h-3.5 w-3.5", activeEventType !== type && color)} />
+                    <Icon className={cn("h-3 w-3", activeEventType !== type && color)} />
                     <span className="hidden xs:inline">{t(labelKey)}</span>
                   </Button>
                 ))}
@@ -376,18 +376,18 @@ const Events = () => {
                   <Button 
                     size="sm" 
                     variant={viewMode === 'list' ? "default" : "ghost"}
-                    className="h-8 w-8 p-0"
+                    className="h-7 w-7 p-0"
                     onClick={() => setViewMode('list')}
                   >
-                    <List className="h-4 w-4" />
+                    <List className="h-3.5 w-3.5" />
                   </Button>
                   <Button 
                     size="sm" 
                     variant={viewMode === 'calendar' ? "default" : "ghost"}
-                    className="h-8 w-8 p-0"
+                    className="h-7 w-7 p-0"
                     onClick={() => setViewMode('calendar')}
                   >
-                    <CalendarIcon className="h-4 w-4" />
+                    <CalendarIcon className="h-3.5 w-3.5" />
                   </Button>
                 </div>
                 
@@ -395,10 +395,10 @@ const Events = () => {
                 <Button
                   size="sm"
                   variant={showSearch ? "default" : "ghost"}
-                  className="h-8 w-8 p-0 shrink-0"
+                  className="h-7 w-7 p-0 shrink-0"
                   onClick={() => setShowSearch(!showSearch)}
                 >
-                  <Search className="h-4 w-4" />
+                  <Search className="h-3.5 w-3.5" />
                 </Button>
               </div>
 
