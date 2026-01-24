@@ -4,7 +4,7 @@ import { getLocale } from "@/lib/dateUtils";
 
 interface DateBlockProps {
   date: Date | string;
-  size?: "inline" | "sm" | "md" | "lg";
+  size?: "inline" | "compact" | "sm" | "md" | "lg";
   className?: string;
 }
 
@@ -39,12 +39,14 @@ export const DateBlock = ({ date, size = "sm", className }: DateBlockProps) => {
   }
   
   const sizeClasses = {
+    compact: "w-11 h-14 text-[9px] gap-0.5",
     sm: "w-10 h-12 text-[9px] gap-0",
     md: "w-11 h-13 text-[10px] gap-0",
     lg: "w-13 h-16 text-xs gap-0.5",
   };
   
   const dayClasses = {
+    compact: "text-lg font-bold",
     sm: "text-base font-bold",
     md: "text-lg font-bold",
     lg: "text-xl font-bold",
