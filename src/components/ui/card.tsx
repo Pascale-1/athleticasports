@@ -17,14 +17,14 @@ const Card = React.forwardRef<
     glass: "rounded-xl bg-background/80 backdrop-blur-md border border-border/50 text-card-foreground shadow-card transition-all duration-200",
     highlighted: "rounded-xl border bg-primary/5 ring-2 ring-primary/20 text-card-foreground shadow-card transition-all duration-200",
     muted: "rounded-xl border border-muted bg-muted/30 text-card-foreground transition-all duration-200",
-    interactive: "rounded-xl border bg-card text-card-foreground shadow-card transition-all duration-150 cursor-pointer active:scale-[0.98] hover:shadow-lg hover:border-border/80",
+    interactive: "rounded-xl border bg-card text-card-foreground shadow-sm transition-all duration-150 cursor-pointer active:scale-[0.98] hover:shadow-md hover:border-border/80",
   };
 
   const accentStyles = {
-    training: "border-t-2 border-t-info rounded-t-xl overflow-hidden",
-    match: "border-t-2 border-t-warning rounded-t-xl overflow-hidden",
-    meetup: "border-t-2 border-t-success rounded-t-xl overflow-hidden",
-    primary: "border-t-2 border-t-primary rounded-t-xl overflow-hidden",
+    training: "border-t border-t-info",
+    match: "border-t border-t-warning",
+    meetup: "border-t border-t-success",
+    primary: "border-t border-t-primary",
   };
 
   const content = variant === "gradient-border" ? (
