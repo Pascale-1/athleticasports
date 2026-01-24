@@ -51,11 +51,11 @@ export const AvatarStack = ({
             key={user.id || user.user_id || index}
             className={cn(
               sizeClasses[size],
-              "ring-2 ring-background",
+              "ring-2 ring-background shadow-sm transition-transform",
               index > 0 && overlapClasses[size]
             )}
           >
-            <AvatarImage src={user.avatar_url || ""} />
+            <AvatarImage src={user.avatar_url || ""} className="object-cover" />
             <AvatarFallback className="bg-primary/10 text-primary font-medium">
               {(user.display_name || user.username || "?").charAt(0).toUpperCase()}
             </AvatarFallback>
@@ -66,7 +66,7 @@ export const AvatarStack = ({
             className={cn(
               sizeClasses[size],
               overlapClasses[size],
-              "flex items-center justify-center rounded-full bg-muted text-muted-foreground font-medium ring-2 ring-background"
+              "flex items-center justify-center rounded-full bg-muted/80 text-muted-foreground font-semibold ring-2 ring-background shadow-sm"
             )}
           >
             +{remainingCount}
