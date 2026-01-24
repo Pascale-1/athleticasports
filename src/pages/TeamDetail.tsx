@@ -140,6 +140,7 @@ const TeamDetail = () => {
 
       <PageContainer>
         <div className="space-y-6 animate-fade-in">
+          {/* 1. Quick Stats - First impression */}
           <TeamQuickStats
             eventCount={upcomingSessions.length}
             activeMemberCount={activeMemberCount}
@@ -147,27 +148,40 @@ const TeamDetail = () => {
             loading={membersLoading || sessionsLoading || announcementsLoading}
           />
 
-          <TeamAboutSection description={team.description} />
-
-          {/* Team Members Onboarding Hint */}
-          <OnboardingHint
-            id="hint-team-members"
-            icon={UserPlus}
-            titleKey="onboarding.teamMembers.title"
-            descriptionKey="onboarding.teamMembers.description"
-            variant="tip"
-            action={canManage ? {
-              labelKey: "onboarding.showMe",
-              onClick: () => setInviteDialogOpen(true),
-            } : undefined}
-          />
-
+          {/* 2. Events Preview - Most actionable */}
           <EventsPreview
             events={upcomingSessions}
             teamId={teamId || ""}
             canRSVP={isMember}
           />
 
+          {/* 3. Members Preview - Who's on the team */}
+          <MembersPreview
+            members={members}
+            canInvite={canManage}
+            onInvite={() => setInviteDialogOpen(true)}
+            teamId={teamId || ""}
+          />
+
+          {/* Team Members Onboarding Hint */}
+          {canManage && (
+            <OnboardingHint
+              id="hint-team-members"
+              icon={UserPlus}
+              titleKey="onboarding.teamMembers.title"
+              descriptionKey="onboarding.teamMembers.description"
+              variant="tip"
+              action={{
+                labelKey: "onboarding.showMe",
+                onClick: () => setInviteDialogOpen(true),
+              }}
+            />
+          )}
+
+          {/* 4. About Section - Context */}
+          <TeamAboutSection description={team.description} />
+
+          {/* 5. Communication - Announcements + Chat */}
           <Card>
             <CardHeader>
               <CardTitle>{t('communication.title')}</CardTitle>
@@ -198,13 +212,7 @@ const TeamDetail = () => {
             </CardContent>
           </Card>
 
-          <MembersPreview
-            members={members}
-            canInvite={canManage}
-            onInvite={() => setInviteDialogOpen(true)}
-            teamId={teamId || ""}
-          />
-
+          {/* 6. Performance Preview - Advanced feature */}
           <PerformancePreview
             teamId={teamId || ""}
             memberCount={memberCount}
