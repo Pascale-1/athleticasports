@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@supabase/supabase-js";
-import { Trophy, Users, Swords, UserPlus, Search, Sparkles, Plus, CalendarCheck, ChevronRight, CheckCircle2, Camera, MessageSquare } from "lucide-react";
+import { Trophy, Users, Swords, UserPlus, Search, Sparkles, Plus, CalendarCheck, ChevronRight, CheckCircle2, Camera, Megaphone } from "lucide-react";
 import { ActivityCard } from "@/components/feed/ActivityCard";
 import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
@@ -27,6 +27,8 @@ import { AvailableGameCard } from "@/components/matching/AvailableGameCard";
 import { isToday, isTomorrow } from "date-fns";
 import { LanguageToggle } from "@/components/settings/LanguageToggle";
 import { FeedbackForm } from "@/components/feedback/FeedbackForm";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Profile {
   id: string;
@@ -196,10 +198,31 @@ const Index = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
+          {/* Top Header Row - Utilities */}
+          <div className="flex items-center justify-end gap-1 -mb-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10"
+                  onClick={() => setFeedbackOpen(true)}
+                >
+                  <Megaphone className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{t('feedback.giveFeedback')}</p>
+              </TooltipContent>
+            </Tooltip>
+            <LanguageToggle />
+            <NotificationBell />
+          </div>
+
           {/* Hero Section - Clean & Compact */}
           <AnimatedCard delay={0.1}>
             <Card data-walkthrough="profile" className="p-4 space-y-3">
-              {/* Top Row: Avatar + Greeting + Actions */}
+              {/* Top Row: Avatar + Greeting */}
               <div className="flex items-start gap-3">
                 {/* Avatar with camera overlay */}
                 <div className="relative group">
@@ -223,19 +246,6 @@ const Index = () => {
                     {t('home.welcome', { name: profile.display_name || profile.username })}
                   </h1>
                   <p className="text-caption text-muted-foreground">{t('home.readyToPlay')}</p>
-                </div>
-
-                {/* Quick Actions: Language + Feedback */}
-                <div className="flex items-center gap-1 shrink-0">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
-                    onClick={() => setFeedbackOpen(true)}
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                  </Button>
-                  <LanguageToggle />
                 </div>
               </div>
 
