@@ -210,13 +210,13 @@ export const EventCard = memo(({
                   
                   {/* Full badge */}
                   {isFull && (
-                    <StatusPill status="full" size="sm" showIcon={false} />
+                    <StatusPill status="full" size="md" showIcon={false} />
                   )}
                   
                   {/* Looking for players */}
                   {event.looking_for_players && !isFull && (
-                    <Badge variant="outline" size="xs" className="border-primary/40 text-primary">
-                      <UserPlus className="h-2 w-2 mr-0.5" />
+                    <Badge variant="outline" size="sm" className="border-primary/40 text-primary">
+                      <UserPlus className="h-3 w-3 mr-1" />
                       {event.players_needed ? `+${event.players_needed}` : t('common:home.open')}
                     </Badge>
                   )}
@@ -224,13 +224,13 @@ export const EventCard = memo(({
 
                 {/* RSVP Status or Dropdown */}
                 <div className="shrink-0">
-                  {isOrganizerView ? (
-                    <div className="flex items-center gap-1">
-                      <Badge variant="outline" size="xs" className="border-primary/40 text-primary">
+                {isOrganizerView ? (
+                    <div className="flex items-center gap-1.5">
+                      <Badge variant="outline" size="sm" className="border-primary/40 text-primary">
                         {t('details.organizer')}
                       </Badge>
                       {event.pendingRequestsCount && event.pendingRequestsCount > 0 && (
-                        <Badge size="xs" className="bg-warning text-warning-foreground border-0">
+                        <Badge size="sm" className="bg-warning text-warning-foreground border-0">
                           {event.pendingRequestsCount}
                         </Badge>
                       )}
@@ -241,20 +241,20 @@ export const EventCard = memo(({
                         <Button
                           size="sm"
                           variant={userStatus ? 'default' : 'outline'}
-                          className="h-6 px-2 gap-0.5 text-[10px]"
+                          className="h-8 px-3 gap-1 text-xs"
                         >
                           {currentRSVP ? (
                             <>
-                              <currentRSVP.icon className="h-2.5 w-2.5" />
+                              <currentRSVP.icon className="h-3.5 w-3.5" />
                               <span className="hidden xs:inline">{currentRSVP.label}</span>
                             </>
                           ) : (
                             <>
-                              <UserCheck className="h-2.5 w-2.5" />
+                              <UserCheck className="h-3.5 w-3.5" />
                               <span>{t('rsvp.respond')}</span>
                             </>
                           )}
-                          <ChevronDown className="h-2 w-2 opacity-50" />
+                          <ChevronDown className="h-3 w-3 opacity-50" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-32">
@@ -274,11 +274,11 @@ export const EventCard = memo(({
                       </DropdownMenuContent>
                     </DropdownMenu>
                   ) : isCommitted && userStatus === 'attending' ? (
-                    <Badge size="xs" className="bg-warning text-warning-foreground border-0">
+                    <Badge size="sm" className="bg-warning text-warning-foreground border-0">
                       ⭐ {t('rsvp.committed')}
                     </Badge>
                   ) : getStatusType() ? (
-                    <StatusPill status={getStatusType()!} size="sm" />
+                    <StatusPill status={getStatusType()!} size="md" />
                   ) : null}
                 </div>
               </div>

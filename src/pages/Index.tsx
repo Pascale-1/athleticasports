@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@supabase/supabase-js";
-import { Trophy, Users, TrendingUp, Swords, UserPlus, Search, Sparkles, Plus, CalendarCheck, ChevronRight, CheckCircle2, Camera } from "lucide-react";
+import { Trophy, Users, Swords, UserPlus, Search, Sparkles, Plus, CalendarCheck, ChevronRight, CheckCircle2, Camera, MessageSquare } from "lucide-react";
 import { ActivityCard } from "@/components/feed/ActivityCard";
 import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
@@ -25,6 +25,8 @@ import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
 import { useAvailableGames } from "@/hooks/useAvailableGames";
 import { AvailableGameCard } from "@/components/matching/AvailableGameCard";
 import { isToday, isTomorrow } from "date-fns";
+import { LanguageToggle } from "@/components/settings/LanguageToggle";
+import { FeedbackForm } from "@/components/feedback/FeedbackForm";
 
 interface Profile {
   id: string;
@@ -39,7 +41,7 @@ interface Profile {
 interface Stats {
   teams: number;
   upcomingMatches: number;
-  followers: number;
+  eventsAttended: number;
 }
 
 const Index = () => {
@@ -47,8 +49,9 @@ const Index = () => {
   const { t } = useTranslation(['common', 'matching']);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [stats, setStats] = useState<Stats>({ teams: 0, upcomingMatches: 0, followers: 0 });
+  const [stats, setStats] = useState<Stats>({ teams: 0, upcomingMatches: 0, eventsAttended: 0 });
   const [loading, setLoading] = useState(true);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [createEventDialogOpen, setCreateEventDialogOpen] = useState(false);
   const [findMatchSheetOpen, setFindMatchSheetOpen] = useState(false);
   const { activities, loading: feedLoading, loadingMore, hasMore, loadMore } = useActivityFeed();
@@ -124,27 +127,27 @@ const Index = () => {
 
   const fetchStats = async (userId: string) => {
     try {
-      const { count: teamsCount } = await supabase
-        .from('team_members')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
-
-      const { count: followersCount } = await supabase
-        .from('followers')
-        .select('*', { count: 'exact', head: true })
-        .eq('following_id', userId);
-
-      // Count upcoming matches
-      const { count: matchesCount } = await supabase
-        .from('events')
-        .select('*', { count: 'exact', head: true })
-        .eq('type', 'match')
-        .gte('start_time', new Date().toISOString());
+      const [teamsRes, matchesRes, eventsRes] = await Promise.all([
+        supabase
+          .from('team_members')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId),
+        supabase
+          .from('events')
+          .select('*', { count: 'exact', head: true })
+          .eq('type', 'match')
+          .gte('start_time', new Date().toISOString()),
+        supabase
+          .from('event_attendance')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('status', 'attending'),
+      ]);
 
       setStats({
-        teams: teamsCount || 0,
-        upcomingMatches: matchesCount || 0,
-        followers: followersCount || 0,
+        teams: teamsRes.count || 0,
+        upcomingMatches: matchesRes.count || 0,
+        eventsAttended: eventsRes.count || 0,
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -196,6 +199,7 @@ const Index = () => {
           {/* Hero Section - Clean & Compact */}
           <AnimatedCard delay={0.1}>
             <Card data-walkthrough="profile" className="p-4 space-y-3">
+              {/* Top Row: Avatar + Greeting + Actions */}
               <div className="flex items-start gap-3">
                 {/* Avatar with camera overlay */}
                 <div className="relative group">
@@ -219,6 +223,19 @@ const Index = () => {
                     {t('home.welcome', { name: profile.display_name || profile.username })}
                   </h1>
                   <p className="text-caption text-muted-foreground">{t('home.readyToPlay')}</p>
+                </div>
+
+                {/* Quick Actions: Language + Feedback */}
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+                    onClick={() => setFeedbackOpen(true)}
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                  </Button>
+                  <LanguageToggle />
                 </div>
               </div>
 
@@ -251,14 +268,14 @@ const Index = () => {
                 <div className="w-px h-8 bg-border/50" />
                 
                 <button
-                  onClick={() => navigate("/settings")}
+                  onClick={() => navigate("/events?tab=my")}
                   className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[56px]"
                 >
                   <div className="flex items-center gap-1.5">
-                    <TrendingUp className="h-4 w-4 text-primary" />
-                    <span className="text-base font-bold">{stats.followers}</span>
+                    <CalendarCheck className="h-4 w-4 text-primary" />
+                    <span className="text-base font-bold">{stats.eventsAttended}</span>
                   </div>
-                  <span className="text-[11px] text-muted-foreground">{t('home.followers')}</span>
+                  <span className="text-[11px] text-muted-foreground">{t('home.eventsAttended')}</span>
                 </button>
               </div>
             </Card>
@@ -523,6 +540,11 @@ const Index = () => {
       <FindMatchSheet
         open={findMatchSheetOpen}
         onOpenChange={setFindMatchSheetOpen}
+      />
+
+      <FeedbackForm
+        open={feedbackOpen}
+        onOpenChange={setFeedbackOpen}
       />
     </PageContainer>
   );
