@@ -118,23 +118,23 @@ export const EventCard = memo(({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <CardContent className="p-3">
-          <div className="flex gap-3">
+        <CardContent className="p-3.5">
+          <div className="flex gap-3.5">
             {/* Date Block - Visual Anchor */}
             <DateBlock date={event.start_time} size="md" />
             
             {/* Main Content */}
-            <div className="flex-1 min-w-0 space-y-1">
+            <div className="flex-1 min-w-0 space-y-2">
               {/* Row 1: Title + Actions */}
               <div className="flex items-start gap-1.5">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-card-title font-heading font-semibold truncate">
+                  <h3 className="text-[15px] font-heading font-semibold leading-tight line-clamp-1">
                     {event.title}
                   </h3>
                   
                   {/* Time & Location - Single line */}
-                  <div className="flex items-center gap-1 text-caption text-muted-foreground mt-0.5">
-                    <Clock className="h-2.5 w-2.5 shrink-0" />
+                  <div className="flex items-center gap-1.5 text-caption text-muted-foreground mt-1">
+                    <Clock className="h-3 w-3 shrink-0" />
                     <span>
                       {new Date(event.start_time).toLocaleTimeString(lang, { 
                         hour: 'numeric', 
@@ -143,8 +143,8 @@ export const EventCard = memo(({
                     </span>
                     {event.location && (
                       <>
-                        <span className="text-muted-foreground/50">·</span>
-                        <MapPin className="h-2.5 w-2.5 shrink-0" />
+                        <span className="text-muted-foreground/40">·</span>
+                        <MapPin className="h-3 w-3 shrink-0" />
                         <span className="truncate">{event.location}</span>
                       </>
                     )}
@@ -190,36 +190,30 @@ export const EventCard = memo(({
               </div>
 
               {/* Row 2: Attendees + Status */}
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 min-w-0">
+              <div className="flex items-center justify-between gap-2 pt-0.5">
+                <div className="flex items-center gap-2 min-w-0">
                   {/* Avatar Stack or Count */}
                   {attendees.length > 0 ? (
                     <AvatarStack users={attendees} max={3} size="xs" />
-                  ) : (
-                    <span className="text-caption text-muted-foreground">
-                      {attendeeCount} {attendeeCount === 1 ? t('attendees.singular', 'attendee') : t('attendees.plural', 'attendees')}
-                    </span>
-                  )}
+                  ) : null}
                   
-                  {/* Capacity indicator */}
-                  {event.max_participants && (
-                    <span className="text-caption text-muted-foreground">
-                      /{event.max_participants}
-                    </span>
-                  )}
+                  {/* Attendance text - cleaner format */}
+                  <span className="text-caption text-muted-foreground">
+                    {attendeeCount} {t('common:going', 'going')}
+                    {event.max_participants && !isFull && (
+                      <span className="text-muted-foreground/60"> · {event.max_participants - attendeeCount} {t('common:spotsLeft', 'left')}</span>
+                    )}
+                  </span>
                   
-                  {/* Full badge */}
-                  {isFull && (
-                    <StatusPill status="full" size="md" showIcon={false} />
-                  )}
-                  
-                  {/* Looking for players */}
-                  {event.looking_for_players && !isFull && (
-                    <Badge variant="outline" size="sm" className="border-primary/40 text-primary">
-                      <UserPlus className="h-3 w-3 mr-1" />
+                  {/* Full badge - Primary status */}
+                  {isFull ? (
+                    <StatusPill status="full" size="xs" showIcon={false} />
+                  ) : event.looking_for_players ? (
+                    <Badge variant="outline" size="sm" className="border-primary/30 text-primary bg-primary/5">
+                      <UserPlus className="h-2.5 w-2.5 mr-0.5" />
                       {event.players_needed ? `+${event.players_needed}` : t('common:home.open')}
                     </Badge>
-                  )}
+                  ) : null}
                 </div>
 
                 {/* RSVP Status or Dropdown */}

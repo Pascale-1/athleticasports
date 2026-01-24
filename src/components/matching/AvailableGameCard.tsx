@@ -107,35 +107,34 @@ export const AvailableGameCard = ({
         className="cursor-pointer"
         onClick={() => navigate(`/events/${game.id}`)}
       >
-        <CardContent className="p-2.5">
-          <div className="flex gap-2.5">
+        <CardContent className="p-3">
+          <div className="flex gap-3">
             <DateBlock date={startDate} size="sm" />
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 space-y-1.5">
               <div className="flex items-center gap-1.5">
                 <span className="text-sm">{sportEmoji}</span>
-                <h4 className="text-card-title font-heading font-semibold truncate">{game.title}</h4>
+                <h4 className="text-[14px] font-heading font-semibold line-clamp-1">{game.title}</h4>
                 {getMatchBadge()}
               </div>
-              <div className="flex items-center gap-1 text-caption text-muted-foreground mt-0.5">
-                <Clock className="h-2.5 w-2.5 shrink-0" />
+              <div className="flex items-center gap-1.5 text-caption text-muted-foreground">
+                <Clock className="h-3 w-3 shrink-0" />
                 <span>{startDate.toLocaleTimeString(lang === 'fr' ? 'fr-FR' : 'en-US', { hour: 'numeric', minute: '2-digit' })}</span>
-                <span className="text-muted-foreground/50">·</span>
-                <MapPin className="h-2.5 w-2.5 shrink-0" />
+                <span className="text-muted-foreground/40">·</span>
+                <MapPin className="h-3 w-3 shrink-0" />
                 <span className="truncate">{getLocationLabel()}</span>
               </div>
-              <div className="flex items-center justify-between mt-1.5">
-                <div className="flex items-center gap-1 text-caption text-muted-foreground">
-                  <Users className="h-2.5 w-2.5" />
-                  <span>{t('matching:spotsLeft', { count: game.spotsLeft })}</span>
-                </div>
+              <div className="flex items-center justify-between">
+                <span className="text-caption text-muted-foreground">
+                  {game.spotsLeft} {t('common:spotsLeft', 'spots left')}
+                </span>
                 {hasJoined ? (
-                  <Badge size="xs" className="bg-success text-success-foreground">
+                  <Badge size="xs" className="bg-success/10 text-success border border-success/20">
                     <CheckCircle2 className="h-2.5 w-2.5 mr-0.5" />
                     {t('matching:labels.joined')}
                   </Badge>
                 ) : showJoinBadge && game.spotsLeft !== 0 ? (
-                  <Button size="sm" className="h-6 px-2 text-[10px] gap-1" onClick={handleQuickJoin} disabled={isJoining}>
-                    {isJoining ? <Loader2 className="h-2.5 w-2.5 animate-spin" /> : <>{t('matching:actions.join')}<ArrowRight className="h-2.5 w-2.5" /></>}
+                  <Button size="sm" className="h-7 px-2.5 text-[11px] gap-1" onClick={handleQuickJoin} disabled={isJoining}>
+                    {isJoining ? <Loader2 className="h-3 w-3 animate-spin" /> : <>{t('matching:actions.join')}<ArrowRight className="h-3 w-3" /></>}
                   </Button>
                 ) : null}
               </div>
@@ -150,36 +149,49 @@ export const AvailableGameCard = ({
   return (
     <Card variant="interactive" className="cursor-pointer overflow-hidden" onClick={() => navigate(`/events/${game.id}`)}>
       {game.matchScore && (
-        <div className={cn("px-3 py-1.5 text-caption font-medium", game.matchScore.label === 'perfect' ? 'bg-success text-success-foreground' : 'bg-primary text-primary-foreground')}>
+        <div className={cn("px-3.5 py-1.5 text-caption font-medium", game.matchScore.label === 'perfect' ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary')}>
           ⭐ {t(`matching:labels.${game.matchScore.label}`).toUpperCase()} MATCH
         </div>
       )}
-      <CardContent className={cn("p-3", game.matchScore && "pt-2")}>
-        <div className="flex gap-3">
+      <CardContent className={cn("p-3.5", game.matchScore && "pt-2.5")}>
+        <div className="flex gap-3.5">
           <DateBlock date={startDate} size="md" />
-          <div className="flex-1 min-w-0 space-y-2">
+          <div className="flex-1 min-w-0 space-y-2.5">
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="text-base">{sportEmoji}</span>
-                <h4 className="text-card-title font-heading font-semibold truncate">{game.title}</h4>
+                <h4 className="text-[15px] font-heading font-semibold line-clamp-1">{game.title}</h4>
               </div>
-              <div className="flex items-center gap-1.5 text-caption text-muted-foreground mt-0.5">
+              <div className="flex items-center gap-1.5 text-caption text-muted-foreground mt-1">
                 <Clock className="h-3 w-3" />
                 <span>{startDate.toLocaleTimeString(lang === 'fr' ? 'fr-FR' : 'en-US', { hour: 'numeric', minute: '2-digit' })}</span>
-                <span className="text-muted-foreground/50">·</span>
+                <span className="text-muted-foreground/40">·</span>
                 <MapPin className="h-3 w-3" />
                 <span className="truncate">{getLocationLabel()}</span>
-                {game.spotsLeft !== undefined && (
-                  <>
-                    <span className="text-muted-foreground/50">·</span>
-              <Users className="h-3 w-3" />
-              <span>{t('matching:spotsLeft', { count: game.spotsLeft })}</span>
-                  </>
-                )}
               </div>
+              {game.spotsLeft !== undefined && (
+                <p className="text-caption text-muted-foreground mt-1">
+                  {game.spotsLeft} {t('common:spotsLeft', 'spots left')}
+                </p>
+              )}
             </div>
-            <Button size="sm" variant={hasJoined ? "secondary" : "default"} className="w-full h-8 text-xs gap-1.5" onClick={handleQuickJoin} disabled={isJoining || hasJoined}>
-              {hasJoined ? <><CheckCircle2 className="h-3 w-3" />{t('matching:labels.joined')}</> : isJoining ? <Loader2 className="h-3 w-3 animate-spin" /> : <>{t('matching:actions.join')}<ArrowRight className="h-3 w-3" /></>}
+            <Button 
+              size="sm" 
+              variant={hasJoined ? "outline" : "default"} 
+              className={cn(
+                "w-full h-8 text-xs gap-1.5 transition-all",
+                hasJoined && "bg-success/10 text-success border-success/20 hover:bg-success/20"
+              )} 
+              onClick={handleQuickJoin} 
+              disabled={isJoining || hasJoined}
+            >
+              {hasJoined ? (
+                <><CheckCircle2 className="h-3.5 w-3.5" />{t('matching:labels.joined')}</>
+              ) : isJoining ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <>{t('matching:actions.join')}<ArrowRight className="h-3.5 w-3.5" /></>
+              )}
             </Button>
           </div>
         </div>

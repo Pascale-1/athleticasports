@@ -8,7 +8,8 @@ interface StatusPillProps {
   status: StatusType;
   className?: string;
   showIcon?: boolean;
-  size?: "sm" | "md";
+  size?: "xs" | "sm" | "md";
+  variant?: "default" | "dot";
 }
 
 const statusConfig: Record<StatusType, {
@@ -53,25 +54,54 @@ export const StatusPill = ({
   className,
   showIcon = true,
   size = "sm",
+  variant = "default",
 }: StatusPillProps) => {
   const { t } = useTranslation("common");
   const config = statusConfig[status];
   const Icon = config.icon;
   
   const sizeClasses = {
-    sm: "text-[10px] px-1.5 py-0.5 gap-0.5",
-    md: "text-xs px-2 py-1 gap-1",
+    xs: "text-[9px] px-1.5 py-0.5 gap-0.5",
+    sm: "text-[10px] px-2 py-0.5 gap-1",
+    md: "text-xs px-2.5 py-1 gap-1",
   };
   
   const iconSizes = {
+    xs: "h-2 w-2",
     sm: "h-2.5 w-2.5",
     md: "h-3 w-3",
   };
 
+  const dotColors: Record<StatusType, string> = {
+    going: "bg-success",
+    maybe: "bg-warning",
+    declined: "bg-muted-foreground",
+    pending: "bg-info",
+    full: "bg-destructive",
+    available: "bg-primary",
+  };
+
+  if (variant === "dot") {
+    return (
+      <span
+        className={cn(
+          "inline-flex items-center gap-1.5 text-muted-foreground",
+          size === "xs" && "text-[9px]",
+          size === "sm" && "text-[10px]",
+          size === "md" && "text-xs",
+          className
+        )}
+      >
+        <span className={cn("h-1.5 w-1.5 rounded-full", dotColors[status])} />
+        <span>{t(config.labelKey)}</span>
+      </span>
+    );
+  }
+
   return (
     <span
       className={cn(
-        "inline-flex items-center font-medium rounded-full border",
+        "inline-flex items-center font-medium rounded-full border transition-colors",
         sizeClasses[size],
         config.className,
         className
