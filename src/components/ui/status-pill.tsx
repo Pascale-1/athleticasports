@@ -53,55 +53,58 @@ export const StatusPill = ({
   status,
   className,
   showIcon = true,
-  size = "sm",
-  variant = "default",
+  size = 'sm',
+  variant = 'default'
 }: StatusPillProps) => {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation('events');
   const config = statusConfig[status];
   const Icon = config.icon;
-  
-  const sizeClasses = {
-    xs: "text-[9px] px-1.5 py-0.5 gap-0.5",
-    sm: "text-[10px] px-2 py-0.5 gap-1",
-    md: "text-xs px-2.5 py-1 gap-1",
-  };
-  
-  const iconSizes = {
-    xs: "h-2 w-2",
-    sm: "h-2.5 w-2.5",
-    md: "h-3 w-3",
-  };
 
-  const dotColors: Record<StatusType, string> = {
-    going: "bg-success",
-    maybe: "bg-warning",
-    declined: "bg-muted-foreground",
-    pending: "bg-info",
-    full: "bg-destructive",
-    available: "bg-primary",
-  };
+  // Dot variant - minimal colored dot
+  if (variant === 'dot') {
+    const dotSizeClasses = {
+      xs: "h-2 w-2",
+      sm: "h-2.5 w-2.5",
+      md: "h-3 w-3",
+    };
 
-  if (variant === "dot") {
+    const dotColorClasses: Record<StatusType, string> = {
+      going: "bg-success",
+      maybe: "bg-warning",
+      declined: "bg-muted-foreground",
+      full: "bg-destructive",
+      available: "bg-primary",
+      pending: "bg-warning",
+    };
+
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 text-muted-foreground",
-          size === "xs" && "text-[9px]",
-          size === "sm" && "text-[10px]",
-          size === "md" && "text-xs",
+          "rounded-full shrink-0",
+          dotSizeClasses[size],
+          dotColorClasses[status],
           className
         )}
-      >
-        <span className={cn("h-1.5 w-1.5 rounded-full", dotColors[status])} />
-        <span>{t(config.labelKey)}</span>
-      </span>
+      />
     );
   }
+
+  const sizeClasses = {
+    xs: "text-[9px] px-1.5 py-0.5 gap-0.5",
+    sm: "text-[10px] px-2 py-0.5 gap-1",
+    md: "text-xs px-2.5 py-1 gap-1.5",
+  };
+
+  const iconSizes = {
+    xs: "h-2.5 w-2.5",
+    sm: "h-3 w-3",
+    md: "h-3.5 w-3.5",
+  };
 
   return (
     <span
       className={cn(
-        "inline-flex items-center font-medium rounded-full border transition-colors",
+        "inline-flex items-center rounded-full font-medium shrink-0",
         sizeClasses[size],
         config.className,
         className
