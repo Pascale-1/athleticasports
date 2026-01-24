@@ -212,7 +212,7 @@ const Index = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{t('feedback.giveFeedback')}</p>
+                <p>{t('feedback.title')}</p>
               </TooltipContent>
             </Tooltip>
             <LanguageToggle />
