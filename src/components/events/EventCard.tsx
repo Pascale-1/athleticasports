@@ -118,10 +118,10 @@ export const EventCard = memo(({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <CardContent className="p-2.5">
-          <div className="flex gap-2.5">
+        <CardContent className="p-3">
+          <div className="flex gap-3">
             {/* Date Block - Visual Anchor */}
-            <DateBlock date={event.start_time} size="sm" />
+            <DateBlock date={event.start_time} size="md" />
             
             {/* Main Content */}
             <div className="flex-1 min-w-0 space-y-1">
@@ -241,7 +241,7 @@ export const EventCard = memo(({
                         <Button
                           size="sm"
                           variant={userStatus ? 'default' : 'outline'}
-                          className="h-8 px-3 gap-1 text-xs"
+                          className="h-7 px-2.5 gap-1 text-[11px]"
                         >
                           {currentRSVP ? (
                             <>
@@ -278,7 +278,7 @@ export const EventCard = memo(({
                       ⭐ {t('rsvp.committed')}
                     </Badge>
                   ) : getStatusType() ? (
-                    <StatusPill status={getStatusType()!} size="md" />
+                    <StatusPill status={getStatusType()!} size="sm" />
                   ) : null}
                 </div>
               </div>
