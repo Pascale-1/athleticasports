@@ -78,9 +78,9 @@ const EventCardWithAttendance = ({
 }) => {
   const { stats, userStatus, updateAttendance } = useEventAttendance(event.id);
 
-  // Use prefetched values if available, otherwise fall back to hook values
-  const finalUserStatus = prefetchedUserStatus !== undefined ? prefetchedUserStatus : userStatus;
-  const finalAttendeeCount = prefetchedAttendingCount !== undefined ? prefetchedAttendingCount : stats.attending;
+  // Prioritize real-time hook data over prefetched values for immediate updates
+  const finalUserStatus = userStatus ?? prefetchedUserStatus ?? null;
+  const finalAttendeeCount = stats.attending ?? prefetchedAttendingCount ?? 0;
 
   return (
     <EventCard

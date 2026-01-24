@@ -21,10 +21,10 @@ const Card = React.forwardRef<
   };
 
   const accentStyles = {
-    training: "border-t border-t-info",
-    match: "border-t border-t-warning",
-    meetup: "border-t border-t-success",
-    primary: "border-t border-t-primary",
+    training: "border-t-2 border-t-info",
+    match: "border-t-2 border-t-warning",
+    meetup: "border-t-2 border-t-success",
+    primary: "border-t-2 border-t-primary",
   };
 
   const content = variant === "gradient-border" ? (
