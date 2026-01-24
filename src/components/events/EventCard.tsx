@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DateBlock } from "@/components/ui/date-block";
 import { AvatarStack } from "@/components/ui/avatar-stack";
-import { StatusPill } from "@/components/ui/status-pill";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,30 +13,24 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { 
-  MapPin, 
-  Clock, 
-  UserPlus, 
-  Repeat,
   MoreVertical,
   Pencil,
   Trash2,
-  Dumbbell,
-  Swords,
-  Users,
-  ChevronDown,
+  Repeat,
   Check,
   HelpCircle,
-  X
+  X,
+  UserPlus
 } from "lucide-react";
 import { Event } from "@/lib/events";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
-// Type icons with semantic colors
-const TYPE_CONFIG = {
-  training: { icon: Dumbbell, colorClass: 'text-info' },
-  match: { icon: Swords, colorClass: 'text-warning' },
-  meetup: { icon: Users, colorClass: 'text-success' },
+// Type badge configuration with semantic colors
+const TYPE_BADGE_CONFIG = {
+  training: { label: 'Training', labelFr: 'Entraînement', colorClass: 'bg-info/15 text-info' },
+  match: { label: 'Match', labelFr: 'Match', colorClass: 'bg-warning/15 text-warning' },
+  meetup: { label: 'Meetup', labelFr: 'Rencontre', colorClass: 'bg-success/15 text-success' },
 };
 
 interface EventCardProps {
@@ -65,7 +58,6 @@ export const EventCard = memo(({
   event, 
   attendeeCount = 0,
   userStatus,
-  isCommitted = false,
   isOrganizerView = false,
   onEdit,
   onDelete,
@@ -74,6 +66,7 @@ export const EventCard = memo(({
 }: EventCardProps) => {
   const { t, i18n } = useTranslation('events');
   const lang = i18n.language?.startsWith('fr') ? 'fr-FR' : 'en-US';
+  const isFr = i18n.language?.startsWith('fr');
 
   const getEventAccent = (): "training" | "match" | "meetup" | "primary" => {
     switch (event.type) {
@@ -84,13 +77,17 @@ export const EventCard = memo(({
     }
   };
 
-  const typeConfig = TYPE_CONFIG[event.type] || TYPE_CONFIG.meetup;
-  const TypeIcon = typeConfig.icon;
+  const typeConfig = TYPE_BADGE_CONFIG[event.type] || TYPE_BADGE_CONFIG.meetup;
+  const typeLabel = isFr ? typeConfig.labelFr : typeConfig.label;
 
   const isPartOfSeries = !!event.parent_event_id;
   const isRecurringParent = event.is_recurring && !event.parent_event_id;
   const hasOrganizerActions = isOrganizerView && (onEdit || onDelete);
-  const isFull = attendeeCount >= (event.max_participants || Infinity);
+  
+  const maxParticipants = event.max_participants;
+  const hasCapacity = maxParticipants && maxParticipants > 0;
+  const spotsRemaining = hasCapacity ? Math.max(0, maxParticipants - attendeeCount) : null;
+  const isFull = hasCapacity && spotsRemaining === 0;
 
   // Format time compactly (7pm instead of 7:00 PM)
   const startTime = new Date(event.start_time);
@@ -102,8 +99,8 @@ export const EventCard = memo(({
 
   // Truncate location for compact display
   const displayLocation = event.location 
-    ? event.location.length > 20 
-      ? event.location.slice(0, 18) + '…' 
+    ? event.location.length > 18 
+      ? event.location.slice(0, 16) + '…' 
       : event.location
     : null;
 
@@ -111,7 +108,7 @@ export const EventCard = memo(({
     switch (userStatus) {
       case 'attending': return t('common:going', 'Going');
       case 'maybe': return t('common:maybe', 'Maybe');
-      case 'not_attending': return t('common:declined', "Can't Go");
+      case 'not_attending': return t('common:declined', "Can't");
       default: return 'RSVP';
     }
   };
@@ -121,156 +118,189 @@ export const EventCard = memo(({
       case 'attending': return Check;
       case 'maybe': return HelpCircle;
       case 'not_attending': return X;
-      default: return ChevronDown;
+      default: return null;
     }
   };
 
   const StatusIcon = getStatusIcon();
 
-  return (
-    <Link to={`/events/${event.id}`} className="block max-w-md">
-      <Card variant="interactive" accent={getEventAccent()}>
-        <CardContent className="p-2.5">
-          {/* Row 1: Type Icon + Title + Status/Organizer Actions */}
-          <div className="flex items-center gap-2">
-            <DateBlock date={event.start_time} size="inline" />
-            
-            <div className="flex-1 min-w-0 flex items-center gap-1.5">
-              <TypeIcon className={cn("h-3.5 w-3.5 shrink-0", typeConfig.colorClass)} />
-              <h3 className="text-sm font-semibold leading-tight line-clamp-1 flex-1">
-                {event.title}
-              </h3>
-              
-              {(isRecurringParent || isPartOfSeries) && (
-                <Repeat className="h-3 w-3 text-muted-foreground shrink-0" />
-              )}
-            </div>
+  // Calculate "Need X" display
+  const playersNeeded = event.looking_for_players && event.players_needed 
+    ? Math.max(0, event.players_needed - attendeeCount)
+    : spotsRemaining;
+  const showNeedBadge = event.looking_for_players && playersNeeded && playersNeeded > 0;
 
-            {/* Status indicator or organizer menu */}
-            <div className="shrink-0 flex items-center gap-1">
-              {isOrganizerView ? (
-                <>
-                  {event.pendingRequestsCount && event.pendingRequestsCount > 0 && (
-                    <Badge size="sm" className="bg-warning text-warning-foreground border-0 h-5 min-w-5 px-1.5 text-[10px]">
-                      {event.pendingRequestsCount}
+  return (
+    <Link to={`/events/${event.id}`} className="block max-w-sm">
+      <Card variant="interactive" accent={getEventAccent()} className="active:scale-[0.98] transition-transform">
+        <CardContent className="p-3">
+          <div className="flex gap-3">
+            {/* Left: DateBlock anchor */}
+            <DateBlock date={event.start_time} size="compact" className="shrink-0" />
+            
+            {/* Right: Content */}
+            <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+              {/* Row 1: Title + Type Badge + Actions */}
+              <div className="flex items-start gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h3 className="text-sm font-semibold leading-tight line-clamp-1">
+                      {event.title}
+                    </h3>
+                    <Badge 
+                      variant="secondary" 
+                      className={cn(
+                        "text-[10px] px-1.5 py-0 h-4 font-medium shrink-0",
+                        typeConfig.colorClass
+                      )}
+                    >
+                      {typeLabel}
+                    </Badge>
+                    {(isRecurringParent || isPartOfSeries) && (
+                      <Repeat className="h-3 w-3 text-muted-foreground shrink-0" />
+                    )}
+                  </div>
+                </div>
+
+                {/* Organizer actions */}
+                {isOrganizerView && (
+                  <div className="shrink-0 flex items-center gap-1">
+                    {event.pendingRequestsCount && event.pendingRequestsCount > 0 && (
+                      <Badge size="sm" className="bg-warning text-warning-foreground border-0 h-5 min-w-5 px-1.5 text-[10px]">
+                        {event.pendingRequestsCount}
+                      </Badge>
+                    )}
+                    {hasOrganizerActions && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
+                          <Button variant="ghost" size="icon" className="h-6 w-6">
+                            <MoreVertical className="h-3.5 w-3.5" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-36 bg-popover">
+                          {onEdit && (
+                            <DropdownMenuItem
+                              onClick={(e) => { e.preventDefault(); onEdit(e as unknown as React.MouseEvent); }}
+                              className="gap-2"
+                            >
+                              <Pencil className="h-4 w-4" />
+                              {t('edit.title')}
+                            </DropdownMenuItem>
+                          )}
+                          {onEdit && onDelete && <DropdownMenuSeparator />}
+                          {onDelete && (
+                            <DropdownMenuItem
+                              onClick={(e) => { e.preventDefault(); onDelete(e as unknown as React.MouseEvent); }}
+                              className="gap-2 text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              {t('details.deleteEvent')}
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Row 2: Time + Location */}
+              <div className="text-xs text-muted-foreground">
+                <span>{timeStr}</span>
+                {displayLocation && (
+                  <>
+                    <span className="mx-1.5 text-muted-foreground/40">·</span>
+                    <span className="truncate">{displayLocation}</span>
+                  </>
+                )}
+              </div>
+
+              {/* Row 3: Attendance + Need Badge + RSVP */}
+              <div className="flex items-center justify-between gap-2 pt-1">
+                <div className="flex items-center gap-2">
+                  {attendees.length > 0 && (
+                    <AvatarStack users={attendees} max={3} size="xs" />
+                  )}
+                  <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+                    {hasCapacity 
+                      ? `${attendeeCount}/${maxParticipants}` 
+                      : `${attendeeCount} ${t('common:going', 'going')}`
+                    }
+                  </span>
+                  {showNeedBadge && (
+                    <Badge 
+                      variant="secondary" 
+                      className="text-[10px] px-1.5 py-0 h-4 bg-primary/10 text-primary gap-0.5"
+                    >
+                      <UserPlus className="h-2.5 w-2.5" />
+                      {playersNeeded}
                     </Badge>
                   )}
-                  {hasOrganizerActions && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
-                        <Button variant="ghost" size="icon" className="h-6 w-6">
-                          <MoreVertical className="h-3.5 w-3.5" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-36">
-                        {onEdit && (
-                          <DropdownMenuItem
-                            onClick={(e) => { e.preventDefault(); onEdit(e as unknown as React.MouseEvent); }}
-                            className="gap-2"
-                          >
-                            <Pencil className="h-4 w-4" />
-                            {t('edit.title')}
-                          </DropdownMenuItem>
+                </div>
+
+                {/* Quick RSVP Button - only show if not organizer view */}
+                {!isOrganizerView && onRSVPChange && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
+                      <Button 
+                        variant={userStatus ? "secondary" : "outline"} 
+                        size="sm" 
+                        className={cn(
+                          "h-6 px-2 text-[11px] gap-1",
+                          userStatus === 'attending' && "bg-success/10 text-success border-success/30 hover:bg-success/20",
+                          userStatus === 'maybe' && "bg-warning/10 text-warning border-warning/30 hover:bg-warning/20",
+                          userStatus === 'not_attending' && "bg-muted text-muted-foreground",
+                          !userStatus && "text-primary"
                         )}
-                        {onEdit && onDelete && <DropdownMenuSeparator />}
-                        {onDelete && (
-                          <DropdownMenuItem
-                            onClick={(e) => { e.preventDefault(); onDelete(e as unknown as React.MouseEvent); }}
-                            className="gap-2 text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            {t('details.deleteEvent')}
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                </>
-              ) : isFull ? (
-                <StatusPill status="full" size="xs" variant="dot" />
-              ) : event.looking_for_players ? (
-                <UserPlus className="h-3.5 w-3.5 text-primary" />
-              ) : null}
-            </div>
-          </div>
+                      >
+                        {StatusIcon && <StatusIcon className="h-3 w-3" />}
+                        {getStatusLabel()}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-32 bg-popover">
+                      <DropdownMenuItem 
+                        onClick={(e) => { e.preventDefault(); onRSVPChange('attending'); }}
+                        className="gap-2"
+                      >
+                        <Check className="h-4 w-4 text-success" />
+                        {t('common:going', 'Going')}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={(e) => { e.preventDefault(); onRSVPChange('maybe'); }}
+                        className="gap-2"
+                      >
+                        <HelpCircle className="h-4 w-4 text-warning" />
+                        {t('common:maybe', 'Maybe')}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={(e) => { e.preventDefault(); onRSVPChange('not_attending'); }}
+                        className="gap-2"
+                      >
+                        <X className="h-4 w-4 text-muted-foreground" />
+                        {t('common:declined', "Can't Go")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
 
-          {/* Row 2: Time + Location */}
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1.5 ml-[52px]">
-            <Clock className="h-3 w-3 shrink-0" />
-            <span className="whitespace-nowrap shrink-0">{timeStr}</span>
-            {displayLocation && (
-              <>
-                <span className="text-muted-foreground/40">·</span>
-                <MapPin className="h-3 w-3 shrink-0" />
-                <span className="truncate">{displayLocation}</span>
-              </>
-            )}
-          </div>
-
-          {/* Row 3: Attendees + RSVP Button */}
-          <div className="flex items-center justify-between pt-2 mt-2 border-t border-border/30 ml-[52px]">
-            <div className="flex items-center gap-1.5">
-              {attendees.length > 0 && (
-                <AvatarStack users={attendees} max={3} size="xs" />
-              )}
-              <span className="text-[10px] text-muted-foreground">
-                {attendeeCount} {t('common:going', 'going')}
-              </span>
-            </div>
-
-            {/* Quick RSVP Button - only show if not organizer view */}
-            {!isOrganizerView && onRSVPChange && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
-                  <Button 
-                    variant={userStatus ? "secondary" : "outline"} 
-                    size="sm" 
+                {/* Show RSVP status for organizer view */}
+                {isOrganizerView && userStatus && (
+                  <Badge 
+                    variant="secondary"
                     className={cn(
-                      "h-7 px-2 text-[11px] gap-1",
-                      userStatus === 'attending' && "bg-success/10 text-success border-success/30 hover:bg-success/20",
-                      userStatus === 'maybe' && "bg-warning/10 text-warning border-warning/30 hover:bg-warning/20",
+                      "text-[10px] px-1.5 h-5",
+                      userStatus === 'attending' && "bg-success/10 text-success",
+                      userStatus === 'maybe' && "bg-warning/10 text-warning",
                       userStatus === 'not_attending' && "bg-muted text-muted-foreground"
                     )}
                   >
-                    <StatusIcon className="h-3 w-3" />
+                    {StatusIcon && <StatusIcon className="h-3 w-3 mr-0.5" />}
                     {getStatusLabel()}
-                    <ChevronDown className="h-3 w-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-32">
-                  <DropdownMenuItem 
-                    onClick={(e) => { e.preventDefault(); onRSVPChange('attending'); }}
-                    className="gap-2"
-                  >
-                    <Check className="h-4 w-4 text-success" />
-                    {t('common:going', 'Going')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={(e) => { e.preventDefault(); onRSVPChange('maybe'); }}
-                    className="gap-2"
-                  >
-                    <HelpCircle className="h-4 w-4 text-warning" />
-                    {t('common:maybe', 'Maybe')}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    onClick={(e) => { e.preventDefault(); onRSVPChange('not_attending'); }}
-                    className="gap-2"
-                  >
-                    <X className="h-4 w-4 text-muted-foreground" />
-                    {t('common:declined', "Can't Go")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-
-            {/* Show status dot for organizer view */}
-            {isOrganizerView && userStatus && (
-              <StatusPill 
-                status={userStatus === 'attending' ? 'going' : userStatus === 'maybe' ? 'maybe' : 'declined'} 
-                size="xs" 
-              />
-            )}
+                  </Badge>
+                )}
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
