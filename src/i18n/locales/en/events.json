@@ -275,13 +275,6 @@
     "successDesc": "Your changes have been saved",
     "error": "Failed to update event"
   },
-  "calendar": {
-    "hasEvents": "Has events",
-    "selectDate": "Select a date",
-    "noEventsOnDate": "No events scheduled for this date",
-    "eventCount": "{{count}} event",
-    "eventCount_other": "{{count}} events"
-  },
   "views": {
     "list": "List",
     "calendar": "Calendar"
@@ -295,6 +288,11 @@
     "other": "Other"
   },
   "calendar": {
+    "hasEvents": "Has events",
+    "selectDate": "Select a date",
+    "noEventsOnDate": "No events scheduled for this date",
+    "eventCount": "{{count}} event",
+    "eventCount_other": "{{count}} events",
     "addToCalendar": "Add to Calendar",
     "downloaded": "Calendar file downloaded",
     "downloadedDesc": "Open the .ics file to add to your calendar",
