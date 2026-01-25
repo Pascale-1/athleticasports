@@ -5,9 +5,9 @@
     "title": "Créer un événement",
     "chooseType": "Choisir le type d'événement",
     "selectTypeDesc": "Sélectionnez le type d'événement à créer",
-    "trainingDesc": "Séances d'entraînement",
-    "meetupDesc": "Rencontres sociales",
-    "gameDesc": "Parties compétitives"
+    "trainingDesc": "Course, entraînement ou sport",
+    "meetupDesc": "Événements sociaux",
+    "gameDesc": "Affrontez un adversaire"
   },
   "upcoming": "À venir",
   "past": "Passés",
@@ -28,7 +28,7 @@
   },
   "types": {
     "all": "Tous",
-    "training": "Entraîn.",
+    "training": "Séance",
     "game": "Match",
     "meetup": "Sortie"
   },

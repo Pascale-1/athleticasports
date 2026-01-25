@@ -28,9 +28,9 @@ import { cn } from "@/lib/utils";
 
 // Type badge configuration with semantic colors
 const TYPE_BADGE_CONFIG = {
-  training: { label: 'Training', labelFr: 'Entraînement', colorClass: 'bg-info/15 text-info' },
+  training: { label: 'Workout', labelFr: 'Séance', colorClass: 'bg-info/15 text-info' },
   match: { label: 'Match', labelFr: 'Match', colorClass: 'bg-warning/15 text-warning' },
-  meetup: { label: 'Meetup', labelFr: 'Rencontre', colorClass: 'bg-success/15 text-success' },
+  meetup: { label: 'Hangout', labelFr: 'Sortie', colorClass: 'bg-success/15 text-success' },
 };
 
 interface EventCardProps {

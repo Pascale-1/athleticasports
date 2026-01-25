@@ -32,7 +32,7 @@ export const EventTypeSelector = ({ value, onChange }: EventTypeSelectorProps) =
             variant={value === type ? 'default' : 'ghost'}
             onClick={() => onChange(type)}
             className={cn(
-              "flex flex-col items-center justify-center gap-1 h-[4.5rem] px-1 rounded-lg transition-all duration-200",
+              "flex flex-col items-center justify-center gap-0.5 h-20 px-1 rounded-lg transition-all duration-200",
               value === type 
                 ? "shadow-sm" 
                 : "hover:bg-muted/60",
@@ -42,6 +42,7 @@ export const EventTypeSelector = ({ value, onChange }: EventTypeSelectorProps) =
           >
             <Icon className="h-5 w-5 flex-shrink-0" />
             <span className="text-[11px] font-medium text-center leading-tight">{t(`types.${type === 'match' ? 'game' : type}`)}</span>
+            <span className="text-[9px] text-muted-foreground text-center leading-tight opacity-80">{t(`create.${type === 'match' ? 'game' : type}Desc`)}</span>
           </Button>
         ))}
       </div>

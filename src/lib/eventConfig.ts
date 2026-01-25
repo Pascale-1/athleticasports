@@ -19,8 +19,8 @@ export const EVENT_CONFIG: Record<EventType, EventTypeConfig> = {
     icon: Dumbbell,
     color: 'hsl(var(--primary))',
     bgColor: 'hsl(var(--primary) / 0.1)',
-    label: 'Training',
-    description: 'Organize team training sessions with generated practice teams',
+    label: 'Workout',
+    description: 'Run, train, practice, or work out together',
     features: ['generatedTeams', 'attendance', 'recurring', 'teamOnly'],
     permissions: ['coach', 'admin', 'owner'],
     categories: []
@@ -29,8 +29,8 @@ export const EVENT_CONFIG: Record<EventType, EventTypeConfig> = {
     icon: Users,
     color: 'hsl(var(--accent))',
     bgColor: 'hsl(var(--accent) / 0.1)',
-    label: 'Meetup',
-    description: 'Create casual meetups for watching games, social events, or group activities',
+    label: 'Hangout',
+    description: 'Social events, watch parties, team dinners',
     features: ['attendance', 'public', 'maxParticipants', 'categories'],
     permissions: ['all'],
     categories: [
@@ -46,8 +46,8 @@ export const EVENT_CONFIG: Record<EventType, EventTypeConfig> = {
     icon: Trophy,
     color: 'hsl(var(--match))',
     bgColor: 'hsl(var(--match) / 0.1)',
-    label: 'Game',
-    description: 'Schedule competitive games against other teams',
+    label: 'Match',
+    description: 'Compete against another team or player',
     features: ['opponent', 'attendance', 'teamOnly', 'homeAway'],
     permissions: ['coach', 'admin', 'owner'],
     categories: []
