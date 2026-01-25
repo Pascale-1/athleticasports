@@ -238,8 +238,8 @@ export const EventCard = memo(({
                   )}
                 </div>
 
-                {/* Quick RSVP Button - only show if not organizer view */}
-                {!isOrganizerView && onRSVPChange && (
+                {/* Quick RSVP Button */}
+                {onRSVPChange && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
                       <Button 
@@ -284,21 +284,6 @@ export const EventCard = memo(({
                   </DropdownMenu>
                 )}
 
-                {/* Show RSVP status for organizer view */}
-                {isOrganizerView && userStatus && (
-                  <Badge 
-                    variant="secondary"
-                    className={cn(
-                      "text-[10px] px-1.5 h-5",
-                      userStatus === 'attending' && "bg-success/10 text-success",
-                      userStatus === 'maybe' && "bg-warning/10 text-warning",
-                      userStatus === 'not_attending' && "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    {StatusIcon && <StatusIcon className="h-3 w-3 mr-0.5" />}
-                    {getStatusLabel()}
-                  </Badge>
-                )}
               </div>
             </div>
           </div>
