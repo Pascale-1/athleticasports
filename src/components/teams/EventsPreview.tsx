@@ -100,19 +100,19 @@ const EventPreviewCard = ({ event, canRSVP }: { event: Event; canRSVP: boolean }
         </div>
       </div>
 
-      <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-        <div className="flex items-center gap-1">
-          <Calendar className="h-3 w-3" />
+      <div className="flex items-center gap-3 text-[11px] text-muted-foreground min-w-0">
+        <div className="flex items-center gap-1 shrink-0">
+          <Calendar className="h-3 w-3 shrink-0" />
           <span>{formatEventDate(event.start_time)}</span>
         </div>
         {event.location && (
-          <div className="flex items-center gap-1">
-            <MapPin className="h-3 w-3" />
+          <div className="flex items-center gap-1 min-w-0 max-w-[120px]">
+            <MapPin className="h-3 w-3 shrink-0" />
             <span className="truncate">{event.location}</span>
           </div>
         )}
-        <div className="flex items-center gap-1 ml-auto">
-          <Users className="h-3 w-3" />
+        <div className="flex items-center gap-1 ml-auto shrink-0">
+          <Users className="h-3 w-3 shrink-0" />
           <span>{t('rsvp.count', { count: stats.attending })}</span>
         </div>
       </div>

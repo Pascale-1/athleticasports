@@ -145,21 +145,21 @@ export const SwipeableEventCard = ({
               )}
 
               <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
+                <div className="flex items-center gap-1 shrink-0">
+                  <Clock className="h-4 w-4 shrink-0" />
                   <span>{formatEventDateRange(event.start_time, event.end_time)}</span>
                 </div>
 
                 {event.location && (
-                  <div className="flex items-center gap-1">
-                    <MapPin className="h-4 w-4" />
-                    <span className="line-clamp-1">{event.location}</span>
+                  <div className="flex items-center gap-1 min-w-0 max-w-[160px]">
+                    <MapPin className="h-4 w-4 shrink-0" />
+                    <span className="truncate">{event.location}</span>
                   </div>
                 )}
 
                 {attendeeCount !== undefined && (
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Users className="h-4 w-4 shrink-0" />
                     <span>{t('rsvp.count', { count: attendeeCount })}</span>
                   </div>
                 )}
