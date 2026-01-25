@@ -60,17 +60,17 @@ export const NextEventPreview = ({ event, teamId, canRSVP }: NextEventPreviewPro
 
             <div className="space-y-2 text-caption text-muted-foreground">
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
+                <Calendar className="h-4 w-4 shrink-0" />
                 <span>{formatEventDate(event.start_time)}</span>
               </div>
               {event.location && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  <span className="line-clamp-1">{event.location}</span>
+                <div className="flex items-center gap-2 min-w-0">
+                  <MapPin className="h-4 w-4 shrink-0" />
+                  <span className="truncate max-w-[200px]">{event.location}</span>
                 </div>
               )}
               <div className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
+                <Users className="h-4 w-4 shrink-0" />
                 <span>{t('events:rsvp.count', { count: stats.attending })}</span>
               </div>
             </div>
