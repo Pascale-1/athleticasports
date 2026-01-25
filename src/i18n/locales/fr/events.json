@@ -280,21 +280,7 @@
     "selectDate": "Sélectionnez une date",
     "noEventsOnDate": "Aucun événement prévu à cette date",
     "eventCount": "{{count}} événement",
-    "eventCount_other": "{{count}} événements"
-  },
-  "views": {
-    "list": "Liste",
-    "calendar": "Calendrier"
-  },
-  "categories": {
-    "watchParty": "Soirée match",
-    "postGame": "Verre d'après-match",
-    "teamDinner": "Dîner d'équipe",
-    "social": "Événement social",
-    "fitness": "Activité fitness",
-    "other": "Autre"
-  },
-  "calendar": {
+    "eventCount_other": "{{count}} événements",
     "addToCalendar": "Ajouter au calendrier",
     "downloaded": "Fichier calendrier téléchargé",
     "downloadedDesc": "Ouvrez le fichier .ics pour l'ajouter à votre calendrier",
