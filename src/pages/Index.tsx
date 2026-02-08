@@ -27,7 +27,7 @@ import { AvailableGameCard } from "@/components/matching/AvailableGameCard";
 import { isToday, isTomorrow } from "date-fns";
 import { LanguageToggle } from "@/components/settings/LanguageToggle";
 import { FeedbackForm } from "@/components/feedback/FeedbackForm";
-import { NotificationBell } from "@/components/notifications/NotificationBell";
+
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Profile {
@@ -216,7 +216,6 @@ const Index = () => {
               </TooltipContent>
             </Tooltip>
             <LanguageToggle />
-            <NotificationBell />
           </div>
 
           {/* Hero Section - Clean & Compact */}
@@ -466,26 +465,7 @@ const Index = () => {
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-muted flex items-center justify-center">
                     <CalendarCheck className="h-6 w-6 text-muted-foreground" />
                   </div>
-                  <p className="text-muted-foreground text-sm mb-4">{t('home.noUpcomingGames')}</p>
-                  <div className="flex gap-2 justify-center">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="h-10"
-                      onClick={() => setFindMatchSheetOpen(true)}
-                    >
-                      <Search className="h-4 w-4 mr-1.5" />
-                      {t('home.lookingToPlay')}
-                    </Button>
-                    <Button 
-                      size="sm"
-                      className="h-10"
-                      onClick={() => setCreateEventDialogOpen(true)}
-                    >
-                      <Plus className="h-4 w-4 mr-1.5" />
-                      {t('home.createEvent')}
-                    </Button>
-                  </div>
+                  <p className="text-muted-foreground text-sm">{t('home.noUpcomingGames')}</p>
                 </Card>
               ) : null}
             </div>
