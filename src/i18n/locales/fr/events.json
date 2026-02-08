@@ -5,9 +5,9 @@
     "title": "Créer un événement",
     "chooseType": "Choisir le type d'événement",
     "selectTypeDesc": "Sélectionnez le type d'événement à créer",
-    "trainingDesc": "Course, entraînement ou sport",
-    "meetupDesc": "Événements sociaux",
-    "gameDesc": "Affrontez un adversaire"
+    "trainingDesc": "Sport ou entraînement",
+    "meetupDesc": "Sorties et social",
+    "gameDesc": "Contre un adversaire"
   },
   "upcoming": "À venir",
   "past": "Passés",
@@ -149,6 +149,7 @@
     "startTime": "Heure de début",
     "endTime": "Heure de fin",
     "duration": "Durée",
+    "durationCustom": "Perso",
     "location": "Lieu",
     "locationOptional": "Lieu (optionnel)",
     "locationPlaceholder": "Adresse ou nom du lieu",
@@ -161,21 +162,21 @@
     "isPublicDesc": "Visible par tous les utilisateurs",
     "sport": "Sport",
     "selectSport": "Sélectionner un sport",
-    "selectEventType": "Quel type d'événement créez-vous ?",
+    "selectEventType": "Type d'événement",
     "preview": "Aperçu",
     "cancel": "Annuler",
     "repeat": "Répéter",
-    "addRsvpDeadline": "Ajouter une date limite de réponse",
+    "addRsvpDeadline": "Date limite de réponse",
     "rsvpDeadline": "Date limite de réponse",
     "rsvpDeadlineDesc": "Après cette date, les joueurs ne pourront plus répondre",
     "deadlinePreview": "Réponses fermées le : {{time}}",
     "deadline": {
-      "1h": "1 heure avant",
-      "3h": "3 heures avant",
-      "24h": "1 jour avant",
-      "48h": "2 jours avant",
-      "1week": "1 semaine avant",
-      "custom": "Personnalisé"
+      "1h": "1h avant",
+      "3h": "3h avant",
+      "24h": "1 jour",
+      "48h": "2 jours",
+      "1week": "1 sem.",
+      "custom": "Perso"
     },
     "recurrence": {
       "none": "Jamais",
@@ -207,13 +208,13 @@
       "titlePlaceholder": "ex: Finale du championnat",
       "yourTeam": "Votre équipe",
       "opponentTeam": "Adversaire",
-      "selectTeam": "Sélectionner",
+      "selectTeam": "Choisir",
       "enterManually": "Saisir",
       "opponentName": "Nom de l'adversaire",
       "opponentPlaceholder": "ex: FC City Rivals",
       "location": "Lieu du match",
-      "home": "Domicile",
-      "away": "Extérieur",
+      "home": "Dom.",
+      "away": "Ext.",
       "neutral": "Neutre",
       "format": "Format de la partie",
       "formatPlaceholder": "ex: 11v11, 5v5, Best of 3",
@@ -224,6 +225,11 @@
       "pickupGame": "Partie ouverte (sans équipe)",
       "pickupGameDescription": "Créer une partie publique et trouver des joueurs",
       "pickupOrTeam": "Partie ouverte ou sélectionner équipe"
+    },
+    "locationMode": {
+      "physical": "Sur place",
+      "virtual": "En ligne",
+      "hybrid": "Hybride"
     },
     "visibility": {
       "public": "Public - Tout le monde peut rejoindre",
@@ -249,7 +255,23 @@
     "needPlayers": "Besoin de {{count}}"
   },
   "filters": {
-    "eventType": "Type d'événement",
+    "filterBy": "Filtrer par :",
+    "allTypes": "Tous les types",
+    "training": "Séance",
+    "meetup": "Sortie",
+    "match": "Match",
+    "upcoming": "À venir",
+    "past": "Passés",
+    "allEvents": "Tous",
+    "clear": "Effacer",
+    "clearAll": "Effacer les filtres",
+    "public": "Public",
+    "teamOnly": "Équipe",
+    "filterEvents": "Filtrer les événements",
+    "eventType": "Type",
+    "status": "Statut",
+    "visibility": "Visibilité",
+    "filters": "Filtres",
     "dateRange": "Période",
     "clearFilters": "Effacer les filtres"
   },
@@ -333,5 +355,13 @@
   },
   "smartDefaults": {
     "usingTeamVenue": "Utilisation du lieu par défaut de l'équipe"
+  },
+  "categories": {
+    "watchParty": "Visionnage",
+    "postGame": "Apéro",
+    "teamDinner": "Repas",
+    "social": "Social",
+    "fitness": "Fitness",
+    "other": "Autre"
   }
 }

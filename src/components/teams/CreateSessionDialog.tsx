@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,7 @@ export const CreateSessionDialog = ({
   defaultDate = new Date(),
   teamId,
 }: CreateSessionDialogProps) => {
+  const { t } = useTranslation('teams');
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -75,20 +77,20 @@ export const CreateSessionDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md mx-3 sm:mx-auto">
         <DialogHeader>
-          <DialogTitle className="text-lg sm:text-xl">Create Training Session</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">{t('session.dialog.title')}</DialogTitle>
           <DialogDescription className="text-xs sm:text-sm">
-            Schedule a new training session for your team
+            {t('session.dialog.description')}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Title *</Label>
+              <Label htmlFor="title">{t('session.dialog.titleField')} *</Label>
               <Input
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Morning practice"
+                placeholder={t('session.dialog.titlePlaceholder')}
                 required
                 maxLength={200}
               />
@@ -96,7 +98,7 @@ export const CreateSessionDialog = ({
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="date">Date *</Label>
+                <Label htmlFor="date">{t('session.dialog.date')} *</Label>
                 <Input
                   id="date"
                   type="date"
@@ -106,7 +108,7 @@ export const CreateSessionDialog = ({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="startTime">Start Time *</Label>
+                <Label htmlFor="startTime">{t('session.dialog.startTime')} *</Label>
                 <Input
                   id="startTime"
                   type="time"
@@ -118,7 +120,7 @@ export const CreateSessionDialog = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="endTime">End Time *</Label>
+              <Label htmlFor="endTime">{t('session.dialog.endTime')} *</Label>
               <Input
                 id="endTime"
                 type="time"
@@ -129,31 +131,31 @@ export const CreateSessionDialog = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location">{t('session.dialog.location')}</Label>
               <Input
                 id="location"
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                placeholder="Main field"
+                placeholder={t('session.dialog.locationPlaceholder')}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('session.dialog.descriptionField')}</Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Additional details about the session..."
+                placeholder={t('session.dialog.descriptionPlaceholder')}
                 rows={3}
               />
             </div>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t('session.dialog.cancel')}
             </Button>
-            <Button type="submit">Create Session</Button>
+            <Button type="submit">{t('session.dialog.create')}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

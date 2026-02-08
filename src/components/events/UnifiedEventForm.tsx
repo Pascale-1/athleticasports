@@ -429,18 +429,18 @@ export const UnifiedEventForm = ({
                       size="sm"
                       variant={opponentInputMode === 'select' ? 'default' : 'outline'}
                       onClick={() => setOpponentInputMode('select')}
-                      className="flex-1"
+                      className="flex-1 overflow-hidden"
                     >
-                      {t('form.game.selectTeam')}
+                      <span className="text-xs truncate">{t('form.game.selectTeam')}</span>
                     </Button>
                     <Button
                       type="button"
                       size="sm"
                       variant={opponentInputMode === 'manual' ? 'default' : 'outline'}
                       onClick={() => setOpponentInputMode('manual')}
-                      className="flex-1"
+                      className="flex-1 overflow-hidden"
                     >
-                      {t('form.game.enterManually')}
+                      <span className="text-xs truncate">{t('form.game.enterManually')}</span>
                     </Button>
                   </div>
 
@@ -492,10 +492,10 @@ export const UnifiedEventForm = ({
                         type="button"
                         variant={homeAway === option ? 'default' : 'outline'}
                         onClick={() => setHomeAway(option)}
-                        className="h-11"
+                        className="h-11 text-xs overflow-hidden"
                       >
                         {option === 'home' ? '🏠' : option === 'away' ? '✈️' : '⚖️'}{' '}
-                        {t(`form.game.${option}`)}
+                        <span className="truncate">{t(`form.game.${option}`)}</span>
                       </Button>
                     ))}
                   </div>
@@ -522,10 +522,10 @@ export const UnifiedEventForm = ({
                         type="button"
                         variant={selectedCategory === value ? 'default' : 'outline'}
                         onClick={() => setSelectedCategory(value)}
-                        className="h-12 flex flex-col items-center gap-0.5 text-xs"
+                        className="h-12 flex flex-col items-center gap-0.5 text-[10px] overflow-hidden"
                       >
                         <span className="text-lg">{emoji}</span>
-                        <span className="truncate w-full text-center">{getCategoryLabel(value)}</span>
+                        <span className="truncate w-full text-center leading-tight">{getCategoryLabel(value)}</span>
                       </Button>
                     ))}
                   </div>
@@ -657,28 +657,28 @@ export const UnifiedEventForm = ({
                       type="button"
                       variant={locationMode === 'physical' ? 'default' : 'outline'}
                       onClick={() => setLocationMode('physical')}
-                      className="h-10 gap-1.5"
+                      className="h-10 gap-1.5 overflow-hidden"
                     >
-                      <MapPin className="h-4 w-4" />
-                      <span className="text-xs">Physical</span>
+                      <MapPin className="h-4 w-4 shrink-0" />
+                      <span className="text-xs truncate">{t('form.locationMode.physical')}</span>
                     </Button>
                     <Button
                       type="button"
                       variant={locationMode === 'virtual' ? 'default' : 'outline'}
                       onClick={() => setLocationMode('virtual')}
-                      className="h-10 gap-1.5"
+                      className="h-10 gap-1.5 overflow-hidden"
                     >
-                      <Video className="h-4 w-4" />
-                      <span className="text-xs">Virtual</span>
+                      <Video className="h-4 w-4 shrink-0" />
+                      <span className="text-xs truncate">{t('form.locationMode.virtual')}</span>
                     </Button>
                     <Button
                       type="button"
                       variant={locationMode === 'hybrid' ? 'default' : 'outline'}
                       onClick={() => setLocationMode('hybrid')}
-                      className="h-10 gap-1.5"
+                      className="h-10 gap-1.5 overflow-hidden"
                     >
-                      <Link2 className="h-4 w-4" />
-                      <span className="text-xs">Hybrid</span>
+                      <Link2 className="h-4 w-4 shrink-0" />
+                      <span className="text-xs truncate">{t('form.locationMode.hybrid')}</span>
                     </Button>
                   </div>
                 </motion.div>
@@ -1083,7 +1083,7 @@ export const UnifiedEventForm = ({
                                       size="sm"
                                       onClick={() => field.onChange(!field.value)}
                                     >
-                                      {field.value ? 'Public' : 'Private'}
+                                      {field.value ? t('status.public') : t('status.private')}
                                     </Button>
                                   </FormControl>
                                 </div>

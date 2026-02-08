@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,7 @@ export const DurationPicker = ({
   presets = DEFAULT_PRESETS,
   className,
 }: DurationPickerProps) => {
+  const { t } = useTranslation('events');
   const [isCustom, setIsCustom] = useState(!presets.includes(value));
   const [customHours, setCustomHours] = useState(Math.floor(value / 60));
   const [customMinutes, setCustomMinutes] = useState(value % 60);
@@ -75,7 +77,7 @@ export const DurationPicker = ({
           onClick={handleCustomClick}
           className="min-w-[60px]"
         >
-          {isCustom ? formatDuration(value) : "Custom"}
+          {isCustom ? formatDuration(value) : t('form.durationCustom')}
         </Button>
       </div>
 
