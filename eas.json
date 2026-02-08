@@ -6,7 +6,7 @@
   "build": {
     "base": {
       "android": {
-        "image": "ubuntu-22.04-jdk-17-ndk-r26b",
+        "image": "latest",
         "buildType": "apk"
       }
     },
@@ -23,7 +23,7 @@
       "extends": "base",
       "autoIncrement": true,
       "android": {
-        "image": "ubuntu-22.04-jdk-17-ndk-r26b",
+        "image": "latest",
         "buildType": "app-bundle"
       }
     }
