@@ -1,74 +1,141 @@
 
 
-# Fix: Home Notifications, Redundant CTAs, and Profile Activity View
+# Fix: Text Overflow and Wording Issues Across the App
 
-## Issue 1: Duplicate Notification Bell on Home
+## Overview
 
-**Root cause:** The `NotificationBell` is rendered in two places simultaneously on mobile:
-1. Inside `MobileLayout` header (line 31 of `MobileLayout.tsx`) -- always visible on every page
-2. Inside the Home page itself (`Index.tsx` line 219) -- a second bell in the "utility header row"
-
-**Fix:** Remove the `NotificationBell` from the Home page's utility row (line 219 in `Index.tsx`). The one in `MobileLayout` is the correct, persistent location. The feedback button and language toggle can remain in that utility row.
+After thorough inspection of the app in both English and French, the following text overflow / "coming out of its boxes" issues have been identified across multiple components. This plan addresses all of them systematically.
 
 ---
 
-## Issue 2: Redundant "I'm available" / "Organize" vs. Empty State CTAs
+## Issue 1: EventTypeSelector -- Descriptions Overflow on Small Screens (FR)
 
-**Current behavior:** The Home page has TWO sets of action buttons that do the same thing:
+**File:** `src/components/events/EventTypeSelector.tsx`
 
-1. **Quick Actions block (always visible, lines 304-335):**
-   - "Find a Game" (opens `FindMatchSheet`)
-   - "Create Event" (opens `CreateEventDialog`)
-   - "Create a Team" (navigates to `/teams/create`)
+The three event type buttons (`Match`, `Seance`, `Sortie`) are in a `grid-cols-3` with `h-20` height and `px-1`. The French description text like "Course, entrainement ou sport" and "Affrontez un adversaire" overflows on 320px-374px screens.
 
-2. **Empty state inside Games section (lines 464-489), shown when no games exist:**
-   - "Looking to play?" (opens `FindMatchSheet`)
-   - "Create Event" (opens `CreateEventDialog`)
-
-When there are no games, the user sees both blocks stacked -- identical actions repeated twice.
-
-**Proposed fix -- merge into a single smart section:**
-
-- **Remove the empty-state CTA buttons** (lines 464-489). When the Games section is empty, show only a simple informational message ("No upcoming games") without duplicate action buttons.
-- The **Quick Actions block stays** as the single, always-visible action hub. This is the primary call-to-action area and already covers all actions.
-- This keeps the UI clean: one place for actions, one place for content.
+**Fix:**
+- Reduce description text from `text-[9px]` to `text-[8px]` and add `line-clamp-2` for safety
+- Add `overflow-hidden` to the button container
+- Shorten the French descriptions in `fr/events.json` (`create.trainingDesc`, `create.meetupDesc`, `create.gameDesc`) to be more compact
 
 ---
 
-## Issue 3: Profile Lacks Activity / History View
+## Issue 2: Meetup Category Grid -- French Labels Overflow Buttons
 
-**Current state:** The Profile page (`Settings.tsx`) shows:
-- Avatar, name, bio
-- `ProfileStats` with 2 counters: Teams count and Events Attended count (tap to navigate away)
-- Tabs: Overview (basic info + quick links), About (edit fields), Settings
+**File:** `src/components/events/UnifiedEventForm.tsx` (lines 516-533)
 
-**Problem:** No way to see the user's actual activity -- their upcoming events, past matches, or teams they belong to -- directly on the profile.
+The meetup categories (`Watch Party`, `Post-Game Drinks`, `Team Dinner`, etc.) are in a `grid-cols-3` with `h-12` buttons. French translations like "Apero d'apres-match" or "Diner d'equipe" overflow or get truncated ungracefully.
 
-**Proposed solution -- add an "Activity" tab to ProfileTabs:**
+**Fix:**
+- The `truncate` class is already on the span, but the button needs `overflow-hidden` and the text needs to use a smaller `text-[10px]` size
+- Shorten the French category labels in `fr/events.json` (e.g., "Apero" instead of full phrase)
 
-Add a fourth tab called "Activity" (with a `CalendarCheck` or `Activity` icon) that shows three collapsible sections, each pulling real data:
+---
 
-### Section A: "Upcoming Events" (max 3, with "View All" link)
-- Uses the existing `useUserEvents` hook with `{ status: 'upcoming' }`
-- Shows compact event cards (title, date, sport badge, attendance status pill)
-- Empty state: "No upcoming events -- find a game or create one"
+## Issue 3: Home/Away/Neutral Buttons -- French Labels Overflow
 
-### Section B: "My Teams" (all teams, compact list)
-- Fetches from `team_members` joined with `teams` where `user_id` matches and `status = 'active'`
-- Shows team name, sport badge, avatar
-- Tap navigates to `/teams/:id`
-- Empty state: "Not a member of any team yet"
+**File:** `src/components/events/UnifiedEventForm.tsx` (lines 486-503)
 
-### Section C: "Past Events" (max 5, with "View All" link)
-- Uses `useUserEvents` with `{ status: 'past' }`
-- Shows completed events with date and type badge (match/training/meetup)
-- Provides a sense of history and engagement
+The `grid-cols-3` layout for Home/Away/Neutral shows `Domicile`, `Exterieur`, `Neutre` in French. "Exterieur" is long and can push out of its button on narrow screens.
 
-### Why this approach works:
-- Uses **existing hooks** (`useUserEvents`) and **existing database tables** -- no schema changes needed
-- Follows the app's established card + section pattern
-- Keeps the profile self-contained rather than forcing navigation away
-- The `ProfileStats` counters at the top still work as quick glanceable numbers, while the Activity tab provides the full detail
+**Fix:**
+- Shorten French labels: "Dom.", "Ext.", "Neutre" (they already have emoji context)
+- Or add `text-xs` and `truncate` to prevent overflow
+
+---
+
+## Issue 4: Opponent Section -- "Selectionner" / "Saisir" Buttons Overflow
+
+**File:** `src/components/events/UnifiedEventForm.tsx` (lines 426-444)
+
+The opponent input mode toggle has two `flex-1` buttons with `size="sm"`. The French "Selectionner" label is long and can clip on narrow screens.
+
+**Fix:**
+- Shorten FR translations: `form.game.selectTeam` to "Choisir" and `form.game.enterManually` to "Saisir" (already short -- keep)
+- Add `text-xs truncate` to button text
+
+---
+
+## Issue 5: Location Mode Buttons -- Hardcoded English Labels
+
+**File:** `src/components/events/UnifiedEventForm.tsx` (lines 655-683)
+
+The Physical/Virtual/Hybrid buttons have **hardcoded English strings** ("Physical", "Virtual", "Hybrid") -- not translated at all! This is a bug in both EN/FR.
+
+**Fix:**
+- Replace hardcoded strings with i18n keys
+- Add new translation keys in both `en/events.json` and `fr/events.json`
+
+---
+
+## Issue 6: RSVP Deadline Preset Buttons -- French Text Wraps
+
+**File:** `src/components/events/UnifiedEventForm.tsx` (lines 1220-1232)
+
+The deadline preset buttons ("1 heure avant", "3 heures avant", "1 jour avant", "2 jours avant", "1 semaine avant", "Personnalise") use `flex-wrap` which is correct, but the French strings are long and create a messy multi-row layout.
+
+**Fix:**
+- Shorten French deadline labels: "1h", "3h", "1j", "2j", "1 sem", "Perso" (matching the compact style)
+- Update `fr/events.json` under `form.deadline`
+
+---
+
+## Issue 7: Event Type Selector Question Text Overflow
+
+**File:** `src/components/events/EventTypeSelector.tsx` (line 25)
+
+The `selectEventType` label in French is: "Quel type d'evenement creez-vous ?" which is long. The Label component doesn't have wrapping protection.
+
+**Fix:**
+- Shorten to "Type d'evenement" in French to match the compact aesthetic
+- Or ensure the label has `text-sm leading-tight`
+
+---
+
+## Issue 8: "Public/Private" Toggle Button -- Hardcoded English
+
+**File:** `src/components/events/UnifiedEventForm.tsx` (lines 1086-1087)
+
+The toggle button text `'Public'` and `'Private'` is hardcoded in English, not translated.
+
+**Fix:**
+- Replace with `t('status.public')` and `t('status.private')` from events translations
+
+---
+
+## Issue 9: DurationPicker "Custom" Label -- Hardcoded English
+
+**File:** `src/components/events/DurationPicker.tsx` (line 78)
+
+The "Custom" button text is hardcoded English.
+
+**Fix:**
+- Accept a `lang` prop or use `useTranslation` to show "Perso" in French
+
+---
+
+## Issue 10: EventFilters -- Hardcoded English Labels
+
+**File:** `src/components/events/EventFilters.tsx`
+
+Multiple hardcoded English strings: "Filter by:", "All Types", "Training", "Meetup", "Match", "Upcoming", "Past", "All Events", "Clear", "Clear All Filters", "Public", "Team Only", "Filter Events", "Event Type", "Status", "Visibility", "Filters". None of these are translated.
+
+**Fix:**
+- Replace all with i18n translation keys
+- Add corresponding entries in both `en/events.json` and `fr/events.json`
+
+---
+
+## Issue 11: CreateSessionDialog -- Hardcoded English
+
+**File:** `src/components/teams/CreateSessionDialog.tsx`
+
+The entire dialog is hardcoded English: "Create Training Session", "Schedule a new training session for your team", "Title *", "Date *", "Start Time *", "End Time *", "Location", "Description", "Cancel", "Create Session".
+
+**Fix:**
+- Add `useTranslation` hook and replace all hardcoded strings
+- Add translation keys to both locale files
 
 ---
 
@@ -76,14 +143,17 @@ Add a fourth tab called "Activity" (with a `CalendarCheck` or `Activity` icon) t
 
 ### Files to modify:
 
-| File | Change |
-|------|--------|
-| `src/pages/Index.tsx` | Remove `NotificationBell` import/usage from utility header row (line 219). Remove the empty-state CTA buttons in the Games section (lines 464-489), keep only the informational empty message. |
-| `src/components/settings/ProfileTabs.tsx` | Add a 4th "Activity" tab. Update `TabsList` from `grid-cols-3` to `grid-cols-4`. Add `TabsContent` for "activity" with three sections. |
-| `src/components/settings/ProfileActivityTab.tsx` | **New file.** Component for the Activity tab content. Uses `useUserEvents` for upcoming/past events and a direct query for user teams. Renders compact cards for each section. |
-| `src/i18n/locales/en/common.json` | Add translation keys: `profile.activity`, `profile.upcomingEvents`, `profile.pastEvents`, `profile.myTeams`, `profile.noUpcomingEvents`, `profile.noPastEvents`, `profile.noTeams` |
-| `src/i18n/locales/fr/common.json` | Add matching French translation keys |
+| File | Changes |
+|------|---------|
+| `src/components/events/EventTypeSelector.tsx` | Add `overflow-hidden` to buttons, tighten description text size, add `line-clamp-2` |
+| `src/components/events/UnifiedEventForm.tsx` | Add `text-xs truncate` to opponent buttons, translate Physical/Virtual/Hybrid, translate Public/Private toggle, add overflow guards to category buttons |
+| `src/components/events/DurationPicker.tsx` | Add i18n support for "Custom" label |
+| `src/components/events/EventFilters.tsx` | Replace all hardcoded English with i18n keys |
+| `src/components/teams/CreateSessionDialog.tsx` | Add full i18n support |
+| `src/i18n/locales/fr/events.json` | Shorten `create.trainingDesc`, `create.meetupDesc`, `create.gameDesc`, `form.deadline.*`, add location mode keys, fix category labels |
+| `src/i18n/locales/en/events.json` | Add missing keys for location mode, filters |
+| `src/i18n/locales/fr/teams.json` | Add session dialog translation keys |
+| `src/i18n/locales/en/teams.json` | Add session dialog translation keys |
 
-### No database changes required
-All data already exists in `events`, `event_attendance`, `team_members`, and `teams` tables. The existing `useUserEvents` hook and direct queries are sufficient.
+### No database changes required.
 
