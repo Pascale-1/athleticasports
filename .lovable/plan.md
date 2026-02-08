@@ -1,38 +1,44 @@
 
 
-# Feature Graphic Redesign for Google Play
+# Feature Graphic Redesign -- Professional Google Play Standard
 
-## Current Issue
-The existing feature graphic looks dated and doesn't match the Athletica brand identity -- a clean, modern, minimalist mobile-first sports app with an Electric Blue (#0066FF) primary color, white backgrounds, Montserrat headings, and Inter body text.
+## Problem Analysis
+The current feature graphic fails on every modern app store design principle:
+- **White background with scattered geometric shapes** looks like a 2018 corporate PowerPoint
+- **Zero visual connection to the app icon**, which uses a polished blue-to-cyan gradient with a bold white "A"
+- **Decorative elements** (random circles, lines, triangles) add clutter without meaning
+- **No energy or personality** -- doesn't convey a sports/community app
 
 ## Design Direction
-Based on the app's visual identity:
-- **Color palette**: Electric Blue (#0066FF) primary, clean white, subtle neutral grays
-- **Typography**: Montserrat (bold headings), Inter (body) -- clean sans-serif fonts
-- **Aesthetic**: Compact, high-density mobile-app feel -- minimalist, modern, not cluttered
-- **Brand tagline**: "Empowering women in sports through community and teamwork"
-- **Icon style**: The app icon (`athletica_icon.png`) uses a clean, modern mark
 
-## Proposed Approach
+The feature graphic must be a **direct extension of the app icon's identity**. The icon uses:
+- A rich **blue-to-cyan gradient** (deep blue top-left to bright cyan/electric blue bottom-right)
+- A bold, clean **white "A" lettermark**
+- Rounded corners, smooth, polished feel
 
-### Image Generation Strategy
-Generate the feature graphic at exactly **1024x500 pixels** (Google Play's exact requirement) so no cropping is needed. The image generation tool supports custom dimensions in multiples of 1 pixel.
+### New Concept: Gradient-Forward Brand Banner
 
-### Visual Concept
-A clean, professional banner that mirrors the app's minimalist UI:
+The new feature graphic will:
+1. **Use the same blue-to-cyan gradient as the app icon** as the full background -- creating instant visual recognition
+2. **"ATHLETICA" in bold white sans-serif type** -- large, centered, clean
+3. **Tagline "Find your team. Play your game."** in white with slight transparency -- elegant, not competing
+4. **No decorative clutter** -- the gradient itself is the visual statement
+5. **Optional subtle light/glow effect** behind the text for depth (like modern app banners from Strava, Nike, etc.)
 
-- **Clean white or very light background** (matching the app's `bg-background` white feel)
-- **"ATHLETICA" wordmark** in Montserrat Bold, large and centered
-- **Tagline** beneath in Inter -- "Find your team. Play your game."
-- **Electric Blue (#0066FF) accent elements** -- subtle geometric shapes, lines, or gradients (no busy patterns)
-- **Minimal sports iconography** -- abstract/geometric, not clip-art or stock photo style
-- **No busy backgrounds, no gradients that look 2010s** -- pure modern SaaS/app-store style
+### Specifications
+- **Exact dimensions**: 1024 x 512 pixels (image generation constraint; content centered in the 1024x500 safe zone)
+- **Background**: Smooth gradient matching the app icon (deep blue #0052CC top-left to bright cyan #00AAFF bottom-right)
+- **Typography**: "ATHLETICA" in bold white, clean sans-serif (Montserrat-like). Tagline smaller below
+- **No icons, no shapes, no clip-art** -- just brand + gradient
 
-### What Will Change
-- `public/feature-graphic.png` -- replaced with a new, modern 1024x500 image
+### What Changes
+- `public/feature-graphic.png` -- replaced with the new gradient-based design
 
-### Technical Details
-- Use the image generation tool with exact 1024x512 dimensions (closest supported), then the prompt will specify the 1024x500 safe area
-- The prompt will emphasize: minimal, modern app-store aesthetic, Electric Blue (#0066FF), white space, Montserrat typography, professional quality
-- No cropping needed by the user if the generation supports exact pixel dimensions; otherwise a note will be provided
+### Image Generation Prompt Strategy
+The prompt will reference:
+- The app icon's exact gradient colors
+- Modern app store banner style (Strava, Nike Run Club, Headspace as references)
+- Strict instruction: no decorative elements, no shapes, gradient background only
+- White bold typography centered
+- Professional, premium, 2025 mobile-app aesthetic
 
