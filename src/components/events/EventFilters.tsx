@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -28,6 +29,7 @@ export const EventFilters = ({
   publicFilter,
   onPublicFilterChange,
 }: EventFiltersProps) => {
+  const { t } = useTranslation('events');
   const hasActiveFilters = searchQuery || typeFilter !== 'all' || statusFilter !== 'upcoming' || publicFilter !== undefined;
 
   const clearFilters = () => {
@@ -43,7 +45,7 @@ export const EventFilters = ({
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search events..."
+          placeholder={t('search.placeholder')}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-9 pr-9"
@@ -63,17 +65,17 @@ export const EventFilters = ({
       {/* Quick Filters - Desktop */}
       <Card className="hidden sm:block p-4">
         <div className="flex items-center gap-3 flex-wrap">
-          <span className="text-sm font-medium text-muted-foreground">Filter by:</span>
+          <span className="text-sm font-medium text-muted-foreground">{t('filters.filterBy')}</span>
           
           <Select value={typeFilter} onValueChange={onTypeChange}>
             <SelectTrigger className="w-[150px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="training">Training</SelectItem>
-              <SelectItem value="meetup">Meetup</SelectItem>
-              <SelectItem value="match">Match</SelectItem>
+              <SelectItem value="all">{t('filters.allTypes')}</SelectItem>
+              <SelectItem value="training">{t('filters.training')}</SelectItem>
+              <SelectItem value="meetup">{t('filters.meetup')}</SelectItem>
+              <SelectItem value="match">{t('filters.match')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -82,9 +84,9 @@ export const EventFilters = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="upcoming">Upcoming</SelectItem>
-              <SelectItem value="past">Past</SelectItem>
-              <SelectItem value="all">All Events</SelectItem>
+              <SelectItem value="upcoming">{t('filters.upcoming')}</SelectItem>
+              <SelectItem value="past">{t('filters.past')}</SelectItem>
+              <SelectItem value="all">{t('filters.allEvents')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -100,9 +102,9 @@ export const EventFilters = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Events</SelectItem>
-                <SelectItem value="public">Public</SelectItem>
-                <SelectItem value="private">Team Only</SelectItem>
+                <SelectItem value="all">{t('filters.allEvents')}</SelectItem>
+                <SelectItem value="public">{t('filters.public')}</SelectItem>
+                <SelectItem value="private">{t('filters.teamOnly')}</SelectItem>
               </SelectContent>
             </Select>
           )}
@@ -110,7 +112,7 @@ export const EventFilters = ({
           {hasActiveFilters && (
             <Button variant="ghost" size="sm" onClick={clearFilters}>
               <X className="h-4 w-4 mr-1" />
-              Clear
+              {t('filters.clear')}
             </Button>
           )}
         </div>
@@ -122,7 +124,7 @@ export const EventFilters = ({
           <SheetTrigger asChild>
             <Button variant="outline" size="sm" className="w-full">
               <Filter className="h-4 w-4 mr-2" />
-              Filters
+              {t('filters.filters')}
               {hasActiveFilters && (
                 <span className="ml-2 h-2 w-2 rounded-full bg-primary" />
               )}
@@ -130,41 +132,41 @@ export const EventFilters = ({
           </SheetTrigger>
           <SheetContent side="bottom" className="h-[400px]">
             <SheetHeader>
-              <SheetTitle>Filter Events</SheetTitle>
+              <SheetTitle>{t('filters.filterEvents')}</SheetTitle>
             </SheetHeader>
             <div className="space-y-4 mt-6">
               <div>
-                <label className="text-sm font-medium mb-2 block">Event Type</label>
+                <label className="text-sm font-medium mb-2 block">{t('filters.eventType')}</label>
                 <Select value={typeFilter} onValueChange={onTypeChange}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="training">Training</SelectItem>
-                    <SelectItem value="meetup">Meetup</SelectItem>
-                    <SelectItem value="match">Match</SelectItem>
+                    <SelectItem value="all">{t('filters.allTypes')}</SelectItem>
+                    <SelectItem value="training">{t('filters.training')}</SelectItem>
+                    <SelectItem value="meetup">{t('filters.meetup')}</SelectItem>
+                    <SelectItem value="match">{t('filters.match')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">Status</label>
+                <label className="text-sm font-medium mb-2 block">{t('filters.status')}</label>
                 <Select value={statusFilter} onValueChange={onStatusChange}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="upcoming">Upcoming</SelectItem>
-                    <SelectItem value="past">Past</SelectItem>
-                    <SelectItem value="all">All Events</SelectItem>
+                    <SelectItem value="upcoming">{t('filters.upcoming')}</SelectItem>
+                    <SelectItem value="past">{t('filters.past')}</SelectItem>
+                    <SelectItem value="all">{t('filters.allEvents')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {showPublicFilter && onPublicFilterChange && (
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Visibility</label>
+                  <label className="text-sm font-medium mb-2 block">{t('filters.visibility')}</label>
                   <Select
                     value={publicFilter === undefined ? 'all' : publicFilter ? 'public' : 'private'}
                     onValueChange={(val) => {
@@ -176,9 +178,9 @@ export const EventFilters = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Events</SelectItem>
-                      <SelectItem value="public">Public</SelectItem>
-                      <SelectItem value="private">Team Only</SelectItem>
+                      <SelectItem value="all">{t('filters.allEvents')}</SelectItem>
+                      <SelectItem value="public">{t('filters.public')}</SelectItem>
+                      <SelectItem value="private">{t('filters.teamOnly')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -186,7 +188,7 @@ export const EventFilters = ({
 
               {hasActiveFilters && (
                 <Button variant="outline" className="w-full" onClick={clearFilters}>
-                  Clear All Filters
+                  {t('filters.clearAll')}
                 </Button>
               )}
             </div>

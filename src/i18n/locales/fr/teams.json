@@ -159,7 +159,22 @@
     "attendance": "Présence",
     "present": "Présent",
     "absent": "Absent",
-    "unknown": "Non répondu"
+    "unknown": "Non répondu",
+    "dialog": {
+      "title": "Créer une séance",
+      "description": "Planifier une séance d'entraînement pour votre équipe",
+      "titleField": "Titre",
+      "titlePlaceholder": "Entraînement du matin",
+      "date": "Date",
+      "startTime": "Début",
+      "endTime": "Fin",
+      "location": "Lieu",
+      "locationPlaceholder": "Terrain principal",
+      "descriptionField": "Description",
+      "descriptionPlaceholder": "Détails de la séance...",
+      "cancel": "Annuler",
+      "create": "Créer la séance"
+    }
   },
   "announcement": {
     "title": "Annonces",

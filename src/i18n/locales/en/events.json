@@ -5,9 +5,9 @@
     "title": "Create New Event",
     "chooseType": "Choose Event Type",
     "selectTypeDesc": "Select the type of event you want to create",
-    "trainingDesc": "Run, train, or practice together",
-    "meetupDesc": "Social events and gatherings",
-    "gameDesc": "Compete against an opponent"
+    "trainingDesc": "Run, train, or practice",
+    "meetupDesc": "Social gatherings",
+    "gameDesc": "Compete vs opponent"
   },
   "upcoming": "Upcoming",
   "past": "Past",
@@ -149,6 +149,7 @@
     "startTime": "Start Time",
     "endTime": "End Time",
     "duration": "Duration",
+    "durationCustom": "Custom",
     "location": "Location",
     "locationOptional": "Location (Optional)",
     "locationPlaceholder": "Address or venue name",
@@ -161,7 +162,7 @@
     "isPublicDesc": "Visible to all users",
     "sport": "Sport",
     "selectSport": "Select a sport",
-    "selectEventType": "Which event type are you creating?",
+    "selectEventType": "Event type",
     "preview": "Preview",
     "cancel": "Cancel",
     "repeat": "Repeat",
@@ -207,8 +208,8 @@
       "titlePlaceholder": "e.g., Championship Final",
       "yourTeam": "Your Team",
       "opponentTeam": "Opponent",
-      "selectTeam": "Select Team",
-      "enterManually": "Enter Manually",
+      "selectTeam": "Select",
+      "enterManually": "Enter",
       "opponentName": "Opponent Name",
       "opponentPlaceholder": "e.g., City Rivals FC",
       "location": "Match Location",
@@ -224,6 +225,11 @@
       "pickupGame": "Pickup Game (no team)",
       "pickupGameDescription": "Create a public game and find players",
       "pickupOrTeam": "Pickup game or select team"
+    },
+    "locationMode": {
+      "physical": "Physical",
+      "virtual": "Virtual",
+      "hybrid": "Hybrid"
     },
     "visibility": {
       "public": "Public - Anyone can join",
@@ -249,7 +255,23 @@
     "needPlayers": "Need {{count}}"
   },
   "filters": {
+    "filterBy": "Filter by:",
+    "allTypes": "All Types",
+    "training": "Workout",
+    "meetup": "Hangout",
+    "match": "Match",
+    "upcoming": "Upcoming",
+    "past": "Past",
+    "allEvents": "All Events",
+    "clear": "Clear",
+    "clearAll": "Clear All Filters",
+    "public": "Public",
+    "teamOnly": "Team Only",
+    "filterEvents": "Filter Events",
     "eventType": "Event Type",
+    "status": "Status",
+    "visibility": "Visibility",
+    "filters": "Filters",
     "dateRange": "Date Range",
     "clearFilters": "Clear Filters"
   },
@@ -281,10 +303,10 @@
   },
   "categories": {
     "watchParty": "Watch Party",
-    "postGame": "Post-Game Drinks",
+    "postGame": "Post-Game",
     "teamDinner": "Team Dinner",
-    "social": "Social Event",
-    "fitness": "Fitness Activity",
+    "social": "Social",
+    "fitness": "Fitness",
     "other": "Other"
   },
   "calendar": {

@@ -159,7 +159,22 @@
     "attendance": "Attendance",
     "present": "Present",
     "absent": "Absent",
-    "unknown": "No Response"
+    "unknown": "No Response",
+    "dialog": {
+      "title": "Create Training Session",
+      "description": "Schedule a new training session for your team",
+      "titleField": "Title",
+      "titlePlaceholder": "Morning practice",
+      "date": "Date",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "location": "Location",
+      "locationPlaceholder": "Main field",
+      "descriptionField": "Description",
+      "descriptionPlaceholder": "Additional details about the session...",
+      "cancel": "Cancel",
+      "create": "Create Session"
+    }
   },
   "announcement": {
     "title": "Announcements",
