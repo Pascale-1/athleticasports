@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trophy, Users, User, Mail, Calendar, Swords, Globe, MessageSquare, PlayCircle, Pencil, Settings } from "lucide-react";
+import { Trophy, Users, User, Mail, Calendar, Swords, Globe, MessageSquare, PlayCircle, Pencil, Settings, Activity } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { FeedbackForm } from "@/components/feedback/FeedbackForm";
 import { useNavigate } from "react-router-dom";
 import { formatMonthYear } from "@/lib/dateUtils";
 import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
+import { ProfileActivityTab } from "./ProfileActivityTab";
 
 interface ProfileTabsProps {
   profile: any;
@@ -82,10 +83,14 @@ export const ProfileTabs = ({
 
   return (
     <Tabs defaultValue="overview" className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="overview" className="flex items-center gap-1.5">
           <User className="h-3.5 w-3.5" />
           <span className="hidden xs:inline">{t('profile.title')}</span>
+        </TabsTrigger>
+        <TabsTrigger value="activity" className="flex items-center gap-1.5">
+          <Activity className="h-3.5 w-3.5" />
+          <span className="hidden xs:inline">{t('profile.activity')}</span>
         </TabsTrigger>
         <TabsTrigger value="about" className="flex items-center gap-1.5">
           <Pencil className="h-3.5 w-3.5" />
@@ -152,6 +157,10 @@ export const ProfileTabs = ({
             </div>
           </CardContent>
         </Card>
+      </TabsContent>
+
+      <TabsContent value="activity" className="space-y-4">
+        <ProfileActivityTab userId={profile?.user_id} />
       </TabsContent>
 
       <TabsContent value="about" className="space-y-4">

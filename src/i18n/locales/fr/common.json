@@ -160,7 +160,14 @@
     "followers": "Abonnés",
     "following": "Abonnements",
     "teamsLabel": "Équipes",
-    "eventsLabel": "Matchs"
+    "eventsLabel": "Matchs",
+    "activity": "Activité",
+    "upcomingEvents": "Événements à venir",
+    "pastEvents": "Événements passés",
+    "myTeams": "Mes équipes",
+    "noUpcomingEvents": "Aucun événement à venir — trouve une partie ou crée-en une !",
+    "noPastEvents": "Pas encore d'événements passés",
+    "noTeams": "Pas encore membre d'une équipe"
   },
   "sports": {
     "football": "Football",
