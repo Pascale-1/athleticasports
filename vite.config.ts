@@ -4,8 +4,11 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 
+const isCapacitor = process.env.CAPACITOR_BUILD === 'true';
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  base: isCapacitor ? './' : '/',
   server: {
     host: "::",
     port: 8080,
@@ -51,7 +54,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
-    VitePWA({
+    !isCapacitor && VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["icon-192.png", "icon-512.png", "apple-touch-icon.png"],
       manifest: {

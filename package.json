@@ -9,7 +9,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "eas-build-post-install": "rm -rf node_modules package-lock.json && npm install && npm run build && npx cap sync android"
+    "eas-build-post-install": "rm -rf node_modules package-lock.json && npm install && CAPACITOR_BUILD=true npm run build && npx cap sync android"
   },
   "dependencies": {
     "@capacitor/android": "^6.2.1",

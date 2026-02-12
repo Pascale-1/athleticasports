@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, HashRouter, Routes, Route } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
 import { AppLayout } from "./components/AppLayout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { InstallPrompt } from "./components/InstallPrompt";
@@ -54,6 +55,120 @@ const queryClient = new QueryClient({
   },
 });
 
+// Use HashRouter for native (Capacitor) and BrowserRouter for web
+const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter;
+
+const AppRoutes = () => (
+  <Suspense fallback={<PageLoader />}>
+    <Routes>
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/onboarding" element={
+        <ProtectedRoute skipOnboardingCheck>
+          <Onboarding />
+        </ProtectedRoute>
+      } />
+      <Route path="/" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <Index />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/settings" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <Settings />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/users" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <Users />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/teams" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <Teams />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/admin" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <Admin />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/events" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <Events />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/events/:eventId" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <EventDetail />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/teams/create" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <TeamCreate />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/teams/:teamId" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <TeamDetail />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/teams/:teamId/events" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <TeamEvents />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/teams/:teamId/performance" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <TeamPerformance />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/teams/:teamId/members" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <TeamMembers />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/teams/:teamId/settings" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <TeamSettings />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/teams/join/:code" element={<JoinTeam />} />
+      <Route path="/teams/invitations/accept" element={<AcceptInvitation />} />
+      <Route path="/teams/invitations/help" element={<InvitationHelp />} />
+      <Route path="/events/join/:code" element={<JoinEvent />} />
+      <Route path="/account/confirm-deletion/:token" element={<ConfirmDeletion />} />
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  </Suspense>
+);
+
 const App = () => {
   // Sync session when window gains focus or becomes visible
   // This fixes OAuth sessions not appearing in Lovable preview iframe
@@ -61,16 +176,16 @@ const App = () => {
     const handleFocus = async () => {
       await supabase.auth.getSession();
     };
-    
+
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
         supabase.auth.getSession();
       }
     };
-    
+
     window.addEventListener('focus', handleFocus);
     document.addEventListener('visibilitychange', handleVisibility);
-    
+
     return () => {
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleVisibility);
@@ -85,117 +200,9 @@ const App = () => {
           <Toaster />
           <Sonner />
           <InstallPrompt />
-          <BrowserRouter>
-            <Suspense fallback={<PageLoader />}>
-            <Routes>
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/onboarding" element={
-            <ProtectedRoute skipOnboardingCheck>
-              <Onboarding />
-            </ProtectedRoute>
-          } />
-          <Route path="/" element={
-            <ProtectedRoute>
-              <AppLayout>
-                <Index />
-              </AppLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/settings" element={
-            <ProtectedRoute>
-              <AppLayout>
-                <Settings />
-              </AppLayout>
-            </ProtectedRoute>
-          } />
-          {/* Redirects for old routes */}
-          <Route path="/users" element={
-            <ProtectedRoute>
-              <AppLayout>
-                <Users />
-              </AppLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/teams" element={
-            <ProtectedRoute>
-              <AppLayout>
-                <Teams />
-              </AppLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/admin" element={
-            <ProtectedRoute>
-              <AppLayout>
-                <Admin />
-              </AppLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/events" element={
-            <ProtectedRoute>
-              <AppLayout>
-                <Events />
-              </AppLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/events/:eventId" element={
-            <ProtectedRoute>
-              <AppLayout>
-                <EventDetail />
-              </AppLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/teams/create" element={
-            <ProtectedRoute>
-              <AppLayout>
-                <TeamCreate />
-              </AppLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/teams/:teamId" element={
-            <ProtectedRoute>
-              <AppLayout>
-                <TeamDetail />
-              </AppLayout>
-            </ProtectedRoute>
-          } />
-            <Route path="/teams/:teamId/events" element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <TeamEvents />
-                </AppLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/teams/:teamId/performance" element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <TeamPerformance />
-                </AppLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/teams/:teamId/members" element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <TeamMembers />
-                </AppLayout>
-              </ProtectedRoute>
-            } />
-          <Route path="/teams/:teamId/settings" element={
-            <ProtectedRoute>
-              <AppLayout>
-                <TeamSettings />
-              </AppLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/teams/join/:code" element={<JoinTeam />} />
-          <Route path="/teams/invitations/accept" element={<AcceptInvitation />} />
-          <Route path="/teams/invitations/help" element={<InvitationHelp />} />
-          <Route path="/events/join/:code" element={<JoinEvent />} />
-          <Route path="/account/confirm-deletion/:token" element={<ConfirmDeletion />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-            </Routes>
-            </Suspense>
-          </BrowserRouter>
+          <Router>
+            <AppRoutes />
+          </Router>
         </NotificationProvider>
       </TooltipProvider>
     </QueryClientProvider>
