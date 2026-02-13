@@ -1,47 +1,68 @@
 
 
-# Fix: Add Event Discovery Tab
+# Fix: Make Events Public by Default (No Team)
 
 ## Problem
-The Events page has no way to browse public events from other users. The three existing tabs only show:
-- Events the user RSVP'd to
-- Events the user created
-- Events explicitly flagged as "looking for players"
+Line 281 in `UnifiedEventForm.tsx` hardcodes `is_public: false` for training and match events (unless pickup game). This means events created without a team are invisible to other users in the Discover tab.
 
-A normal public event created by another user never appears anywhere.
+## Changes (single file: `src/components/events/UnifiedEventForm.tsx`)
 
-## Solution
-Replace the "Open Games" tab with a broader "Discover" tab that shows **all upcoming public events** the user hasn't already joined or declined. Events flagged as "looking for players" will be highlighted with a badge but won't be the only ones shown.
+### 1. Fix `is_public` default logic (line 281)
 
-## Technical Changes
+Change:
+```
+is_public: isPickupGame ? true : (eventType === 'meetup' ? (values.isPublic ?? !teamId) : false),
+```
+To:
+```
+is_public: isPickupGame ? true : (values.isPublic ?? !(selectedTeamId || teamId)),
+```
 
-### 1. New hook: `src/hooks/useDiscoverEvents.ts`
-- Queries `events` table for upcoming events where `is_public = true`
-- Excludes events created by the current user
-- Excludes events the user has already RSVP'd to (attending or not_attending)
-- Includes attendance counts and organizer profile info
-- Sorted by start time (soonest first)
-- Supports optional sport/type filters
+This means: pickup games are always public, events with a team default to private, events without a team default to public. The user can override via the toggle.
 
-### 2. Update `src/pages/Events.tsx`
-- Rename the "Open Games" tab to "Discover" (or "For You")
-- Use the new `useDiscoverEvents` hook instead of `useAvailableGames`
-- Render results using `EventsList` (same cards as other tabs) instead of `AvailableGameCard`
-- Events with `looking_for_players = true` get a "Looking for players" badge
-- Update tab icon from `UserPlus` to `Search` or `Compass`
+### 2. Show the Public/Private toggle for all event types (line 328)
 
-### 3. Update i18n keys
-- `src/i18n/locales/en/events.json`: Add `tabs.discover`, `tabs.discoverSubtitle`, `discover.empty`, `discover.emptyDesc`
-- `src/i18n/locales/fr/events.json`: Same keys in French
-- `src/i18n/locales/en/matching.json`: Keep existing keys (no breaking changes)
-- `src/i18n/locales/fr/matching.json`: Same
+Change:
+```
+const showPublicToggle = eventType === 'meetup' && !teamId;
+```
+To:
+```
+const showPublicToggle = !isPickupGame && !teamId;
+```
 
-### 4. No database changes needed
-The existing RLS policy "Public events are viewable by everyone" (`is_public = true`) already allows this. Events with `team_id IS NULL` are also visible to all authenticated users via the "Team events viewable by team members" policy.
+This shows the toggle for training, match (with team), and meetup events -- not for pickup games (always public).
 
-## What users will see
-- A "Discover" tab showing all upcoming public events from other users
-- Events they've already joined or declined are filtered out
-- Events needing players are highlighted
-- Clicking an event goes to the detail page where they can RSVP
+### 3. Update the visibility indicator (line 332)
+
+Change:
+```
+const isPublicEvent = isPickupGame || (eventType === 'meetup' && form.watch('isPublic'));
+```
+To:
+```
+const isPublicEvent = isPickupGame || form.watch('isPublic');
+```
+
+### 4. Update form default value (line 175)
+
+The default `isPublic: !teamId` is already correct -- it defaults to `true` when no team is provided.
+
+## Also: update existing test events in the database
+
+Run a query to set existing events without a team to `is_public = true` so they immediately appear in the Discover tab:
+```sql
+UPDATE events SET is_public = true WHERE team_id IS NULL AND is_public = false;
+```
+
+## Summary
+
+| What | Before | After |
+|------|--------|-------|
+| Training without team | Private (invisible) | Public by default |
+| Match without team (non-pickup) | Private (invisible) | Public by default |
+| Meetup without team | Toggle (public default) | Toggle (public default) |
+| Any event with team | Private | Private (unchanged) |
+| Pickup game | Public | Public (unchanged) |
+| Public toggle visibility | Meetup only | All types except pickup |
 
