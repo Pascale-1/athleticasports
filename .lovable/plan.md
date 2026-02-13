@@ -1,128 +1,62 @@
 
-
-# Harmonize Event Creation Form & Remove Hidden Fields
+# Fix Font & Layout Alignment Across Event Form
 
 ## Problem
-The current "More options" collapsible hides 5 important fields (Description, Participant Limit, Recurrence, RSVP Deadline, Looking for Players). Users may never discover these features, leading to incomplete events. The form also lacks visual consistency -- some sections have card wrappers, others don't, and label sizes vary between `text-xs`, `text-[10px]`, and `text-[11px]`.
+The event creation form uses 5 different font sizes for labels (`text-sm`, `text-xs`, `text-[11px]`, `text-[10px]`, default) and 2 different input heights (`h-9`, `h-10`). Meetup category labels at `text-[11px]` inside `h-9` buttons are nearly unreadable (e.g., "Watch Party", "Fitness" text is too small to see). Placeholder text sizes also vary between components.
 
-## Design Approach
-Instead of hiding fields behind a collapsible, show all fields inline but keep them **lightweight and compact** so the form doesn't feel longer. The trick is to use inline controls (switches, small inputs on the same row as labels) rather than stacked full-width fields.
+## Design System for the Form
+
+Standardize on exactly 3 tiers:
+- **Section headers** (When, Where, Opponent): `text-xs font-medium` (12px)
+- **Field labels** (Sport, Team, Title, Date, Time, etc.): `text-xs` (12px) -- same size, no more `text-sm` or `text-[10px]` variation
+- **Hint/secondary text**: `text-[11px] text-muted-foreground` (11px)
+- **All inputs, selects, buttons**: height `h-9`, inner text `text-xs` (12px)
+- **Meetup category buttons**: `text-xs` (12px) instead of `text-[11px]`, height stays `h-9`
 
 ## Changes
 
-### 1. Remove the "More options" collapsible entirely
-All fields become visible. To compensate for the added vertical space, each optional field uses an **inline row layout** (label + control on the same line) instead of stacked label-then-input.
+### 1. `src/components/events/SportQuickSelector.tsx`
+- Line 36: Change label from `text-sm font-medium` to `text-xs font-medium` to match all other form labels
+- Line 42: Add `className="h-9 text-xs"` to SelectTrigger to match form input height and text size
 
-### 2. Redesign optional fields as compact inline rows
-Each optional field becomes a single horizontal row (~36px tall):
+### 2. `src/components/events/EventTypeSelector.tsx`
+- Line 27: Change label from `text-sm font-medium` to `text-xs font-medium`
+- Line 47: Keep `text-xs font-medium` on button text (already correct)
+- Line 51: Change description from `text-xs` to `text-[11px]` for hierarchy (hint tier)
 
-- **Description**: A small "Add note..." text button that expands a textarea only when tapped (not a collapsible -- just a conditional render with a simple toggle)
-- **Participants**: Inline row: icon + "Max participants" label + small number input (w-20) on the right
-- **Recurrence**: Inline row: icon + "Repeat" label + select dropdown (w-32) on the right
-- **RSVP Deadline**: Inline row: icon + "RSVP cutoff" label + switch on the right, with preset pills appearing below only when enabled
-- **Looking for Players**: Stays as-is (already an inline switch row), but moved out of a card wrapper into a simple row
+### 3. `src/components/teams/MyTeamSelector.tsx`
+- Line 193: Add `className="text-xs"` to the Label
+- Line 253: Change SelectTrigger from `h-10` to `h-9 text-xs` to match all form inputs
 
-### 3. Unify label sizing
-Standardize all labels to `text-xs` (12px). Remove the inconsistent `text-[10px]` and `text-[11px]` variants. Sub-labels/hints use `text-[10px] text-muted-foreground`.
+### 4. `src/components/events/UnifiedEventForm.tsx`
+Multiple alignment fixes:
 
-### 4. Add thin visual separators between sections
-Use `<Separator />` components between the 3 logical groups:
-- Essentials (Type, Sport/Team, Title, When, Where, Visibility)
-- Match Details (opponent card, match-only)
-- Options (Description, Participants, Recurrence, RSVP, LFP)
+**Sub-labels promoted to `text-xs`** (remove `text-[10px]`):
+- Line 443 (Date label): `text-[10px] text-muted-foreground` to `text-xs text-muted-foreground`
+- Line 487 (Start Time label): same fix
+- Line 499 (Duration label): same fix
+- Line 560 (Virtual Link label): same fix
+- Line 667 (Match Format label): same fix
 
-### 5. Description field: "Add note" pattern
-Instead of always showing a textarea, show a ghost button "Add a note..." that, when clicked, reveals the textarea. This is a common mobile pattern (like adding a note in calendar apps) that saves space without hiding behind a generic "More options" label.
+**Meetup categories readable**:
+- Line 395: Change button text from `text-[11px]` to `text-xs` so category names ("Watch Party", "Fitness", etc.) are actually legible
 
-## Technical Details
+**Button text in match section**:
+- Line 524 (location mode buttons): `text-[10px]` to `text-xs`
+- Line 608-611 (opponent select/manual buttons): `text-[10px]` to `text-xs`
+- Line 650 (home/away buttons): `text-[10px]` to `text-xs`
 
-### File: `src/components/events/UnifiedEventForm.tsx`
+**Visibility hint text**:
+- Lines 366-376 (pickup/team hint): keep `text-[10px]` (this is genuinely secondary hint text, the one exception)
 
-**Remove Collapsible wrapper** (lines 682-875): Replace the entire `<Collapsible>` block with inline fields rendered directly in the form flow.
+**RSVP/deadline preset pills**:
+- Line 796: Change `text-[10px]` to `text-xs` on deadline preset buttons for readability
 
-**New inline layout for optional fields:**
-```tsx
-{/* Separator */}
-<Separator className="my-1" />
+**Input placeholder alignment** -- already handled by Input component using `text-body`, but form inputs with explicit `text-xs` override it. This is fine since `text-xs` (12px) and `text-body` (11px) are close. The explicit `text-xs` on inputs ensures consistency.
 
-{/* Description - tap to expand */}
-{!showDescription ? (
-  <Button type="button" variant="ghost" onClick={() => setShowDescription(true)}
-    className="w-full justify-start h-8 text-xs text-muted-foreground px-0">
-    + Add a note...
-  </Button>
-) : (
-  <FormField name="description" render={({ field }) => (
-    <FormItem>
-      <FormControl>
-        <Textarea {...field} placeholder="Add details..." 
-          className="min-h-[48px] resize-none text-xs" autoFocus />
-      </FormControl>
-    </FormItem>
-  )} />
-)}
-
-{/* Participants - inline row */}
-<div className="flex items-center justify-between h-9">
-  <Label className="text-xs flex items-center gap-1.5">
-    <Users className="h-3.5 w-3.5" /> Max participants
-  </Label>
-  <Input name="maxParticipants" type="number" className="w-20 h-8 text-xs text-right" placeholder="--" />
-</div>
-
-{/* Recurrence - inline row */}
-<div className="flex items-center justify-between h-9">
-  <Label className="text-xs flex items-center gap-1.5">
-    <Repeat className="h-3.5 w-3.5" /> Repeat
-  </Label>
-  <Select value={recurrenceType} onValueChange={...}>
-    <SelectTrigger className="w-28 h-8 text-xs"><SelectValue /></SelectTrigger>
-    ...
-  </Select>
-</div>
-
-{/* RSVP Deadline - inline switch, presets expand below */}
-<div className="space-y-2">
-  <div className="flex items-center justify-between h-9">
-    <Label className="text-xs flex items-center gap-1.5">
-      <Clock className="h-3.5 w-3.5" /> RSVP cutoff
-    </Label>
-    <Switch checked={showRsvpDeadline} onCheckedChange={setShowRsvpDeadline} />
-  </div>
-  {showRsvpDeadline && (
-    <div className="flex flex-wrap gap-1.5">
-      {/* deadline preset pills */}
-    </div>
-  )}
-</div>
-
-{/* Looking for Players - inline switch (match/training only) */}
-{showLookingForPlayersSection && (
-  <div className="space-y-2">
-    <div className="flex items-center justify-between h-9">
-      <Label className="text-xs flex items-center gap-1.5">
-        <UserPlus className="h-3.5 w-3.5" /> Looking for players
-      </Label>
-      <Switch checked={lookingForPlayers} onCheckedChange={setLookingForPlayers} />
-    </div>
-    {lookingForPlayers && (
-      <Select value={playersNeeded} onValueChange={setPlayersNeeded}>...</Select>
-    )}
-  </div>
-)}
-```
-
-**Remove card wrapper from LFP section**: The `p-3 bg-primary/5 rounded-lg border border-primary/20` wrapper is removed. LFP becomes a simple inline row like the others.
-
-**Add `showDescription` state**: New `useState(false)` to toggle the description textarea visibility via the "Add a note..." button.
-
-**Standardize labels**: Find-and-replace `text-[10px]` on all `FormLabel` and `Label` components within the form to `text-xs`. Keep `text-[10px]` only for hint text below inputs.
-
-**Add Separator import and usage**: Import from `@/components/ui/separator` and place between the essentials section and options section.
-
-### Impact
-- All features are discoverable without any hidden sections
-- Form height stays similar because inline rows (~36px each) replace stacked fields (~60px each)
-- Consistent visual rhythm with uniform label sizes and row heights
-- No more "shame" of users missing important options
-
+### Summary of impact
+- Label sizes: 5 variants reduced to 2 (labels: `text-xs`, hints: `text-[11px]`)
+- Input heights: unified to `h-9` everywhere
+- Meetup categories: text bumped from 11px to 12px -- now legible
+- Match section buttons: text bumped from 10px to 12px -- now readable
+- All 3 sub-components (SportQuickSelector, EventTypeSelector, MyTeamSelector) aligned with the form's design system
