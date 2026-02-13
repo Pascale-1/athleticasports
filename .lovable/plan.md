@@ -1,68 +1,42 @@
 
 
-# Fix: Make Events Public by Default (No Team)
+# Harmonize Public/Private Toggle + Show Declined Events
 
-## Problem
-Line 281 in `UnifiedEventForm.tsx` hardcodes `is_public: false` for training and match events (unless pickup game). This means events created without a team are invisible to other users in the Discover tab.
+## Two changes needed
 
-## Changes (single file: `src/components/events/UnifiedEventForm.tsx`)
+### 1. Always show the Public/Private toggle (all event types, including team events)
 
-### 1. Fix `is_public` default logic (line 281)
+Currently the toggle only appears for non-pickup, non-team events. Users should always have control over visibility regardless of event type.
 
-Change:
-```
-is_public: isPickupGame ? true : (eventType === 'meetup' ? (values.isPublic ?? !teamId) : false),
-```
-To:
-```
-is_public: isPickupGame ? true : (values.isPublic ?? !(selectedTeamId || teamId)),
-```
+**File: `src/components/events/UnifiedEventForm.tsx`**
 
-This means: pickup games are always public, events with a team default to private, events without a team default to public. The user can override via the toggle.
+- **Line 328**: Change `showPublicToggle` from `!isPickupGame && !teamId` to `true` -- always show the toggle
+- **Line 175**: Default `isPublic` already defaults to `true` when no team -- this stays correct
+- **Line 281**: The `is_public` submission logic already respects `values.isPublic` as the user's explicit choice -- no change needed
 
-### 2. Show the Public/Private toggle for all event types (line 328)
+| Scenario | Default | User can override? |
+|---|---|---|
+| Pickup game (no team) | Public | Yes (toggle shown) |
+| Match/Workout without team | Public | Yes (toggle shown) |
+| Hangout without team | Public | Yes (toggle shown) |
+| Any event with team | Private | Yes (toggle shown) |
 
-Change:
-```
-const showPublicToggle = eventType === 'meetup' && !teamId;
-```
-To:
-```
-const showPublicToggle = !isPickupGame && !teamId;
-```
+### 2. Show declined events in Discover tab
 
-This shows the toggle for training, match (with team), and meetup events -- not for pickup games (always public).
+Users who declined an event can no longer find it anywhere. Fix: only hide events where the user is `attending` or `maybe` (those appear in "Attending" tab already).
 
-### 3. Update the visibility indicator (line 332)
+**File: `src/hooks/useDiscoverEvents.ts`**
 
-Change:
-```
-const isPublicEvent = isPickupGame || (eventType === 'meetup' && form.watch('isPublic'));
-```
-To:
-```
-const isPublicEvent = isPickupGame || form.watch('isPublic');
-```
+- **Line 53**: Change the filter from `a.status === "attending" || a.status === "not_attending"` to `a.status === "attending" || a.status === "maybe"`
 
-### 4. Update form default value (line 175)
+This means declined events reappear in Discover, letting users change their mind and RSVP again.
 
-The default `isPublic: !teamId` is already correct -- it defaults to `true` when no team is provided.
+## Technical details
 
-## Also: update existing test events in the database
+| File | Line | Change |
+|---|---|---|
+| `src/components/events/UnifiedEventForm.tsx` | 328 | `showPublicToggle = true` |
+| `src/hooks/useDiscoverEvents.ts` | 53 | Replace `"not_attending"` with `"maybe"` |
 
-Run a query to set existing events without a team to `is_public = true` so they immediately appear in the Discover tab:
-```sql
-UPDATE events SET is_public = true WHERE team_id IS NULL AND is_public = false;
-```
-
-## Summary
-
-| What | Before | After |
-|------|--------|-------|
-| Training without team | Private (invisible) | Public by default |
-| Match without team (non-pickup) | Private (invisible) | Public by default |
-| Meetup without team | Toggle (public default) | Toggle (public default) |
-| Any event with team | Private | Private (unchanged) |
-| Pickup game | Public | Public (unchanged) |
-| Public toggle visibility | Meetup only | All types except pickup |
+Two single-line edits. No database or schema changes needed.
 
