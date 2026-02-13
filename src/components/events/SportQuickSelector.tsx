@@ -33,13 +33,13 @@ export const SportQuickSelector = ({
   return (
     <div className={cn("space-y-2", className)}>
       {label && (
-        <Label className="text-sm font-medium">
+        <Label className="text-xs font-medium">
           {label} {required && <span className="text-destructive">*</span>}
         </Label>
       )}
       
       <Select value={value || undefined} onValueChange={onChange}>
-        <SelectTrigger className="w-full">
+        <SelectTrigger className="w-full h-9 text-xs">
           <SelectValue placeholder={lang === 'fr' ? 'Sélectionner un sport' : 'Select a sport'}>
             {selectedSport && (
               <span className="flex items-center gap-2">
