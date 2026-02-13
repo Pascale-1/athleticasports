@@ -1049,51 +1049,54 @@ export const UnifiedEventForm = ({
                         </motion.div>
                       )}
 
-                      {/* Public Toggle - Meetup only without team */}
-                      {showPublicToggle && (
-                        <motion.div
-                          key="public-toggle"
-                          variants={fieldVariants}
-                          initial="hidden"
-                          animate="visible"
-                          exit="hidden"
-                          transition={transitionConfig}
-                        >
-                          <FormField
-                            control={form.control}
-                            name="isPublic"
-                            render={({ field }) => (
-                              <FormItem>
-                                <div className="flex items-center justify-between p-3 bg-background rounded-lg border">
-                                  <div className="flex items-center gap-2">
-                                    {field.value ? (
-                                      <Globe className="h-4 w-4 text-primary" />
-                                    ) : (
-                                      <Lock className="h-4 w-4 text-muted-foreground" />
-                                    )}
-                                    <div>
-                                      <p className="text-sm font-medium">{t('form.isPublic')}</p>
-                                      <p className="text-xs text-muted-foreground">{t('form.isPublicDesc')}</p>
-                                    </div>
-                                  </div>
-                                  <FormControl>
-                                    <Button
-                                      type="button"
-                                      variant={field.value ? 'default' : 'outline'}
-                                      size="sm"
-                                      onClick={() => field.onChange(!field.value)}
-                                    >
-                                      {field.value ? t('status.public') : t('status.private')}
-                                    </Button>
-                                  </FormControl>
-                                </div>
-                              </FormItem>
-                            )}
-                          />
-                        </motion.div>
-                      )}
                     </AnimatePresence>
                   </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Event Visibility Toggle - Always visible */}
+            <AnimatePresence mode="sync">
+              {showPublicToggle && (
+                <motion.div
+                  key="public-toggle"
+                  variants={fieldVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  transition={transitionConfig}
+                >
+                  <FormField
+                    control={form.control}
+                    name="isPublic"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl border">
+                          <div className="flex items-center gap-2">
+                            {field.value ? (
+                              <Globe className="h-4 w-4 text-primary" />
+                            ) : (
+                              <Lock className="h-4 w-4 text-muted-foreground" />
+                            )}
+                            <div>
+                              <p className="text-sm font-medium">{t('form.isPublic')}</p>
+                              <p className="text-xs text-muted-foreground">{t('form.isPublicDesc')}</p>
+                            </div>
+                          </div>
+                          <FormControl>
+                            <Button
+                              type="button"
+                              variant={field.value ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => field.onChange(!field.value)}
+                            >
+                              {field.value ? t('status.public') : t('status.private')}
+                            </Button>
+                          </FormControl>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
