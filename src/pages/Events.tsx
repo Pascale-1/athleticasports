@@ -4,17 +4,16 @@ import { useSearchParams } from "react-router-dom";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar as CalendarIcon, List, Search, Dumbbell, Users, Swords, UserPlus, ClipboardList, CalendarCheck, Crown } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, List, Search, Dumbbell, Users, Swords, Compass, ClipboardList, CalendarCheck, Crown } from "lucide-react";
 import { useUserEvents, UserEvent } from "@/hooks/useUserEvents";
 import { useEventFilters } from "@/hooks/useEventFilters";
-import { useAvailableGames } from "@/hooks/useAvailableGames";
+import { useDiscoverEvents } from "@/hooks/useDiscoverEvents";
 import { useCreatedEvents } from "@/hooks/useCreatedEvents";
 import { useEvents } from "@/hooks/useEvents";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { EditEventDialog } from "@/components/events/EditEventDialog";
 import { EventsList } from "@/components/events/EventsList";
 import { EventCalendar } from "@/components/events/EventCalendar";
-import { AvailableGameCard } from "@/components/matching/AvailableGameCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { isToday, isTomorrow, isThisWeek, isFuture } from "date-fns";
@@ -47,19 +46,19 @@ const EVENT_TYPE_LEGEND = [
 const TAB_CONFIG = [
   { key: 'my', icon: CalendarCheck, labelKey: 'tabs.myEvents' },
   { key: 'organized', icon: Crown, labelKey: 'tabs.organized' },
-  { key: 'open', icon: UserPlus, labelKey: 'matching:openGames' },
+  { key: 'discover', icon: Compass, labelKey: 'tabs.discover' },
 ] as const;
 
 const Events = () => {
   const { t } = useTranslation('events');
-  const { t: tMatching } = useTranslation('matching');
+  
   const { t: tCommon } = useTranslation('common');
   const [searchParams, setSearchParams] = useSearchParams();
   
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [activeEventType, setActiveEventType] = useState<'all' | 'training' | 'meetup' | 'match'>('all');
-  const [activeTab, setActiveTab] = useState<'my' | 'organized' | 'open'>('my');
+  const [activeTab, setActiveTab] = useState<'my' | 'organized' | 'discover'>('my');
   const [showSearch, setShowSearch] = useState(false);
   
   // Edit/Delete state for Organized tab
@@ -71,7 +70,7 @@ const Events = () => {
     status: 'upcoming',
     includeNotAttending: false // Only show Going/Maybe
   });
-  const { games: openGames, loading: openGamesLoading, refetch: refetchOpenGames } = useAvailableGames();
+  const { events: discoverEvents, loading: discoverLoading, refetch: refetchDiscover } = useDiscoverEvents();
   const { events: createdEvents, loading: createdEventsLoading, refetch: refetchCreatedEvents } = useCreatedEvents({ status: 'upcoming' });
   
   // Hook for updating/deleting events
@@ -81,16 +80,16 @@ const Events = () => {
   const handleRefresh = useCallback(async () => {
     await Promise.all([
       refetchAttending(),
-      refetchOpenGames(),
+      refetchDiscover(),
       refetchCreatedEvents(),
     ]);
-  }, [refetchAttending, refetchOpenGames, refetchCreatedEvents]);
+  }, [refetchAttending, refetchDiscover, refetchCreatedEvents]);
   
   // Read tab from URL params
   useEffect(() => {
     const tabParam = searchParams.get('tab');
-    if (tabParam === 'open') {
-      setActiveTab('open');
+    if (tabParam === 'discover') {
+      setActiveTab('discover');
     } else if (tabParam === 'organized') {
       setActiveTab('organized');
     }
@@ -153,10 +152,10 @@ const Events = () => {
     setDeletingEvent(null);
   };
 
-  const handleTabChange = (tab: 'my' | 'organized' | 'open') => {
+  const handleTabChange = (tab: 'my' | 'organized' | 'discover') => {
     setActiveTab(tab);
-    if (tab === 'open') {
-      setSearchParams({ tab: 'open' });
+    if (tab === 'discover') {
+      setSearchParams({ tab: 'discover' });
     } else if (tab === 'organized') {
       setSearchParams({ tab: 'organized' });
     } else {
@@ -192,8 +191,8 @@ const Events = () => {
   // Get current tab subtitle
   const getTabSubtitle = () => {
     switch (activeTab) {
-      case 'open':
-        return `${openGames.length} ${tMatching('openGamesDesc')}`;
+      case 'discover':
+        return `${discoverEvents.length} ${t('tabs.discoverSubtitle')}`;
       case 'organized':
         return `${createdEvents.length} ${t('tabs.organizedSubtitle')}`;
       default:
@@ -229,7 +228,7 @@ const Events = () => {
         <div className="flex gap-0.5 p-0.5 bg-muted/50 rounded-lg overflow-x-auto scrollbar-hide">
           {TAB_CONFIG.map(({ key, icon: Icon, labelKey }) => {
             const isActive = activeTab === key;
-            const count = key === 'my' ? attendingEvents.length : key === 'organized' ? createdEvents.length : openGames.length;
+            const count = key === 'my' ? attendingEvents.length : key === 'organized' ? createdEvents.length : discoverEvents.length;
             
             return (
               <button
@@ -243,7 +242,7 @@ const Events = () => {
                 onClick={() => handleTabChange(key as any)}
               >
                 <Icon className={cn("h-3 w-3 shrink-0", isActive && "text-primary")} />
-                <span className="truncate hidden xs:inline max-w-[60px]">{key === 'open' ? tMatching('openGames') : t(labelKey)}</span>
+                <span className="truncate hidden xs:inline max-w-[60px]">{t(labelKey)}</span>
                 {count > 0 && (
                   <Badge variant={isActive ? "default" : "secondary"} size="xs">
                     {count}
@@ -254,26 +253,22 @@ const Events = () => {
           })}
         </div>
 
-        {activeTab === 'open' ? (
-          // Open Games Tab
+        {activeTab === 'discover' ? (
+          // Discover Tab
           <div className="space-y-3">
-            {openGamesLoading ? (
+            {discoverLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
                   <Skeleton key={i} className="h-28 w-full rounded-xl" />
                 ))}
               </div>
-            ) : openGames.length > 0 ? (
-              <div className="space-y-2">
-                {openGames.map((game) => (
-                  <AvailableGameCard key={game.id} game={game} />
-                ))}
-              </div>
+            ) : discoverEvents.length > 0 ? (
+              <EventsList events={discoverEvents} showInlineRSVP />
             ) : (
               <EmptyState
-                icon={UserPlus}
-                title={tMatching('noGamesFound')}
-                description={tMatching('noGamesDesc')}
+                icon={Compass}
+                title={t('discover.empty')}
+                description={t('discover.emptyDesc')}
                 action={
                   <Button onClick={() => setCreateDialogOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
