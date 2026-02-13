@@ -743,6 +743,9 @@ export const UnifiedEventForm = ({
 
           {/* Optional Sections - Collapsed by default for mobile optimization */}
           <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground uppercase tracking-wide px-1">
+              {t('form.moreOptions', 'More options')}
+            </Label>
             {/* Add Description Toggle */}
             <AnimatePresence mode="sync">
               {!showDescription && (
@@ -1079,19 +1082,16 @@ export const UnifiedEventForm = ({
                               <Lock className="h-4 w-4 text-muted-foreground" />
                             )}
                             <div>
-                              <p className="text-sm font-medium">{t('form.isPublic')}</p>
-                              <p className="text-xs text-muted-foreground">{t('form.isPublicDesc')}</p>
+                              <p className="text-sm font-medium">
+                                {field.value ? t('form.isPublic') : t('form.isPrivate', 'Private Event')}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {field.value ? t('form.isPublicDesc') : t('form.isPrivateDesc', 'Only invited members can see this')}
+                              </p>
                             </div>
                           </div>
                           <FormControl>
-                            <Button
-                              type="button"
-                              variant={field.value ? 'default' : 'outline'}
-                              size="sm"
-                              onClick={() => field.onChange(!field.value)}
-                            >
-                              {field.value ? t('status.public') : t('status.private')}
-                            </Button>
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
                           </FormControl>
                         </div>
                       </FormItem>
