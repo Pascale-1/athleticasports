@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format, subHours } from "date-fns";
 import { AnimatePresence, motion, Easing } from "framer-motion";
-import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Plus, Users, UserPlus, Clock } from "lucide-react";
+import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Users, UserPlus, Clock, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 
 import { EventType } from "@/lib/eventConfig";
@@ -68,10 +69,8 @@ const formSchema = z.object({
   startTime: z.string().min(1, "Start time is required"),
   location: z.string().min(1, "Location is required"),
   maxParticipants: z.string().optional(),
-  // Match-specific
   opponentName: z.string().optional(),
   matchFormat: z.string().optional(),
-  // Meetup-specific
   category: z.string().optional(),
   locationUrl: z.string().url().optional().or(z.literal('')),
   isPublic: z.boolean().optional(),
@@ -145,10 +144,8 @@ export const UnifiedEventForm = ({
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('none');
   const [recurrenceEndDate, setRecurrenceEndDate] = useState<Date | undefined>(undefined);
 
-  // Collapsible sections state (collapsed by default for mobile optimization)
-  const [showDescription, setShowDescription] = useState(false);
-  const [showRecurrence, setShowRecurrence] = useState(false);
-  const [showParticipantLimit, setShowParticipantLimit] = useState(false);
+  // More options collapsible
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
   
   // RSVP Deadline state
   const [showRsvpDeadline, setShowRsvpDeadline] = useState(false);
@@ -317,7 +314,6 @@ export const UnifiedEventForm = ({
   const showCategorySelector = eventType === 'meetup';
   const showLocationMode = eventType === 'meetup';
   const showVirtualLink = eventType === 'meetup' && (locationMode === 'virtual' || locationMode === 'hybrid');
-  const showPublicToggle = true;
   const showLookingForPlayersSection = eventType === 'match' || eventType === 'training';
   
   const isPublicEvent = isPickupGame || form.watch('isPublic');
@@ -325,11 +321,90 @@ export const UnifiedEventForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 min-w-0 overflow-hidden">
-        {/* 1. Event Type Selector */}
+        {/* ── Section 1: Essentials ── */}
+        
+        {/* 1a. Event Type */}
         <EventTypeSelector value={eventType} onChange={setEventType} />
 
         <div className="space-y-3" aria-live="polite">
-          {/* 2. Title Field - First thing user fills */}
+          {/* 1b. Sport Selector (before title so match titles auto-generate) */}
+          <AnimatePresence mode="sync">
+            {showSportSelector && (
+              <motion.div key="sport-selector" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
+                <SportQuickSelector
+                  value={selectedSport || null}
+                  onChange={(sport) => {
+                    setSelectedSport(sport);
+                    setSelectedTeamId(null);
+                    setSelectedTeamName('');
+                  }}
+                  label={t('form.sport')}
+                  lang={lang}
+                />
+              </motion.div>
+            )}
+
+            {/* 1c. Team Selector */}
+            {showTeamSelector && (
+              <motion.div key="team-selector" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
+                <MyTeamSelector
+                  value={selectedTeamId}
+                  onChange={handleTeamSelect}
+                  sportFilter={selectedSport || undefined}
+                  label={eventType === 'match' ? t('form.game.yourTeam') : t('details.team')}
+                  placeholder={eventType === 'match' ? t('form.game.pickupOrTeam') : t('form.game.selectTeam')}
+                  forEventCreation={true}
+                  showCreateButton={true}
+                  showPickupOption={eventType === 'match'}
+                  onTeamCreated={(teamId, teamName) => {
+                    setSelectedTeamId(teamId);
+                    setSelectedTeamName(teamName);
+                  }}
+                />
+                
+                {eventType === 'match' && (
+                  <div className="flex items-center gap-1.5 text-[10px] mt-1.5">
+                    {isPickupGame ? (
+                      <>
+                        <Globe className="h-3 w-3 text-accent-foreground" />
+                        <span className="text-muted-foreground">{t('form.visibility.public')}</span>
+                      </>
+                    ) : selectedTeamId ? (
+                      <>
+                        <Lock className="h-3 w-3 text-warning" />
+                        <span className="text-muted-foreground">{t('form.visibility.teamOnly')}</span>
+                      </>
+                    ) : null}
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {/* 1d. Meetup Category (right after type for meetups) */}
+            {showCategorySelector && (
+              <motion.div key="category-selector" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">{t('form.meetup.category')}</Label>
+                  <div className="grid grid-cols-2 min-[360px]:grid-cols-3 gap-1.5">
+                    {MEETUP_CATEGORIES.map(({ value, emoji }) => (
+                      <Button
+                        key={value}
+                        type="button"
+                        variant={selectedCategory === value ? 'default' : 'outline'}
+                        onClick={() => setSelectedCategory(value)}
+                        className="h-9 flex flex-col items-center gap-0 text-[11px] overflow-hidden px-1"
+                      >
+                        <span className="text-sm leading-none">{emoji}</span>
+                        <span className="truncate w-full text-center leading-tight">{getCategoryLabel(value)}</span>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* 1e. Title */}
           <FormField
             control={form.control}
             name="title"
@@ -354,8 +429,8 @@ export const UnifiedEventForm = ({
             )}
           />
 
-          {/* 3. When Section - Date, Time & Duration grouped */}
-          <div className="p-3 bg-muted/30 rounded-lg border space-y-3 overflow-hidden">
+          {/* 1f. When — Date, Time, Duration (no card wrapper) */}
+          <div className="space-y-2">
             <Label className="text-xs font-semibold">{t('details.when')}</Label>
             
             <div className="grid grid-cols-2 gap-2">
@@ -426,42 +501,31 @@ export const UnifiedEventForm = ({
             </div>
           </div>
 
-          {/* 4. Where Section */}
-          <div className="p-3 bg-muted/30 rounded-lg border space-y-3">
+          {/* 1g. Where (no card wrapper) */}
+          <div className="space-y-2">
             <Label className="text-xs font-semibold">{t('details.where')}</Label>
 
-            <AnimatePresence mode="sync">
-              {/* Location Mode Toggle - Meetup only */}
-              {showLocationMode && (
-                <motion.div
-                  key="location-mode"
-                  variants={fieldVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                  transition={transitionConfig}
-                >
-                  <div className="grid grid-cols-3 gap-1.5 mb-3">
-                    {([
-                      { mode: 'physical' as const, icon: MapPin },
-                      { mode: 'virtual' as const, icon: Video },
-                      { mode: 'hybrid' as const, icon: Link2 },
-                    ]).map(({ mode, icon: Icon }) => (
-                      <Button
-                        key={mode}
-                        type="button"
-                        variant={locationMode === mode ? 'default' : 'outline'}
-                        onClick={() => setLocationMode(mode)}
-                        className="h-8 gap-1 overflow-hidden"
-                      >
-                        <Icon className="h-3.5 w-3.5 shrink-0" />
-                        <span className="text-[10px] truncate">{t(`form.locationMode.${mode}`)}</span>
-                      </Button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* Location Mode Toggle - Meetup only */}
+            {showLocationMode && (
+              <div className="grid grid-cols-3 gap-1.5">
+                {([
+                  { mode: 'physical' as const, icon: MapPin },
+                  { mode: 'virtual' as const, icon: Video },
+                  { mode: 'hybrid' as const, icon: Link2 },
+                ]).map(({ mode, icon: Icon }) => (
+                  <Button
+                    key={mode}
+                    type="button"
+                    variant={locationMode === mode ? 'default' : 'outline'}
+                    onClick={() => setLocationMode(mode)}
+                    className="h-8 gap-1 overflow-hidden"
+                  >
+                    <Icon className="h-3.5 w-3.5 shrink-0" />
+                    <span className="text-[10px] truncate">{t(`form.locationMode.${mode}`)}</span>
+                  </Button>
+                ))}
+              </div>
+            )}
 
             {/* Physical Location */}
             {(locationMode !== 'virtual' || eventType !== 'meetup') && (
@@ -486,110 +550,123 @@ export const UnifiedEventForm = ({
               />
             )}
 
-            <AnimatePresence mode="sync">
-              {showVirtualLink && (
-                <motion.div key="virtual-link" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                  <FormField
-                    control={form.control}
-                    name="locationUrl"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-[10px] text-muted-foreground">{t('form.meetup.virtualLink')}</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="url" placeholder="https://zoom.us/j/..." className="h-9 text-xs" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* Virtual Link */}
+            {showVirtualLink && (
+              <FormField
+                control={form.control}
+                name="locationUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] text-muted-foreground">{t('form.meetup.virtualLink')}</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="url" placeholder="https://zoom.us/j/..." className="h-9 text-xs" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
 
-          {/* 5. Sport & Team Context (conditional) */}
+          {/* 1h. Visibility Toggle (promoted to essentials) */}
+          <FormField
+            control={form.control}
+            name="isPublic"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center justify-between py-2">
+                  <div className="flex items-center gap-2">
+                    {field.value ? <Globe className="h-3.5 w-3.5 text-primary" /> : <Lock className="h-3.5 w-3.5 text-muted-foreground" />}
+                    <div>
+                      <p className="text-xs font-medium">
+                        {field.value ? t('form.isPublic') : t('form.isPrivate', 'Private Event')}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {field.value ? t('form.isPublicDesc') : t('form.isPrivateDesc', 'Only invited members can see this')}
+                      </p>
+                    </div>
+                  </div>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/* ── Section 2: Match Details (single card, match-only) ── */}
           <AnimatePresence mode="sync">
-            {showSportSelector && (
-              <motion.div key="sport-selector" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                <SportQuickSelector
-                  value={selectedSport || null}
-                  onChange={(sport) => {
-                    setSelectedSport(sport);
-                    setSelectedTeamId(null);
-                    setSelectedTeamName('');
-                  }}
-                  label={t('form.sport')}
-                  lang={lang}
-                />
-              </motion.div>
-            )}
-
-            {showTeamSelector && (
-              <motion.div key="team-selector" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                <MyTeamSelector
-                  value={selectedTeamId}
-                  onChange={handleTeamSelect}
-                  sportFilter={selectedSport || undefined}
-                  label={eventType === 'match' ? t('form.game.yourTeam') : t('details.team')}
-                  placeholder={eventType === 'match' ? t('form.game.pickupOrTeam') : t('form.game.selectTeam')}
-                  forEventCreation={true}
-                  showCreateButton={true}
-                  showPickupOption={eventType === 'match'}
-                  onTeamCreated={(teamId, teamName) => {
-                    setSelectedTeamId(teamId);
-                    setSelectedTeamName(teamName);
-                  }}
-                />
-                
-                {eventType === 'match' && (
-                  <div className="flex items-center gap-1.5 text-[10px] mt-1.5">
-                    {isPickupGame ? (
-                      <>
-                        <Globe className="h-3 w-3 text-accent-foreground" />
-                        <span className="text-muted-foreground">{t('form.visibility.public')}</span>
-                      </>
-                    ) : selectedTeamId ? (
-                      <>
-                        <Lock className="h-3 w-3 text-warning" />
-                        <span className="text-muted-foreground">{t('form.visibility.teamOnly')}</span>
-                      </>
-                    ) : null}
-                  </div>
-                )}
-              </motion.div>
-            )}
-
-            {/* 6. Match-specific: Opponent & Home/Away */}
             {showOpponentSection && (
-              <motion.div key="opponent-section" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                <div className="space-y-2 p-3 bg-muted/30 rounded-lg border">
-                  <Label className="text-xs">{t('form.game.opponentTeam')}</Label>
-                  
-                  <div className="flex gap-1.5">
-                    <Button type="button" size="sm" variant={opponentInputMode === 'select' ? 'default' : 'outline'} onClick={() => setOpponentInputMode('select')} className="flex-1 overflow-hidden h-7">
-                      <span className="text-[10px] truncate">{t('form.game.selectTeam')}</span>
-                    </Button>
-                    <Button type="button" size="sm" variant={opponentInputMode === 'manual' ? 'default' : 'outline'} onClick={() => setOpponentInputMode('manual')} className="flex-1 overflow-hidden h-7">
-                      <span className="text-[10px] truncate">{t('form.game.enterManually')}</span>
-                    </Button>
+              <motion.div key="match-details-card" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
+                <div className="space-y-3 p-3 bg-muted/30 rounded-lg border">
+                  {/* Opponent */}
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold">{t('form.game.opponentTeam')}</Label>
+                    
+                    <div className="flex gap-1.5">
+                      <Button type="button" size="sm" variant={opponentInputMode === 'select' ? 'default' : 'outline'} onClick={() => setOpponentInputMode('select')} className="flex-1 overflow-hidden h-7">
+                        <span className="text-[10px] truncate">{t('form.game.selectTeam')}</span>
+                      </Button>
+                      <Button type="button" size="sm" variant={opponentInputMode === 'manual' ? 'default' : 'outline'} onClick={() => setOpponentInputMode('manual')} className="flex-1 overflow-hidden h-7">
+                        <span className="text-[10px] truncate">{t('form.game.enterManually')}</span>
+                      </Button>
+                    </div>
+
+                    {opponentInputMode === 'select' ? (
+                      <TeamSelector
+                        onSelect={handleOpponentSelect}
+                        selectedTeamId={opponentTeamId || undefined}
+                        sportFilter={selectedSport || selectedTeamSport}
+                        excludeTeamId={selectedTeamId || undefined}
+                        placeholder={t('form.game.opponentPlaceholder')}
+                      />
+                    ) : (
+                      <FormField
+                        control={form.control}
+                        name="opponentName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input {...field} placeholder={t('form.game.opponentPlaceholder')} className="h-9 text-xs" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
                   </div>
 
-                  {opponentInputMode === 'select' ? (
-                    <TeamSelector
-                      onSelect={handleOpponentSelect}
-                      selectedTeamId={opponentTeamId || undefined}
-                      sportFilter={selectedSport || selectedTeamSport}
-                      excludeTeamId={selectedTeamId || undefined}
-                      placeholder={t('form.game.opponentPlaceholder')}
-                    />
-                  ) : (
+                  {/* Home/Away */}
+                  {showHomeAwayToggle && (
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">{t('form.game.location')}</Label>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {(['home', 'away', 'neutral'] as const).map((option) => (
+                          <Button
+                            key={option}
+                            type="button"
+                            variant={homeAway === option ? 'default' : 'outline'}
+                            onClick={() => setHomeAway(option)}
+                            className="h-8 text-[10px] overflow-hidden"
+                          >
+                            {option === 'home' ? '🏠' : option === 'away' ? '✈️' : '⚖️'}{' '}
+                            <span className="truncate">{t(`form.game.${option}`)}</span>
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Match Format (moved here from participant section) */}
+                  {showMatchFormat && (
                     <FormField
                       control={form.control}
-                      name="opponentName"
+                      name="matchFormat"
                       render={({ field }) => (
                         <FormItem>
+                          <FormLabel className="text-[10px] text-muted-foreground">{t('form.game.format')}</FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder={t('form.game.opponentPlaceholder')} className="h-9 text-xs" />
+                            <Input {...field} placeholder={t('form.game.formatPlaceholder')} className="h-9 text-xs" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -599,326 +676,101 @@ export const UnifiedEventForm = ({
                 </div>
               </motion.div>
             )}
-
-            {showHomeAwayToggle && (
-              <motion.div key="home-away" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">{t('form.game.location')}</Label>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {(['home', 'away', 'neutral'] as const).map((option) => (
-                      <Button
-                        key={option}
-                        type="button"
-                        variant={homeAway === option ? 'default' : 'outline'}
-                        onClick={() => setHomeAway(option)}
-                        className="h-8 text-[10px] overflow-hidden"
-                      >
-                        {option === 'home' ? '🏠' : option === 'away' ? '✈️' : '⚖️'}{' '}
-                        <span className="truncate">{t(`form.game.${option}`)}</span>
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* 7. Meetup-specific: Category */}
-            {showCategorySelector && (
-              <motion.div key="category-selector" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">{t('form.meetup.category')}</Label>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {MEETUP_CATEGORIES.map(({ value, emoji }) => (
-                      <Button
-                        key={value}
-                        type="button"
-                        variant={selectedCategory === value ? 'default' : 'outline'}
-                        onClick={() => setSelectedCategory(value)}
-                        className="h-10 flex flex-col items-center gap-0 text-[9px] overflow-hidden px-1"
-                      >
-                        <span className="text-base leading-none">{emoji}</span>
-                        <span className="truncate w-full text-center leading-tight">{getCategoryLabel(value)}</span>
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            )}
           </AnimatePresence>
 
-          {/* 8. More Options - All collapsed by default */}
-          <div className="space-y-1">
-            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider px-0.5">
-              {t('form.moreOptions', 'More options')}
-            </Label>
+          {/* ── Section 3: More Options (single collapsible) ── */}
+          <Collapsible open={showMoreOptions} onOpenChange={setShowMoreOptions}>
+            <CollapsibleTrigger asChild>
+              <Button type="button" variant="ghost" className="w-full justify-between h-9 text-xs text-muted-foreground hover:text-foreground">
+                {t('form.moreOptions', 'More options')}
+                <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", showMoreOptions && "rotate-180")} />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-3 pt-2">
+              {/* Description */}
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs">{t('form.description')}</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} placeholder={t('form.descriptionPlaceholder')} className="min-h-[48px] resize-none text-xs" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Description toggle */}
-            <AnimatePresence mode="sync">
-              {!showDescription && (
-                <motion.div key="add-desc-toggle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setShowDescription(true)} className="w-full justify-start text-muted-foreground h-8 gap-1.5 hover:text-foreground text-xs">
-                    <Plus className="h-3.5 w-3.5" />
-                    {t('form.addDescription')}
-                  </Button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+              {/* Participant Limit */}
+              <FormField
+                control={form.control}
+                name="maxParticipants"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs flex items-center gap-1.5">
+                      <Users className="h-3.5 w-3.5" />
+                      {t('form.maxParticipants')}
+                    </FormLabel>
+                    <FormControl>
+                      <Input {...field} type="number" min="2" max="100" placeholder="10" className="h-9 text-xs" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <AnimatePresence mode="sync">
-              {showDescription && (
-                <motion.div key="description-field" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex items-center justify-between">
-                          <FormLabel className="text-xs">{t('form.description')}</FormLabel>
-                          <Button type="button" variant="ghost" size="sm" onClick={() => { setShowDescription(false); field.onChange(''); }} className="h-5 px-1.5 text-[10px] text-muted-foreground">
-                            {t('form.remove')}
-                          </Button>
-                        </div>
-                        <FormControl>
-                          <Textarea {...field} placeholder={t('form.descriptionPlaceholder')} className="min-h-[48px] resize-none text-xs" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
+              {/* Recurrence */}
+              <div className="space-y-2">
+                <Label className="text-xs flex items-center gap-1.5">
+                  <Repeat className="h-3.5 w-3.5" />
+                  {t('form.repeat')}
+                </Label>
+                
+                <Select value={recurrenceType} onValueChange={(value: RecurrenceType) => { setRecurrenceType(value); setIsRecurring(value !== 'none'); }}>
+                  <SelectTrigger className="h-9 text-xs">
+                    <SelectValue placeholder={t('form.recurrence.selectFrequency')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(['none', 'daily', 'weekly', 'monthly'] as RecurrenceType[]).map((type) => (
+                      <SelectItem key={type} value={type}>{t(`form.recurrence.${type}`)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-            {/* Recurrence toggle */}
-            <AnimatePresence mode="sync">
-              {!showRecurrence && (
-                <motion.div key="add-recurrence-toggle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setShowRecurrence(true)} className="w-full justify-start text-muted-foreground h-8 gap-1.5 hover:text-foreground text-xs">
-                    <Repeat className="h-3.5 w-3.5" />
-                    {t('form.makeRecurring')}
-                  </Button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <AnimatePresence mode="sync">
-              {showRecurrence && (
-                <motion.div key="recurrence-section" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                  <div className="p-3 bg-muted/30 rounded-lg border space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-xs font-medium flex items-center gap-1.5">
-                        <Repeat className="h-3.5 w-3.5" />
-                        {t('form.repeat')}
-                      </Label>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => { setShowRecurrence(false); setIsRecurring(false); setRecurrenceType('none'); setRecurrenceEndDate(undefined); }} className="h-5 px-1.5 text-[10px] text-muted-foreground">
-                        {t('form.remove')}
-                      </Button>
-                    </div>
-                    
-                    <Select value={recurrenceType} onValueChange={(value: RecurrenceType) => { setRecurrenceType(value); setIsRecurring(value !== 'none'); }}>
-                      <SelectTrigger className="h-9 text-xs">
-                        <SelectValue placeholder={t('form.recurrence.selectFrequency')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(['none', 'daily', 'weekly', 'monthly'] as RecurrenceType[]).map((type) => (
-                          <SelectItem key={type} value={type}>{t(`form.recurrence.${type}`)}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    <AnimatePresence mode="sync">
-                      {isRecurring && (
-                        <motion.div key="recurrence-end" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                          <div className="space-y-1">
-                            <Label className="text-[10px] text-muted-foreground">{t('form.recurrence.until')}</Label>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button variant="outline" className="w-full h-9 justify-start text-left font-normal min-w-0 text-xs">
-                                  <span className="truncate flex-1">
-                                    {recurrenceEndDate ? format(recurrenceEndDate, "MMM dd, yyyy") : t('form.recurrence.noEndDate')}
-                                  </span>
-                                  <CalendarIcon className="ml-1.5 h-3.5 w-3.5 opacity-50 shrink-0" />
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar mode="single" selected={recurrenceEndDate} onSelect={setRecurrenceEndDate} disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }} className="pointer-events-auto" />
-                              </PopoverContent>
-                            </Popover>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                {isRecurring && (
+                  <div className="space-y-1">
+                    <Label className="text-[10px] text-muted-foreground">{t('form.recurrence.until')}</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full h-9 justify-start text-left font-normal min-w-0 text-xs">
+                          <span className="truncate flex-1">
+                            {recurrenceEndDate ? format(recurrenceEndDate, "MMM dd, yyyy") : t('form.recurrence.noEndDate')}
+                          </span>
+                          <CalendarIcon className="ml-1.5 h-3.5 w-3.5 opacity-50 shrink-0" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar mode="single" selected={recurrenceEndDate} onSelect={setRecurrenceEndDate} disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }} className="pointer-events-auto" />
+                      </PopoverContent>
+                    </Popover>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                )}
+              </div>
 
-            {/* Participant Limit toggle */}
-            <AnimatePresence mode="sync">
-              {!showParticipantLimit && (
-                <motion.div key="add-participant-toggle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setShowParticipantLimit(true)} className="w-full justify-start text-muted-foreground h-8 gap-1.5 hover:text-foreground text-xs">
-                    <Users className="h-3.5 w-3.5" />
-                    {t('form.addParticipantLimit')}
-                  </Button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <AnimatePresence mode="sync">
-              {showParticipantLimit && (
-                <motion.div key="participant-limit-section" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                  <div className="p-3 bg-muted/30 rounded-lg border space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-xs font-medium flex items-center gap-1.5">
-                        <Users className="h-3.5 w-3.5" />
-                        {t('details.participants')}
-                      </Label>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => { setShowParticipantLimit(false); form.setValue('maxParticipants', ''); }} className="h-5 px-1.5 text-[10px] text-muted-foreground">
-                        {t('form.remove')}
-                      </Button>
-                    </div>
-
-                    <FormField
-                      control={form.control}
-                      name="maxParticipants"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-[10px] text-muted-foreground">{t('form.maxParticipants')}</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="number" min="2" max="100" placeholder="10" className="h-9 text-xs" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <AnimatePresence mode="sync">
-                      {showMatchFormat && (
-                        <motion.div key="match-format" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                          <FormField
-                            control={form.control}
-                            name="matchFormat"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-[10px] text-muted-foreground">{t('form.game.format')}</FormLabel>
-                                <FormControl>
-                                  <Input {...field} placeholder={t('form.game.formatPlaceholder')} className="h-9 text-xs" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Visibility Toggle */}
-            <AnimatePresence mode="sync">
-              {showPublicToggle && (
-                <motion.div key="public-toggle" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                  <FormField
-                    control={form.control}
-                    name="isPublic"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex items-center justify-between p-2.5 bg-muted/30 rounded-lg border">
-                          <div className="flex items-center gap-2">
-                            {field.value ? <Globe className="h-3.5 w-3.5 text-primary" /> : <Lock className="h-3.5 w-3.5 text-muted-foreground" />}
-                            <div>
-                              <p className="text-xs font-medium">
-                                {field.value ? t('form.isPublic') : t('form.isPrivate', 'Private Event')}
-                              </p>
-                              <p className="text-[10px] text-muted-foreground">
-                                {field.value ? t('form.isPublicDesc') : t('form.isPrivateDesc', 'Only invited members can see this')}
-                              </p>
-                            </div>
-                          </div>
-                          <FormControl>
-                            <Switch checked={field.value} onCheckedChange={field.onChange} />
-                          </FormControl>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Looking for Players */}
-            <AnimatePresence mode="sync">
-              {showLookingForPlayersSection && (
-                <motion.div key="looking-for-players-section" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                  <div className="p-3 bg-primary/5 rounded-lg border border-primary/20 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <UserPlus className="h-3.5 w-3.5 text-primary" />
-                        <div>
-                          <p className="text-xs font-medium">{t('lookingForPlayers.title')}</p>
-                          <p className="text-[10px] text-muted-foreground">{t('lookingForPlayers.description')}</p>
-                        </div>
-                      </div>
-                      <Switch checked={lookingForPlayers} onCheckedChange={setLookingForPlayers} />
-                    </div>
-
-                    <AnimatePresence mode="sync">
-                      {lookingForPlayers && (
-                        <motion.div key="players-needed-input" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                          <div className="space-y-1">
-                            <Label className="text-[10px] text-muted-foreground">{t('lookingForPlayers.playersNeeded')}</Label>
-                            <Select value={playersNeeded} onValueChange={setPlayersNeeded}>
-                              <SelectTrigger className="h-9 text-xs">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {[1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 20].map((num) => (
-                                  <SelectItem key={num} value={num.toString()}>
-                                    {num} {num === 1 ? t('lookingForPlayers.player', { defaultValue: 'player' }) : t('lookingForPlayers.players', { defaultValue: 'players' })}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* RSVP Deadline */}
-            <AnimatePresence mode="sync">
-              {!showRsvpDeadline && (
-                <motion.div key="add-rsvp-toggle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setShowRsvpDeadline(true)} className="w-full justify-start text-muted-foreground h-8 gap-1.5 hover:text-foreground text-xs">
+              {/* RSVP Deadline */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs flex items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5" />
-                    {t('form.addRsvpDeadline')}
-                  </Button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                    {t('form.rsvpDeadline')}
+                  </Label>
+                  <Switch checked={showRsvpDeadline} onCheckedChange={setShowRsvpDeadline} />
+                </div>
 
-            <AnimatePresence mode="sync">
-              {showRsvpDeadline && (
-                <motion.div key="rsvp-deadline-section" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                  <div className="p-3 bg-muted/30 rounded-lg border space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-xs font-medium flex items-center gap-1.5">
-                        <Clock className="h-3.5 w-3.5" />
-                        {t('form.rsvpDeadline')}
-                      </Label>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => { setShowRsvpDeadline(false); setDeadlinePreset('24h'); setCustomDeadline(undefined); }} className="h-5 px-1.5 text-[10px] text-muted-foreground">
-                        {t('form.remove')}
-                      </Button>
-                    </div>
-                    
+                {showRsvpDeadline && (
+                  <div className="space-y-2">
                     <p className="text-[10px] text-muted-foreground">{t('form.rsvpDeadlineDesc')}</p>
-
                     <div className="flex flex-wrap gap-1.5">
                       {DEADLINE_PRESETS.map((preset) => (
                         <Button key={preset.value} type="button" variant={deadlinePreset === preset.value ? 'default' : 'outline'} size="sm" onClick={() => setDeadlinePreset(preset.value)} className="h-7 text-[10px] px-2">
@@ -927,52 +779,48 @@ export const UnifiedEventForm = ({
                       ))}
                     </div>
 
-                    <AnimatePresence mode="sync">
-                      {deadlinePreset === 'custom' && (
-                        <motion.div key="custom-deadline-picker" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                          <div className="flex gap-2">
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button type="button" variant="outline" className="flex-1 h-9 justify-start text-left font-normal text-xs">
-                                  <CalendarIcon className="mr-1.5 h-3.5 w-3.5 opacity-50" />
-                                  {customDeadline ? format(customDeadline, "MMM dd, yyyy") : t('form.pickDate')}
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                  mode="single"
-                                  selected={customDeadline}
-                                  onSelect={(date) => {
-                                    if (date) {
-                                      const newDate = new Date(date);
-                                      if (customDeadline) {
-                                        newDate.setHours(customDeadline.getHours(), customDeadline.getMinutes());
-                                      } else {
-                                        newDate.setHours(18, 0);
-                                      }
-                                      setCustomDeadline(newDate);
-                                    }
-                                  }}
-                                  disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }}
-                                  className="pointer-events-auto"
-                                />
-                              </PopoverContent>
-                            </Popover>
-                            <Input
-                              type="time"
-                              value={customDeadline ? format(customDeadline, 'HH:mm') : '18:00'}
-                              onChange={(e) => {
-                                const [hours, mins] = e.target.value.split(':').map(Number);
-                                const newDate = customDeadline ? new Date(customDeadline) : new Date();
-                                newDate.setHours(hours, mins);
-                                setCustomDeadline(newDate);
+                    {deadlinePreset === 'custom' && (
+                      <div className="flex gap-2">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button type="button" variant="outline" className="flex-1 h-9 justify-start text-left font-normal text-xs">
+                              <CalendarIcon className="mr-1.5 h-3.5 w-3.5 opacity-50" />
+                              {customDeadline ? format(customDeadline, "MMM dd, yyyy") : t('form.pickDate')}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={customDeadline}
+                              onSelect={(date) => {
+                                if (date) {
+                                  const newDate = new Date(date);
+                                  if (customDeadline) {
+                                    newDate.setHours(customDeadline.getHours(), customDeadline.getMinutes());
+                                  } else {
+                                    newDate.setHours(18, 0);
+                                  }
+                                  setCustomDeadline(newDate);
+                                }
                               }}
-                              className="w-20 h-9 text-xs"
+                              disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }}
+                              className="pointer-events-auto"
                             />
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                          </PopoverContent>
+                        </Popover>
+                        <Input
+                          type="time"
+                          value={customDeadline ? format(customDeadline, 'HH:mm') : '18:00'}
+                          onChange={(e) => {
+                            const [hours, mins] = e.target.value.split(':').map(Number);
+                            const newDate = customDeadline ? new Date(customDeadline) : new Date();
+                            newDate.setHours(hours, mins);
+                            setCustomDeadline(newDate);
+                          }}
+                          className="w-20 h-9 text-xs"
+                        />
+                      </div>
+                    )}
 
                     {watchedDate && watchedStartTime && (
                       <p className="text-[10px] text-primary">
@@ -987,20 +835,49 @@ export const UnifiedEventForm = ({
                       </p>
                     )}
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                )}
+              </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-2 pt-1">
-            <Button type="button" variant="outline" onClick={onCancel} className="flex-1 h-10" disabled={isSubmitting}>
-              {t('form.cancel', { ns: 'common', defaultValue: 'Cancel' })}
-            </Button>
-            <Button type="submit" className="flex-1 h-10" disabled={isSubmitting}>
-              {isSubmitting ? '...' : t('createEvent')}
-            </Button>
-          </div>
+              {/* Looking for Players */}
+              {showLookingForPlayersSection && (
+                <div className="p-3 bg-primary/5 rounded-lg border border-primary/20 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <UserPlus className="h-3.5 w-3.5 text-primary" />
+                      <div>
+                        <p className="text-xs font-medium">{t('lookingForPlayers.title')}</p>
+                        <p className="text-[10px] text-muted-foreground">{t('lookingForPlayers.description')}</p>
+                      </div>
+                    </div>
+                    <Switch checked={lookingForPlayers} onCheckedChange={setLookingForPlayers} />
+                  </div>
+
+                  {lookingForPlayers && (
+                    <div className="space-y-1">
+                      <Label className="text-[10px] text-muted-foreground">{t('lookingForPlayers.playersNeeded')}</Label>
+                      <Select value={playersNeeded} onValueChange={setPlayersNeeded}>
+                        <SelectTrigger className="h-9 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 20].map((num) => (
+                            <SelectItem key={num} value={num.toString()}>
+                              {num} {num === 1 ? t('lookingForPlayers.player', { defaultValue: 'player' }) : t('lookingForPlayers.players', { defaultValue: 'players' })}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* ── Submit (single full-width button, no cancel) ── */}
+          <Button type="submit" className="w-full h-10" disabled={isSubmitting}>
+            {isSubmitting ? '...' : t('createEvent')}
+          </Button>
         </div>
       </form>
     </Form>

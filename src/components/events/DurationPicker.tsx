@@ -64,7 +64,7 @@ export const DurationPicker = ({
             size="sm"
             variant={!isCustom && value === preset ? "default" : "outline"}
             onClick={() => handlePresetClick(preset)}
-            className="min-w-[60px]"
+            className="min-w-[48px] text-xs"
           >
             {formatDuration(preset)}
           </Button>
@@ -75,7 +75,7 @@ export const DurationPicker = ({
           size="sm"
           variant={isCustom ? "default" : "outline"}
           onClick={handleCustomClick}
-          className="min-w-[60px]"
+          className="min-w-[48px] text-xs"
         >
           {isCustom ? formatDuration(value) : t('form.durationCustom')}
         </Button>
