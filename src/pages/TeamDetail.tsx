@@ -19,7 +19,7 @@ import { useTeamAnnouncements } from "@/hooks/useTeamAnnouncements";
 import { useEvents } from "@/hooks/useEvents";
 import { leaveTeam } from "@/lib/teams";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, UserPlus, Users } from "lucide-react";
+import { Loader2, Lock, UserPlus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { isThisWeek } from "date-fns";
@@ -132,15 +132,36 @@ const TeamDetail = () => {
   };
 
   if (!isMember) {
-    // Private teams: access denied
+    // Private teams: invite-only preview
     if (team.is_private) {
       return (
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-2">{t('access.denied')}</h2>
-            <p className="text-muted-foreground">{t('access.notMember')}</p>
-          </div>
-        </div>
+        <motion.div 
+          className="min-h-screen bg-background"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <PageHeader
+            title=""
+            showBackButton={true}
+            backPath="/teams"
+            className="px-4 pt-4 pb-0"
+          />
+          <TeamHeader
+            team={team}
+            memberCount={memberCount}
+            userRole={userRole}
+            canManage={false}
+            onLeaveTeam={() => {}}
+          />
+          <PageContainer>
+            <div className="space-y-4 text-center py-6">
+              <Lock className="h-10 w-10 mx-auto text-muted-foreground" />
+              <h2 className="text-xl font-heading font-bold">{t('access.denied')}</h2>
+              <p className="text-sm text-muted-foreground max-w-xs mx-auto">{t('access.notMember')}</p>
+            </div>
+          </PageContainer>
+        </motion.div>
       );
     }
 
