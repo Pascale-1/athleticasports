@@ -105,9 +105,9 @@ export const EditEventDialog = ({
           <DialogTitle>{t('edit.title')}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3 min-w-0 overflow-hidden">
+        <form onSubmit={handleSubmit} className="space-y-4 min-w-0 overflow-hidden">
           {/* Title */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="title">{t('form.title')}</Label>
             <Input
               id="title"
@@ -119,7 +119,7 @@ export const EditEventDialog = ({
           </div>
 
           {/* Description */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="description">{t('form.description')}</Label>
             <Textarea
               id="description"
@@ -130,9 +130,9 @@ export const EditEventDialog = ({
             />
           </div>
 
-          {/* Date & Time - Improved responsive layout */}
-          <div className="space-y-3">
-            <div className="space-y-2">
+          {/* Date & Time */}
+          <div className="space-y-4">
+            <div className="space-y-1.5">
               <Label htmlFor="date">{t('form.date')}</Label>
               <Input
                 id="date"
@@ -144,7 +144,7 @@ export const EditEventDialog = ({
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="startTime">{t('form.startTime')}</Label>
                 <Input
                   id="startTime"
@@ -154,7 +154,7 @@ export const EditEventDialog = ({
                   required
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="endTime">{t('form.endTime')}</Label>
                 <Input
                   id="endTime"
@@ -168,7 +168,7 @@ export const EditEventDialog = ({
           </div>
 
           {/* Location */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="location">{t('form.location')}</Label>
             <Input
               id="location"
@@ -184,14 +184,14 @@ export const EditEventDialog = ({
               type="button"
               variant="ghost"
               size="sm"
-              className="text-muted-foreground"
+              className="text-muted-foreground px-0"
               onClick={() => setShowMaxParticipants(true)}
             >
               <Users className="h-4 w-4 mr-2" />
               {t('form.maxParticipants')}
             </Button>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label htmlFor="maxParticipants">{t('form.maxParticipants')}</Label>
               <Input
                 id="maxParticipants"
@@ -206,7 +206,7 @@ export const EditEventDialog = ({
           {/* Match-specific fields */}
           {event.type === 'match' && (
             <>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="opponent">{t('game.opponent')}</Label>
                 <Input
                   id="opponent"
@@ -216,7 +216,7 @@ export const EditEventDialog = ({
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label>{t('game.homeAway')}</Label>
                 <Select value={homeAway} onValueChange={(v) => setHomeAway(v as 'home' | 'away' | 'neutral')}>
                   <SelectTrigger>
@@ -230,7 +230,7 @@ export const EditEventDialog = ({
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="format">{t('game.format')}</Label>
                 <Input
                   id="format"
@@ -242,7 +242,7 @@ export const EditEventDialog = ({
             </>
           )}
 
-          {/* Public/Private Toggle - Dynamic */}
+          {/* Public/Private Toggle */}
           <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl border">
             <div className="flex items-center gap-2">
               {isPublic ? (
@@ -251,9 +251,9 @@ export const EditEventDialog = ({
                 <Lock className="h-4 w-4 text-muted-foreground" />
               )}
               <div>
-                <p className="text-sm font-medium">
+                <Label className="cursor-pointer">
                   {isPublic ? t('form.isPublic') : t('form.isPrivate')}
-                </p>
+                </Label>
                 <p className="text-xs text-muted-foreground">
                   {isPublic ? t('form.isPublicDesc') : t('form.isPrivateDesc')}
                 </p>
@@ -266,7 +266,7 @@ export const EditEventDialog = ({
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-2 border-t">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t('common:actions.cancel')}
             </Button>
