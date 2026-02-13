@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format, subHours } from "date-fns";
 import { AnimatePresence, motion, Easing } from "framer-motion";
-import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Users, UserPlus, Clock, ChevronDown } from "lucide-react";
+import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Users, UserPlus, Clock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 import { EventType } from "@/lib/eventConfig";
@@ -144,8 +144,8 @@ export const UnifiedEventForm = ({
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('none');
   const [recurrenceEndDate, setRecurrenceEndDate] = useState<Date | undefined>(undefined);
 
-  // More options collapsible
-  const [showMoreOptions, setShowMoreOptions] = useState(false);
+  // Description toggle (tap to expand pattern)
+  const [showDescription, setShowDescription] = useState(false);
   
   // RSVP Deadline state
   const [showRsvpDeadline, setShowRsvpDeadline] = useState(false);
@@ -678,201 +678,215 @@ export const UnifiedEventForm = ({
             )}
           </AnimatePresence>
 
-          {/* ── Section 3: More Options (single collapsible) ── */}
-          <Collapsible open={showMoreOptions} onOpenChange={setShowMoreOptions}>
-            <CollapsibleTrigger asChild>
-              <Button type="button" variant="ghost" className="w-full justify-between h-9 text-xs text-muted-foreground hover:text-foreground">
-                {t('form.moreOptions', 'More options')}
-                <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", showMoreOptions && "rotate-180")} />
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-3 pt-2">
-              {/* Description */}
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs">{t('form.description')}</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} placeholder={t('form.descriptionPlaceholder')} className="min-h-[48px] resize-none text-xs" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          {/* ── Section 3: Options (all inline, no collapsible) ── */}
+          <Separator className="my-1" />
 
-              {/* Participant Limit */}
-              <FormField
-                control={form.control}
-                name="maxParticipants"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs flex items-center gap-1.5">
-                      <Users className="h-3.5 w-3.5" />
-                      {t('form.maxParticipants')}
-                    </FormLabel>
-                    <FormControl>
-                      <Input {...field} type="number" min="2" max="100" placeholder="10" className="h-9 text-xs" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          {/* Description - tap to expand */}
+          {!showDescription ? (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setShowDescription(true)}
+              className="w-full justify-start h-8 text-xs text-muted-foreground px-0 hover:text-foreground"
+            >
+              + {t('form.addNote', 'Add a note...')}
+            </Button>
+          ) : (
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder={t('form.descriptionPlaceholder')}
+                      className="min-h-[48px] resize-none text-xs"
+                      autoFocus
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
-              {/* Recurrence */}
-              <div className="space-y-2">
+          {/* Participants - inline row */}
+          <FormField
+            control={form.control}
+            name="maxParticipants"
+            render={({ field }) => (
+              <div className="flex items-center justify-between h-9">
                 <Label className="text-xs flex items-center gap-1.5">
-                  <Repeat className="h-3.5 w-3.5" />
-                  {t('form.repeat')}
+                  <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                  {t('form.maxParticipants')}
                 </Label>
-                
-                <Select value={recurrenceType} onValueChange={(value: RecurrenceType) => { setRecurrenceType(value); setIsRecurring(value !== 'none'); }}>
-                  <SelectTrigger className="h-9 text-xs">
-                    <SelectValue placeholder={t('form.recurrence.selectFrequency')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(['none', 'daily', 'weekly', 'monthly'] as RecurrenceType[]).map((type) => (
-                      <SelectItem key={type} value={type}>{t(`form.recurrence.${type}`)}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="number"
+                    min="2"
+                    max="100"
+                    placeholder="--"
+                    className="w-20 h-8 text-xs text-right"
+                  />
+                </FormControl>
+              </div>
+            )}
+          />
 
-                {isRecurring && (
-                  <div className="space-y-1">
-                    <Label className="text-[10px] text-muted-foreground">{t('form.recurrence.until')}</Label>
+          {/* Recurrence - inline row */}
+          <div className="flex items-center justify-between h-9">
+            <Label className="text-xs flex items-center gap-1.5">
+              <Repeat className="h-3.5 w-3.5 text-muted-foreground" />
+              {t('form.repeat')}
+            </Label>
+            <Select
+              value={recurrenceType}
+              onValueChange={(value: RecurrenceType) => {
+                setRecurrenceType(value);
+                setIsRecurring(value !== 'none');
+              }}
+            >
+              <SelectTrigger className="w-28 h-8 text-xs">
+                <SelectValue placeholder={t('form.recurrence.selectFrequency')} />
+              </SelectTrigger>
+              <SelectContent>
+                {(['none', 'daily', 'weekly', 'monthly'] as RecurrenceType[]).map((type) => (
+                  <SelectItem key={type} value={type}>{t(`form.recurrence.${type}`)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Recurrence end date (only when recurring) */}
+          {isRecurring && (
+            <div className="pl-5 space-y-1">
+              <Label className="text-[10px] text-muted-foreground">{t('form.recurrence.until')}</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full h-8 justify-start text-left font-normal min-w-0 text-xs">
+                    <span className="truncate flex-1">
+                      {recurrenceEndDate ? format(recurrenceEndDate, "MMM dd, yyyy") : t('form.recurrence.noEndDate')}
+                    </span>
+                    <CalendarIcon className="ml-1.5 h-3.5 w-3.5 opacity-50 shrink-0" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar mode="single" selected={recurrenceEndDate} onSelect={setRecurrenceEndDate} disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }} className="pointer-events-auto" />
+                </PopoverContent>
+              </Popover>
+            </div>
+          )}
+
+          {/* RSVP Deadline - inline switch */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between h-9">
+              <Label className="text-xs flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                {t('form.rsvpDeadline')}
+              </Label>
+              <Switch checked={showRsvpDeadline} onCheckedChange={setShowRsvpDeadline} />
+            </div>
+
+            {showRsvpDeadline && (
+              <div className="space-y-2 pl-5">
+                <div className="flex flex-wrap gap-1.5">
+                  {DEADLINE_PRESETS.map((preset) => (
+                    <Button key={preset.value} type="button" variant={deadlinePreset === preset.value ? 'default' : 'outline'} size="sm" onClick={() => setDeadlinePreset(preset.value)} className="h-7 text-[10px] px-2">
+                      {t(`form.deadline.${preset.value}`)}
+                    </Button>
+                  ))}
+                </div>
+
+                {deadlinePreset === 'custom' && (
+                  <div className="flex gap-2">
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-full h-9 justify-start text-left font-normal min-w-0 text-xs">
-                          <span className="truncate flex-1">
-                            {recurrenceEndDate ? format(recurrenceEndDate, "MMM dd, yyyy") : t('form.recurrence.noEndDate')}
-                          </span>
-                          <CalendarIcon className="ml-1.5 h-3.5 w-3.5 opacity-50 shrink-0" />
+                        <Button type="button" variant="outline" className="flex-1 h-8 justify-start text-left font-normal text-xs">
+                          <CalendarIcon className="mr-1.5 h-3.5 w-3.5 opacity-50" />
+                          {customDeadline ? format(customDeadline, "MMM dd, yyyy") : t('form.pickDate')}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar mode="single" selected={recurrenceEndDate} onSelect={setRecurrenceEndDate} disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }} className="pointer-events-auto" />
+                        <Calendar
+                          mode="single"
+                          selected={customDeadline}
+                          onSelect={(date) => {
+                            if (date) {
+                              const newDate = new Date(date);
+                              if (customDeadline) {
+                                newDate.setHours(customDeadline.getHours(), customDeadline.getMinutes());
+                              } else {
+                                newDate.setHours(18, 0);
+                              }
+                              setCustomDeadline(newDate);
+                            }
+                          }}
+                          disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }}
+                          className="pointer-events-auto"
+                        />
                       </PopoverContent>
                     </Popover>
+                    <Input
+                      type="time"
+                      value={customDeadline ? format(customDeadline, 'HH:mm') : '18:00'}
+                      onChange={(e) => {
+                        const [hours, mins] = e.target.value.split(':').map(Number);
+                        const newDate = customDeadline ? new Date(customDeadline) : new Date();
+                        newDate.setHours(hours, mins);
+                        setCustomDeadline(newDate);
+                      }}
+                      className="w-20 h-8 text-xs"
+                    />
                   </div>
                 )}
+
+                {watchedDate && watchedStartTime && (
+                  <p className="text-[10px] text-primary">
+                    {(() => {
+                      const [hours, minutes] = watchedStartTime.split(':').map(Number);
+                      const eventDateTime = new Date(watchedDate);
+                      eventDateTime.setHours(hours, minutes, 0, 0);
+                      const deadline = calculateRsvpDeadline(eventDateTime);
+                      if (deadline) return t('form.deadlinePreview', { time: format(deadline, 'EEE MMM d, HH:mm') });
+                      return null;
+                    })()}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Looking for Players - inline switch (match/training only) */}
+          {showLookingForPlayersSection && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between h-9">
+                <Label className="text-xs flex items-center gap-1.5">
+                  <UserPlus className="h-3.5 w-3.5 text-muted-foreground" />
+                  {t('lookingForPlayers.title')}
+                </Label>
+                <Switch checked={lookingForPlayers} onCheckedChange={setLookingForPlayers} />
               </div>
 
-              {/* RSVP Deadline */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5" />
-                    {t('form.rsvpDeadline')}
-                  </Label>
-                  <Switch checked={showRsvpDeadline} onCheckedChange={setShowRsvpDeadline} />
-                </div>
-
-                {showRsvpDeadline && (
-                  <div className="space-y-2">
-                    <p className="text-[10px] text-muted-foreground">{t('form.rsvpDeadlineDesc')}</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {DEADLINE_PRESETS.map((preset) => (
-                        <Button key={preset.value} type="button" variant={deadlinePreset === preset.value ? 'default' : 'outline'} size="sm" onClick={() => setDeadlinePreset(preset.value)} className="h-7 text-[10px] px-2">
-                          {t(`form.deadline.${preset.value}`)}
-                        </Button>
+              {lookingForPlayers && (
+                <div className="pl-5">
+                  <Select value={playersNeeded} onValueChange={setPlayersNeeded}>
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 20].map((num) => (
+                        <SelectItem key={num} value={num.toString()}>
+                          {num} {num === 1 ? t('lookingForPlayers.player', { defaultValue: 'player' }) : t('lookingForPlayers.players', { defaultValue: 'players' })}
+                        </SelectItem>
                       ))}
-                    </div>
-
-                    {deadlinePreset === 'custom' && (
-                      <div className="flex gap-2">
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button type="button" variant="outline" className="flex-1 h-9 justify-start text-left font-normal text-xs">
-                              <CalendarIcon className="mr-1.5 h-3.5 w-3.5 opacity-50" />
-                              {customDeadline ? format(customDeadline, "MMM dd, yyyy") : t('form.pickDate')}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={customDeadline}
-                              onSelect={(date) => {
-                                if (date) {
-                                  const newDate = new Date(date);
-                                  if (customDeadline) {
-                                    newDate.setHours(customDeadline.getHours(), customDeadline.getMinutes());
-                                  } else {
-                                    newDate.setHours(18, 0);
-                                  }
-                                  setCustomDeadline(newDate);
-                                }
-                              }}
-                              disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }}
-                              className="pointer-events-auto"
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <Input
-                          type="time"
-                          value={customDeadline ? format(customDeadline, 'HH:mm') : '18:00'}
-                          onChange={(e) => {
-                            const [hours, mins] = e.target.value.split(':').map(Number);
-                            const newDate = customDeadline ? new Date(customDeadline) : new Date();
-                            newDate.setHours(hours, mins);
-                            setCustomDeadline(newDate);
-                          }}
-                          className="w-20 h-9 text-xs"
-                        />
-                      </div>
-                    )}
-
-                    {watchedDate && watchedStartTime && (
-                      <p className="text-[10px] text-primary">
-                        {(() => {
-                          const [hours, minutes] = watchedStartTime.split(':').map(Number);
-                          const eventDateTime = new Date(watchedDate);
-                          eventDateTime.setHours(hours, minutes, 0, 0);
-                          const deadline = calculateRsvpDeadline(eventDateTime);
-                          if (deadline) return t('form.deadlinePreview', { time: format(deadline, 'EEE MMM d, HH:mm') });
-                          return null;
-                        })()}
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Looking for Players */}
-              {showLookingForPlayersSection && (
-                <div className="p-3 bg-primary/5 rounded-lg border border-primary/20 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <UserPlus className="h-3.5 w-3.5 text-primary" />
-                      <div>
-                        <p className="text-xs font-medium">{t('lookingForPlayers.title')}</p>
-                        <p className="text-[10px] text-muted-foreground">{t('lookingForPlayers.description')}</p>
-                      </div>
-                    </div>
-                    <Switch checked={lookingForPlayers} onCheckedChange={setLookingForPlayers} />
-                  </div>
-
-                  {lookingForPlayers && (
-                    <div className="space-y-1">
-                      <Label className="text-[10px] text-muted-foreground">{t('lookingForPlayers.playersNeeded')}</Label>
-                      <Select value={playersNeeded} onValueChange={setPlayersNeeded}>
-                        <SelectTrigger className="h-9 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 20].map((num) => (
-                            <SelectItem key={num} value={num.toString()}>
-                              {num} {num === 1 ? t('lookingForPlayers.player', { defaultValue: 'player' }) : t('lookingForPlayers.players', { defaultValue: 'players' })}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
-            </CollapsibleContent>
-          </Collapsible>
+            </div>
+          )}
 
           {/* ── Submit (single full-width button, no cancel) ── */}
           <Button type="submit" className="w-full h-10" disabled={isSubmitting}>
