@@ -44,7 +44,9 @@
   },
   "access": {
     "denied": "Accès refusé",
-    "notMember": "Vous n'êtes pas membre de cette équipe"
+    "notMember": "Vous n'êtes pas membre de cette équipe",
+    "joinTeam": "Rejoindre l'équipe",
+    "publicTeamPreview": "Cette équipe est ouverte à tous"
   },
   "settingsPage": {
     "title": "Paramètres de l'équipe",
@@ -207,7 +209,8 @@
     "alreadyMemberDesc": "Vous faites déjà partie de cette équipe",
     "joinSuccess": "Vous avez rejoint {{name}}",
     "createSuccess": "Équipe créée avec succès",
-    "createError": "Échec de la création de l'équipe"
+    "createError": "Échec de la création de l'équipe",
+    "joinError": "Échec de l'inscription à l'équipe"
   },
   "quickCreate": {
     "description": "Créez l'équipe adverse pour suivre les parties et inviter des membres plus tard"

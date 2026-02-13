@@ -19,7 +19,8 @@ import { useTeamAnnouncements } from "@/hooks/useTeamAnnouncements";
 import { useEvents } from "@/hooks/useEvents";
 import { leaveTeam } from "@/lib/teams";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, UserPlus } from "lucide-react";
+import { Loader2, UserPlus, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { isThisWeek } from "date-fns";
 import { PageContainer } from "@/components/mobile/PageContainer";
@@ -100,14 +101,80 @@ const TeamDetail = () => {
     );
   }
 
+  const handleJoinTeam = async () => {
+    if (!teamId || !currentUserId) return;
+    try {
+      // Insert into team_members
+      const { data: memberData, error: memberError } = await supabase
+        .from('team_members')
+        .insert({ team_id: teamId, user_id: currentUserId, status: 'active' })
+        .select('id')
+        .single();
+      if (memberError) throw memberError;
+
+      // Assign member role
+      const { error: roleError } = await supabase
+        .from('team_member_roles')
+        .insert({ team_member_id: memberData.id, role: 'member' });
+      if (roleError) throw roleError;
+
+      toast({
+        title: t('toast.joinSuccess', { name: team?.name }),
+      });
+      // Reload to show full team view
+      window.location.reload();
+    } catch (error) {
+      toast({
+        title: t('toast.joinError'),
+        variant: "destructive",
+      });
+    }
+  };
+
   if (!isMember) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">{t('access.denied')}</h2>
-          <p className="text-muted-foreground">{t('access.notMember')}</p>
+    // Private teams: access denied
+    if (team.is_private) {
+      return (
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-2">{t('access.denied')}</h2>
+            <p className="text-muted-foreground">{t('access.notMember')}</p>
+          </div>
         </div>
-      </div>
+      );
+    }
+
+    // Public teams: show preview with join button
+    return (
+      <motion.div 
+        className="min-h-screen bg-background"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <PageHeader
+          title=""
+          showBackButton={true}
+          backPath="/teams"
+          className="px-4 pt-4 pb-0"
+        />
+        <TeamHeader
+          team={team}
+          memberCount={memberCount}
+          userRole={userRole}
+          canManage={false}
+          onLeaveTeam={() => {}}
+        />
+        <PageContainer>
+          <div className="space-y-4 text-center py-6">
+            <p className="text-muted-foreground">{t('access.publicTeamPreview')}</p>
+            <Button size="lg" onClick={handleJoinTeam} className="gap-2">
+              <Users className="h-5 w-5" />
+              {t('access.joinTeam')}
+            </Button>
+          </div>
+        </PageContainer>
+      </motion.div>
     );
   }
 

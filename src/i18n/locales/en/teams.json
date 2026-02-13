@@ -44,7 +44,9 @@
   },
   "access": {
     "denied": "Access Denied",
-    "notMember": "You are not a member of this team"
+    "notMember": "You are not a member of this team",
+    "joinTeam": "Join Team",
+    "publicTeamPreview": "This team is open to everyone"
   },
   "settingsPage": {
     "title": "Team Settings",
@@ -207,7 +209,8 @@
     "alreadyMemberDesc": "You're already part of this team",
     "joinSuccess": "You've joined {{name}}",
     "createSuccess": "Team created successfully",
-    "createError": "Failed to create team"
+    "createError": "Failed to create team",
+    "joinError": "Failed to join team"
   },
   "quickCreate": {
     "description": "Create your opponent's team to track games and invite members later"
