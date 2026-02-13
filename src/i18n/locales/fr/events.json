@@ -20,11 +20,17 @@
     "myEventsSubtitle": "événements auxquels vous participez",
     "organized": "Organisés",
     "openGames": "Matchs ouverts",
-    "organizedSubtitle": "événements que vous organisez"
+    "organizedSubtitle": "événements que vous organisez",
+    "discover": "Découvrir",
+    "discoverSubtitle": "événements publics près de vous"
   },
   "organized": {
     "empty": "Aucun événement organisé",
     "emptyDesc": "Les événements que vous créez apparaîtront ici"
+  },
+  "discover": {
+    "empty": "Rien à découvrir",
+    "emptyDesc": "Les événements publics d'autres utilisateurs apparaîtront ici"
   },
   "types": {
     "all": "Tous",
