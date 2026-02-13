@@ -278,7 +278,7 @@ export const UnifiedEventForm = ({
       location_url: eventType === 'meetup' && values.locationUrl ? values.locationUrl : undefined,
       max_participants: values.maxParticipants ? parseInt(values.maxParticipants, 10) : undefined,
       // Pickup games are always public, team events are private, meetups follow toggle
-      is_public: isPickupGame ? true : (eventType === 'meetup' ? (values.isPublic ?? !teamId) : false),
+      is_public: isPickupGame ? true : (values.isPublic ?? !(selectedTeamId || teamId)),
       team_id: selectedTeamId || teamId || undefined,
       // Sport for matching - save selected sport for pickup games and team events
       sport: selectedSport || undefined,
@@ -325,11 +325,11 @@ export const UnifiedEventForm = ({
   const showCategorySelector = eventType === 'meetup';
   const showLocationMode = eventType === 'meetup';
   const showVirtualLink = eventType === 'meetup' && (locationMode === 'virtual' || locationMode === 'hybrid');
-  const showPublicToggle = eventType === 'meetup' && !teamId;
+  const showPublicToggle = !isPickupGame && !teamId;
   const showLookingForPlayersSection = eventType === 'match' || eventType === 'training';
   
   // Determine actual visibility for display
-  const isPublicEvent = isPickupGame || (eventType === 'meetup' && form.watch('isPublic'));
+  const isPublicEvent = isPickupGame || form.watch('isPublic');
   const eventVisibilityLabel = isPublicEvent 
     ? t('form.visibility.public') 
     : t('form.visibility.teamOnly');
