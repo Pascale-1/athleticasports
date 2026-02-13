@@ -79,15 +79,15 @@ export const useTeamInvitations = (teamId: string | null) => {
         // User was selected from search
         invitedUserId = emailOrUserId;
         
-        // Get user's email/username for the invitation record
+        // Get user's email for the invitation record
         const { data: profile } = await supabase
           .from("profiles")
-          .select("username")
+          .select("username, email")
           .eq("user_id", emailOrUserId)
           .single();
         
         if (!profile) throw new Error("User not found");
-        email = profile.username;
+        email = profile.email || profile.username;
       } else {
         // Try to find existing user by exact username match first (parametrized query - safe from SQL injection)
         const { data: exactMatch } = await supabase

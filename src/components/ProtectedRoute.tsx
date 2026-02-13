@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -14,6 +14,7 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false }: Protec
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
+  const onboardingCachedRef = useRef(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -54,7 +55,13 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false }: Protec
   useEffect(() => {
     const checkOnboarding = async () => {
       if (!user || skipOnboardingCheck) {
-        if (user) setOnboardingCompleted(true); // Skip check means treat as completed
+        if (user) setOnboardingCompleted(true);
+        setLoading(false);
+        return;
+      }
+
+      // Once onboarding is confirmed complete, never re-check
+      if (onboardingCachedRef.current) {
         setLoading(false);
         return;
       }
@@ -68,9 +75,11 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false }: Protec
 
         if (error) {
           console.error('Error checking onboarding:', error);
-          setOnboardingCompleted(true); // Default to true on error
+          setOnboardingCompleted(true);
         } else {
-          setOnboardingCompleted(data?.onboarding_completed ?? false);
+          const completed = data?.onboarding_completed ?? false;
+          setOnboardingCompleted(completed);
+          if (completed) onboardingCachedRef.current = true;
         }
       } catch (err) {
         console.error('Error checking onboarding:', err);
