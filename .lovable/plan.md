@@ -1,35 +1,59 @@
 
-# Fix Public/Private Toggle Visibility + Redesign Event Type Selector
+# Fix: Long Address Text Causing Horizontal Overflow
 
-## Problem 1: Public/Private Toggle Hidden
-The toggle is currently nested **inside** the "Participant Limit" collapsible section (lines 970-1097 of UnifiedEventForm.tsx). It only appears when you click "Set participant limit". This is why it's invisible for Workout and Hangout events despite `showPublicToggle = true`.
+## Problem
+When a long address is entered or selected in the event creation form, the text in the input field causes the entire screen to expand horizontally. This breaks the layout on mobile.
 
-**Fix**: Move the public/private toggle **out** of the participant limit block and place it as a standalone section in the main form flow, right after the location fields. This ensures it's always visible regardless of event type.
+## Root Cause
+The `AddressAutocomplete` component and its parent `DistrictSelector` don't enforce width constraints. The input value (a long address string) stretches the form beyond the dialog/page bounds. The `* { max-width: 100% }` rule in CSS helps generally, but form inputs with long unbroken text can still overflow.
 
-## Problem 2: Event Type Selector Hard to Read
-The current design uses tiny 8px text for descriptions ("Compete vs opponent", "Contre un adversaire") which is nearly illegible, especially on mobile. The tall 80px buttons with three stacked lines feel cramped.
+## Fix (3 small changes)
 
-**Redesign**: Switch to a cleaner horizontal pill/segment design:
-- Keep the icon + label (e.g., Trophy + "Match") in a compact, wide pill
-- Move the description text below the selector as a single contextual line that changes based on selection
-- Increase label font to 12px for readability
-- Reduce button height to ~48px since descriptions move out
+### 1. `src/components/location/AddressAutocomplete.tsx`
+- Add `overflow-hidden` and `w-full` to the root container div (line 238)
+- This ensures the autocomplete wrapper never exceeds its parent width
 
-## File Changes
+Change line 238:
+```
+<div ref={containerRef} className={cn("relative space-y-2", className)}>
+```
+to:
+```
+<div ref={containerRef} className={cn("relative space-y-2 w-full min-w-0 overflow-hidden", className)}>
+```
 
-### `src/components/events/UnifiedEventForm.tsx`
-1. **Move the public toggle block** (lines 1052-1094) out of the participant limit section (which ends at line 1097) and place it as a sibling in the main `space-y-4` flow, after the location/time section
-2. Update the comment from "Meetup only without team" to "Event Visibility"
+### 2. `src/components/location/DistrictSelector.tsx`
+- Add `min-w-0 overflow-hidden` to the outer div (line 34) to prevent the wrapper from growing beyond its flex parent
 
-### `src/components/events/EventTypeSelector.tsx`
-Redesign the component:
-- Reduce button height from `h-20` to `h-12`
-- Remove the 8px description span from inside buttons
-- Add a contextual description line below the selector that shows the description for the currently selected type
-- Increase label text from `text-[11px]` to `text-xs` (12px)
-- Use `gap-1` instead of `gap-0.5` for better icon-label spacing
+Change:
+```
+<div className="space-y-2">
+```
+to:
+```
+<div className="space-y-2 min-w-0 overflow-hidden">
+```
 
-### Translation keys (no changes needed)
-- EN: "Compete vs opponent" / "Run, train, or practice" / "Social gatherings" -- already clear
-- FR: "Contre un adversaire" / "Sport ou entraînement" / "Sorties et social" -- already clear
-- The descriptions just need to be displayed at a readable size below the selector instead of crammed inside tiny buttons
+### 3. `src/components/events/UnifiedEventForm.tsx`
+- Add `min-w-0 overflow-hidden` to the form element (line 339) to enforce that no child can push the form wider than its container
+
+Change line 339:
+```
+<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+```
+to:
+```
+<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 min-w-0 overflow-hidden">
+```
+
+## Why This Works
+- `min-w-0` on flex/grid children prevents them from growing beyond their parent
+- `overflow-hidden` clips any content that tries to extend past the container boundary
+- These are the same patterns already used elsewhere in the codebase (e.g., `MobileLayout`, button labels with `truncate`)
+
+## Files Changed
+| File | Change |
+|------|--------|
+| `src/components/location/AddressAutocomplete.tsx` | Add `w-full min-w-0 overflow-hidden` to root div |
+| `src/components/location/DistrictSelector.tsx` | Add `min-w-0 overflow-hidden` to outer div |
+| `src/components/events/UnifiedEventForm.tsx` | Add `min-w-0 overflow-hidden` to form element |
