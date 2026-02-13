@@ -43,8 +43,8 @@
     "chat": "Chat"
   },
   "access": {
-    "denied": "Access Denied",
-    "notMember": "You are not a member of this team",
+    "denied": "Invite Only",
+    "notMember": "You need an invite link from a team member to join this team.",
     "joinTeam": "Join Team",
     "publicTeamPreview": "This team is open to everyone"
   },
