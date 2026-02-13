@@ -325,7 +325,7 @@ export const UnifiedEventForm = ({
   const showCategorySelector = eventType === 'meetup';
   const showLocationMode = eventType === 'meetup';
   const showVirtualLink = eventType === 'meetup' && (locationMode === 'virtual' || locationMode === 'hybrid');
-  const showPublicToggle = !isPickupGame && !teamId;
+  const showPublicToggle = true;
   const showLookingForPlayersSection = eventType === 'match' || eventType === 'training';
   
   // Determine actual visibility for display

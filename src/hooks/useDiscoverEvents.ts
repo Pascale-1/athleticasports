@@ -50,7 +50,7 @@ export const useDiscoverEvents = () => {
           return !attendance.some(
             (a: { user_id: string; status: string }) =>
               a.user_id === currentUserId &&
-              (a.status === "attending" || a.status === "not_attending")
+              (a.status === "attending" || a.status === "maybe")
           );
         })
         .map(({ event_attendance, ...rest }) => rest) as unknown as Event[];
