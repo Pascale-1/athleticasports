@@ -77,20 +77,12 @@ const Onboarding = () => {
 
       if (error) throw error;
 
-      // Navigate based on first selected goal (priority: play > organize > team > explore)
-      const goalPriority: OnboardingGoal[] = ['play', 'organize', 'team', 'explore'];
-      const primaryGoal = goalPriority.find(g => selectedGoals.includes(g)) || 'explore';
-      
-      const goalRoutes: Record<OnboardingGoal, string> = {
-        play: '/',
-        organize: '/',
-        team: '/',
-        explore: '/',
-      };
+      // Wait for database propagation before navigating
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       // Set walkthrough trigger so it starts on home page
       setTrigger();
-      navigate(goalRoutes[primaryGoal], { replace: true });
+      navigate('/', { replace: true });
       toast.success("Welcome to Athletica!");
     } catch (error) {
       console.error('Error saving onboarding:', error);

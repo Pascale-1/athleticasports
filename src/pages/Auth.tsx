@@ -3,7 +3,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,30 +19,29 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-const emailSchema = z.object({
-  email: z.string().email("Invalid email address").max(255),
-  password: z.string().min(6, "Password must be at least 6 characters").max(72),
-});
-
-type EmailFormData = z.infer<typeof emailSchema>;
-
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { t } = useTranslation('auth');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [invitationId, setInvitationId] = useState<string | null>(null);
   const returnUrl = searchParams.get("returnUrl");
-  const redirectUrl = `${window.location.origin}/auth`;
+
+  const emailSchema = z.object({
+    email: z.string().email(t('invalidEmail')).max(255),
+    password: z.string().min(6, t('passwordMin')).max(72),
+  });
+
+  type EmailFormData = z.infer<typeof emailSchema>;
 
   const emailForm = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
   });
 
   useEffect(() => {
-    // If we have a stale session (e.g., user was deleted), clear it so sign-in works again.
     supabase.auth.getUser().then(({ data, error }) => {
       if (!error) return;
       const msg = error.message || "";
@@ -50,7 +51,6 @@ const Auth = () => {
       }
     });
 
-    // Check for OAuth errors in URL params
     const error = searchParams.get("error");
     const errorDescription = searchParams.get("error_description");
     const invitationIdParam = searchParams.get("invitationId");
@@ -69,7 +69,7 @@ const Auth = () => {
 
       toast({
         variant: "destructive",
-        title: "Google Sign In Error",
+        title: t('googleSignInError'),
         description: friendlyMessage,
       });
 
@@ -78,7 +78,7 @@ const Auth = () => {
         : "/auth";
       window.history.replaceState({}, "", cleanUrl);
     }
-  }, [searchParams, toast]);
+  }, [searchParams, toast, t]);
 
   useEffect(() => {
     document.title = "Sign in | Athletica Sports";
@@ -149,8 +149,8 @@ const Auth = () => {
         if (error) throw error;
 
         toast({
-          title: "Account created!",
-          description: "You can now sign in with your credentials.",
+          title: t('accountCreated'),
+          description: t('accountCreatedDesc'),
         });
         setIsSignUp(false);
       } else {
@@ -161,27 +161,23 @@ const Auth = () => {
 
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
-            throw new Error(
-              "Invalid email or password. Don't have an account? Sign up below."
-            );
+            throw new Error(t('invalidCredentials'));
           }
           if (error.message.includes("Email not confirmed")) {
-            throw new Error(
-              "Please check your email and confirm your account before signing in."
-            );
+            throw new Error(t('confirmEmail'));
           }
           throw error;
         }
 
         toast({
-          title: "Welcome back!",
-          description: "Successfully signed in.",
+          title: t('welcomeBack'),
+          description: t('signedInSuccess'),
         });
       }
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: isSignUp ? "Sign Up Error" : "Sign In Error",
+        title: isSignUp ? t('signUpError') : t('signInError'),
         description:
           error.message || "An error occurred during authentication.",
       });
@@ -193,20 +189,13 @@ const Auth = () => {
   const handleGoogleAuth = async () => {
     setGoogleLoading(true);
     try {
-      console.log("[OAuth] Starting Google sign-in", {
+      console.log("[OAuth] Starting Google sign-in via Lovable Cloud", {
         origin: window.location.origin,
         invitationId: invitationId || "none",
       });
 
-      const finalRedirectUrl = invitationId
-        ? `${redirectUrl}?invitationId=${invitationId}`
-        : redirectUrl;
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: finalRedirectUrl,
-        },
+      const { error } = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
       });
 
       if (error) throw error;
@@ -215,7 +204,7 @@ const Auth = () => {
       setGoogleLoading(false);
       toast({
         variant: "destructive",
-        title: "Google Sign In Error",
+        title: t('googleSignInError'),
         description: error.message || "Failed to sign in with Google.",
       });
     }
@@ -225,16 +214,15 @@ const Auth = () => {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-heading-1">Welcome to Athletica</CardTitle>
-          <CardDescription>Sign in or create your account</CardDescription>
+          <CardTitle className="text-heading-1">{t('welcome')}</CardTitle>
+          <CardDescription>{t('signInOrCreate')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {invitationId && (
             <Alert className="border-primary/50 bg-primary/5">
-              <AlertTitle className="text-primary">Team Invitation</AlertTitle>
+              <AlertTitle className="text-primary">{t('teamInvitation')}</AlertTitle>
               <AlertDescription className="text-body">
-                You've been invited to join a team! Please sign in or create an
-                account to accept.
+                {t('teamInvitationDesc')}
               </AlertDescription>
             </Alert>
           )}
@@ -266,7 +254,7 @@ const Auth = () => {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            {googleLoading ? "Signing in..." : "Continue with Google"}
+            {googleLoading ? t('signingIn') : t('continueWithGoogle')}
           </Button>
 
           <div className="relative">
@@ -275,7 +263,7 @@ const Auth = () => {
             </div>
             <div className="relative flex justify-center text-caption uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Or continue with email
+                {t('orContinueWith')}
               </span>
             </div>
           </div>
@@ -286,11 +274,11 @@ const Auth = () => {
             className="space-y-4"
           >
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('email')}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t('emailPlaceholder')}
                 {...emailForm.register("email")}
               />
               {emailForm.formState.errors.email && (
@@ -301,11 +289,11 @@ const Auth = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('password')}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder={t('passwordPlaceholder')}
                 {...emailForm.register("password")}
               />
               {emailForm.formState.errors.password && (
@@ -317,13 +305,12 @@ const Auth = () => {
 
             {invitationId && (
               <p className="text-xs text-muted-foreground text-center">
-                💡 Tip: Use the same email address where you received the
-                invitation
+                💡 {t('useInvitedEmail')}
               </p>
             )}
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
+              {loading ? "Loading..." : isSignUp ? t('signUp') : t('signIn')}
             </Button>
 
             <Button
@@ -333,9 +320,7 @@ const Auth = () => {
               onClick={() => setIsSignUp(!isSignUp)}
               disabled={loading}
             >
-              {isSignUp
-                ? "Already have an account? Sign In"
-                : "Don't have an account? Sign Up"}
+              {isSignUp ? t('alreadyHaveAccount') : t('dontHaveAccount')}
             </Button>
           </form>
         </CardContent>
