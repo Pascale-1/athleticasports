@@ -56,7 +56,13 @@ const queryClient = new QueryClient({
 });
 
 // Use HashRouter for native (Capacitor) and BrowserRouter for web
-const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter;
+let isNative = false;
+try {
+  isNative = Capacitor.isNativePlatform();
+} catch (e) {
+  console.warn("Capacitor.isNativePlatform() failed, defaulting to BrowserRouter", e);
+}
+const Router = isNative ? HashRouter : BrowserRouter;
 
 const AppRoutes = () => (
   <Suspense fallback={<PageLoader />}>
