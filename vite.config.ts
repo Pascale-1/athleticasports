@@ -15,6 +15,9 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     chunkSizeWarningLimit: 500,
+    // Disable modulePreload and crossorigin for Capacitor builds (causes loading issues in WebView)
+    modulePreload: isCapacitor ? false : undefined,
+    cssCodeSplit: false,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -54,6 +57,13 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
+    // Remove crossorigin attributes for Capacitor builds (can cause WebView issues)
+    isCapacitor && {
+      name: 'remove-crossorigin',
+      transformIndexHtml(html: string) {
+        return html.replace(/ crossorigin/g, '');
+      },
+    },
     !isCapacitor && VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["icon-192.png", "icon-512.png", "apple-touch-icon.png"],
