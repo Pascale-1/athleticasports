@@ -104,30 +104,31 @@ const TeamDetail = () => {
   const handleJoinTeam = async () => {
     if (!teamId || !currentUserId) return;
     try {
-      // Insert into team_members
-      const { data: memberData, error: memberError } = await supabase
+      // Step 1: Insert member (no .select() to avoid RLS snapshot issue)
+      const { error: memberError } = await supabase
         .from('team_members')
-        .insert({ team_id: teamId, user_id: currentUserId, status: 'active' })
-        .select('id')
-        .single();
+        .insert({ team_id: teamId, user_id: currentUserId, status: 'active' });
       if (memberError) throw memberError;
 
-      // Assign member role
+      // Step 2: Fetch the newly created member record
+      const { data: memberData, error: fetchError } = await supabase
+        .from('team_members')
+        .select('id')
+        .eq('team_id', teamId)
+        .eq('user_id', currentUserId)
+        .single();
+      if (fetchError || !memberData) throw fetchError || new Error('Member not found');
+
+      // Step 3: Assign member role
       const { error: roleError } = await supabase
         .from('team_member_roles')
         .insert({ team_member_id: memberData.id, role: 'member' });
       if (roleError) throw roleError;
 
-      toast({
-        title: t('toast.joinSuccess', { name: team?.name }),
-      });
-      // Reload to show full team view
+      toast({ title: t('toast.joinSuccess', { name: team?.name }) });
       window.location.reload();
     } catch (error) {
-      toast({
-        title: t('toast.joinError'),
-        variant: "destructive",
-      });
+      toast({ title: t('toast.joinError'), variant: "destructive" });
     }
   };
 
