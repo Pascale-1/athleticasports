@@ -1,93 +1,128 @@
 
 
-# Streamline Event Creation Form
+# Harmonize Event Creation Form & Remove Hidden Fields
 
-## Overview
-Reorganize the event creation form to follow a logical field sequence, reduce visual noise from excessive card wrappers, and improve mobile usability by consolidating sections and removing redundancies.
+## Problem
+The current "More options" collapsible hides 5 important fields (Description, Participant Limit, Recurrence, RSVP Deadline, Looking for Players). Users may never discover these features, leading to incomplete events. The form also lacks visual consistency -- some sections have card wrappers, others don't, and label sizes vary between `text-xs`, `text-[10px]`, and `text-[11px]`.
+
+## Design Approach
+Instead of hiding fields behind a collapsible, show all fields inline but keep them **lightweight and compact** so the form doesn't feel longer. The trick is to use inline controls (switches, small inputs on the same row as labels) rather than stacked full-width fields.
 
 ## Changes
 
-### 1. Reorder fields to match mental model
-Move Sport and Team selection ABOVE the Title field. This way:
-- Match titles auto-generate correctly (user picks teams first, title fills itself)
-- The logical flow becomes: **What kind** (type) → **Who** (sport/team) → **What** (title) → **When** → **Where** → **Details**
+### 1. Remove the "More options" collapsible entirely
+All fields become visible. To compensate for the added vertical space, each optional field uses an **inline row layout** (label + control on the same line) instead of stacked label-then-input.
 
-### 2. Consolidate into 3 clear sections instead of 8 cards
-Replace the scattered bordered cards with 3 semantic groups:
-- **Essentials** (no card wrapper, just fields): Type, Sport, Team, Title, Date/Time/Duration, Location
-- **Match Details** (single card, match-only): Opponent, Home/Away, Format -- all together
-- **Options** (single expandable area): Visibility, Description, Participants, Recurrence, RSVP, Looking for Players
+### 2. Redesign optional fields as compact inline rows
+Each optional field becomes a single horizontal row (~36px tall):
 
-### 3. Promote Visibility toggle to essentials
-Move the Public/Private switch out of "More options" and place it right after Location. It's a primary decision that affects who sees the event.
+- **Description**: A small "Add note..." text button that expands a textarea only when tapped (not a collapsible -- just a conditional render with a simple toggle)
+- **Participants**: Inline row: icon + "Max participants" label + small number input (w-20) on the right
+- **Recurrence**: Inline row: icon + "Repeat" label + select dropdown (w-32) on the right
+- **RSVP Deadline**: Inline row: icon + "RSVP cutoff" label + switch on the right, with preset pills appearing below only when enabled
+- **Looking for Players**: Stays as-is (already an inline switch row), but moved out of a card wrapper into a simple row
 
-### 4. Fix match format placement
-Move `matchFormat` into the Opponent card where it semantically belongs, instead of being orphaned inside the participant limit section.
+### 3. Unify label sizing
+Standardize all labels to `text-xs` (12px). Remove the inconsistent `text-[10px]` and `text-[11px]` variants. Sub-labels/hints use `text-[10px] text-muted-foreground`.
 
-### 5. Remove Cancel button from footer
-The dialog already has a close X button. Replace the two-button footer with a single full-width "Create Event" button. This reclaims ~44px of vertical space.
+### 4. Add thin visual separators between sections
+Use `<Separator />` components between the 3 logical groups:
+- Essentials (Type, Sport/Team, Title, When, Where, Visibility)
+- Match Details (opponent card, match-only)
+- Options (Description, Participants, Recurrence, RSVP, LFP)
 
-### 6. Increase meetup category text size
-Bump category labels from `text-[9px]` to `text-[11px]` and reduce the grid to 2 columns on very small screens so labels remain readable.
-
-### 7. Unify "More options" into a single collapsible section
-Instead of individual "+ Add description", "+ Make recurring", "+ Set participant limit" ghost buttons, use a single "More options" collapsible that reveals all optional fields at once. This reduces decision fatigue (one tap vs three).
-
-### 8. Simplify animation approach
-Replace per-field AnimatePresence wrappers with a single wrapper around the conditional sections. Use CSS transitions for show/hide instead of framer-motion for simple opacity changes.
+### 5. Description field: "Add note" pattern
+Instead of always showing a textarea, show a ghost button "Add a note..." that, when clicked, reveals the textarea. This is a common mobile pattern (like adding a note in calendar apps) that saves space without hiding behind a generic "More options" label.
 
 ## Technical Details
 
 ### File: `src/components/events/UnifiedEventForm.tsx`
 
-**Field reordering (lines 325-1004):**
-```
-Current:  Type → Title → When → Where → Sport → Team → Opponent → More Options → Visibility → LFP → RSVP
-Proposed: Type → Sport → Team → Title → When → Where → Visibility → Match Details → Options (collapsed)
-```
+**Remove Collapsible wrapper** (lines 682-875): Replace the entire `<Collapsible>` block with inline fields rendered directly in the form flow.
 
-**Remove card wrappers:** Replace the `p-3 bg-muted/30 rounded-lg border` on When and Where sections with simple `space-y-2` dividers. Keep the card style only for the Match Details group and the Options expansion.
-
-**Consolidate "More options":** Replace the 4 separate ghost button toggles (description, recurrence, participant limit, RSVP) with a single Collapsible component:
+**New inline layout for optional fields:**
 ```tsx
-<Collapsible open={showMoreOptions} onOpenChange={setShowMoreOptions}>
-  <CollapsibleTrigger asChild>
-    <Button variant="ghost" className="w-full justify-between">
-      More options
-      <ChevronDown className={cn("h-4 w-4 transition", showMoreOptions && "rotate-180")} />
-    </Button>
-  </CollapsibleTrigger>
-  <CollapsibleContent className="space-y-3 pt-2">
-    {/* Description textarea */}
-    {/* Participant limit input */}
-    {/* Recurrence select */}
-    {/* RSVP deadline presets */}
-    {/* Looking for Players toggle */}
-  </CollapsibleContent>
-</Collapsible>
+{/* Separator */}
+<Separator className="my-1" />
+
+{/* Description - tap to expand */}
+{!showDescription ? (
+  <Button type="button" variant="ghost" onClick={() => setShowDescription(true)}
+    className="w-full justify-start h-8 text-xs text-muted-foreground px-0">
+    + Add a note...
+  </Button>
+) : (
+  <FormField name="description" render={({ field }) => (
+    <FormItem>
+      <FormControl>
+        <Textarea {...field} placeholder="Add details..." 
+          className="min-h-[48px] resize-none text-xs" autoFocus />
+      </FormControl>
+    </FormItem>
+  )} />
+)}
+
+{/* Participants - inline row */}
+<div className="flex items-center justify-between h-9">
+  <Label className="text-xs flex items-center gap-1.5">
+    <Users className="h-3.5 w-3.5" /> Max participants
+  </Label>
+  <Input name="maxParticipants" type="number" className="w-20 h-8 text-xs text-right" placeholder="--" />
+</div>
+
+{/* Recurrence - inline row */}
+<div className="flex items-center justify-between h-9">
+  <Label className="text-xs flex items-center gap-1.5">
+    <Repeat className="h-3.5 w-3.5" /> Repeat
+  </Label>
+  <Select value={recurrenceType} onValueChange={...}>
+    <SelectTrigger className="w-28 h-8 text-xs"><SelectValue /></SelectTrigger>
+    ...
+  </Select>
+</div>
+
+{/* RSVP Deadline - inline switch, presets expand below */}
+<div className="space-y-2">
+  <div className="flex items-center justify-between h-9">
+    <Label className="text-xs flex items-center gap-1.5">
+      <Clock className="h-3.5 w-3.5" /> RSVP cutoff
+    </Label>
+    <Switch checked={showRsvpDeadline} onCheckedChange={setShowRsvpDeadline} />
+  </div>
+  {showRsvpDeadline && (
+    <div className="flex flex-wrap gap-1.5">
+      {/* deadline preset pills */}
+    </div>
+  )}
+</div>
+
+{/* Looking for Players - inline switch (match/training only) */}
+{showLookingForPlayersSection && (
+  <div className="space-y-2">
+    <div className="flex items-center justify-between h-9">
+      <Label className="text-xs flex items-center gap-1.5">
+        <UserPlus className="h-3.5 w-3.5" /> Looking for players
+      </Label>
+      <Switch checked={lookingForPlayers} onCheckedChange={setLookingForPlayers} />
+    </div>
+    {lookingForPlayers && (
+      <Select value={playersNeeded} onValueChange={setPlayersNeeded}>...</Select>
+    )}
+  </div>
+)}
 ```
 
-**Remove Cancel button (lines 996-1003):** Replace the two-button footer with:
-```tsx
-<Button type="submit" className="w-full h-10" disabled={isSubmitting}>
-  {isSubmitting ? '...' : t('createEvent')}
-</Button>
-```
+**Remove card wrapper from LFP section**: The `p-3 bg-primary/5 rounded-lg border border-primary/20` wrapper is removed. LFP becomes a simple inline row like the others.
 
-**Fix category readability (lines 630-644):** Change `text-[9px]` to `text-[11px]` and adjust button height from `h-10` to `h-9`.
+**Add `showDescription` state**: New `useState(false)` to toggle the description textarea visibility via the "Add a note..." button.
 
-**Reduce animation wrappers:** Remove individual `<AnimatePresence>` wrappers from simple show/hide fields. Keep framer-motion only for the type-dependent sections (sport/team, opponent) that need coordinated enter/exit. Use CSS `transition-all` for the rest.
+**Standardize labels**: Find-and-replace `text-[10px]` on all `FormLabel` and `Label` components within the form to `text-xs`. Keep `text-[10px]` only for hint text below inputs.
 
-### File: `src/components/events/EventTypeSelector.tsx`
-No changes needed -- this component is well-designed.
+**Add Separator import and usage**: Import from `@/components/ui/separator` and place between the essentials section and options section.
 
-### File: `src/components/events/DurationPicker.tsx`
-Reduce button `min-w` from `60px` to `48px` and add `text-xs` to match form density.
-
-### Summary of impact
-- Estimated scroll reduction: ~30% for match events
-- Card count: 8 cards reduced to 2
-- Animation wrappers: ~15 reduced to ~4
-- Footer height saved: 44px
-- Clearer information hierarchy with "Who → What → When → Where" flow
+### Impact
+- All features are discoverable without any hidden sections
+- Form height stays similar because inline rows (~36px each) replace stacked fields (~60px each)
+- Consistent visual rhythm with uniform label sizes and row heights
+- No more "shame" of users missing important options
 
