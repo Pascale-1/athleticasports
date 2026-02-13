@@ -20,7 +20,9 @@ import {
   Check,
   HelpCircle,
   X,
-  UserPlus
+  UserPlus,
+  Globe,
+  Lock
 } from "lucide-react";
 import { Event } from "@/lib/events";
 import { Link } from "react-router-dom";
@@ -156,6 +158,11 @@ export const EventCard = memo(({
                     >
                       {typeLabel}
                     </Badge>
+                    {event.is_public ? (
+                      <Globe className="h-3 w-3 text-muted-foreground/60 shrink-0" />
+                    ) : (
+                      <Lock className="h-3 w-3 text-muted-foreground/60 shrink-0" />
+                    )}
                     {(isRecurringParent || isPartOfSeries) && (
                       <Repeat className="h-3 w-3 text-muted-foreground shrink-0" />
                     )}
@@ -205,12 +212,12 @@ export const EventCard = memo(({
               </div>
 
               {/* Row 2: Time + Location */}
-              <div className="text-xs text-muted-foreground">
-                <span>{timeStr}</span>
+              <div className="text-xs text-muted-foreground flex items-center min-w-0 overflow-hidden">
+                <span className="shrink-0">{timeStr}</span>
                 {displayLocation && (
                   <>
-                    <span className="mx-1.5 text-muted-foreground/40">·</span>
-                    <span className="truncate">{displayLocation}</span>
+                    <span className="mx-1.5 text-muted-foreground/40 shrink-0">·</span>
+                    <span className="truncate min-w-0">{displayLocation}</span>
                   </>
                 )}
               </div>
