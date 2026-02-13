@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, Globe, Lock, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { CreateEventData } from "@/hooks/useEvents";
 import { Event } from "@/lib/events";
@@ -27,6 +27,7 @@ export const EditEventDialog = ({
 }: EditEventDialogProps) => {
   const { t } = useTranslation('events');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showMaxParticipants, setShowMaxParticipants] = useState(!!event.max_participants);
   
   // Form state
   const [title, setTitle] = useState(event.title);
@@ -50,6 +51,7 @@ export const EditEventDialog = ({
       setDescription(event.description || '');
       setLocation(event.location || '');
       setMaxParticipants(event.max_participants?.toString() || '');
+      setShowMaxParticipants(!!event.max_participants);
       setIsPublic(event.is_public);
       setOpponentName(event.opponent_name || '');
       setHomeAway(event.home_away || 'home');
@@ -103,7 +105,7 @@ export const EditEventDialog = ({
           <DialogTitle>{t('edit.title')}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-3 min-w-0 overflow-hidden">
           {/* Title */}
           <div className="space-y-2">
             <Label htmlFor="title">{t('form.title')}</Label>
@@ -176,17 +178,30 @@ export const EditEventDialog = ({
             />
           </div>
 
-          {/* Max Participants */}
-          <div className="space-y-2">
-            <Label htmlFor="maxParticipants">{t('form.maxParticipants')}</Label>
-            <Input
-              id="maxParticipants"
-              type="number"
-              min="1"
-              value={maxParticipants}
-              onChange={(e) => setMaxParticipants(e.target.value)}
-            />
-          </div>
+          {/* Max Participants - Progressive disclosure */}
+          {!showMaxParticipants ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground"
+              onClick={() => setShowMaxParticipants(true)}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              {t('form.maxParticipants')}
+            </Button>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="maxParticipants">{t('form.maxParticipants')}</Label>
+              <Input
+                id="maxParticipants"
+                type="number"
+                min="1"
+                value={maxParticipants}
+                onChange={(e) => setMaxParticipants(e.target.value)}
+              />
+            </div>
+          )}
 
           {/* Match-specific fields */}
           {event.type === 'match' && (
@@ -227,16 +242,24 @@ export const EditEventDialog = ({
             </>
           )}
 
-          {/* Public Event Toggle */}
-          <div className="flex items-center justify-between py-2">
-            <div>
-              <Label htmlFor="isPublic" className="text-sm font-medium">
-                {t('form.isPublic')}
-              </Label>
-              <p className="text-xs text-muted-foreground">{t('form.isPublicDesc')}</p>
+          {/* Public/Private Toggle - Dynamic */}
+          <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl border">
+            <div className="flex items-center gap-2">
+              {isPublic ? (
+                <Globe className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <Lock className="h-4 w-4 text-muted-foreground" />
+              )}
+              <div>
+                <p className="text-sm font-medium">
+                  {isPublic ? t('form.isPublic') : t('form.isPrivate')}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {isPublic ? t('form.isPublicDesc') : t('form.isPrivateDesc')}
+                </p>
+              </div>
             </div>
             <Switch
-              id="isPublic"
               checked={isPublic}
               onCheckedChange={setIsPublic}
             />
