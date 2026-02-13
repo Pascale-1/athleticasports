@@ -1,78 +1,47 @@
 
 
-# Remaining Bug Fixes
+# Fix: Add Event Discovery Tab
 
-Three issues from the original list are still unresolved.
+## Problem
+The Events page has no way to browse public events from other users. The three existing tabs only show:
+- Events the user RSVP'd to
+- Events the user created
+- Events explicitly flagged as "looking for players"
 
----
+A normal public event created by another user never appears anywhere.
 
-## 1. Google Sign-In redirects to Lovable instead of the app
+## Solution
+Replace the "Open Games" tab with a broader "Discover" tab that shows **all upcoming public events** the user hasn't already joined or declined. Events flagged as "looking for players" will be highlighted with a badge but won't be the only ones shown.
 
-The Auth page still uses `supabase.auth.signInWithOAuth()` which redirects through the hosted auth page, landing on Lovable's domain instead of the deployed app.
+## Technical Changes
 
-**Fix:**
-- Use the Configure Social Login tool to generate the `src/integrations/lovable/` module
-- Update `Auth.tsx` line 205 to use `lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin })` instead of `supabase.auth.signInWithOAuth()`
-- Remove the `redirectUrl` variable and related invitation URL logic (handle invitation via sessionStorage, which is already in place)
+### 1. New hook: `src/hooks/useDiscoverEvents.ts`
+- Queries `events` table for upcoming events where `is_public = true`
+- Excludes events created by the current user
+- Excludes events the user has already RSVP'd to (attending or not_attending)
+- Includes attendance counts and organizer profile info
+- Sorted by start time (soonest first)
+- Supports optional sport/type filters
 
-**File:** `src/pages/Auth.tsx`
+### 2. Update `src/pages/Events.tsx`
+- Rename the "Open Games" tab to "Discover" (or "For You")
+- Use the new `useDiscoverEvents` hook instead of `useAvailableGames`
+- Render results using `EventsList` (same cards as other tabs) instead of `AvailableGameCard`
+- Events with `looking_for_players = true` get a "Looking for players" badge
+- Update tab icon from `UserPlus` to `Search` or `Compass`
 
----
+### 3. Update i18n keys
+- `src/i18n/locales/en/events.json`: Add `tabs.discover`, `tabs.discoverSubtitle`, `discover.empty`, `discover.emptyDesc`
+- `src/i18n/locales/fr/events.json`: Same keys in French
+- `src/i18n/locales/en/matching.json`: Keep existing keys (no breaking changes)
+- `src/i18n/locales/fr/matching.json`: Same
 
-## 2. Onboarding completes but repeats (race condition)
+### 4. No database changes needed
+The existing RLS policy "Public events are viewable by everyone" (`is_public = true`) already allows this. Events with `team_id IS NULL` are also visible to all authenticated users via the "Team events viewable by team members" policy.
 
-After `handleComplete()` upserts the profile and calls `navigate("/")`, the ProtectedRoute re-checks `onboarding_completed` from the database. The upsert may not have propagated yet, so the user gets sent back to `/onboarding`.
-
-The ProtectedRoute caching fix is already in place, but the Onboarding page itself still navigates immediately after the upsert without any delay.
-
-**Fix:** Add a 500ms delay after the successful upsert before navigating, giving the database time to propagate:
-
-```typescript
-if (error) throw error;
-
-// Wait for database propagation before navigating
-await new Promise(resolve => setTimeout(resolve, 500));
-
-setTrigger();
-navigate("/", { replace: true });
-```
-
-**File:** `src/pages/Onboarding.tsx`
-
----
-
-## 3. Auth page -- all strings hardcoded in English
-
-The Auth page has complete translation files (`en/auth.json` and `fr/auth.json`) but doesn't use them. French-speaking users see a fully English login page.
-
-**Fix:** Add `useTranslation('auth')` and replace all hardcoded strings:
-
-| Hardcoded string | Translation key |
-|---|---|
-| "Welcome to Athletica" | `t('welcome')` |
-| "Sign in or create your account" | `t('signInOrCreate')` |
-| "Team Invitation" | `t('teamInvitation')` |
-| invitation description | `t('teamInvitationDesc')` |
-| "Continue with Google" / "Signing in..." | `t('continueWithGoogle')` / `t('signingIn')` |
-| "Or continue with email" | `t('orContinueWith')` |
-| "Email", "Password" | `t('email')`, `t('password')` |
-| placeholders | `t('emailPlaceholder')`, `t('passwordPlaceholder')` |
-| "Sign In" / "Sign Up" | `t('signIn')` / `t('signUp')` |
-| toggle text | `t('alreadyHaveAccount')` / `t('dontHaveAccount')` |
-| invitation tip | `t('useInvitedEmail')` |
-| All toast messages | corresponding auth keys |
-| Zod validation messages | `t('invalidEmail')`, `t('passwordMin')` |
-
-**File:** `src/pages/Auth.tsx`
-
----
-
-## Technical Summary
-
-| File | Changes |
-|---|---|
-| `src/pages/Auth.tsx` | Switch Google OAuth to `lovable.auth.signInWithOAuth()`, add `useTranslation('auth')`, replace all hardcoded strings with `t()` calls |
-| `src/pages/Onboarding.tsx` | Add 500ms delay after upsert before navigating |
-
-Additionally, the Configure Social Login tool needs to be called first to generate the `src/integrations/lovable/` module for managed Google OAuth.
+## What users will see
+- A "Discover" tab showing all upcoming public events from other users
+- Events they've already joined or declined are filtered out
+- Events needing players are highlighted
+- Clicking an event goes to the detail page where they can RSVP
 
