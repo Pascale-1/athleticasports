@@ -1,75 +1,58 @@
 
-# Fix Edit Event Alignment and Team Join Access
 
-## Issue 1: Edit Event Dialog -- Inconsistent Alignment and Typography
+# Implement: Friendly Private Team Message + Fix RLS Policies
 
-**Problem**: The edit dialog mixes different styling approaches -- `Label` components for form fields, but raw `<p>` tags with ad-hoc classes for the visibility toggle. The ghost "Max Participants" button doesn't align with labeled fields. Overall, the spacing and font hierarchy feel inconsistent.
+## Overview
+Two changes to ship together:
+1. Replace the "Access Denied" wall for private teams with a friendly invite-only message
+2. Fix the RLS policies that are blocking the "Join Team" button on public teams (missing `TO authenticated`)
+3. Add the missing translation keys for both flows
 
-**Fix in `src/components/events/EditEventDialog.tsx`**:
+## Changes
 
-- Standardize all form sections to use `space-y-1.5` (tighter label-to-input gap) instead of mixing `space-y-2` and `space-y-3`
-- Use consistent `text-sm font-medium` (via `Label`) for all section headers
-- In the visibility toggle, replace raw `<p className="text-sm font-medium">` with `Label` component for consistency
-- Add consistent `space-y-4` between major form sections for breathing room
-- Ensure the ghost "Max Participants" button has the same left padding as form labels so it aligns visually
-- Add a thin separator before the actions row for visual closure
+### 1. Database Migration -- Fix RLS policies
+Drop and recreate the two public-team-join policies with `TO authenticated`:
+- `"Users can join public teams"` on `team_members`
+- `"Users can get member role on public team join"` on `team_member_roles`
 
-No functional changes -- purely alignment and typography consistency.
+Without this fix, the Join button will keep showing "Failed to join team" because the policies default to the anonymous role and don't apply to logged-in users.
 
----
+### 2. `src/pages/TeamDetail.tsx` -- Friendly private team message
+Replace the stark "Access Denied" block (lines 136-144) with a styled page matching the public team preview layout:
+- Show the team header (name, avatar, sport)
+- Display a friendly message: "This team is invite-only"
+- Add a subtitle explaining they need an invite link from a team member
+- Include a back button to /teams
+- Import `Lock` icon from lucide-react for visual clarity
 
-## Issue 2: Public Teams Show "Access Denied" When Non-Members Click
+### 3. Translation keys -- `en/teams.json` and `fr/teams.json`
+Add an `"access"` object with these keys:
 
-**Problem**: In `TeamDetail.tsx` (lines 103-111), when a non-member clicks on a public team from the Discover tab, they hit an unconditional "Access Denied" wall. This is because:
-1. The RLS policy on `teams` correctly allows reading public teams
-2. But `TeamDetail` checks `isMember` and blocks the entire page if false
-3. There is no "Join" flow from the detail page
+| Key | English | French |
+|-----|---------|--------|
+| `access.denied` | "Invite Only" | "Sur invitation" |
+| `access.notMember` | "You need an invite link from a team member to join this team." | "Vous avez besoin d'un lien d'invitation d'un membre pour rejoindre cette equipe." |
+| `access.joinTeam` | "Join Team" | "Rejoindre l'equipe" |
+| `access.publicTeamPreview` | "This team is open to everyone" | "Cette equipe est ouverte a tous" |
 
-**Best Practice**: Public teams should show a preview page with team info and a "Join Team" button. Private teams should show "Access Denied". This matches how Discord, Slack, and sports apps handle it.
+### Technical Details
 
-**Changes**:
-
-### a. `src/pages/TeamDetail.tsx` -- Replace hard block with join preview
-Instead of the blanket "Access Denied" for all non-members, split into two cases:
-
-```text
-if (!isMember && team.is_private) -> Show "Access Denied" (private team)
-if (!isMember && !team.is_private) -> Show team preview with Join button
-```
-
-The preview shows:
-- Team header (name, avatar, sport, description)
-- Member count
-- A prominent "Join Team" button
-
-### b. `src/pages/TeamDetail.tsx` -- Add join handler
-Add a `handleJoinTeam` function that:
-1. Inserts the user into `team_members` with status "active"
-2. Creates a `team_member_roles` entry with role "member"
-3. Refreshes the page state so it transitions to the full team view
-
-### c. RLS Policy Update -- Allow self-join for public teams
-Currently, only team admins can INSERT into `team_members` (`can_manage_team` check). We need an additional INSERT policy:
-
+**RLS fix SQL:**
 ```sql
+DROP POLICY IF EXISTS "Users can join public teams" ON public.team_members;
 CREATE POLICY "Users can join public teams"
   ON public.team_members FOR INSERT
+  TO authenticated
   WITH CHECK (
     auth.uid() = user_id
     AND status = 'active'
-    AND EXISTS (
-      SELECT 1 FROM teams
-      WHERE teams.id = team_id
-      AND teams.is_private = false
-    )
+    AND EXISTS (SELECT 1 FROM teams WHERE teams.id = team_id AND teams.is_private = false)
   );
-```
 
-Also need an INSERT policy on `team_member_roles` for self-assigning "member" role on public team join:
-
-```sql
+DROP POLICY IF EXISTS "Users can get member role on public team join" ON public.team_member_roles;
 CREATE POLICY "Users can get member role on public team join"
   ON public.team_member_roles FOR INSERT
+  TO authenticated
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM team_members tm
@@ -82,20 +65,5 @@ CREATE POLICY "Users can get member role on public team join"
   );
 ```
 
-### d. Translation keys
-Add to `en/teams.json` and `fr/teams.json`:
-- `access.joinTeam`: "Join Team" / "Rejoindre"
-- `access.publicTeamPreview`: "This team is open to everyone" / "Cette equipe est ouverte a tous"
-- `toast.joinSuccess`: "You joined the team!" / "Vous avez rejoint l'equipe !"
-- `toast.joinError`: "Failed to join team" / "Erreur lors de l'inscription"
+**Private team UI update:** Replace the centered div with a full page layout using `PageHeader`, `TeamHeader` (showing team name/avatar even to non-members), and a card with Lock icon + invite-only messaging. The back button navigates to `/teams`.
 
-## Summary of File Changes
-
-| File | Changes |
-|------|---------|
-| `src/components/events/EditEventDialog.tsx` | Standardize typography, spacing, and label alignment across all form sections |
-| `src/pages/TeamDetail.tsx` | Replace blanket "Access Denied" with public team preview + Join button |
-| `src/hooks/useTeam.ts` | No changes needed (already fetches team data for public teams via RLS) |
-| Database migration | Add INSERT policies on `team_members` and `team_member_roles` for public team joining |
-| `src/i18n/locales/en/teams.json` | Add join-related translation keys |
-| `src/i18n/locales/fr/teams.json` | Add join-related translation keys |
