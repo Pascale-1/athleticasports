@@ -57,7 +57,7 @@ export const QuickTeamCreateDialog = ({
 }: QuickTeamCreateDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const { i18n, t } = useTranslation();
+  const { i18n, t } = useTranslation('teams');
   const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
   
   const featuredSports = getFeaturedSports();
@@ -94,7 +94,7 @@ export const QuickTeamCreateDialog = ({
       if (teamError) throw teamError;
 
       toast({
-        title: t('teams.createTeam'),
+        title: t('createTeam'),
         description: `${values.name} ${lang === 'fr' ? 'a été créée avec succès.' : 'has been created successfully.'}`,
       });
 
@@ -103,7 +103,7 @@ export const QuickTeamCreateDialog = ({
     } catch (error: any) {
       console.error("Error creating team:", error);
       toast({
-        title: t('errors.generic'),
+        title: t('errors.generic', { ns: 'common' }),
         description: error.message || "Failed to create team",
         variant: "destructive",
       });
@@ -116,9 +116,9 @@ export const QuickTeamCreateDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{t('teams.createTeam')}</DialogTitle>
+          <DialogTitle>{t('createTeam')}</DialogTitle>
           <DialogDescription>
-            {t('teams.quickCreate.description')}
+            {t('quickCreate.description')}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -128,7 +128,7 @@ export const QuickTeamCreateDialog = ({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('teams.form.name')}</FormLabel>
+                  <FormLabel>{t('form.name')}</FormLabel>
                   <FormControl>
                     <Input placeholder={lang === 'fr' ? "ex: FC Warriors" : "e.g., Warriors FC"} {...field} />
                   </FormControl>
@@ -142,11 +142,11 @@ export const QuickTeamCreateDialog = ({
               name="sport"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('teams.form.sport')}</FormLabel>
+                  <FormLabel>{t('form.sport')}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder={t('teams.form.sportPlaceholder')} />
+                        <SelectValue placeholder={t('form.sportPlaceholder')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -180,7 +180,7 @@ export const QuickTeamCreateDialog = ({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('teams.form.description')}</FormLabel>
+                  <FormLabel>{t('form.description')}</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder={lang === 'fr' ? "Brève description de l'équipe" : "Brief team description"}
@@ -202,10 +202,10 @@ export const QuickTeamCreateDialog = ({
                 className="flex-1"
                 disabled={isSubmitting}
               >
-                {t('actions.cancel')}
+                {t('actions.cancel', { ns: 'common' })}
               </Button>
               <Button type="submit" disabled={isSubmitting} className="flex-1">
-                {isSubmitting ? t('actions.loading') : t('teams.createTeam')}
+                {isSubmitting ? t('actions.loading', { ns: 'common' }) : t('createTeam')}
               </Button>
             </div>
           </form>

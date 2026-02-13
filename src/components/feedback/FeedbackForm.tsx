@@ -80,6 +80,16 @@ export function FeedbackForm({ open, onOpenChange }: FeedbackFormProps) {
 
       if (error) throw error;
 
+      // Send email notification (fire-and-forget)
+      supabase.functions.invoke('notify-feedback', {
+        body: {
+          category: data.category,
+          message: data.message,
+          userEmail: user.email,
+          pageUrl: window.location.href,
+        },
+      }).catch((err) => console.error('Feedback notification error:', err));
+
       toast({
         title: t('feedback.success'),
         description: t('feedback.successDescription'),

@@ -121,6 +121,7 @@
   "joinAGame": "Rejoindre une partie",
   "gamesToJoin": "Matchs à rejoindre",
   "yourUpcomingGames": "Tes prochains matchs",
+  "yourUpcomingEvents": "Tes prochains événements",
   "joinedSuccess": "Tu es inscrit à ce match !",
   "actions": {
     "join": "Rejoindre"

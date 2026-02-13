@@ -28,7 +28,7 @@ import { isToday, isTomorrow } from "date-fns";
 import { LanguageToggle } from "@/components/settings/LanguageToggle";
 import { FeedbackForm } from "@/components/feedback/FeedbackForm";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
 
 interface Profile {
   id: string;
@@ -58,12 +58,11 @@ const Index = () => {
   const [findMatchSheetOpen, setFindMatchSheetOpen] = useState(false);
   const { activities, loading: feedLoading, loadingMore, hasMore, loadMore } = useActivityFeed();
   
-  // Fetch user's matches (where they are attending or maybe)
-  const { events: userMatches, loading: matchesLoading } = useUserEvents({ 
-    type: 'match', 
+  // Fetch user's upcoming events (all types)
+  const { events: userEvents, loading: eventsLoading } = useUserEvents({ 
     status: 'upcoming' 
   });
-  const upcomingMatches = userMatches.slice(0, 3);
+  const upcomingEvents = userEvents.slice(0, 3);
   
   // Fetch available games (looking for players)
   const { games: availableGames, loading: gamesLoading } = useAvailableGames();
@@ -200,21 +199,15 @@ const Index = () => {
         >
           {/* Top Header Row - Utilities */}
           <div className="flex items-center justify-end gap-1 -mb-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10"
-                  onClick={() => setFeedbackOpen(true)}
-                >
-                  <Megaphone className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{t('feedback.title')}</p>
-              </TooltipContent>
-            </Tooltip>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 px-3 text-xs gap-1.5 text-muted-foreground hover:text-primary hover:border-primary/50"
+              onClick={() => setFeedbackOpen(true)}
+            >
+              <Megaphone className="h-3.5 w-3.5" />
+              {t('feedback.title')}
+            </Button>
             <LanguageToggle />
           </div>
 
@@ -389,8 +382,8 @@ const Index = () => {
                 </Card>
               )}
               
-              {/* Your Upcoming Games */}
-              {matchesLoading ? (
+              {/* Your Upcoming Events */}
+              {eventsLoading ? (
                 <Card className="p-3">
                   <div className="space-y-2">
                     {[1, 2].map((i) => (
@@ -398,16 +391,16 @@ const Index = () => {
                     ))}
                   </div>
                 </Card>
-              ) : upcomingMatches.length > 0 ? (
+              ) : upcomingEvents.length > 0 ? (
                 <Card className="p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <div className="p-1.5 rounded-lg bg-muted">
                         <CalendarCheck className="h-4 w-4 text-muted-foreground" />
                       </div>
-                      <h2 className="text-section font-semibold">{t('matching:yourUpcomingGames')}</h2>
+                      <h2 className="text-section font-semibold">{t('matching:yourUpcomingEvents')}</h2>
                       <Badge variant="secondary" className="text-[10px]">
-                        {upcomingMatches.length}
+                        {upcomingEvents.length}
                       </Badge>
                     </div>
                     <Button
@@ -421,7 +414,7 @@ const Index = () => {
                     </Button>
                   </div>
                   <div className="space-y-2">
-                    {upcomingMatches.map((match) => {
+                    {upcomingEvents.map((match) => {
                       const matchDate = new Date(match.start_time);
                       const dateLabel = isToday(matchDate) ? t('time.today') : isTomorrow(matchDate) ? t('time.tomorrow') : null;
                       
