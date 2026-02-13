@@ -24,7 +24,7 @@ export const EventTypeSelector = ({ value, onChange }: EventTypeSelectorProps) =
 
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-medium leading-tight">
+      <Label className="text-xs font-medium leading-tight">
         {t('form.selectEventType')}
       </Label>
       <div className="grid grid-cols-3 gap-2 p-1.5 bg-muted/40 rounded-xl">
@@ -48,7 +48,7 @@ export const EventTypeSelector = ({ value, onChange }: EventTypeSelectorProps) =
           </Button>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground px-1">
+      <p className="text-[11px] text-muted-foreground px-1">
         {t(getDescriptionKey(value))}
       </p>
     </div>

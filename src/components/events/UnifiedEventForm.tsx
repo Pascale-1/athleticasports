@@ -392,7 +392,7 @@ export const UnifiedEventForm = ({
                         type="button"
                         variant={selectedCategory === value ? 'default' : 'outline'}
                         onClick={() => setSelectedCategory(value)}
-                        className="h-9 flex flex-col items-center gap-0 text-[11px] overflow-hidden px-1"
+                        className="h-9 flex flex-col items-center gap-0 text-xs overflow-hidden px-1"
                       >
                         <span className="text-sm leading-none">{emoji}</span>
                         <span className="truncate w-full text-center leading-tight">{getCategoryLabel(value)}</span>
@@ -440,7 +440,7 @@ export const UnifiedEventForm = ({
                 name="date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col min-w-0">
-                    <FormLabel className="text-[10px] text-muted-foreground">{t('form.date')}</FormLabel>
+                    <FormLabel className="text-xs text-muted-foreground">{t('form.date')}</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -484,7 +484,7 @@ export const UnifiedEventForm = ({
                 name="startTime"
                 render={({ field }) => (
                   <FormItem className="min-w-0">
-                    <FormLabel className="text-[10px] text-muted-foreground">{t('form.startTime')}</FormLabel>
+                    <FormLabel className="text-xs text-muted-foreground">{t('form.startTime')}</FormLabel>
                     <FormControl>
                       <Input {...field} type="time" className="h-9 text-xs" />
                     </FormControl>
@@ -496,7 +496,7 @@ export const UnifiedEventForm = ({
 
             {/* Duration */}
             <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">{t('form.duration')}</Label>
+              <Label className="text-xs text-muted-foreground">{t('form.duration')}</Label>
               <DurationPicker value={duration} onChange={setDuration} />
             </div>
           </div>
@@ -521,7 +521,7 @@ export const UnifiedEventForm = ({
                     className="h-8 gap-1 overflow-hidden"
                   >
                     <Icon className="h-3.5 w-3.5 shrink-0" />
-                    <span className="text-[10px] truncate">{t(`form.locationMode.${mode}`)}</span>
+                    <span className="text-xs truncate">{t(`form.locationMode.${mode}`)}</span>
                   </Button>
                 ))}
               </div>
@@ -557,7 +557,7 @@ export const UnifiedEventForm = ({
                 name="locationUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] text-muted-foreground">{t('form.meetup.virtualLink')}</FormLabel>
+                    <FormLabel className="text-xs text-muted-foreground">{t('form.meetup.virtualLink')}</FormLabel>
                     <FormControl>
                       <Input {...field} type="url" placeholder="https://zoom.us/j/..." className="h-9 text-xs" />
                     </FormControl>
@@ -605,10 +605,10 @@ export const UnifiedEventForm = ({
                     
                     <div className="flex gap-1.5">
                       <Button type="button" size="sm" variant={opponentInputMode === 'select' ? 'default' : 'outline'} onClick={() => setOpponentInputMode('select')} className="flex-1 overflow-hidden h-7">
-                        <span className="text-[10px] truncate">{t('form.game.selectTeam')}</span>
+                        <span className="text-xs truncate">{t('form.game.selectTeam')}</span>
                       </Button>
                       <Button type="button" size="sm" variant={opponentInputMode === 'manual' ? 'default' : 'outline'} onClick={() => setOpponentInputMode('manual')} className="flex-1 overflow-hidden h-7">
-                        <span className="text-[10px] truncate">{t('form.game.enterManually')}</span>
+                        <span className="text-xs truncate">{t('form.game.enterManually')}</span>
                       </Button>
                     </div>
 
@@ -647,7 +647,7 @@ export const UnifiedEventForm = ({
                             type="button"
                             variant={homeAway === option ? 'default' : 'outline'}
                             onClick={() => setHomeAway(option)}
-                            className="h-8 text-[10px] overflow-hidden"
+                            className="h-8 text-xs overflow-hidden"
                           >
                             {option === 'home' ? '🏠' : option === 'away' ? '✈️' : '⚖️'}{' '}
                             <span className="truncate">{t(`form.game.${option}`)}</span>
@@ -664,7 +664,7 @@ export const UnifiedEventForm = ({
                       name="matchFormat"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-[10px] text-muted-foreground">{t('form.game.format')}</FormLabel>
+                          <FormLabel className="text-xs text-muted-foreground">{t('form.game.format')}</FormLabel>
                           <FormControl>
                             <Input {...field} placeholder={t('form.game.formatPlaceholder')} className="h-9 text-xs" />
                           </FormControl>
@@ -793,7 +793,7 @@ export const UnifiedEventForm = ({
               <div className="space-y-2 pl-5">
                 <div className="flex flex-wrap gap-1.5">
                   {DEADLINE_PRESETS.map((preset) => (
-                    <Button key={preset.value} type="button" variant={deadlinePreset === preset.value ? 'default' : 'outline'} size="sm" onClick={() => setDeadlinePreset(preset.value)} className="h-7 text-[10px] px-2">
+                    <Button key={preset.value} type="button" variant={deadlinePreset === preset.value ? 'default' : 'outline'} size="sm" onClick={() => setDeadlinePreset(preset.value)} className="h-7 text-xs px-2">
                       {t(`form.deadline.${preset.value}`)}
                     </Button>
                   ))}

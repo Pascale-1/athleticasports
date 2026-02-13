@@ -190,7 +190,7 @@ export const MyTeamSelector = ({
 
   return (
     <div className="space-y-2">
-      {label && <Label>{label}</Label>}
+      {label && <Label className="text-xs">{label}</Label>}
       
       {loading ? (
         <Skeleton className="h-10 w-full" />
@@ -250,7 +250,7 @@ export const MyTeamSelector = ({
           onValueChange={handleChange}
           disabled={disabled || (teams.length === 0 && !showPickupOption)}
         >
-          <SelectTrigger className="h-10">
+          <SelectTrigger className="h-9 text-xs">
             <SelectValue placeholder={placeholder || (lang === 'fr' ? 'Sélectionner une équipe' : 'Select a team')} />
           </SelectTrigger>
           <SelectContent className="bg-background">
