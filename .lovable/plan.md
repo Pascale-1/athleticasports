@@ -1,65 +1,93 @@
 
-# Fix: Join Team RLS Snapshot Issue
 
-## Root Cause
-When `handleJoinTeam` does `.insert().select('id').single()`, PostgREST performs the INSERT then tries to SELECT the returned row. The only SELECT policy on `team_members` uses `is_team_member()`, a STABLE function that queries `team_members` itself. Due to PostgreSQL's STABLE function snapshot behavior, it can't see the row that was just inserted in the same command -- so the SELECT check fails and the entire operation returns an RLS error.
+# Streamline Event Creation Form
 
-## Fix 1: Add SELECT policy for own memberships (Database Migration)
-Add a simple SELECT policy that lets authenticated users see their own `team_members` rows directly, without needing `is_team_member()`:
+## Overview
+Reorganize the event creation form to follow a logical field sequence, reduce visual noise from excessive card wrappers, and improve mobile usability by consolidating sections and removing redundancies.
 
-```sql
-CREATE POLICY "Users can view own team memberships"
-  ON public.team_members FOR SELECT
-  TO authenticated
-  USING (auth.uid() = user_id);
+## Changes
+
+### 1. Reorder fields to match mental model
+Move Sport and Team selection ABOVE the Title field. This way:
+- Match titles auto-generate correctly (user picks teams first, title fills itself)
+- The logical flow becomes: **What kind** (type) → **Who** (sport/team) → **What** (title) → **When** → **Where** → **Details**
+
+### 2. Consolidate into 3 clear sections instead of 8 cards
+Replace the scattered bordered cards with 3 semantic groups:
+- **Essentials** (no card wrapper, just fields): Type, Sport, Team, Title, Date/Time/Duration, Location
+- **Match Details** (single card, match-only): Opponent, Home/Away, Format -- all together
+- **Options** (single expandable area): Visibility, Description, Participants, Recurrence, RSVP, Looking for Players
+
+### 3. Promote Visibility toggle to essentials
+Move the Public/Private switch out of "More options" and place it right after Location. It's a primary decision that affects who sees the event.
+
+### 4. Fix match format placement
+Move `matchFormat` into the Opponent card where it semantically belongs, instead of being orphaned inside the participant limit section.
+
+### 5. Remove Cancel button from footer
+The dialog already has a close X button. Replace the two-button footer with a single full-width "Create Event" button. This reclaims ~44px of vertical space.
+
+### 6. Increase meetup category text size
+Bump category labels from `text-[9px]` to `text-[11px]` and reduce the grid to 2 columns on very small screens so labels remain readable.
+
+### 7. Unify "More options" into a single collapsible section
+Instead of individual "+ Add description", "+ Make recurring", "+ Set participant limit" ghost buttons, use a single "More options" collapsible that reveals all optional fields at once. This reduces decision fatigue (one tap vs three).
+
+### 8. Simplify animation approach
+Replace per-field AnimatePresence wrappers with a single wrapper around the conditional sections. Use CSS transitions for show/hide instead of framer-motion for simple opacity changes.
+
+## Technical Details
+
+### File: `src/components/events/UnifiedEventForm.tsx`
+
+**Field reordering (lines 325-1004):**
+```
+Current:  Type → Title → When → Where → Sport → Team → Opponent → More Options → Visibility → LFP → RSVP
+Proposed: Type → Sport → Team → Title → When → Where → Visibility → Match Details → Options (collapsed)
 ```
 
-This also improves the app generally -- users should always be able to see which teams they belong to.
+**Remove card wrappers:** Replace the `p-3 bg-muted/30 rounded-lg border` on When and Where sections with simple `space-y-2` dividers. Keep the card style only for the Match Details group and the Options expansion.
 
-## Fix 2: Simplify `handleJoinTeam` code (`src/pages/TeamDetail.tsx`)
-As a belt-and-suspenders fix, change the join handler to:
-1. INSERT into `team_members` without `.select()` (just check for errors)
-2. Query the inserted row separately to get the `id`
-3. Then INSERT into `team_member_roles`
-
-This avoids the combined INSERT+SELECT command entirely.
-
-```typescript
-const handleJoinTeam = async () => {
-  if (!teamId || !currentUserId) return;
-  try {
-    // Step 1: Insert member (no .select() to avoid RLS snapshot issue)
-    const { error: memberError } = await supabase
-      .from('team_members')
-      .insert({ team_id: teamId, user_id: currentUserId, status: 'active' });
-    if (memberError) throw memberError;
-
-    // Step 2: Fetch the newly created member record
-    const { data: memberData, error: fetchError } = await supabase
-      .from('team_members')
-      .select('id')
-      .eq('team_id', teamId)
-      .eq('user_id', currentUserId)
-      .single();
-    if (fetchError || !memberData) throw fetchError || new Error('Member not found');
-
-    // Step 3: Assign member role
-    const { error: roleError } = await supabase
-      .from('team_member_roles')
-      .insert({ team_member_id: memberData.id, role: 'member' });
-    if (roleError) throw roleError;
-
-    toast({ title: t('toast.joinSuccess', { name: team?.name }) });
-    window.location.reload();
-  } catch (error) {
-    toast({ title: t('toast.joinError'), variant: "destructive" });
-  }
-};
+**Consolidate "More options":** Replace the 4 separate ghost button toggles (description, recurrence, participant limit, RSVP) with a single Collapsible component:
+```tsx
+<Collapsible open={showMoreOptions} onOpenChange={setShowMoreOptions}>
+  <CollapsibleTrigger asChild>
+    <Button variant="ghost" className="w-full justify-between">
+      More options
+      <ChevronDown className={cn("h-4 w-4 transition", showMoreOptions && "rotate-180")} />
+    </Button>
+  </CollapsibleTrigger>
+  <CollapsibleContent className="space-y-3 pt-2">
+    {/* Description textarea */}
+    {/* Participant limit input */}
+    {/* Recurrence select */}
+    {/* RSVP deadline presets */}
+    {/* Looking for Players toggle */}
+  </CollapsibleContent>
+</Collapsible>
 ```
 
-## Files Changed
+**Remove Cancel button (lines 996-1003):** Replace the two-button footer with:
+```tsx
+<Button type="submit" className="w-full h-10" disabled={isSubmitting}>
+  {isSubmitting ? '...' : t('createEvent')}
+</Button>
+```
 
-| File | Change |
-|------|--------|
-| Database migration | Add "Users can view own team memberships" SELECT policy |
-| `src/pages/TeamDetail.tsx` | Split insert+select into separate calls in `handleJoinTeam` |
+**Fix category readability (lines 630-644):** Change `text-[9px]` to `text-[11px]` and adjust button height from `h-10` to `h-9`.
+
+**Reduce animation wrappers:** Remove individual `<AnimatePresence>` wrappers from simple show/hide fields. Keep framer-motion only for the type-dependent sections (sport/team, opponent) that need coordinated enter/exit. Use CSS `transition-all` for the rest.
+
+### File: `src/components/events/EventTypeSelector.tsx`
+No changes needed -- this component is well-designed.
+
+### File: `src/components/events/DurationPicker.tsx`
+Reduce button `min-w` from `60px` to `48px` and add `text-xs` to match form density.
+
+### Summary of impact
+- Estimated scroll reduction: ~30% for match events
+- Card count: 8 cards reduced to 2
+- Animation wrappers: ~15 reduced to ~4
+- Footer height saved: 44px
+- Clearer information hierarchy with "Who → What → When → Where" flow
+
