@@ -1,62 +1,75 @@
 
-# Fix Font & Layout Alignment Across Event Form
 
-## Problem
-The event creation form uses 5 different font sizes for labels (`text-sm`, `text-xs`, `text-[11px]`, `text-[10px]`, default) and 2 different input heights (`h-9`, `h-10`). Meetup category labels at `text-[11px]` inside `h-9` buttons are nearly unreadable (e.g., "Watch Party", "Fitness" text is too small to see). Placeholder text sizes also vary between components.
+# Fix Profile Layout Overflow + Add Password Reset Flow
 
-## Design System for the Form
+## Issue 1: Profile Page -- Tab Labels Overflow
 
-Standardize on exactly 3 tiers:
-- **Section headers** (When, Where, Opponent): `text-xs font-medium` (12px)
-- **Field labels** (Sport, Team, Title, Date, Time, etc.): `text-xs` (12px) -- same size, no more `text-sm` or `text-[10px]` variation
-- **Hint/secondary text**: `text-[11px] text-muted-foreground` (11px)
-- **All inputs, selects, buttons**: height `h-9`, inner text `text-xs` (12px)
-- **Meetup category buttons**: `text-xs` (12px) instead of `text-[11px]`, height stays `h-9`
+The `ProfileTabs` component uses a 4-column tab grid (`grid-cols-4`) with text labels that are hidden on small screens via `hidden xs:inline`. However, the `xs` breakpoint may not exist in the Tailwind config, causing labels to always show and overflow their boxes on narrow screens (especially in French where "Parametres" and "Activite" are longer).
 
-## Changes
+### Fix
+- Change tab label visibility from `hidden xs:inline` to `hidden sm:inline` (standard Tailwind breakpoint) so labels are icon-only on mobile.
+- Add `text-xs` to tab triggers for consistent sizing with the design system.
+- Add `overflow-hidden` and `truncate` to tab label spans as a safety net.
 
-### 1. `src/components/events/SportQuickSelector.tsx`
-- Line 36: Change label from `text-sm font-medium` to `text-xs font-medium` to match all other form labels
-- Line 42: Add `className="h-9 text-xs"` to SelectTrigger to match form input height and text size
+### Files
+- `src/components/settings/ProfileTabs.tsx` (lines 87-102): Update all 4 `TabsTrigger` elements.
 
-### 2. `src/components/events/EventTypeSelector.tsx`
-- Line 27: Change label from `text-sm font-medium` to `text-xs font-medium`
-- Line 47: Keep `text-xs font-medium` on button text (already correct)
-- Line 51: Change description from `text-xs` to `text-[11px]` for hierarchy (hint tier)
+---
 
-### 3. `src/components/teams/MyTeamSelector.tsx`
-- Line 193: Add `className="text-xs"` to the Label
-- Line 253: Change SelectTrigger from `h-10` to `h-9 text-xs` to match all form inputs
+## Issue 2: No "Forgot Password" or "Change Password" Feature
 
-### 4. `src/components/events/UnifiedEventForm.tsx`
-Multiple alignment fixes:
+There is currently **no password reset flow at all** -- no "Forgot Password" link on the Auth page, no reset email trigger, and no page to handle the password reset callback. Users who forget their password are completely locked out.
 
-**Sub-labels promoted to `text-xs`** (remove `text-[10px]`):
-- Line 443 (Date label): `text-[10px] text-muted-foreground` to `text-xs text-muted-foreground`
-- Line 487 (Start Time label): same fix
-- Line 499 (Duration label): same fix
-- Line 560 (Virtual Link label): same fix
-- Line 667 (Match Format label): same fix
+### Changes
 
-**Meetup categories readable**:
-- Line 395: Change button text from `text-[11px]` to `text-xs` so category names ("Watch Party", "Fitness", etc.) are actually legible
+#### A. Auth Page -- Add "Forgot Password" link
+- Add a `handleForgotPassword` function that calls `supabase.auth.resetPasswordForEmail()` using the email entered in the form.
+- Add a clickable "Forgot password?" link below the password field.
+- Add i18n keys for both EN and FR.
 
-**Button text in match section**:
-- Line 524 (location mode buttons): `text-[10px]` to `text-xs`
-- Line 608-611 (opponent select/manual buttons): `text-[10px]` to `text-xs`
-- Line 650 (home/away buttons): `text-[10px]` to `text-xs`
+**File:** `src/pages/Auth.tsx`
 
-**Visibility hint text**:
-- Lines 366-376 (pickup/team hint): keep `text-[10px]` (this is genuinely secondary hint text, the one exception)
+#### B. New page: Reset Password (`src/pages/ResetPassword.tsx`)
+- This page handles the callback after the user clicks the reset link in their email.
+- Detects the auth recovery event via `onAuthStateChange`.
+- Shows a form with "New password" and "Confirm password" fields.
+- Calls `supabase.auth.updateUser({ password })` to set the new password.
+- Redirects to home on success.
 
-**RSVP/deadline preset pills**:
-- Line 796: Change `text-[10px]` to `text-xs` on deadline preset buttons for readability
+**File:** `src/pages/ResetPassword.tsx` (new)
 
-**Input placeholder alignment** -- already handled by Input component using `text-body`, but form inputs with explicit `text-xs` override it. This is fine since `text-xs` (12px) and `text-body` (11px) are close. The explicit `text-xs` on inputs ensures consistency.
+#### C. Add route
+- Add `/reset-password` route in `src/App.tsx`.
 
-### Summary of impact
-- Label sizes: 5 variants reduced to 2 (labels: `text-xs`, hints: `text-[11px]`)
-- Input heights: unified to `h-9` everywhere
-- Meetup categories: text bumped from 11px to 12px -- now legible
-- Match section buttons: text bumped from 10px to 12px -- now readable
-- All 3 sub-components (SportQuickSelector, EventTypeSelector, MyTeamSelector) aligned with the form's design system
+**File:** `src/App.tsx`
+
+#### D. Settings Page -- Add "Change Password" option
+- In the Settings tab of `ProfileTabs`, add a "Change Password" section that lets authenticated users request a password reset email to their current email.
+- This sends a reset link via `supabase.auth.resetPasswordForEmail()`.
+
+**File:** `src/components/settings/ProfileTabs.tsx`
+
+#### E. i18n keys
+Add keys to both `en/auth.json`, `fr/auth.json`, `en/common.json`, and `fr/common.json`:
+- `forgotPassword`: "Forgot password?"
+- `forgotPasswordSuccess`: "Reset email sent"
+- `forgotPasswordSuccessDesc`: "Check your inbox for the reset link."
+- `resetPassword`: "Reset Password"
+- `newPassword` / `confirmPassword` / `passwordMismatch`
+- `passwordResetSuccess` / `changePassword` / `changePasswordDesc`
+
+---
+
+## Summary of all files changed
+
+| File | Change |
+|------|--------|
+| `src/components/settings/ProfileTabs.tsx` | Fix tab overflow; add Change Password section in Settings tab |
+| `src/pages/Auth.tsx` | Add forgot password handler + link |
+| `src/pages/ResetPassword.tsx` | New page for password reset callback |
+| `src/App.tsx` | Add `/reset-password` route |
+| `src/i18n/locales/en/auth.json` | Add forgot/reset password keys |
+| `src/i18n/locales/fr/auth.json` | Add forgot/reset password keys (FR) |
+| `src/i18n/locales/en/common.json` | Add change password keys |
+| `src/i18n/locales/fr/common.json` | Add change password keys (FR) |
+
