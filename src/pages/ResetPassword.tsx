@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useTranslation('auth');
+  const [searchParams] = useSearchParams();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,27 @@ const ResetPassword = () => {
   const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
-    // Mark recovery in sessionStorage so ProtectedRoute doesn't redirect
+    const tokenHash = searchParams.get('token_hash');
+    const type = searchParams.get('type');
+
+    if (tokenHash && type === 'recovery') {
+      // Direct token-based verification (bypasses Supabase redirects)
+      sessionStorage.setItem('password_recovery_active', 'true');
+      supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: 'recovery',
+      }).then(({ error }) => {
+        if (error) {
+          console.error('verifyOtp error:', error.message);
+          setTimedOut(true);
+        } else {
+          setIsReady(true);
+        }
+      });
+      return;
+    }
+
+    // Fallback: legacy hash-based recovery flow
     const hash = window.location.hash;
     if (hash && hash.includes('type=recovery')) {
       sessionStorage.setItem('password_recovery_active', 'true');
@@ -38,19 +59,12 @@ const ResetPassword = () => {
       }
     });
 
-    // Check if we already have a session (user clicked the link)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        // Also check if hash contains recovery token as extra signal
-        if (hash.includes('type=recovery') || sessionStorage.getItem('password_recovery_active')) {
-          setIsReady(true);
-        } else {
-          setIsReady(true);
-        }
+        setIsReady(true);
       }
     });
 
-    // Timeout after 10 seconds to prevent infinite spinner
     const timeout = setTimeout(() => {
       setTimedOut(true);
     }, 10000);
@@ -59,7 +73,7 @@ const ResetPassword = () => {
       subscription.unsubscribe();
       clearTimeout(timeout);
     };
-  }, []);
+  }, [searchParams]);
 
   const handleReset = async () => {
     if (newPassword.length < 6) {
