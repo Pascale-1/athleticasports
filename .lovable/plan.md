@@ -1,49 +1,60 @@
 
 
-# Send Password Reset Emails from Your Domain
+# Fix Password Reset Link (Not Loading)
 
-## Current Situation
-- Password reset emails are sent by the built-in auth system from `no-reply@auth.lovable.cloud`
-- Your app already uses **Resend** with a verified `athleticasports.app` domain for feedback emails
-- We can leverage the same Resend setup to send branded password reset emails
+## Root Cause
+
+The reset link in the email points to the Supabase auth server (`/auth/v1/verify?token=...&redirect_to=...`). After verifying the token, Supabase tries to redirect to your preview URL -- but that URL isn't in the allowed redirect list, so the redirect fails silently. The user ends up on a page that never receives the recovery session.
 
 ## Solution
 
-Create a custom edge function that generates a secure password reset link and sends a branded email via Resend from `noreply@athleticasports.app`.
+Skip the Supabase redirect entirely. Instead:
+1. In the edge function, extract the raw token from the `action_link` and build a direct link to the app (e.g., `https://your-app/reset-password?token_hash=abc123&type=recovery`)
+2. On the ResetPassword page, detect the `token_hash` query parameter and call `supabase.auth.verifyOtp()` to establish the session client-side
 
-### How it works
+This approach works with any domain (preview, published, custom) since it never relies on server-side redirects.
 
-1. User clicks "Forgot password?" on the login page (or "Change password" in settings)
-2. Instead of calling the default auth reset method directly, the app calls a new backend function
-3. The backend function generates a secure reset link using admin privileges
-4. It sends a beautifully branded email via Resend from `noreply@athleticasports.app`
-5. User clicks the link and lands on the `/reset-password` page as before
-
-### Changes
+## Files to Change
 
 | File | Change |
 |------|--------|
-| `supabase/functions/send-password-reset/index.ts` | **New** -- Edge function that generates a reset link and sends a branded email via Resend |
-| `supabase/config.toml` | Add config for the new function (no JWT required so unauthenticated users can reset) |
-| `src/pages/Auth.tsx` | Update `handleForgotPassword` to call the new edge function instead of `supabase.auth.resetPasswordForEmail()` |
-| `src/components/settings/ChangePasswordSection.tsx` | Update to call the new edge function |
+| `supabase/functions/send-password-reset/index.ts` | Parse token from `action_link`, build a direct app link instead |
+| `src/pages/ResetPassword.tsx` | Detect `token_hash` query param, call `verifyOtp()` to establish session |
 
-### Technical Details
+## Technical Details
 
-**Edge Function (`send-password-reset`):**
-- Accepts `{ email, redirectTo }` in the request body
-- Uses `supabase.auth.admin.generateLink({ type: 'recovery', email, options: { redirectTo } })` to generate the reset link
-- Sends a branded HTML email via Resend with the Athletica Sports look and feel
-- Returns success/error response
-- Rate-limit friendly: always returns success to avoid email enumeration
+### Edge Function (`send-password-reset/index.ts`)
+After getting the `action_link`, parse the `token` parameter from it and build a direct link:
 
-**Email Template:**
-- Branded with Athletica Sports name and purple accent color (#9361E0)
-- Clean, mobile-friendly HTML layout matching the feedback email style
-- Clear call-to-action button linking to the reset page
-- Includes a note that the link expires after 1 hour
+```typescript
+const resetLink = data?.properties?.action_link;
+// Extract token_hash from the action_link URL
+const actionUrl = new URL(resetLink);
+const tokenHash = actionUrl.searchParams.get("token");
+// Build direct app link
+const appResetLink = `${redirectTo}?token_hash=${tokenHash}&type=recovery`;
+```
 
-**Frontend Changes:**
-- Replace direct `supabase.auth.resetPasswordForEmail()` calls with a fetch to the new edge function
-- No change to the user experience -- same buttons, same toast messages
+Use `appResetLink` in the email template instead of `resetLink`.
 
+### ResetPassword Page
+Add token-based verification:
+
+```typescript
+const [searchParams] = useSearchParams();
+const tokenHash = searchParams.get('token_hash');
+
+useEffect(() => {
+  if (tokenHash) {
+    supabase.auth.verifyOtp({
+      token_hash: tokenHash,
+      type: 'recovery',
+    }).then(({ error }) => {
+      if (error) { setTimedOut(true); }
+      else { setIsReady(true); }
+    });
+  }
+}, [tokenHash]);
+```
+
+This eliminates the dependency on Supabase server-side redirects entirely.
