@@ -202,7 +202,11 @@
   "settings": {
     "walkthrough": "App Walkthrough",
     "walkthroughDescription": "Take a guided tour of the app's main features",
-    "restartWalkthrough": "Restart Walkthrough"
+    "restartWalkthrough": "Restart Walkthrough",
+    "changePassword": "Change Password",
+    "changePasswordDesc": "We'll send a password reset link to your email address.",
+    "changePasswordSuccess": "Reset email sent",
+    "changePasswordSuccessDesc": "Check your inbox for the password reset link."
   },
   "onboarding": {
     "welcome": {
