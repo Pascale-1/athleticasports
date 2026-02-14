@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trophy, Users, User, Mail, Calendar, Swords, Globe, MessageSquare, PlayCircle, Pencil, Settings, Activity } from "lucide-react";
+import { Trophy, Users, User, Mail, Calendar, Swords, Globe, MessageSquare, PlayCircle, Pencil, Settings, Activity, KeyRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { formatMonthYear } from "@/lib/dateUtils";
 import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
 import { ProfileActivityTab } from "./ProfileActivityTab";
+import { ChangePasswordSection } from "./ChangePasswordSection";
 
 interface ProfileTabsProps {
   profile: any;
@@ -84,21 +85,21 @@ export const ProfileTabs = ({
   return (
     <Tabs defaultValue="overview" className="w-full">
       <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="overview" className="flex items-center gap-1.5">
-          <User className="h-3.5 w-3.5" />
-          <span className="hidden xs:inline">{t('profile.title')}</span>
+        <TabsTrigger value="overview" className="flex items-center gap-1.5 text-xs">
+          <User className="h-3.5 w-3.5 shrink-0" />
+          <span className="hidden sm:inline truncate">{t('profile.title')}</span>
         </TabsTrigger>
-        <TabsTrigger value="activity" className="flex items-center gap-1.5">
-          <Activity className="h-3.5 w-3.5" />
-          <span className="hidden xs:inline">{t('profile.activity')}</span>
+        <TabsTrigger value="activity" className="flex items-center gap-1.5 text-xs">
+          <Activity className="h-3.5 w-3.5 shrink-0" />
+          <span className="hidden sm:inline truncate">{t('profile.activity')}</span>
         </TabsTrigger>
-        <TabsTrigger value="about" className="flex items-center gap-1.5">
-          <Pencil className="h-3.5 w-3.5" />
-          <span className="hidden xs:inline">{t('profile.about')}</span>
+        <TabsTrigger value="about" className="flex items-center gap-1.5 text-xs">
+          <Pencil className="h-3.5 w-3.5 shrink-0" />
+          <span className="hidden sm:inline truncate">{t('profile.about')}</span>
         </TabsTrigger>
-        <TabsTrigger value="settings" className="flex items-center gap-1.5">
-          <Settings className="h-3.5 w-3.5" />
-          <span className="hidden xs:inline">{t('profile.settings')}</span>
+        <TabsTrigger value="settings" className="flex items-center gap-1.5 text-xs">
+          <Settings className="h-3.5 w-3.5 shrink-0" />
+          <span className="hidden sm:inline truncate">{t('profile.settings')}</span>
         </TabsTrigger>
       </TabsList>
 
@@ -321,6 +322,9 @@ export const ProfileTabs = ({
             </div>
           </CardContent>
         </Card>
+
+        {/* Change Password Section */}
+        <ChangePasswordSection email={email} />
 
         <FeedbackForm open={feedbackOpen} onOpenChange={setFeedbackOpen} />
       </TabsContent>

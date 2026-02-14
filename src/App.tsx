@@ -35,6 +35,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const JoinEvent = lazy(() => import("./pages/JoinEvent"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const ConfirmDeletion = lazy(() => import("./pages/ConfirmDeletion"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -168,6 +169,7 @@ const AppRoutes = () => (
       <Route path="/teams/invitations/accept" element={<AcceptInvitation />} />
       <Route path="/teams/invitations/help" element={<InvitationHelp />} />
       <Route path="/events/join/:code" element={<JoinEvent />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/account/confirm-deletion/:token" element={<ConfirmDeletion />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />

@@ -202,7 +202,11 @@
   "settings": {
     "walkthrough": "Visite guidée",
     "walkthroughDescription": "Découvre les principales fonctionnalités de l'app",
-    "restartWalkthrough": "Relancer la visite"
+    "restartWalkthrough": "Relancer la visite",
+    "changePassword": "Changer le mot de passe",
+    "changePasswordDesc": "Nous enverrons un lien de réinitialisation à votre adresse email.",
+    "changePasswordSuccess": "Email de réinitialisation envoyé",
+    "changePasswordSuccessDesc": "Vérifiez votre boîte mail pour le lien de réinitialisation."
   },
   "onboarding": {
     "welcome": {

@@ -211,6 +211,34 @@ const Auth = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    const email = emailForm.getValues("email");
+    if (!email) {
+      toast({
+        variant: "destructive",
+        title: t('forgotPassword'),
+        description: t('forgotPasswordEnterEmail'),
+      });
+      return;
+    }
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast({
+        title: t('forgotPasswordSuccess'),
+        description: t('forgotPasswordSuccessDesc'),
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: t('signInError'),
+        description: error.message,
+      });
+    }
+  };
+
   const handleAppleAuth = async () => {
     setAppleLoading(true);
     try {
@@ -326,7 +354,19 @@ const Auth = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">{t('password')}</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">{t('password')}</Label>
+                {!isSignUp && (
+                  <button
+                    type="button"
+                    className="text-xs text-primary hover:underline"
+                    onClick={handleForgotPassword}
+                    disabled={loading}
+                  >
+                    {t('forgotPassword')}
+                  </button>
+                )}
+              </div>
               <Input
                 id="password"
                 type="password"
