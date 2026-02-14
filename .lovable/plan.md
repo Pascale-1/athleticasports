@@ -1,75 +1,66 @@
 
+# Fix Password Reset Email Link
 
-# Fix Profile Layout Overflow + Add Password Reset Flow
+## Problem
 
-## Issue 1: Profile Page -- Tab Labels Overflow
+When a user clicks "Forgot password?" on the login page (or "Change password" in settings), an email is sent successfully. However, clicking the link in the email does not work as expected -- the user should land on the `/reset-password` page to set a new password.
 
-The `ProfileTabs` component uses a 4-column tab grid (`grid-cols-4`) with text labels that are hidden on small screens via `hidden xs:inline`. However, the `xs` breakpoint may not exist in the Tailwind config, causing labels to always show and overflow their boxes on narrow screens (especially in French where "Parametres" and "Activite" are longer).
+There are two issues causing this:
 
-### Fix
-- Change tab label visibility from `hidden xs:inline` to `hidden sm:inline` (standard Tailwind breakpoint) so labels are icon-only on mobile.
-- Add `text-xs` to tab triggers for consistent sizing with the design system.
-- Add `overflow-hidden` and `truncate` to tab label spans as a safety net.
+### Issue 1: Redirect URL mismatch
 
-### Files
-- `src/components/settings/ProfileTabs.tsx` (lines 87-102): Update all 4 `TabsTrigger` elements.
+The `redirectTo` in `resetPasswordForEmail` is set to `${window.location.origin}/reset-password`. However, when the email is sent from the **preview** environment, the origin is a dynamic Lovable preview URL that may not be in the backend's list of allowed redirect URLs. The backend may silently ignore or rewrite the redirect to the configured site URL, so the user never lands on `/reset-password`.
 
----
+**Fix:** Use the published/primary domain if available, or ensure the redirect URL is properly configured. Since the preview URL is dynamic, the best fix is to ensure the redirect goes to a working URL and the route handles the callback correctly.
 
-## Issue 2: No "Forgot Password" or "Change Password" Feature
+### Issue 2: Race condition with ProtectedRoute and Auth page
 
-There is currently **no password reset flow at all** -- no "Forgot Password" link on the Auth page, no reset email trigger, and no page to handle the password reset callback. Users who forget their password are completely locked out.
+When the password recovery link lands on `/reset-password`, the Supabase client processes the hash fragment (`#access_token=...&type=recovery`) and fires a `PASSWORD_RECOVERY` auth event. However, the Auth page's `onAuthStateChange` listener (if the user happens to be redirected there) or any other global auth listener could detect the new session first and redirect the user to `/` before the ResetPassword page has a chance to show.
 
-### Changes
+Additionally, in `ResetPassword.tsx`, if `getSession()` resolves before the `PASSWORD_RECOVERY` event fires, the page sets `isReady = true`, but the user might then get redirected away by a global auth listener.
 
-#### A. Auth Page -- Add "Forgot Password" link
-- Add a `handleForgotPassword` function that calls `supabase.auth.resetPasswordForEmail()` using the email entered in the form.
-- Add a clickable "Forgot password?" link below the password field.
-- Add i18n keys for both EN and FR.
+## Solution
 
-**File:** `src/pages/Auth.tsx`
+### 1. Add `/reset-password` hash handling in main app entry
 
-#### B. New page: Reset Password (`src/pages/ResetPassword.tsx`)
-- This page handles the callback after the user clicks the reset link in their email.
-- Detects the auth recovery event via `onAuthStateChange`.
-- Shows a form with "New password" and "Confirm password" fields.
-- Calls `supabase.auth.updateUser({ password })` to set the new password.
-- Redirects to home on success.
+In `src/App.tsx` or `src/main.tsx`, add early detection of the password recovery hash fragment. When the URL contains `type=recovery` in the hash, ensure the app navigates to `/reset-password` before any ProtectedRoute can intercept.
 
-**File:** `src/pages/ResetPassword.tsx` (new)
+### 2. Update ResetPassword page to be more resilient
 
-#### C. Add route
-- Add `/reset-password` route in `src/App.tsx`.
+- Parse the URL hash fragment directly as a fallback to detect recovery mode
+- Add a timeout fallback so the page doesn't spin forever
+- Handle the case where the user arrives with a valid recovery token in the URL
 
-**File:** `src/App.tsx`
+### 3. Ensure the redirect URL uses the correct origin
 
-#### D. Settings Page -- Add "Change Password" option
-- In the Settings tab of `ProfileTabs`, add a "Change Password" section that lets authenticated users request a password reset email to their current email.
-- This sends a reset link via `supabase.auth.resetPasswordForEmail()`.
+Both `Auth.tsx` (`handleForgotPassword`) and `ChangePasswordSection.tsx` already use `window.location.origin`, which is correct. The key issue is making sure the backend allows this redirect.
 
-**File:** `src/components/settings/ProfileTabs.tsx`
-
-#### E. i18n keys
-Add keys to both `en/auth.json`, `fr/auth.json`, `en/common.json`, and `fr/common.json`:
-- `forgotPassword`: "Forgot password?"
-- `forgotPasswordSuccess`: "Reset email sent"
-- `forgotPasswordSuccessDesc`: "Check your inbox for the reset link."
-- `resetPassword`: "Reset Password"
-- `newPassword` / `confirmPassword` / `passwordMismatch`
-- `passwordResetSuccess` / `changePassword` / `changePasswordDesc`
-
----
-
-## Summary of all files changed
+## Files to change
 
 | File | Change |
 |------|--------|
-| `src/components/settings/ProfileTabs.tsx` | Fix tab overflow; add Change Password section in Settings tab |
-| `src/pages/Auth.tsx` | Add forgot password handler + link |
-| `src/pages/ResetPassword.tsx` | New page for password reset callback |
-| `src/App.tsx` | Add `/reset-password` route |
-| `src/i18n/locales/en/auth.json` | Add forgot/reset password keys |
-| `src/i18n/locales/fr/auth.json` | Add forgot/reset password keys (FR) |
-| `src/i18n/locales/en/common.json` | Add change password keys |
-| `src/i18n/locales/fr/common.json` | Add change password keys (FR) |
+| `src/App.tsx` | Add a redirect from `/` to `/reset-password` when URL hash contains `type=recovery` |
+| `src/pages/ResetPassword.tsx` | Add hash fragment parsing fallback, timeout for spinner, and better error handling |
+| `vite.config.ts` | Add `/reset-password` related paths to PWA `navigateFallbackDenylist` if needed |
 
+## Technical Details
+
+### src/App.tsx
+Add an early `useEffect` in the App component that checks `window.location.hash` for `type=recovery`. If found, redirect to `/reset-password` with the hash preserved:
+
+```typescript
+useEffect(() => {
+  const hash = window.location.hash;
+  if (hash && hash.includes('type=recovery')) {
+    const currentPath = window.location.pathname;
+    if (currentPath !== '/reset-password') {
+      window.location.href = '/reset-password' + hash;
+    }
+  }
+}, []);
+```
+
+### src/pages/ResetPassword.tsx
+- Add a fallback that checks `window.location.hash` for recovery tokens
+- Add a 10-second timeout that shows an error message instead of infinite spinner
+- Prevent the global auth listener from redirecting away by marking the recovery state in sessionStorage
