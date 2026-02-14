@@ -74,6 +74,19 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Extract token from the action_link and build a direct app link
+    const actionUrl = new URL(resetLink);
+    const tokenHash = actionUrl.searchParams.get("token");
+    if (!tokenHash) {
+      console.error("No token found in action_link:", resetLink);
+      return new Response(
+        JSON.stringify({ success: true }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const appResetLink = `${redirectTo}?token_hash=${encodeURIComponent(tokenHash)}&type=recovery`;
+
     // Send branded email via Resend
     const resend = new Resend(resendApiKey);
 
@@ -114,7 +127,7 @@ Deno.serve(async (req) => {
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center" style="padding: 8px 0 24px 0;">
-                    <a href="${resetLink}" 
+                    <a href="${appResetLink}" 
                        style="display: inline-block; background: linear-gradient(135deg, #9361E0, #7c3aed); color: #ffffff; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-size: 15px; font-weight: 600; letter-spacing: 0.2px;">
                       Reset Password
                     </a>
