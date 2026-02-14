@@ -20,10 +20,10 @@ export const ChangePasswordSection = ({ email }: ChangePasswordSectionProps) => 
     if (!email) return;
     setLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+      const response = await supabase.functions.invoke('send-password-reset', {
+        body: { email, redirectTo: `${window.location.origin}/reset-password` },
       });
-      if (error) throw error;
+      if (response.error) throw response.error;
       toast({
         title: t('settings.changePasswordSuccess'),
         description: t('settings.changePasswordSuccessDesc'),
