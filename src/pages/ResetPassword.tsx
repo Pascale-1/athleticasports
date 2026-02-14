@@ -23,20 +23,42 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
+    // Mark recovery in sessionStorage so ProtectedRoute doesn't redirect
+    const hash = window.location.hash;
+    if (hash && hash.includes('type=recovery')) {
+      sessionStorage.setItem('password_recovery_active', 'true');
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
         setIsReady(true);
       }
     });
 
-    // Also check if we already have a session (user clicked the link)
+    // Check if we already have a session (user clicked the link)
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setIsReady(true);
+      if (session) {
+        // Also check if hash contains recovery token as extra signal
+        if (hash.includes('type=recovery') || sessionStorage.getItem('password_recovery_active')) {
+          setIsReady(true);
+        } else {
+          setIsReady(true);
+        }
+      }
     });
 
-    return () => subscription.unsubscribe();
+    // Timeout after 10 seconds to prevent infinite spinner
+    const timeout = setTimeout(() => {
+      setTimedOut(true);
+    }, 10000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const handleReset = async () => {
@@ -53,6 +75,7 @@ const ResetPassword = () => {
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
+      sessionStorage.removeItem('password_recovery_active');
       toast({ title: t('passwordResetSuccess'), description: t('passwordResetSuccessDesc') });
       navigate("/");
     } catch (error: any) {
@@ -63,6 +86,24 @@ const ResetPassword = () => {
   };
 
   if (!isReady) {
+    if (timedOut) {
+      return (
+        <div className="flex min-h-screen items-center justify-center bg-background p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle className="text-heading-1">{t('resetPassword')}</CardTitle>
+              <CardDescription>{t('resetLinkExpired', 'This reset link is invalid or has expired. Please request a new one.')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={() => navigate("/auth")} className="w-full">
+                {t('backToSignIn', 'Back to Sign In')}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

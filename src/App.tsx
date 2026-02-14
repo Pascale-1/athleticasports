@@ -178,6 +178,17 @@ const AppRoutes = () => (
 );
 
 const App = () => {
+  // Detect password recovery hash and redirect to /reset-password before any ProtectedRoute intercepts
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash && hash.includes('type=recovery')) {
+      const currentPath = window.location.pathname;
+      if (currentPath !== '/reset-password') {
+        window.location.href = '/reset-password' + hash;
+      }
+    }
+  }, []);
+
   // Sync session when window gains focus or becomes visible
   // This fixes OAuth sessions not appearing in Lovable preview iframe
   useEffect(() => {
