@@ -1,66 +1,49 @@
 
-# Fix Password Reset Email Link
 
-## Problem
+# Send Password Reset Emails from Your Domain
 
-When a user clicks "Forgot password?" on the login page (or "Change password" in settings), an email is sent successfully. However, clicking the link in the email does not work as expected -- the user should land on the `/reset-password` page to set a new password.
-
-There are two issues causing this:
-
-### Issue 1: Redirect URL mismatch
-
-The `redirectTo` in `resetPasswordForEmail` is set to `${window.location.origin}/reset-password`. However, when the email is sent from the **preview** environment, the origin is a dynamic Lovable preview URL that may not be in the backend's list of allowed redirect URLs. The backend may silently ignore or rewrite the redirect to the configured site URL, so the user never lands on `/reset-password`.
-
-**Fix:** Use the published/primary domain if available, or ensure the redirect URL is properly configured. Since the preview URL is dynamic, the best fix is to ensure the redirect goes to a working URL and the route handles the callback correctly.
-
-### Issue 2: Race condition with ProtectedRoute and Auth page
-
-When the password recovery link lands on `/reset-password`, the Supabase client processes the hash fragment (`#access_token=...&type=recovery`) and fires a `PASSWORD_RECOVERY` auth event. However, the Auth page's `onAuthStateChange` listener (if the user happens to be redirected there) or any other global auth listener could detect the new session first and redirect the user to `/` before the ResetPassword page has a chance to show.
-
-Additionally, in `ResetPassword.tsx`, if `getSession()` resolves before the `PASSWORD_RECOVERY` event fires, the page sets `isReady = true`, but the user might then get redirected away by a global auth listener.
+## Current Situation
+- Password reset emails are sent by the built-in auth system from `no-reply@auth.lovable.cloud`
+- Your app already uses **Resend** with a verified `athleticasports.app` domain for feedback emails
+- We can leverage the same Resend setup to send branded password reset emails
 
 ## Solution
 
-### 1. Add `/reset-password` hash handling in main app entry
+Create a custom edge function that generates a secure password reset link and sends a branded email via Resend from `noreply@athleticasports.app`.
 
-In `src/App.tsx` or `src/main.tsx`, add early detection of the password recovery hash fragment. When the URL contains `type=recovery` in the hash, ensure the app navigates to `/reset-password` before any ProtectedRoute can intercept.
+### How it works
 
-### 2. Update ResetPassword page to be more resilient
+1. User clicks "Forgot password?" on the login page (or "Change password" in settings)
+2. Instead of calling the default auth reset method directly, the app calls a new backend function
+3. The backend function generates a secure reset link using admin privileges
+4. It sends a beautifully branded email via Resend from `noreply@athleticasports.app`
+5. User clicks the link and lands on the `/reset-password` page as before
 
-- Parse the URL hash fragment directly as a fallback to detect recovery mode
-- Add a timeout fallback so the page doesn't spin forever
-- Handle the case where the user arrives with a valid recovery token in the URL
-
-### 3. Ensure the redirect URL uses the correct origin
-
-Both `Auth.tsx` (`handleForgotPassword`) and `ChangePasswordSection.tsx` already use `window.location.origin`, which is correct. The key issue is making sure the backend allows this redirect.
-
-## Files to change
+### Changes
 
 | File | Change |
 |------|--------|
-| `src/App.tsx` | Add a redirect from `/` to `/reset-password` when URL hash contains `type=recovery` |
-| `src/pages/ResetPassword.tsx` | Add hash fragment parsing fallback, timeout for spinner, and better error handling |
-| `vite.config.ts` | Add `/reset-password` related paths to PWA `navigateFallbackDenylist` if needed |
+| `supabase/functions/send-password-reset/index.ts` | **New** -- Edge function that generates a reset link and sends a branded email via Resend |
+| `supabase/config.toml` | Add config for the new function (no JWT required so unauthenticated users can reset) |
+| `src/pages/Auth.tsx` | Update `handleForgotPassword` to call the new edge function instead of `supabase.auth.resetPasswordForEmail()` |
+| `src/components/settings/ChangePasswordSection.tsx` | Update to call the new edge function |
 
-## Technical Details
+### Technical Details
 
-### src/App.tsx
-Add an early `useEffect` in the App component that checks `window.location.hash` for `type=recovery`. If found, redirect to `/reset-password` with the hash preserved:
+**Edge Function (`send-password-reset`):**
+- Accepts `{ email, redirectTo }` in the request body
+- Uses `supabase.auth.admin.generateLink({ type: 'recovery', email, options: { redirectTo } })` to generate the reset link
+- Sends a branded HTML email via Resend with the Athletica Sports look and feel
+- Returns success/error response
+- Rate-limit friendly: always returns success to avoid email enumeration
 
-```typescript
-useEffect(() => {
-  const hash = window.location.hash;
-  if (hash && hash.includes('type=recovery')) {
-    const currentPath = window.location.pathname;
-    if (currentPath !== '/reset-password') {
-      window.location.href = '/reset-password' + hash;
-    }
-  }
-}, []);
-```
+**Email Template:**
+- Branded with Athletica Sports name and purple accent color (#9361E0)
+- Clean, mobile-friendly HTML layout matching the feedback email style
+- Clear call-to-action button linking to the reset page
+- Includes a note that the link expires after 1 hour
 
-### src/pages/ResetPassword.tsx
-- Add a fallback that checks `window.location.hash` for recovery tokens
-- Add a 10-second timeout that shows an error message instead of infinite spinner
-- Prevent the global auth listener from redirecting away by marking the recovery state in sessionStorage
+**Frontend Changes:**
+- Replace direct `supabase.auth.resetPasswordForEmail()` calls with a fetch to the new edge function
+- No change to the user experience -- same buttons, same toast messages
+
