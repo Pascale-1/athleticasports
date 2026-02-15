@@ -257,46 +257,42 @@ export const EditEventDialog = ({
 
           {/* Cost & Payment */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between h-9">
-              <Label className="text-xs flex items-center gap-1.5">
-                <Euro className="h-3.5 w-3.5 text-muted-foreground" />
-                {t('cost.label')}
-              </Label>
+            <Label className="text-xs flex items-center gap-1.5">
+              <Euro className="h-3.5 w-3.5 text-muted-foreground" />
+              {t('cost.label')}
+            </Label>
+            <div className="flex flex-wrap gap-1.5">
+              {(['free', 'on_site', 'online', 'split'] as const).map((method) => (
+                <Button
+                  key={method}
+                  type="button"
+                  variant={paymentMethod === method ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setPaymentMethod(prev => prev === method ? '' : method)}
+                  className="h-7 text-xs px-2"
+                >
+                  {t(`cost.${method === 'on_site' ? 'onSite' : method}`)}
+                </Button>
+              ))}
+            </div>
+
+            {paymentMethod && paymentMethod !== 'free' && (
               <Input
                 value={cost}
                 onChange={(e) => setCost(e.target.value)}
                 placeholder={t('cost.placeholder')}
-                className="w-24 h-8 text-xs text-right"
+                className="h-8 text-xs"
               />
-            </div>
+            )}
 
-            {cost && cost.trim() !== '' && (
-              <div className="space-y-2">
-                <div className="flex flex-wrap gap-1.5">
-                  {(['free', 'on_site', 'online', 'split'] as const).map((method) => (
-                    <Button
-                      key={method}
-                      type="button"
-                      variant={paymentMethod === method ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setPaymentMethod(method)}
-                      className="h-7 text-xs px-2"
-                    >
-                      {t(`cost.${method === 'on_site' ? 'onSite' : method}`)}
-                    </Button>
-                  ))}
-                </div>
-
-                {paymentMethod === 'online' && (
-                  <Input
-                    value={paymentLink}
-                    onChange={(e) => setPaymentLink(e.target.value)}
-                    placeholder={t('cost.paymentLinkPlaceholder')}
-                    className="h-8 text-xs"
-                    type="url"
-                  />
-                )}
-              </div>
+            {paymentMethod === 'online' && (
+              <Input
+                value={paymentLink}
+                onChange={(e) => setPaymentLink(e.target.value)}
+                placeholder={t('cost.paymentLinkPlaceholder')}
+                className="h-8 text-xs"
+                type="url"
+              />
             )}
           </div>
 
