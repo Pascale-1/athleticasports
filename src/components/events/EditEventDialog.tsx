@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Globe, Lock, Users } from "lucide-react";
+import { Loader2, Globe, Lock, Users, Euro } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { CreateEventData } from "@/hooks/useEvents";
 import { Event } from "@/lib/events";
@@ -44,6 +44,11 @@ export const EditEventDialog = ({
   const [homeAway, setHomeAway] = useState<'home' | 'away' | 'neutral'>(event.home_away || 'home');
   const [matchFormat, setMatchFormat] = useState(event.match_format || '');
 
+  // Cost & Payment fields
+  const [cost, setCost] = useState(event.cost || '');
+  const [paymentMethod, setPaymentMethod] = useState(event.payment_method || '');
+  const [paymentLink, setPaymentLink] = useState(event.payment_link || '');
+
   // Initialize form with event data
   useEffect(() => {
     if (event && open) {
@@ -56,6 +61,9 @@ export const EditEventDialog = ({
       setOpponentName(event.opponent_name || '');
       setHomeAway(event.home_away || 'home');
       setMatchFormat(event.match_format || '');
+      setCost(event.cost || '');
+      setPaymentMethod(event.payment_method || '');
+      setPaymentLink(event.payment_link || '');
       
       // Parse dates
       const start = new Date(event.start_time);
@@ -89,6 +97,11 @@ export const EditEventDialog = ({
       data.home_away = homeAway;
       data.match_format = matchFormat || undefined;
     }
+
+    // Add cost & payment fields
+    data.cost = cost || undefined;
+    data.payment_method = paymentMethod || undefined;
+    data.payment_link = paymentMethod === 'online' && paymentLink ? paymentLink : undefined;
 
     const success = await onUpdate(event.id, data);
     setIsSubmitting(false);
@@ -241,6 +254,51 @@ export const EditEventDialog = ({
               </div>
             </>
           )}
+
+          {/* Cost & Payment */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between h-9">
+              <Label className="text-xs flex items-center gap-1.5">
+                <Euro className="h-3.5 w-3.5 text-muted-foreground" />
+                {t('cost.label')}
+              </Label>
+              <Input
+                value={cost}
+                onChange={(e) => setCost(e.target.value)}
+                placeholder={t('cost.placeholder')}
+                className="w-24 h-8 text-xs text-right"
+              />
+            </div>
+
+            {cost && cost.trim() !== '' && (
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-1.5">
+                  {(['free', 'on_site', 'online', 'split'] as const).map((method) => (
+                    <Button
+                      key={method}
+                      type="button"
+                      variant={paymentMethod === method ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setPaymentMethod(method)}
+                      className="h-7 text-xs px-2"
+                    >
+                      {t(`cost.${method === 'on_site' ? 'onSite' : method}`)}
+                    </Button>
+                  ))}
+                </div>
+
+                {paymentMethod === 'online' && (
+                  <Input
+                    value={paymentLink}
+                    onChange={(e) => setPaymentLink(e.target.value)}
+                    placeholder={t('cost.paymentLinkPlaceholder')}
+                    className="h-8 text-xs"
+                    type="url"
+                  />
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Public/Private Toggle */}
           <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl border">

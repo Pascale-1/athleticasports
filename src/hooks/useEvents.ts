@@ -31,6 +31,10 @@ export interface CreateEventData {
   rsvp_deadline?: string;
   // Sport for matching
   sport?: string;
+  // Cost & payment
+  cost?: string;
+  payment_link?: string;
+  payment_method?: string;
 }
 
 export const useEvents = (teamId?: string | null, filters?: {

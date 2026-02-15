@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format, subHours } from "date-fns";
 import { AnimatePresence, motion, Easing } from "framer-motion";
-import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Users, UserPlus, Clock } from "lucide-react";
+import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Users, UserPlus, Clock, Euro } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -156,6 +156,11 @@ export const UnifiedEventForm = ({
   const [lookingForPlayers, setLookingForPlayers] = useState(false);
   const [playersNeeded, setPlayersNeeded] = useState("4");
 
+  // Cost & Payment state
+  const [cost, setCost] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<string>('');
+  const [paymentLink, setPaymentLink] = useState('');
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -288,6 +293,9 @@ export const UnifiedEventForm = ({
       is_recurring: isRecurring,
       recurrence_rule: generateRecurrenceRule(),
       rsvp_deadline: showRsvpDeadline ? calculateRsvpDeadline(startDate)?.toISOString() : undefined,
+      cost: cost || undefined,
+      payment_method: paymentMethod || undefined,
+      payment_link: paymentMethod === 'online' && paymentLink ? paymentLink : undefined,
     };
 
     await onSubmit(eventData);
@@ -778,6 +786,51 @@ export const UnifiedEventForm = ({
               </Popover>
             </div>
           )}
+
+          {/* Cost & Payment - inline row */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between h-9">
+              <Label className="text-xs flex items-center gap-1.5">
+                <Euro className="h-3.5 w-3.5 text-muted-foreground" />
+                {t('cost.label')}
+              </Label>
+              <Input
+                value={cost}
+                onChange={(e) => setCost(e.target.value)}
+                placeholder={t('cost.placeholder')}
+                className="w-24 h-8 text-xs text-right"
+              />
+            </div>
+
+            {cost && cost.trim() !== '' && (
+              <div className="pl-5 space-y-2">
+                <div className="flex flex-wrap gap-1.5">
+                  {(['free', 'on_site', 'online', 'split'] as const).map((method) => (
+                    <Button
+                      key={method}
+                      type="button"
+                      variant={paymentMethod === method ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setPaymentMethod(method)}
+                      className="h-7 text-xs px-2"
+                    >
+                      {t(`cost.${method === 'on_site' ? 'onSite' : method}`)}
+                    </Button>
+                  ))}
+                </div>
+
+                {paymentMethod === 'online' && (
+                  <Input
+                    value={paymentLink}
+                    onChange={(e) => setPaymentLink(e.target.value)}
+                    placeholder={t('cost.paymentLinkPlaceholder')}
+                    className="h-8 text-xs"
+                    type="url"
+                  />
+                )}
+              </div>
+            )}
+          </div>
 
           {/* RSVP Deadline - inline switch */}
           <div className="space-y-2">

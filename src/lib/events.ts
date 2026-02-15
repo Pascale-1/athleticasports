@@ -36,6 +36,10 @@ export interface Event {
   players_needed?: number | null;
   // RSVP deadline
   rsvp_deadline?: string | null;
+  // Cost & payment
+  cost?: string | null;
+  payment_link?: string | null;
+  payment_method?: string | null;
 }
 
 export interface EventWithAttendance extends Event {

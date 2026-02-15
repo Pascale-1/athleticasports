@@ -376,5 +376,17 @@
   },
   "smartDefaults": {
     "usingTeamVenue": "Using team's default venue"
+  },
+  "cost": {
+    "label": "Cost",
+    "placeholder": "e.g. 15€",
+    "free": "Free",
+    "onSite": "Pay on-site",
+    "online": "Pay online",
+    "split": "Split the cost",
+    "paymentLink": "Payment link",
+    "paymentLinkPlaceholder": "https://...",
+    "paymentMethod": "Payment method",
+    "openPaymentLink": "Pay / Book"
   }
 }
