@@ -15,7 +15,7 @@
     "skillLevel": "Niveau",
     "yourLevel": "Ton niveau",
     "searching": "Recherche en cours...",
-    "noResults": "Aucun joueur disponible",
+    "noResults": "Aucune joueuse disponible",
     "noResultsDesc": "Essaie d'élargir tes critères",
     "distance": "à {{distance}} km",
     "makeAvailable": "Trouve-moi un match",
@@ -82,7 +82,7 @@
     "other": "Autres sports"
   },
   "browseGames": "Trouver des matchs",
-  "browseGamesDesc": "Parcours les matchs qui cherchent des joueurs",
+  "browseGamesDesc": "Parcours les matchs qui cherchent des joueuses",
   "scoringActive": "Matchs classés selon ta dispo en {{sport}}",
   "filterBySport": "Sport",
   "filterByLocation": "Lieu",
@@ -116,13 +116,13 @@
     "great": "Excellent",
     "good": "Bon match",
     "fair": "Match",
-    "joined": "Inscrit"
+    "joined": "Inscrite"
   },
   "joinAGame": "Rejoindre une partie",
   "gamesToJoin": "Matchs à rejoindre",
   "yourUpcomingGames": "Tes prochains matchs",
   "yourUpcomingEvents": "Tes prochains événements",
-  "joinedSuccess": "Tu es inscrit à ce match !",
+  "joinedSuccess": "Tu es inscrite à ce match !",
   "actions": {
     "join": "Rejoindre"
   }

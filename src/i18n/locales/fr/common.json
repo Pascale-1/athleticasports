@@ -70,15 +70,15 @@
     "weeks": "semaines"
   },
   "status": {
-    "active": "Actif",
-    "inactive": "Inactif",
+    "active": "Active",
+    "inactive": "Inactive",
     "pending": "En attente",
-    "confirmed": "Confirmé",
-    "cancelled": "Annulé",
-    "completed": "Terminé",
+    "confirmed": "Confirmée",
+    "cancelled": "Annulée",
+    "completed": "Terminée",
     "success": "Succès",
     "error": "Erreur",
-    "going": "Inscrit",
+    "going": "Inscrite",
     "maybe": "Peut-être",
     "declined": "Pas dispo",
     "full": "Complet",
@@ -134,9 +134,9 @@
   "invitations": {
     "pending": "Invitations en attente",
     "cancelTitle": "Annuler l'invitation ?",
-    "cancelDescription": "Êtes-vous sûr de vouloir annuler cette invitation ? Cette action est irréversible.",
+    "cancelDescription": "Êtes-vous sûre de vouloir annuler cette invitation ? Cette action est irréversible.",
     "cancelButton": "Annuler l'invitation",
-    "invited": "Invité",
+    "invited": "Invitée",
     "resending": "Renvoi..."
   },
   "profile": {
@@ -230,7 +230,7 @@
   },
   "accountDeletion": {
     "dangerZone": "Zone de danger",
-    "dangerZoneDesc": "Une fois votre compte supprimé, il n'y a pas de retour en arrière. Soyez certain(e).",
+    "dangerZoneDesc": "Une fois votre compte supprimé, il n'y a pas de retour en arrière. Soyez certaine.",
     "button": "Supprimer mon compte",
     "modalTitle": "SUPPRESSION DÉFINITIVE DU COMPTE",
     "warning": "Cette action est IRRÉVERSIBLE.",
@@ -259,7 +259,7 @@
   },
   "quickActions": {
     "createTeam": "Créer équipe",
-    "findPartners": "Trouver joueurs",
+    "findPartners": "Trouver joueuses",
     "joinChallenge": "Défis",
     "exploreTeams": "Explorer"
   }
