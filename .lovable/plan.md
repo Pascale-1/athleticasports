@@ -1,100 +1,59 @@
 
-# Add Event Cost & Payment Options
 
-## Overview
-Add three payment-related fields to events so organizers can communicate costs and payment methods to participants:
-1. **Cost display** -- a free-text field (e.g. "15EUR", "Free", "10EUR/person")
-2. **Payment link** -- an optional URL for external payment (Lydia, PayPal, Revolut, venue booking page)
-3. **Payment method hint** -- a quick selector for how payment is handled (on-site, online link, split via app)
+# Make Payment Method Options Always Visible in Event Form
 
-## Database Changes
+## Problem
+The payment method options (Free, On-site, Online link, Split) and the payment link field are currently **hidden until you type something in the Cost field**. This makes them hard to discover -- you never see them if you don't first enter a cost amount.
 
-Add 3 new nullable columns to the `events` table:
+## Solution
+Restructure the Cost & Payment section so that:
+1. The **payment method chips** (Free, On-site, Online, Split) are always visible, not conditional on cost being filled
+2. The **cost text input** only appears when a paid method is selected (On-site, Online, or Split) -- not when "Free" is selected
+3. The **payment link input** appears when "Online" is selected (same as now)
 
-| Column | Type | Default | Description |
-|--------|------|---------|-------------|
-| `cost` | `text` | `null` | Free-text cost (e.g. "15EUR", "Free") |
-| `payment_link` | `text` | `null` | URL for external payment/booking |
-| `payment_method` | `text` | `null` | One of: `on_site`, `online`, `split`, `free` |
+This way the user flow becomes: pick a payment method first, then fill in cost details if needed.
 
-No RLS changes needed -- these columns inherit the existing event policies.
+## Changes
 
-## UI Changes
+### `src/components/events/UnifiedEventForm.tsx`
+- Restructure the Cost & Payment section (lines 790-833):
+  - Show payment method chips (Free, On-site, Online, Split) as a top-level inline row, always visible
+  - Default to no selection (empty) so it's optional
+  - Show the cost text input only when a non-free method is selected
+  - Show the payment link input only when "Online" is selected
+- Update `handleSubmit` logic (line 296-298): if payment method is "free", clear the cost field
 
-### 1. Event Creation Form (`UnifiedEventForm.tsx`)
-Add a new "Cost & Payment" section in the Options area (after RSVP deadline, before Looking for Players):
+### No other file changes needed
+- The EventCard already shows the cost badge when `event.cost` is set
+- The EventDetail page already shows cost + payment method + link
+- Translations are already in place
 
-- **Cost field**: compact inline row with a Euro icon and free-text input (placeholder: "e.g. 15EUR")
-- **Payment method**: appears when cost is entered, 4 chip buttons:
-  - Free (no cost)
-  - On-site (pay at venue)
-  - Online link (shows URL input below)
-  - Split (split via Lydia/PayPal)
-- **Payment link**: text input for URL, shown only when "Online link" is selected
+## Visual Layout (Before vs After)
 
-### 2. Event Card (`EventCard.tsx`)
-- Show a small cost badge next to the type badge when cost is set (e.g. "15EUR" in a subtle pill)
-
-### 3. Event Detail Page (`EventDetail.tsx`)
-- Display cost info in the "When & Where" card:
-  - Cost amount with payment method label
-  - Clickable payment link button if provided (opens external URL)
-
-### 4. Edit Event Dialog (`EditEventDialog.tsx`)
-- Add cost, payment method, and payment link fields matching the create form
-
-### 5. Data Model Updates
-- `src/lib/events.ts`: add `cost`, `payment_link`, `payment_method` to the Event interface
-- `src/hooks/useEvents.ts`: add fields to `CreateEventData`
-
-## Translations
-
-### English (`events.json`)
-```
-"cost": {
-  "label": "Cost",
-  "placeholder": "e.g. 15EUR",
-  "free": "Free",
-  "onSite": "Pay on-site",
-  "online": "Pay online",
-  "split": "Split the cost",
-  "paymentLink": "Payment Link",
-  "paymentLinkPlaceholder": "https://...",
-  "paymentMethod": "Payment Method"
-}
+**Before:**
+```text
+[Euro icon] Cost   [____input____]
+(nothing else visible until cost is typed)
 ```
 
-### French (`events.json`)
-```
-"cost": {
-  "label": "Tarif",
-  "placeholder": "ex. 15EUR",
-  "free": "Gratuit",
-  "onSite": "Sur place",
-  "online": "Paiement en ligne",
-  "split": "Partager les frais",
-  "paymentLink": "Lien de paiement",
-  "paymentLinkPlaceholder": "https://...",
-  "paymentMethod": "Mode de paiement"
-}
+**After:**
+```text
+[Euro icon] Payment
+[Free] [On-site] [Online] [Split]     <-- always visible
+(if On-site/Online/Split selected:)
+  Cost [____input____]
+(if Online selected:)
+  Link [____input____]
 ```
 
 ## Technical Details
 
-### Files to modify
-1. **Database migration** -- add 3 columns to `events`
-2. `src/lib/events.ts` -- add fields to Event interface
-3. `src/hooks/useEvents.ts` -- add fields to CreateEventData
-4. `src/components/events/UnifiedEventForm.tsx` -- add cost/payment section
-5. `src/components/events/EditEventDialog.tsx` -- add cost/payment fields
-6. `src/components/events/EventCard.tsx` -- show cost badge
-7. `src/pages/EventDetail.tsx` -- show cost info + payment link
-8. `src/i18n/locales/en/events.json` -- add cost translations
-9. `src/i18n/locales/fr/events.json` -- add cost translations
+Only one file is modified: `src/components/events/UnifiedEventForm.tsx`
 
-### Form behavior
-- Cost field is always visible as a compact inline row (like the participants field)
-- When cost is entered, payment method chips appear below
-- When "Online link" is selected, the payment URL input appears
-- If cost is left empty or set to "Free", no cost badge appears on cards
-- Payment link opens in external browser (uses existing `useExternalLink` hook)
+The payment method state already defaults to `''` (empty string). The change is purely about reordering the conditional rendering:
+- Move payment method chips out of the `cost && cost.trim() !== ''` condition
+- Wrap the cost input inside a `paymentMethod && paymentMethod !== 'free'` condition
+- Keep the payment link input inside `paymentMethod === 'online'` (unchanged)
+
+The submit handler already sends `cost`, `payment_method`, and `payment_link` correctly -- no changes needed there beyond clearing cost when "free" is selected.
+
