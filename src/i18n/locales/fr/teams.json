@@ -46,7 +46,7 @@
     "denied": "Sur invitation",
     "notMember": "Vous avez besoin d'un lien d'invitation d'un membre pour rejoindre cette équipe.",
     "joinTeam": "Rejoindre l'équipe",
-    "publicTeamPreview": "Cette équipe est ouverte à tous"
+    "publicTeamPreview": "Cette équipe est ouverte à toutes"
   },
   "settingsPage": {
     "title": "Paramètres de l'équipe",
@@ -82,7 +82,7 @@
     "transferring": "Transfert en cours...",
     "deleteTeam": "Supprimer l'équipe",
     "deleteDesc": "Supprimez définitivement cette équipe et toutes les données associées. Cette action est irréversible.",
-    "confirmDelete": "Êtes-vous absolument sûr ?",
+    "confirmDelete": "Êtes-vous absolument sûre ?",
     "confirmDeleteDesc": "Cette action est irréversible. Cela supprimera définitivement l'équipe, tous les membres, annonces, séances d'entraînement et données associées.",
     "typeToConfirm": "Tapez {{name}} pour confirmer",
     "teamNamePlaceholder": "Nom de l'équipe",
@@ -114,7 +114,7 @@
   "invite": {
     "title": "Inviter des membres",
     "email": "Adresse email",
-    "emailPlaceholder": "joueur@exemple.com",
+    "emailPlaceholder": "joueuse@exemple.com",
     "role": "Rôle",
     "send": "Envoyer l'invitation",
     "sent": "Invitation envoyée !",
@@ -142,9 +142,9 @@
   },
   "actions": {
     "leave": "Quitter l'équipe",
-    "leaveConfirm": "Êtes-vous sûr de vouloir quitter cette équipe ?",
+    "leaveConfirm": "Êtes-vous sûre de vouloir quitter cette équipe ?",
     "delete": "Supprimer l'équipe",
-    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette équipe ? Cette action est irréversible.",
+    "deleteConfirm": "Êtes-vous sûre de vouloir supprimer cette équipe ? Cette action est irréversible.",
     "removeMember": "Retirer le membre",
     "changeRole": "Changer le rôle",
     "settings": "Paramètres"
@@ -218,11 +218,11 @@
   "generateTeams": {
     "title": "Générer des équipes équilibrées",
     "description": "Créez des équipes d'entraînement équilibrées selon les niveaux de performance",
-    "playersAvailable": "{{count}} joueurs disponibles",
+    "playersAvailable": "{{count}} joueuses disponibles",
     "activePlayers": "Membres actifs de l'équipe",
     "numberOfTeams": "Nombre d'équipes",
     "teams": "{{count}} équipes",
-    "playersEach": "~{{count}} joueurs chacune",
+    "playersEach": "~{{count}} joueuses chacune",
     "smartBalancing": "Équilibrage intelligent",
     "balancingDescription": "Les équipes seront automatiquement équilibrées par niveau de performance pour des parties d'entraînement équitables",
     "generating": "Génération...",
