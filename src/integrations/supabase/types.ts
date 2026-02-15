@@ -319,6 +319,7 @@ export type Database = {
       events: {
         Row: {
           allow_public_join: boolean | null
+          cost: string | null
           created_at: string
           created_by: string
           created_invite_code_at: string | null
@@ -342,6 +343,8 @@ export type Database = {
           opponent_name: string | null
           opponent_team_id: string | null
           parent_event_id: string | null
+          payment_link: string | null
+          payment_method: string | null
           players_needed: number | null
           recurrence_rule: string | null
           rsvp_deadline: string | null
@@ -356,6 +359,7 @@ export type Database = {
         }
         Insert: {
           allow_public_join?: boolean | null
+          cost?: string | null
           created_at?: string
           created_by: string
           created_invite_code_at?: string | null
@@ -379,6 +383,8 @@ export type Database = {
           opponent_name?: string | null
           opponent_team_id?: string | null
           parent_event_id?: string | null
+          payment_link?: string | null
+          payment_method?: string | null
           players_needed?: number | null
           recurrence_rule?: string | null
           rsvp_deadline?: string | null
@@ -393,6 +399,7 @@ export type Database = {
         }
         Update: {
           allow_public_join?: boolean | null
+          cost?: string | null
           created_at?: string
           created_by?: string
           created_invite_code_at?: string | null
@@ -416,6 +423,8 @@ export type Database = {
           opponent_name?: string | null
           opponent_team_id?: string | null
           parent_event_id?: string | null
+          payment_link?: string | null
+          payment_method?: string | null
           players_needed?: number | null
           recurrence_rule?: string | null
           rsvp_deadline?: string | null

@@ -158,6 +158,14 @@ export const EventCard = memo(({
                     >
                       {typeLabel}
                     </Badge>
+                    {event.cost && event.cost.trim() !== '' && (
+                      <Badge 
+                        variant="secondary" 
+                        className="text-[10px] px-1.5 py-0 h-4 font-medium shrink-0 bg-accent/15 text-accent-foreground"
+                      >
+                        {event.cost}
+                      </Badge>
+                    )}
                     {event.is_public ? (
                       <Globe className="h-3 w-3 text-muted-foreground/60 shrink-0" />
                     ) : (

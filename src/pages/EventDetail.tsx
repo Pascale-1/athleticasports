@@ -30,7 +30,9 @@ import {
   Plane,
   Users2,
   Map,
-  Navigation
+  Navigation,
+  Euro,
+  CreditCard
 } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { useEventAttendance } from "@/hooks/useEventAttendance";
@@ -436,6 +438,34 @@ const EventDetail = () => {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
+            )}
+
+            {/* Cost & Payment */}
+            {event.cost && event.cost.trim() !== '' && (
+              <div className="flex items-center gap-3 pt-1">
+                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                  <Euro className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">{event.cost}</p>
+                  {event.payment_method && event.payment_method !== 'free' && (
+                    <p className="text-xs text-muted-foreground">
+                      {t(`cost.${event.payment_method === 'on_site' ? 'onSite' : event.payment_method}`)}
+                    </p>
+                  )}
+                </div>
+                {event.payment_link && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 text-xs gap-1.5 shrink-0"
+                    onClick={() => openExternalUrl(event.payment_link!)}
+                  >
+                    <CreditCard className="h-3.5 w-3.5" />
+                    {t('cost.openPaymentLink')}
+                  </Button>
+                )}
+              </div>
             )}
 
             {/* Capacity */}

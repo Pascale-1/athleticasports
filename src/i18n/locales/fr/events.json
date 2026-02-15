@@ -372,5 +372,17 @@
     "social": "Social",
     "fitness": "Fitness",
     "other": "Autre"
+  },
+  "cost": {
+    "label": "Tarif",
+    "placeholder": "ex. 15€",
+    "free": "Gratuit",
+    "onSite": "Sur place",
+    "online": "Paiement en ligne",
+    "split": "Partager les frais",
+    "paymentLink": "Lien de paiement",
+    "paymentLinkPlaceholder": "https://...",
+    "paymentMethod": "Mode de paiement",
+    "openPaymentLink": "Payer / Réserver"
   }
 }
