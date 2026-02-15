@@ -93,7 +93,7 @@
   },
   "home": {
     "welcome": "Bienvenue, {{name}} !",
-    "readyToPlay": "Prêt à trouver ta prochaine partie ?",
+    "readyToPlay": "Prête à trouver ta prochaine partie ?",
     "completeProfile": "Complétez votre profil",
     "completeProfileDesc": "Configurez votre profil d'athlète pour commencer et rejoindre la communauté.",
     "createProfile": "Créer un profil",
