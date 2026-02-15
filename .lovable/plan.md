@@ -1,60 +1,130 @@
 
 
-# Fix Password Reset Link (Not Loading)
+# Review and Feminize All App Wording (FR and EN)
 
-## Root Cause
+## Context
+Athletica is a women-only sports community. The French language has grammatical gender, and many strings currently use masculine forms. English is mostly gender-neutral but a few terms like "players" should be updated to feel more inclusive for the target audience.
 
-The reset link in the email points to the Supabase auth server (`/auth/v1/verify?token=...&redirect_to=...`). After verifying the token, Supabase tries to redirect to your preview URL -- but that URL isn't in the allowed redirect list, so the redirect fails silently. The user ends up on a page that never receives the recovery session.
+## Changes Overview
 
-## Solution
+### French (`fr`) -- Grammatical Gender Fixes
 
-Skip the Supabase redirect entirely. Instead:
-1. In the edge function, extract the raw token from the `action_link` and build a direct link to the app (e.g., `https://your-app/reset-password?token_hash=abc123&type=recovery`)
-2. On the ResetPassword page, detect the `token_hash` query parameter and call `supabase.auth.verifyOtp()` to establish the session client-side
+These are the strings that use masculine adjectives/past participles when they should use feminine forms, since all users are women.
 
-This approach works with any domain (preview, published, custom) since it never relies on server-side redirects.
+#### `src/i18n/locales/fr/common.json`
+| Key | Current (masculine) | New (feminine) |
+|-----|-------------------|----------------|
+| `status.active` | Actif | Active |
+| `status.inactive` | Inactif | Inactive |
+| `status.confirmed` | Confirme | Confirmee |
+| `status.cancelled` | Annule | Annulee |
+| `status.completed` | Termine | Terminee |
+| `status.going` | Inscrit | Inscrite |
+| `status.full` | Complet | Complet (OK -- refers to event) |
+| `status.available` | Ouvert | Ouvert (OK -- refers to event) |
+| `home.readyToPlay` | Prete a trouver... | Prete a trouver... |
+| `home.open` | Ouvert | Ouvert (OK -- refers to status) |
+| `invitations.invited` | Invite | Invitee |
+| `invitations.cancelDescription` | Etes-vous sur... | Etes-vous sure... |
+| `quickActions.findPartners` | Trouver joueurs | Trouver joueuses |
+| `accountDeletion.dangerZoneDesc` | Soyez certain(e) | Soyez certaine |
+| `accountDeletion.successDesc` | ...supprimes | ...supprimes (OK -- refers to data) |
+| `auth.welcomeBack` (auth.json) | Content de vous revoir | Contente de vous revoir |
+| `auth.teamInvitationDesc` | Vous avez ete invite... | Vous avez ete invitee... |
 
-## Files to Change
+#### `src/i18n/locales/fr/events.json`
+| Key | Current | New |
+|-----|---------|-----|
+| `rsvp.committed` | Engage | Engagee |
+| `rsvp.committedToMatch` | Engage pour cette partie | Engagee pour cette partie |
+| `rsvp.count` | {{count}} inscrit | {{count}} inscrite |
+| `rsvp.count_one` | {{count}} inscrit | {{count}} inscrite |
+| `rsvp.count_other` | {{count}} inscrites | {{count}} inscrites (OK) |
+| `attendees.committed` | Engage | Engagee |
+| `attendees.noResponses` | Soyez le premier... | Soyez la premiere... |
+| `attendees.count` | {{count}} inscrit | {{count}} inscrite |
+| `attendees.count_one` | {{count}} inscrit | {{count}} inscrite |
+| `form.rsvpDeadlineDesc` | les joueurs ne pourront... | les joueuses ne pourront... |
+| `form.game.players` | Joueurs | Joueuses |
+| `form.game.pickupGameDescription` | ...trouver des joueurs | ...trouver des joueuses |
+| `details.organizer` | Organisateur | Organisatrice |
+| `lookingForPlayers.joined` | inscrits | inscrites |
+| `lookingForPlayers.includingYou` | (vous inclus) | (vous incluse) |
 
-| File | Change |
-|------|--------|
-| `supabase/functions/send-password-reset/index.ts` | Parse token from `action_link`, build a direct app link instead |
-| `src/pages/ResetPassword.tsx` | Detect `token_hash` query param, call `verifyOtp()` to establish session |
+#### `src/i18n/locales/fr/matching.json`
+| Key | Current | New |
+|-----|---------|-----|
+| `findGame.noResults` | Aucun joueur disponible | Aucune joueuse disponible |
+| `browseGamesDesc` | ...cherchent des joueurs | ...cherchent des joueuses |
+| `proposal.matchedWithGame` | Tu as ete matchee... | Tu as ete matchee... |
+| `proposal.notInterested` | Pas interessee | Pas interessee |
+| `proposal.committedDesc` | Tu es inscrite... | Tu es inscrite... |
+| `readyToPlay` | Prete a jouer ? | Prete a jouer ? |
+| `toggleDesc` | Active pour etre matchee | Active pour etre matchee |
+| `alreadyInterested` | Tu es deja interessee | Tu es deja interessee |
+| `labels.joined` | Inscrit | Inscrite |
+| `joinedSuccess` | Tu es inscrit... | Tu es inscrite... |
 
-## Technical Details
+#### `src/i18n/locales/fr/teams.json`
+| Key | Current | New |
+|-----|---------|-----|
+| `danger.confirmDelete` | Etes-vous absolument sur ? | Etes-vous absolument sure ? |
+| `actions.leaveConfirm` | Etes-vous sur... | Etes-vous sure... |
+| `actions.deleteConfirm` | Etes-vous sur... | Etes-vous sure... |
+| `invite.emailPlaceholder` | joueur@exemple.com | joueuse@exemple.com |
+| `generateTeams.playersAvailable` | {{count}} joueurs disponibles | {{count}} joueuses disponibles |
+| `generateTeams.playersEach` | ~{{count}} joueurs chacune | ~{{count}} joueuses chacune |
+| `access.publicTeamPreview` | ...ouverte a tous | ...ouverte a toutes |
 
-### Edge Function (`send-password-reset/index.ts`)
-After getting the `action_link`, parse the `token` parameter from it and build a direct link:
+#### `src/i18n/locales/fr/auth.json`
+| Key | Current | New |
+|-----|---------|-----|
+| `welcomeBack` | Content de vous revoir ! | Contente de vous revoir ! |
+| `teamInvitationDesc` | ...ete invite a... | ...ete invitee a... |
 
-```typescript
-const resetLink = data?.properties?.action_link;
-// Extract token_hash from the action_link URL
-const actionUrl = new URL(resetLink);
-const tokenHash = actionUrl.searchParams.get("token");
-// Build direct app link
-const appResetLink = `${redirectTo}?token_hash=${tokenHash}&type=recovery`;
-```
+### English (`en`) -- Inclusive Language for Women
 
-Use `appResetLink` in the email template instead of `resetLink`.
+English is mostly gender-neutral, but a few terms can be updated to better reflect the women-only community.
 
-### ResetPassword Page
-Add token-based verification:
+#### `src/i18n/locales/en/common.json`
+| Key | Current | New |
+|-----|---------|-----|
+| `quickActions.findPartners` | Find Partners | Find Players |
+| `home.noActivitiesDesc` | ...following athletes... | ...following players... (or keep athletes) |
 
-```typescript
-const [searchParams] = useSearchParams();
-const tokenHash = searchParams.get('token_hash');
+#### `src/i18n/locales/en/events.json`
+| Key | Current | New |
+|-----|---------|-----|
+| `form.rsvpDeadlineDesc` | ...players can no longer... | OK (gender-neutral) |
+| `form.game.pickupGameDescription` | ...find players | ...find players (OK) |
+| `lookingForPlayers.joined` | players joined | players joined (OK) |
 
-useEffect(() => {
-  if (tokenHash) {
-    supabase.auth.verifyOtp({
-      token_hash: tokenHash,
-      type: 'recovery',
-    }).then(({ error }) => {
-      if (error) { setTimedOut(true); }
-      else { setIsReady(true); }
-    });
-  }
-}, [tokenHash]);
-```
+#### `src/i18n/locales/en/onboarding.json`
+| Key | Current | New |
+|-----|---------|-----|
+| `goal.play.description` | Find games and players near me | Find games and players near me (OK -- gender-neutral) |
 
-This eliminates the dependency on Supabase server-side redirects entirely.
+#### `src/i18n/locales/en/matching.json`
+| Key | Current | New |
+|-----|---------|-----|
+| `findGame.noResults` | No players available | No players available (OK) |
+| `browseGamesDesc` | ...looking for players... | ...looking for players (OK) |
+
+### Summary
+
+The vast majority of changes are in French, where grammatical gender matters:
+- **~30+ French strings** need feminine agreement (adjectives, past participles, nouns)
+- **~2-3 English strings** can be refined for consistency
+
+All 8 translation files will be touched:
+1. `src/i18n/locales/fr/common.json`
+2. `src/i18n/locales/fr/auth.json`
+3. `src/i18n/locales/fr/events.json`
+4. `src/i18n/locales/fr/matching.json`
+5. `src/i18n/locales/fr/teams.json`
+6. `src/i18n/locales/en/common.json`
+7. `src/i18n/locales/en/onboarding.json` (minimal -- already good)
+8. `src/i18n/locales/en/matching.json` (minimal -- already good)
+
+No code logic changes are needed -- only JSON translation values.
+
