@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format, subHours } from "date-fns";
 import { AnimatePresence, motion, Easing } from "framer-motion";
-import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Users, UserPlus, Clock, Euro } from "lucide-react";
+import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Users, UserPlus, Clock, Euro, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 import { EventType } from "@/lib/eventConfig";
@@ -146,6 +145,7 @@ export const UnifiedEventForm = ({
 
   // Description toggle (tap to expand pattern)
   const [showDescription, setShowDescription] = useState(false);
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
   
   // RSVP Deadline state
   const [showRsvpDeadline, setShowRsvpDeadline] = useState(false);
@@ -576,366 +576,307 @@ export const UnifiedEventForm = ({
             )}
           </div>
 
-          {/* 1h. Visibility Toggle (promoted to essentials) */}
-          <FormField
-            control={form.control}
-            name="isPublic"
-            render={({ field }) => (
-              <FormItem>
-                <div className="flex items-center justify-between py-2">
-                  <div className="flex items-center gap-2">
-                    {field.value ? <Globe className="h-3.5 w-3.5 text-primary" /> : <Lock className="h-3.5 w-3.5 text-muted-foreground" />}
-                    <div>
-                      <p className="text-xs font-medium">
-                        {field.value ? t('form.isPublic') : t('form.isPrivate', 'Private Event')}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {field.value ? t('form.isPublicDesc') : t('form.isPrivateDesc', 'Only invited members can see this')}
-                      </p>
-                    </div>
-                  </div>
-                  <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                  </FormControl>
-                </div>
-              </FormItem>
-            )}
-          />
+          {/* ── "More options" collapsible trigger ── */}
+          <div className="pt-1">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setShowMoreOptions(!showMoreOptions)}
+              className="w-full justify-between h-9 text-xs text-muted-foreground hover:text-foreground px-1"
+            >
+              <span>{t('form.moreOptions')}</span>
+              <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", showMoreOptions && "rotate-180")} />
+            </Button>
+          </div>
 
-          {/* ── Section 2: Match Details (single card, match-only) ── */}
-          <AnimatePresence mode="sync">
-            {showOpponentSection && (
-              <motion.div key="match-details-card" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                <div className="space-y-3 p-3 bg-muted/30 rounded-lg border">
-                  {/* Opponent */}
-                  <div className="space-y-2">
-                    <Label className="text-xs font-semibold">{t('form.game.opponentTeam')}</Label>
-                    
-                    <div className="flex gap-1.5">
-                      <Button type="button" size="sm" variant={opponentInputMode === 'select' ? 'default' : 'outline'} onClick={() => setOpponentInputMode('select')} className="flex-1 overflow-hidden h-7">
-                        <span className="text-xs truncate">{t('form.game.selectTeam')}</span>
-                      </Button>
-                      <Button type="button" size="sm" variant={opponentInputMode === 'manual' ? 'default' : 'outline'} onClick={() => setOpponentInputMode('manual')} className="flex-1 overflow-hidden h-7">
-                        <span className="text-xs truncate">{t('form.game.enterManually')}</span>
-                      </Button>
-                    </div>
-
-                    {opponentInputMode === 'select' ? (
-                      <TeamSelector
-                        onSelect={handleOpponentSelect}
-                        selectedTeamId={opponentTeamId || undefined}
-                        sportFilter={selectedSport || selectedTeamSport}
-                        excludeTeamId={selectedTeamId || undefined}
-                        placeholder={t('form.game.opponentPlaceholder')}
-                      />
-                    ) : (
-                      <FormField
-                        control={form.control}
-                        name="opponentName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input {...field} placeholder={t('form.game.opponentPlaceholder')} className="h-9 text-xs" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+          <AnimatePresence initial={false}>
+            {showMoreOptions && (
+              <motion.div
+                key="more-options"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="space-y-3 pt-1">
+                  {/* Visibility Toggle */}
+                  <FormField
+                    control={form.control}
+                    name="isPublic"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex items-center justify-between py-2">
+                          <div className="flex items-center gap-2">
+                            {field.value ? <Globe className="h-3.5 w-3.5 text-primary" /> : <Lock className="h-3.5 w-3.5 text-muted-foreground" />}
+                            <div>
+                              <p className="text-xs font-medium">
+                                {field.value ? t('form.isPublic') : t('form.isPrivate', 'Private Event')}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {field.value ? t('form.isPublicDesc') : t('form.isPrivateDesc', 'Only invited members can see this')}
+                              </p>
+                            </div>
+                          </div>
+                          <FormControl>
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                          </FormControl>
+                        </div>
+                      </FormItem>
                     )}
-                  </div>
+                  />
 
-                  {/* Home/Away */}
-                  {showHomeAwayToggle && (
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">{t('form.game.location')}</Label>
-                      <div className="grid grid-cols-3 gap-1.5">
-                        {(['home', 'away', 'neutral'] as const).map((option) => (
-                          <Button
-                            key={option}
-                            type="button"
-                            variant={homeAway === option ? 'default' : 'outline'}
-                            onClick={() => setHomeAway(option)}
-                            className="h-8 text-xs overflow-hidden"
-                          >
-                            {option === 'home' ? '🏠' : option === 'away' ? '✈️' : '⚖️'}{' '}
-                            <span className="truncate">{t(`form.game.${option}`)}</span>
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Match Format (moved here from participant section) */}
-                  {showMatchFormat && (
+                  {/* Description - tap to expand */}
+                  {!showDescription ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setShowDescription(true)}
+                      className="w-full justify-start h-8 text-xs text-muted-foreground px-0 hover:text-foreground"
+                    >
+                      + {t('form.addNote', 'Add a note...')}
+                    </Button>
+                  ) : (
                     <FormField
                       control={form.control}
-                      name="matchFormat"
+                      name="description"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs text-muted-foreground">{t('form.game.format')}</FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder={t('form.game.formatPlaceholder')} className="h-9 text-xs" />
+                            <Textarea
+                              {...field}
+                              placeholder={t('form.descriptionPlaceholder')}
+                              className="min-h-[48px] resize-none text-xs"
+                              autoFocus
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                   )}
+
+                  {/* Participants - inline row */}
+                  <FormField
+                    control={form.control}
+                    name="maxParticipants"
+                    render={({ field }) => (
+                      <div className="flex items-center justify-between h-9">
+                        <Label className="text-xs flex items-center gap-1.5">
+                          <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                          {t('form.maxParticipants')}
+                        </Label>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="number"
+                            min="2"
+                            max="100"
+                            placeholder="--"
+                            className="w-20 h-8 text-xs text-right"
+                          />
+                        </FormControl>
+                      </div>
+                    )}
+                  />
+
+                  {/* Recurrence - inline row */}
+                  <div className="flex items-center justify-between h-9">
+                    <Label className="text-xs flex items-center gap-1.5">
+                      <Repeat className="h-3.5 w-3.5 text-muted-foreground" />
+                      {t('form.repeat')}
+                    </Label>
+                    <Select
+                      value={recurrenceType}
+                      onValueChange={(value: RecurrenceType) => {
+                        setRecurrenceType(value);
+                        setIsRecurring(value !== 'none');
+                      }}
+                    >
+                      <SelectTrigger className="w-28 h-8 text-xs">
+                        <SelectValue placeholder={t('form.recurrence.selectFrequency')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(['none', 'daily', 'weekly', 'monthly'] as RecurrenceType[]).map((type) => (
+                          <SelectItem key={type} value={type}>{t(`form.recurrence.${type}`)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Recurrence end date (only when recurring) */}
+                  {isRecurring && (
+                    <div className="pl-5 space-y-1">
+                      <Label className="text-[10px] text-muted-foreground">{t('form.recurrence.until')}</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="w-full h-8 justify-start text-left font-normal min-w-0 text-xs">
+                            <span className="truncate flex-1">
+                              {recurrenceEndDate ? format(recurrenceEndDate, "MMM dd, yyyy") : t('form.recurrence.noEndDate')}
+                            </span>
+                            <CalendarIcon className="ml-1.5 h-3.5 w-3.5 opacity-50 shrink-0" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar mode="single" selected={recurrenceEndDate} onSelect={setRecurrenceEndDate} disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }} className="pointer-events-auto" />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  )}
+
+                  {/* Cost & Payment */}
+                  <div className="space-y-2">
+                    <Label className="text-xs flex items-center gap-1.5">
+                      <Euro className="h-3.5 w-3.5 text-muted-foreground" />
+                      {t('cost.label')}
+                    </Label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(['free', 'on_site', 'online', 'split'] as const).map((method) => (
+                        <Button
+                          key={method}
+                          type="button"
+                          variant={paymentMethod === method ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setPaymentMethod(prev => prev === method ? '' : method)}
+                          className="h-7 text-xs px-2"
+                        >
+                          {t(`cost.${method === 'on_site' ? 'onSite' : method}`)}
+                        </Button>
+                      ))}
+                    </div>
+
+                    {paymentMethod && paymentMethod !== 'free' && (
+                      <Input
+                        value={cost}
+                        onChange={(e) => setCost(e.target.value)}
+                        placeholder={t('cost.placeholder')}
+                        className="h-8 text-xs"
+                      />
+                    )}
+
+                    {paymentMethod === 'online' && (
+                      <Input
+                        value={paymentLink}
+                        onChange={(e) => setPaymentLink(e.target.value)}
+                        placeholder={t('cost.paymentLinkPlaceholder')}
+                        className="h-8 text-xs"
+                        type="url"
+                      />
+                    )}
+                  </div>
+
+                  {/* RSVP Deadline - inline switch */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between h-9">
+                      <Label className="text-xs flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                        {t('form.rsvpDeadline')}
+                      </Label>
+                      <Switch checked={showRsvpDeadline} onCheckedChange={setShowRsvpDeadline} />
+                    </div>
+
+                    {showRsvpDeadline && (
+                      <div className="space-y-2 pl-5">
+                        <div className="flex flex-wrap gap-1.5">
+                          {DEADLINE_PRESETS.map((preset) => (
+                            <Button key={preset.value} type="button" variant={deadlinePreset === preset.value ? 'default' : 'outline'} size="sm" onClick={() => setDeadlinePreset(preset.value)} className="h-7 text-xs px-2">
+                              {t(`form.deadline.${preset.value}`)}
+                            </Button>
+                          ))}
+                        </div>
+
+                        {deadlinePreset === 'custom' && (
+                          <div className="flex gap-2">
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button type="button" variant="outline" className="flex-1 h-8 justify-start text-left font-normal text-xs">
+                                  <CalendarIcon className="mr-1.5 h-3.5 w-3.5 opacity-50" />
+                                  {customDeadline ? format(customDeadline, "MMM dd, yyyy") : t('form.pickDate')}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={customDeadline}
+                                  onSelect={(date) => {
+                                    if (date) {
+                                      const newDate = new Date(date);
+                                      if (customDeadline) {
+                                        newDate.setHours(customDeadline.getHours(), customDeadline.getMinutes());
+                                      } else {
+                                        newDate.setHours(18, 0);
+                                      }
+                                      setCustomDeadline(newDate);
+                                    }
+                                  }}
+                                  disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }}
+                                  className="pointer-events-auto"
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            <Input
+                              type="time"
+                              value={customDeadline ? format(customDeadline, 'HH:mm') : '18:00'}
+                              onChange={(e) => {
+                                const [hours, mins] = e.target.value.split(':').map(Number);
+                                const newDate = customDeadline ? new Date(customDeadline) : new Date();
+                                newDate.setHours(hours, mins);
+                                setCustomDeadline(newDate);
+                              }}
+                              className="w-20 h-8 text-xs"
+                            />
+                          </div>
+                        )}
+
+                        {watchedDate && watchedStartTime && (
+                          <p className="text-[10px] text-primary">
+                            {(() => {
+                              const [hours, minutes] = watchedStartTime.split(':').map(Number);
+                              const eventDateTime = new Date(watchedDate);
+                              eventDateTime.setHours(hours, minutes, 0, 0);
+                              const deadline = calculateRsvpDeadline(eventDateTime);
+                              if (deadline) return t('form.deadlinePreview', { time: format(deadline, 'EEE MMM d, HH:mm') });
+                              return null;
+                            })()}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Looking for Players - inline switch (match/training only) */}
+                  {showLookingForPlayersSection && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between h-9">
+                        <Label className="text-xs flex items-center gap-1.5">
+                          <UserPlus className="h-3.5 w-3.5 text-muted-foreground" />
+                          {t('lookingForPlayers.title')}
+                        </Label>
+                        <Switch checked={lookingForPlayers} onCheckedChange={setLookingForPlayers} />
+                      </div>
+
+                      {lookingForPlayers && (
+                        <div className="pl-5">
+                          <Select value={playersNeeded} onValueChange={setPlayersNeeded}>
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {[1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 20].map((num) => (
+                                <SelectItem key={num} value={num.toString()}>
+                                  {num} {num === 1 ? t('lookingForPlayers.player', { defaultValue: 'player' }) : t('lookingForPlayers.players', { defaultValue: 'players' })}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* ── Section 3: Options (all inline, no collapsible) ── */}
-          <Separator className="my-1" />
-
-          {/* Description - tap to expand */}
-          {!showDescription ? (
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => setShowDescription(true)}
-              className="w-full justify-start h-8 text-xs text-muted-foreground px-0 hover:text-foreground"
-            >
-              + {t('form.addNote', 'Add a note...')}
-            </Button>
-          ) : (
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder={t('form.descriptionPlaceholder')}
-                      className="min-h-[48px] resize-none text-xs"
-                      autoFocus
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-
-          {/* Participants - inline row */}
-          <FormField
-            control={form.control}
-            name="maxParticipants"
-            render={({ field }) => (
-              <div className="flex items-center justify-between h-9">
-                <Label className="text-xs flex items-center gap-1.5">
-                  <Users className="h-3.5 w-3.5 text-muted-foreground" />
-                  {t('form.maxParticipants')}
-                </Label>
-                <FormControl>
-                  <Input
-                    {...field}
-                    type="number"
-                    min="2"
-                    max="100"
-                    placeholder="--"
-                    className="w-20 h-8 text-xs text-right"
-                  />
-                </FormControl>
-              </div>
-            )}
-          />
-
-          {/* Recurrence - inline row */}
-          <div className="flex items-center justify-between h-9">
-            <Label className="text-xs flex items-center gap-1.5">
-              <Repeat className="h-3.5 w-3.5 text-muted-foreground" />
-              {t('form.repeat')}
-            </Label>
-            <Select
-              value={recurrenceType}
-              onValueChange={(value: RecurrenceType) => {
-                setRecurrenceType(value);
-                setIsRecurring(value !== 'none');
-              }}
-            >
-              <SelectTrigger className="w-28 h-8 text-xs">
-                <SelectValue placeholder={t('form.recurrence.selectFrequency')} />
-              </SelectTrigger>
-              <SelectContent>
-                {(['none', 'daily', 'weekly', 'monthly'] as RecurrenceType[]).map((type) => (
-                  <SelectItem key={type} value={type}>{t(`form.recurrence.${type}`)}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Recurrence end date (only when recurring) */}
-          {isRecurring && (
-            <div className="pl-5 space-y-1">
-              <Label className="text-[10px] text-muted-foreground">{t('form.recurrence.until')}</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full h-8 justify-start text-left font-normal min-w-0 text-xs">
-                    <span className="truncate flex-1">
-                      {recurrenceEndDate ? format(recurrenceEndDate, "MMM dd, yyyy") : t('form.recurrence.noEndDate')}
-                    </span>
-                    <CalendarIcon className="ml-1.5 h-3.5 w-3.5 opacity-50 shrink-0" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar mode="single" selected={recurrenceEndDate} onSelect={setRecurrenceEndDate} disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }} className="pointer-events-auto" />
-                </PopoverContent>
-              </Popover>
-            </div>
-          )}
-
-          {/* Cost & Payment */}
-          <div className="space-y-2">
-            <Label className="text-xs flex items-center gap-1.5">
-              <Euro className="h-3.5 w-3.5 text-muted-foreground" />
-              {t('cost.label')}
-            </Label>
-            <div className="flex flex-wrap gap-1.5">
-              {(['free', 'on_site', 'online', 'split'] as const).map((method) => (
-                <Button
-                  key={method}
-                  type="button"
-                  variant={paymentMethod === method ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setPaymentMethod(prev => prev === method ? '' : method)}
-                  className="h-7 text-xs px-2"
-                >
-                  {t(`cost.${method === 'on_site' ? 'onSite' : method}`)}
-                </Button>
-              ))}
-            </div>
-
-            {paymentMethod && paymentMethod !== 'free' && (
-              <Input
-                value={cost}
-                onChange={(e) => setCost(e.target.value)}
-                placeholder={t('cost.placeholder')}
-                className="h-8 text-xs"
-              />
-            )}
-
-            {paymentMethod === 'online' && (
-              <Input
-                value={paymentLink}
-                onChange={(e) => setPaymentLink(e.target.value)}
-                placeholder={t('cost.paymentLinkPlaceholder')}
-                className="h-8 text-xs"
-                type="url"
-              />
-            )}
-          </div>
-
-          {/* RSVP Deadline - inline switch */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between h-9">
-              <Label className="text-xs flex items-center gap-1.5">
-                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                {t('form.rsvpDeadline')}
-              </Label>
-              <Switch checked={showRsvpDeadline} onCheckedChange={setShowRsvpDeadline} />
-            </div>
-
-            {showRsvpDeadline && (
-              <div className="space-y-2 pl-5">
-                <div className="flex flex-wrap gap-1.5">
-                  {DEADLINE_PRESETS.map((preset) => (
-                    <Button key={preset.value} type="button" variant={deadlinePreset === preset.value ? 'default' : 'outline'} size="sm" onClick={() => setDeadlinePreset(preset.value)} className="h-7 text-xs px-2">
-                      {t(`form.deadline.${preset.value}`)}
-                    </Button>
-                  ))}
-                </div>
-
-                {deadlinePreset === 'custom' && (
-                  <div className="flex gap-2">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button type="button" variant="outline" className="flex-1 h-8 justify-start text-left font-normal text-xs">
-                          <CalendarIcon className="mr-1.5 h-3.5 w-3.5 opacity-50" />
-                          {customDeadline ? format(customDeadline, "MMM dd, yyyy") : t('form.pickDate')}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={customDeadline}
-                          onSelect={(date) => {
-                            if (date) {
-                              const newDate = new Date(date);
-                              if (customDeadline) {
-                                newDate.setHours(customDeadline.getHours(), customDeadline.getMinutes());
-                              } else {
-                                newDate.setHours(18, 0);
-                              }
-                              setCustomDeadline(newDate);
-                            }
-                          }}
-                          disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }}
-                          className="pointer-events-auto"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <Input
-                      type="time"
-                      value={customDeadline ? format(customDeadline, 'HH:mm') : '18:00'}
-                      onChange={(e) => {
-                        const [hours, mins] = e.target.value.split(':').map(Number);
-                        const newDate = customDeadline ? new Date(customDeadline) : new Date();
-                        newDate.setHours(hours, mins);
-                        setCustomDeadline(newDate);
-                      }}
-                      className="w-20 h-8 text-xs"
-                    />
-                  </div>
-                )}
-
-                {watchedDate && watchedStartTime && (
-                  <p className="text-[10px] text-primary">
-                    {(() => {
-                      const [hours, minutes] = watchedStartTime.split(':').map(Number);
-                      const eventDateTime = new Date(watchedDate);
-                      eventDateTime.setHours(hours, minutes, 0, 0);
-                      const deadline = calculateRsvpDeadline(eventDateTime);
-                      if (deadline) return t('form.deadlinePreview', { time: format(deadline, 'EEE MMM d, HH:mm') });
-                      return null;
-                    })()}
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Looking for Players - inline switch (match/training only) */}
-          {showLookingForPlayersSection && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between h-9">
-                <Label className="text-xs flex items-center gap-1.5">
-                  <UserPlus className="h-3.5 w-3.5 text-muted-foreground" />
-                  {t('lookingForPlayers.title')}
-                </Label>
-                <Switch checked={lookingForPlayers} onCheckedChange={setLookingForPlayers} />
-              </div>
-
-              {lookingForPlayers && (
-                <div className="pl-5">
-                  <Select value={playersNeeded} onValueChange={setPlayersNeeded}>
-                    <SelectTrigger className="h-8 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 20].map((num) => (
-                        <SelectItem key={num} value={num.toString()}>
-                          {num} {num === 1 ? t('lookingForPlayers.player', { defaultValue: 'player' }) : t('lookingForPlayers.players', { defaultValue: 'players' })}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </div>
-          )}
 
           {/* ── Submit (single full-width button, no cancel) ── */}
           <Button type="submit" className="w-full h-10" disabled={isSubmitting}>
