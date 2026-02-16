@@ -1,87 +1,103 @@
 
+# Fix All Remaining Text Truncation Issues App-Wide
 
-# Fix All Text Truncation and Visibility Issues App-Wide
+## Primary Issue (What You're Seeing)
 
-## Problem
+**"Mes parti..." on the Events page tab bar** -- The tabs "Mes participations", "Organisés", and "Découvrir" use `truncate max-w-[60px]` which aggressively clips French labels. This is the most visible broken text in the app.
 
-Multiple components across the app use `truncate`, `line-clamp-1`, or `overflow-hidden` classes that cut off text and make content unreadable. The worst offender is the `SelectTrigger` component which applies `[&>span]:line-clamp-1` globally, clipping selected values in every dropdown.
+## All Files With Remaining Truncation Problems
 
-## All Identified Issues and Fixes
+### 1. Events Page Tabs (`src/pages/Events.tsx`, line 245)
 
-### 1. SelectTrigger Component (`src/components/ui/select.tsx`, line 20)
+**Current**: `<span className="truncate hidden xs:inline max-w-[60px]">`
+**Problem**: "Mes participations" (18 chars) gets clipped to "Mes parti..."
+**Fix**: Remove `truncate` and `max-w-[60px]`. Also shorten the French label in `fr/events.json` from "Mes participations" to "Participations" (fits better in a tab). Remove `hidden xs:inline` so labels always show.
 
-**Issue**: `[&>span]:line-clamp-1` on the trigger clips selected values like "Partie ouverte (sans equipe)" or team names.
+### 2. Events Page Type Filter Labels (`src/pages/Events.tsx`, lines 304, 363)
 
-**Fix**: Remove `[&>span]:line-clamp-1` and replace with `[&>span]:truncate` which still prevents overflow but shows text on one line with an ellipsis only when truly needed, rather than forcefully clamping.
+**Current**: `<span className="hidden xs:inline">{t(labelKey)}</span>`
+**Problem**: On screens below `xs` breakpoint, filter labels like "Seance", "Match", "Sortie" are completely hidden, leaving only icons with no context.
+**Fix**: Remove `hidden xs:inline` so labels always show (they are short enough: 5-7 chars).
 
-### 2. Bottom Navigation (`src/components/mobile/BottomNavigation.tsx`, line 134)
+### 3. Index Page Welcome (`src/pages/Index.tsx`, line 237)
 
-**Issue**: `truncate max-w-[72px]` on nav labels can clip words like "Equipes" or "Evenements".
+**Current**: `<h1 className="text-section font-heading font-bold truncate">`
+**Problem**: Long names like "Welcome back, Jean-Baptiste!" get cut off.
+**Fix**: Replace `truncate` with `line-clamp-2` so the greeting wraps instead of clipping.
 
-**Fix**: Remove `truncate` and increase `max-w-[72px]` to `max-w-[80px]` -- nav labels are short (4-8 chars) and should never need truncation.
+### 4. Index Page Event Titles (`src/pages/Index.tsx`, line 434)
 
-### 3. Event Card Location Slicing (`src/components/events/EventCard.tsx`, lines 103-107)
+**Current**: `<p className="font-medium text-sm truncate">{match.title}</p>`
+**Problem**: Event titles in the upcoming events list get clipped.
+**Fix**: Change `truncate` to `line-clamp-2`.
 
-**Issue**: Location is hard-sliced to 16 characters with `...` appended, e.g. "Stade de France" becomes "Stade de Franc..." -- not user-friendly.
+### 5. Event Preview Card Title (`src/components/events/EventPreviewCard.tsx`, line 58)
 
-**Fix**: Increase slice to 25 characters (most mobile cards can fit this) and let CSS `truncate` handle overflow naturally.
+**Current**: `<p className="font-semibold truncate">`
+**Problem**: Long event titles in the creation preview get cut off.
+**Fix**: Change `truncate` to `line-clamp-2`.
 
-### 4. Page Header Title (`src/components/mobile/PageHeader.tsx`, line 63)
+### 6. Event Preview Card Location (`src/components/events/EventPreviewCard.tsx`, line 78)
 
-**Issue**: `truncate` on the page title `h1` can clip page names.
+**Current**: `<span className="truncate">{location}</span>`
+**Fix**: This is fine since it's within a flex row with an icon -- truncate is appropriate here.
 
-**Fix**: Replace `truncate` with `line-clamp-2` so longer titles wrap to a second line rather than being cut off.
+### 7. AvailableGameCard Location (`src/components/matching/AvailableGameCard.tsx`, lines 124, 170)
 
-### 5. Team Card Description (`src/components/teams/TeamCard.tsx`, line 71)
+**Current**: `<span className="truncate">{getLocationLabel()}</span>`
+**Fix**: Already has character slicing to 25 chars -- truncate here is a safety net, acceptable.
 
-**Issue**: `truncate` on team description only shows one line and clips mid-word.
+### 8. MatchProposalCard Title (`src/components/matching/MatchProposalCard.tsx`, line 82)
 
-**Fix**: Change `truncate` to `line-clamp-2` so descriptions get up to 2 lines of visibility.
+**Current**: `<h3 className="font-semibold text-lg truncate">{event.title}</h3>`
+**Fix**: Change `truncate` to `line-clamp-2`.
 
-### 6. Settings Profile Name (`src/pages/Settings.tsx`, line 244)
+### 9. MatchProposalCard Location (`src/components/matching/MatchProposalCard.tsx`, line 99)
 
-**Issue**: `truncate` on the profile display name can clip long names.
+**Current**: `<span className="truncate">{event.location}</span>`
+**Fix**: Acceptable -- single-line location in a flex row.
 
-**Fix**: Replace `truncate` with `break-words` and remove single-line constraint.
+### 10. Announcement Card Username (`src/components/teams/AnnouncementCard.tsx`, line 35)
 
-### 7. Activity Card Username (`src/components/feed/ActivityCard.tsx`, line 93)
+**Current**: `<p className="font-medium text-sm sm:text-base truncate">@{username}</p>`
+**Fix**: Acceptable -- usernames in a flex row with timestamp should truncate gracefully.
 
-**Issue**: `truncate` on display name in feed can clip usernames.
+### 11. Team Member Card (`src/components/teams/TeamMemberCard.tsx`, lines 49, 51)
 
-**Fix**: Add `max-w-[60%]` alongside `truncate` to ensure the timestamp always shows, but give the name more room than the current unconstrained truncation.
+**Current**: `truncate` on username and display name.
+**Fix**: Acceptable -- names in a card row with badges should truncate.
 
-### 8. Event Form Overflow (`src/components/events/UnifiedEventForm.tsx`, line 331)
+### 12. Members Preview (`src/components/teams/MembersPreview.tsx`, lines 55, 81)
 
-**Issue**: `overflow-hidden` on the form container can clip content at the edges.
+**Current**: `truncate` on member names.
+**Fix**: Acceptable -- compact preview cards.
 
-**Fix**: Change to `overflow-x-hidden` only -- vertical content should never be hidden.
+### 13. Users Page (`src/pages/Users.tsx`, lines 103, 105)
 
-### 9. Swipeable Event Card (`src/components/events/SwipeableEventCard.tsx`, lines 133, 156)
+**Current**: `truncate` on username and display name.
+**Fix**: Acceptable -- profile cards in a list.
 
-**Issue**: `line-clamp-1` on title and `truncate` with `max-w-[160px]` on location are too aggressive.
+### 14. Team Events Breadcrumb (`src/pages/TeamEvents.tsx`, line 71)
 
-**Fix**: Change title to `line-clamp-2` and increase location `max-w` to `max-w-[200px]`.
+**Current**: `<Link ... className="... truncate">{team?.name}</Link>`
+**Fix**: Change `truncate` to `line-clamp-1 break-all` so very long team names don't disappear.
 
-### 10. Notification Item Title (`src/components/notifications/NotificationItem.tsx`, line 91)
+### 15. French Label Too Long (`src/i18n/locales/fr/events.json`, line 19)
 
-**Issue**: No explicit text wrapping -- relies on parent `min-w-0` but the title could still overflow.
+**Current**: `"myEvents": "Mes participations"`
+**Fix**: Shorten to `"Participations"` -- the tab context already implies "my".
 
-**Fix**: Add `line-clamp-2` to notification title to allow wrapping for longer notifications.
+## Summary of Actual Changes
 
-## Summary of Files Modified
+| File | Line | Change |
+|---|---|---|
+| `src/i18n/locales/fr/events.json` | 19 | "Mes participations" to "Participations" |
+| `src/pages/Events.tsx` | 245 | Remove `truncate`, `hidden xs:inline`, `max-w-[60px]` |
+| `src/pages/Events.tsx` | 304, 363 | Remove `hidden xs:inline` from type filter labels |
+| `src/pages/Index.tsx` | 237 | `truncate` to `line-clamp-2` on welcome title |
+| `src/pages/Index.tsx` | 434 | `truncate` to `line-clamp-2` on event title |
+| `src/components/events/EventPreviewCard.tsx` | 58 | `truncate` to `line-clamp-2` on title |
+| `src/components/matching/MatchProposalCard.tsx` | 82 | `truncate` to `line-clamp-2` on title |
+| `src/pages/TeamEvents.tsx` | 71 | `truncate` to `break-words` on breadcrumb |
 
-| File | Change |
-|---|---|
-| `src/components/ui/select.tsx` | Replace `[&>span]:line-clamp-1` with `[&>span]:truncate` |
-| `src/components/mobile/BottomNavigation.tsx` | Remove `truncate`, widen max-w |
-| `src/components/events/EventCard.tsx` | Increase location slice from 16 to 25 chars |
-| `src/components/mobile/PageHeader.tsx` | Title: `truncate` to `line-clamp-2` |
-| `src/components/teams/TeamCard.tsx` | Description: `truncate` to `line-clamp-2` |
-| `src/pages/Settings.tsx` | Profile name: remove `truncate` |
-| `src/components/feed/ActivityCard.tsx` | Add `max-w-[60%]` to username |
-| `src/components/events/UnifiedEventForm.tsx` | `overflow-hidden` to `overflow-x-hidden` |
-| `src/components/events/SwipeableEventCard.tsx` | Title `line-clamp-2`, location `max-w-[200px]` |
-| `src/components/notifications/NotificationItem.tsx` | Title: add `line-clamp-2` |
-
-All changes are CSS-only tweaks. No logic or structural changes.
-
+8 targeted fixes across 6 files. All CSS-only + 1 label shortening. No logic changes.
