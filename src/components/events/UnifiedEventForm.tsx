@@ -393,17 +393,17 @@ export const UnifiedEventForm = ({
               <motion.div key="category-selector" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
                 <div className="space-y-1.5">
                   <Label className="text-xs">{t('form.meetup.category')}</Label>
-                  <div className="grid grid-cols-2 min-[360px]:grid-cols-3 gap-1.5">
+                  <div className="grid grid-cols-3 gap-1.5">
                     {MEETUP_CATEGORIES.map(({ value, emoji }) => (
                       <Button
                         key={value}
                         type="button"
                         variant={selectedCategory === value ? 'default' : 'outline'}
                         onClick={() => setSelectedCategory(value)}
-                        className="h-9 flex flex-row items-center gap-1.5 text-xs px-2"
+                        className="h-10 flex flex-row items-center justify-center gap-1.5 text-xs px-1.5"
                       >
                         <span className="text-sm shrink-0">{emoji}</span>
-                        <span className="truncate">{getCategoryLabel(value)}</span>
+                        <span>{getCategoryLabel(value)}</span>
                       </Button>
                     ))}
                   </div>
@@ -609,7 +609,7 @@ export const UnifiedEventForm = ({
                     className="h-9 gap-1 text-xs"
                   >
                     <Icon className="h-3.5 w-3.5 shrink-0" />
-                    <span className="text-xs truncate">{t(`form.locationMode.${mode}`)}</span>
+                    <span className="text-xs">{t(`form.locationMode.${mode}`)}</span>
                   </Button>
                 ))}
               </div>
@@ -833,7 +833,7 @@ export const UnifiedEventForm = ({
                           variant={paymentMethod === method ? 'default' : 'outline'}
                           size="sm"
                           onClick={() => setPaymentMethod(prev => prev === method ? '' : method)}
-                          className="h-7 text-xs px-2"
+                          className="h-8 text-xs px-2"
                         >
                           {t(`cost.${method === 'on_site' ? 'onSite' : method}`)}
                         </Button>
