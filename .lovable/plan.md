@@ -1,61 +1,126 @@
 
 
-# Fix All Truncation and Density Issues in Event Creation Form
+# Mandatory Fields Per Event Type + Fix Placeholder Visibility
 
-## Issues Still Present After Last Fix
+## Current Problem
 
-### 1. Cost/Tarif buttons still wrapping
-The `grid grid-cols-2` fix was applied, but the French labels "Paiement en ligne" (14 chars) and "Partager les frais" (18 chars) are too long for `h-7` (28px) buttons with `text-xs`. The text overflows or gets cut.
+All event types show the same "More options" fields, making the form feel bloated. Some fields are irrelevant for certain types. Additionally, the Title input is missing `text-xs`, causing inconsistent placeholder rendering compared to other fields.
 
-**Fix**: Increase button height to `h-8`, add `whitespace-nowrap` and `truncate` to prevent awkward line breaks. Also shorten French labels in `fr/events.json`:
-- "Paiement en ligne" -> "En ligne"  
-- "Partager les frais" -> "Partager"
+## Mandatory Fields Per Event Type
 
-### 2. Meetup category buttons - text/icons still invisible
-The `flex-row` fix was applied, but the buttons are in a `grid grid-cols-2 min-[360px]:grid-cols-3` with `h-9`. On narrow screens (< 360px), 2 columns means more room, but at 3 columns the emoji + label get cramped.
+### Training (Workout)
+**Always visible (essentials):**
+- Sport selector
+- Team selector  
+- Title
+- When (Date, Time, Duration)
+- Where (Location)
 
-**Fix**: Force `grid-cols-3` always (categories are short: "Visionnage", "Apéro", "Repas", "Social", "Fitness", "Autre"). Add `justify-center` and ensure no `overflow-hidden` anywhere. Increase to `h-10` for comfortable tap targets.
+**In "More options":**
+- Visibility (public/private)
+- Description
+- Max Participants
+- Recurrence
+- Cost
+- RSVP Deadline
+- Looking for Players
 
-### 3. Location mode "Sur place" / "En ligne" / "Hybride" cut off
-The `h-9` + `text-xs` fix was applied, but the `<span className="text-xs truncate">` with `truncate` is actively cutting the text. The `truncate` class needs to be removed since these labels are short enough.
+### Meetup (Hangout)
+**Always visible (essentials):**
+- Category (watch party, social, etc.)
+- Title
+- When (Date, Time, Duration)
+- Where (Location mode + address/link)
+- Payment Link (relevant for social events with booking)
 
-**Fix**: Remove `truncate` from the text span inside location mode buttons. The labels are only 2-3 words max - they fit without truncation at `text-xs` in 3 columns.
+**In "More options":**
+- Visibility (public/private)
+- Description
+- Max Participants
+- Recurrence
+- Cost
+- RSVP Deadline
 
-### 4. General placeholder visibility
-Some Input fields use the default `text-body` size from the Input component (line 12 of input.tsx: `h-12`), while the form overrides with `h-9 text-xs`. This inconsistency can cause placeholder text to not be fully visible. Ensure all form inputs consistently use `h-9 text-xs` or `h-10 text-sm`.
+**Hidden:** Looking for Players (not relevant for social events)
 
-## Changes
+### Match
+**Always visible (essentials):**
+- Sport selector
+- Team selector (with pickup game option)
+- Opponent section
+- Home/Away toggle
+- Match Format
+- Title (auto-generated from teams)
+- When (Date, Time, Duration)
+- Where (Location)
 
-### File: `src/i18n/locales/fr/events.json`
+**In "More options":**
+- Description
+- Max Participants
+- Recurrence
+- Cost
+- RSVP Deadline
+- Looking for Players
 
-Shorten cost labels to fit compact buttons:
-- `cost.online`: "Paiement en ligne" -> "En ligne"
-- `cost.split`: "Partager les frais" -> "Partager"
-- `cost.onSite`: "Sur place" stays (already short)
+**Hidden:** Visibility toggle (auto-set: pickup = public, team = private), Payment Link (not relevant for competitive matches)
+
+## Fix: Placeholder Font Consistency
+
+### Problem
+The Title `<Input>` at line 505 has `className="h-9"` but no `text-xs`, so placeholder text renders at the default body size while all other inputs use `text-xs`. This makes placeholders inconsistent and sometimes clipped.
+
+### Solution
+Add `text-xs` to:
+- Title input (line 505)
+- Any other inputs missing it
+
+## Technical Changes
 
 ### File: `src/components/events/UnifiedEventForm.tsx`
 
-**Location mode buttons (line 612):**
-Remove `truncate` from the span so "Sur place" displays fully:
-```
-<span className="text-xs">{t(`form.locationMode.${mode}`)}</span>
-```
+1. **Title input (line 505):** Change `className="h-9"` to `className="h-9 text-xs"`
 
-**Meetup category buttons (lines 396-408):**
-Change grid to always `grid-cols-3` and increase height to `h-10`:
-```
-<div className="grid grid-cols-3 gap-1.5">
-  ...
-  className="h-10 flex flex-row items-center justify-center gap-1.5 text-xs px-1.5"
-```
+2. **Payment Link section (lines 659-672):** Wrap in conditional — only show for `training` and `meetup`, hide for `match`:
+   ```
+   {eventType !== 'match' && (
+     <div className="space-y-1.5">...</div>
+   )}
+   ```
 
-**Cost buttons (lines 828-840):**
-Increase height to `h-8` to prevent text clipping:
-```
-className="h-8 text-xs px-2 truncate"
-```
+3. **Visibility toggle in "More options" (lines 698-722):** Hide for `match` type since it's auto-determined:
+   ```
+   {eventType !== 'match' && (
+     <FormField ... isPublic ... />
+   )}
+   ```
 
-## Summary
+4. **Looking for Players in "More options" (line 934):** Already conditionally shown via `showLookingForPlayersSection` (match + training only) -- no change needed, this is correct.
 
-All changes are small CSS tweaks + 2 shortened French labels. No logic changes, no structural refactoring.
+5. **Location mode toggle (lines 597-616):** Already conditionally shown via `showLocationMode` (meetup only) -- correct.
+
+## Summary of Changes
+
+| Field | Training | Meetup | Match |
+|---|---|---|---|
+| Sport | Essential | Hidden | Essential |
+| Team | Essential | Hidden | Essential |
+| Category | Hidden | Essential | Hidden |
+| Opponent | Hidden | Hidden | Essential |
+| Home/Away | Hidden | Hidden | Essential |
+| Format | Hidden | Hidden | Essential |
+| Title | Essential | Essential | Essential |
+| When | Essential | Essential | Essential |
+| Where | Essential | Essential | Essential |
+| Location Mode | Hidden | Essential | Hidden |
+| Payment Link | Essential | Essential | Hidden |
+| Visibility | More options | More options | Hidden (auto) |
+| Description | More options | More options | More options |
+| Max Participants | More options | More options | More options |
+| Recurrence | More options | More options | More options |
+| Cost | More options | More options | More options |
+| RSVP Deadline | More options | More options | More options |
+| Looking for Players | More options | Hidden | More options |
+
+### Files Modified
+- `src/components/events/UnifiedEventForm.tsx` only (3 small changes)
 
