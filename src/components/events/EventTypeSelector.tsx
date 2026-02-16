@@ -35,7 +35,7 @@ export const EventTypeSelector = ({ value, onChange }: EventTypeSelectorProps) =
             variant={value === type ? 'default' : 'ghost'}
             onClick={() => onChange(type)}
             className={cn(
-              "flex items-center justify-center gap-1.5 h-11 px-2 rounded-lg transition-all duration-200",
+              "flex items-center justify-center gap-1.5 h-12 px-2 rounded-lg transition-all duration-200",
               value === type 
                 ? "shadow-sm" 
                 : "hover:bg-muted/60",
@@ -48,9 +48,6 @@ export const EventTypeSelector = ({ value, onChange }: EventTypeSelectorProps) =
           </Button>
         ))}
       </div>
-      <p className="text-[11px] text-muted-foreground px-1">
-        {t(getDescriptionKey(value))}
-      </p>
     </div>
   );
 };

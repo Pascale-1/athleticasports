@@ -252,6 +252,7 @@
     }
   },
   "game": {
+    "matchDetails": "Détails du match",
     "opponent": "Adversaire",
     "opponentPlaceholder": "Nom de l'équipe adverse",
     "homeAway": "Domicile/Extérieur",
