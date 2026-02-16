@@ -79,7 +79,7 @@ export const MatchProposalCard = ({ proposal, onAccept, onDecline }: MatchPropos
                   Match Found
                 </Badge>
               </div>
-              <h3 className="font-semibold text-lg truncate">{event.title}</h3>
+              <h3 className="font-semibold text-lg line-clamp-2">{event.title}</h3>
             </div>
           </div>
 

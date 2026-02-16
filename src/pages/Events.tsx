@@ -242,7 +242,7 @@ const Events = () => {
                 onClick={() => handleTabChange(key as any)}
               >
                 <Icon className={cn("h-3 w-3 shrink-0", isActive && "text-primary")} />
-                <span className="truncate hidden xs:inline max-w-[60px]">{t(labelKey)}</span>
+                <span>{t(labelKey)}</span>
                 {count > 0 && (
                   <Badge variant={isActive ? "default" : "secondary"} size="xs">
                     {count}
@@ -301,7 +301,7 @@ const Events = () => {
                   onClick={() => setActiveEventType(type as any)}
                 >
                   <Icon className={cn("h-3 w-3", activeEventType !== type && color)} />
-                  <span className="hidden xs:inline">{t(labelKey)}</span>
+                  <span>{t(labelKey)}</span>
                 </Button>
               ))}
             </div>
@@ -360,7 +360,7 @@ const Events = () => {
                     onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
                   >
                     <Icon className={cn("h-3 w-3", activeEventType !== type && color)} />
-                    <span className="hidden xs:inline">{t(labelKey)}</span>
+                    <span>{t(labelKey)}</span>
                   </Button>
                 ))}
 

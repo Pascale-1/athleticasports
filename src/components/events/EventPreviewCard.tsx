@@ -55,7 +55,7 @@ export const EventPreviewCard = ({
           </div>
           <div className="flex-1 min-w-0 space-y-1">
             <p className={cn(
-              "font-semibold truncate",
+              "font-semibold line-clamp-2",
               !title && "text-muted-foreground italic"
             )}>
               {displayTitle}

@@ -68,7 +68,7 @@ const TeamEvents = () => {
                 Discover
               </Link>
               <span>/</span>
-              <Link to={`/teams/${teamId}`} className="hover:text-foreground transition-colors truncate">
+              <Link to={`/teams/${teamId}`} className="hover:text-foreground transition-colors break-words">
                 {team?.name}
               </Link>
             </div>
