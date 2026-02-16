@@ -234,7 +234,7 @@ const Index = () => {
                 
                 {/* Greeting */}
                 <div className="flex-1 min-w-0 pt-1">
-                  <h1 className="text-section font-heading font-bold truncate">
+                  <h1 className="text-section font-heading font-bold line-clamp-2">
                     {t('home.welcome', { name: profile.display_name || profile.username })}
                   </h1>
                   <p className="text-caption text-muted-foreground">{t('home.readyToPlay')}</p>
@@ -431,7 +431,7 @@ const Index = () => {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <p className="font-medium text-sm truncate">{match.title}</p>
+                              <p className="font-medium text-sm line-clamp-2">{match.title}</p>
                               {dateLabel && (
                                 <Badge 
                                   variant="secondary" 
