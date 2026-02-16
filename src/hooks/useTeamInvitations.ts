@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
+import { getAppBaseUrl } from "@/lib/appUrl";
 
 export interface TeamInvitation {
   id: string;
@@ -158,7 +159,7 @@ export const useTeamInvitations = (teamId: string | null) => {
               teamId: teamId,
               recipientEmail: email,
               role: role,
-              appOrigin: window.location.origin, // Pass current origin for link generation
+              appOrigin: getAppBaseUrl(), // Pass production URL for link generation
             },
           }
         );
@@ -234,7 +235,7 @@ export const useTeamInvitations = (teamId: string | null) => {
             teamId: invitation.team_id,
             recipientEmail: invitation.email,
             role: invitation.role,
-            appOrigin: window.location.origin, // Pass current origin for link generation
+            appOrigin: getAppBaseUrl(), // Pass production URL for link generation
           },
         }
       );

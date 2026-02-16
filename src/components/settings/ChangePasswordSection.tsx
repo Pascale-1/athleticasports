@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { KeyRound } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getAppBaseUrl } from "@/lib/appUrl";
 
 interface ChangePasswordSectionProps {
   email: string;
@@ -21,7 +22,7 @@ export const ChangePasswordSection = ({ email }: ChangePasswordSectionProps) => 
     setLoading(true);
     try {
       const response = await supabase.functions.invoke('send-password-reset', {
-        body: { email, redirectTo: `${window.location.origin}/reset-password` },
+        body: { email, redirectTo: `${getAppBaseUrl()}/reset-password` },
       });
       if (response.error) throw response.error;
       toast({

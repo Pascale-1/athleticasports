@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { getAppBaseUrl } from "@/lib/appUrl";
 import {
   Card,
   CardContent,
@@ -145,7 +146,7 @@ const Auth = () => {
           email: data.email,
           password: data.password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`,
+            emailRedirectTo: `${getAppBaseUrl()}/`,
           },
         });
 
@@ -225,7 +226,7 @@ const Auth = () => {
     }
     try {
       const response = await supabase.functions.invoke('send-password-reset', {
-        body: { email, redirectTo: `${window.location.origin}/reset-password` },
+        body: { email, redirectTo: `${getAppBaseUrl()}/reset-password` },
       });
       if (response.error) throw response.error;
       toast({

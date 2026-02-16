@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useExternalLink } from "@/hooks/useExternalLink";
 import { supabase } from "@/integrations/supabase/client";
+import { getAppBaseUrl } from "@/lib/appUrl";
 
 interface TeamInviteLinkProps {
   teamId: string;
@@ -29,7 +30,7 @@ export const TeamInviteLink = ({
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [linkJoiningEnabled, setLinkJoiningEnabled] = useState(allowLinkJoining);
   
-  const inviteLink = `${window.location.origin}/teams/join/${inviteCode}`;
+  const inviteLink = `${getAppBaseUrl()}/teams/join/${inviteCode}`;
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
