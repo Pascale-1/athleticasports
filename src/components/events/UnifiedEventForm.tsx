@@ -86,7 +86,16 @@ interface UnifiedEventFormProps {
   isSubmitting?: boolean;
 }
 
-
+// FormSection helper for card-based grouping — defined outside to keep stable identity
+const FormSection = ({ icon: Icon, title, children, className }: { icon: LucideIcon; title: string; children: React.ReactNode; className?: string }) => (
+  <div className={cn("bg-muted/30 rounded-xl p-3 space-y-2.5", className)}>
+    <div className="flex items-center gap-1.5">
+      <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{title}</span>
+    </div>
+    {children}
+  </div>
+);
 
 
 export const UnifiedEventForm = ({
@@ -308,18 +317,7 @@ export const UnifiedEventForm = ({
   const showVirtualLink = eventType === 'meetup' && (locationMode === 'virtual' || locationMode === 'hybrid');
   const showLookingForPlayersSection = eventType === 'match' || eventType === 'training';
   
-  const isPublicEvent = isPickupGame || form.watch('isPublic');
-
-  // FormSection helper for card-based grouping
-  const FormSection = ({ icon: Icon, title, children, className }: { icon: LucideIcon; title: string; children: React.ReactNode; className?: string }) => (
-    <div className={cn("bg-muted/30 rounded-xl p-3 space-y-2.5", className)}>
-      <div className="flex items-center gap-1.5">
-        <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{title}</span>
-      </div>
-      {children}
-    </div>
-  );
+  const isPublicEvent = isPickupGame || form.getValues('isPublic');
 
   return (
     <Form {...form}>
