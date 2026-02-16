@@ -295,7 +295,7 @@ export const UnifiedEventForm = ({
       rsvp_deadline: showRsvpDeadline ? calculateRsvpDeadline(startDate)?.toISOString() : undefined,
       cost: paymentMethod === 'free' ? undefined : (cost || undefined),
       payment_method: paymentMethod || undefined,
-      payment_link: paymentMethod === 'online' && paymentLink ? paymentLink : undefined,
+      payment_link: paymentLink || undefined,
     };
 
     await onSubmit(eventData);
@@ -408,6 +408,86 @@ export const UnifiedEventForm = ({
                     ))}
                   </div>
                 </div>
+              </motion.div>
+            )}
+
+            {/* Match: Opponent */}
+            {showOpponentSection && (
+              <motion.div key="opponent-section" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">{t('form.game.opponentTeam')}</Label>
+                    <div className="flex gap-1">
+                      <Button type="button" variant={opponentInputMode === 'select' ? 'default' : 'outline'} size="sm" onClick={() => setOpponentInputMode('select')} className="h-6 text-[10px] px-2">
+                        {t('form.game.selectTeam')}
+                      </Button>
+                      <Button type="button" variant={opponentInputMode === 'manual' ? 'default' : 'outline'} size="sm" onClick={() => setOpponentInputMode('manual')} className="h-6 text-[10px] px-2">
+                        {t('form.game.enterManually')}
+                      </Button>
+                    </div>
+                  </div>
+                  {opponentInputMode === 'select' ? (
+                    <TeamSelector
+                      selectedTeamId={opponentTeamId || undefined}
+                      onSelect={handleOpponentSelect}
+                      excludeTeamId={selectedTeamId || undefined}
+                      sportFilter={selectedSport || undefined}
+                      placeholder={t('form.game.opponentPlaceholder')}
+                    />
+                  ) : (
+                    <FormField
+                      control={form.control}
+                      name="opponentName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input {...field} placeholder={t('form.game.opponentPlaceholder')} className="h-9 text-xs" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Match: Home/Away */}
+            {showHomeAwayToggle && (
+              <motion.div key="home-away" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">{t('game.homeAway')}</Label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {(['home', 'away', 'neutral'] as const).map((option) => (
+                      <Button
+                        key={option}
+                        type="button"
+                        variant={homeAway === option ? 'default' : 'outline'}
+                        onClick={() => setHomeAway(option)}
+                        className="h-8 text-xs"
+                      >
+                        {t(`game.${option}`)}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Match: Format */}
+            {showMatchFormat && (
+              <motion.div key="match-format" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
+                <FormField
+                  control={form.control}
+                  name="matchFormat"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">{t('game.format')}</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder={t('form.game.formatPlaceholder')} className="h-9 text-xs" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
               </motion.div>
             )}
           </AnimatePresence>
@@ -574,6 +654,21 @@ export const UnifiedEventForm = ({
                 )}
               />
             )}
+          </div>
+
+          {/* 1h. Payment / Booking Link - always visible */}
+          <div className="space-y-1.5">
+            <Label className="text-xs flex items-center gap-1.5">
+              <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
+              {t('cost.paymentLink')}
+            </Label>
+            <Input
+              value={paymentLink}
+              onChange={(e) => setPaymentLink(e.target.value)}
+              placeholder={t('cost.paymentLinkPlaceholder')}
+              className="h-9 text-xs"
+              type="url"
+            />
           </div>
 
           {/* ── "More options" collapsible trigger ── */}
@@ -754,15 +849,6 @@ export const UnifiedEventForm = ({
                       />
                     )}
 
-                    {paymentMethod === 'online' && (
-                      <Input
-                        value={paymentLink}
-                        onChange={(e) => setPaymentLink(e.target.value)}
-                        placeholder={t('cost.paymentLinkPlaceholder')}
-                        className="h-8 text-xs"
-                        type="url"
-                      />
-                    )}
                   </div>
 
                   {/* RSVP Deadline - inline switch */}
