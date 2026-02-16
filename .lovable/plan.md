@@ -1,44 +1,61 @@
 
 
-# Fix Dense/Clipped Form Elements in Event Creation
+# Fix All Truncation and Density Issues in Event Creation Form
 
-## Issues Identified
+## Issues Still Present After Last Fix
 
-1. **Cost/Tarif buttons wrap to 2 lines**: The 4 payment method buttons ("Gratuit", "Sur place", "Paiement en ligne", "Partager les frais") are in a `flex-wrap` container with long French labels that overflow onto a second row.
+### 1. Cost/Tarif buttons still wrapping
+The `grid grid-cols-2` fix was applied, but the French labels "Paiement en ligne" (14 chars) and "Partager les frais" (18 chars) are too long for `h-7` (28px) buttons with `text-xs`. The text overflows or gets cut.
 
-2. **Meetup category buttons — text/icons not visible**: Buttons use `flex-col` layout cramming an emoji + text label into only `h-9` (36px) height, with `overflow-hidden` clipping content.
+**Fix**: Increase button height to `h-8`, add `whitespace-nowrap` and `truncate` to prevent awkward line breaks. Also shorten French labels in `fr/events.json`:
+- "Paiement en ligne" -> "En ligne"  
+- "Partager les frais" -> "Partager"
 
-3. **Location mode buttons ("Sur place", "En ligne", "Hybride") — text cut off**: The 3-column grid buttons at `h-8` (32px) with an icon + text are too tight, and "Sur place" gets truncated.
+### 2. Meetup category buttons - text/icons still invisible
+The `flex-row` fix was applied, but the buttons are in a `grid grid-cols-2 min-[360px]:grid-cols-3` with `h-9`. On narrow screens (< 360px), 2 columns means more room, but at 3 columns the emoji + label get cramped.
 
-## Fixes
+**Fix**: Force `grid-cols-3` always (categories are short: "Visionnage", "Apéro", "Repas", "Social", "Fitness", "Autre"). Add `justify-center` and ensure no `overflow-hidden` anywhere. Increase to `h-10` for comfortable tap targets.
 
-### File: `src/components/events/UnifiedEventForm.tsx`
+### 3. Location mode "Sur place" / "En ligne" / "Hybride" cut off
+The `h-9` + `text-xs` fix was applied, but the `<span className="text-xs truncate">` with `truncate` is actively cutting the text. The `truncate` class needs to be removed since these labels are short enough.
 
-**1. Cost buttons (lines 828-841) — switch to 2x2 grid**
-- Change from `flex flex-wrap gap-1.5` to `grid grid-cols-2 gap-1.5`
-- This guarantees 2 buttons per row, no wrapping issues
-- Keep `h-7 text-xs px-2` sizing
+**Fix**: Remove `truncate` from the text span inside location mode buttons. The labels are only 2-3 words max - they fit without truncation at `text-xs` in 3 columns.
 
-**2. Meetup category buttons (lines 396-409) — fix visibility**
-- Change from `flex-col` layout to `flex-row` (horizontal icon + text)
-- Remove `overflow-hidden` that clips content
-- Keep `h-9` height since content is now single-line horizontal
-- Use `gap-1.5` between emoji and label
+### 4. General placeholder visibility
+Some Input fields use the default `text-body` size from the Input component (line 12 of input.tsx: `h-12`), while the form overrides with `h-9 text-xs`. This inconsistency can cause placeholder text to not be fully visible. Ensure all form inputs consistently use `h-9 text-xs` or `h-10 text-sm`.
 
-**3. Location mode buttons (lines 598-616) — fix text clipping**
-- Increase height from `h-8` to `h-9` for breathing room
-- Add `text-xs` to ensure consistent small text
-- Remove `overflow-hidden` from the button class so labels aren't clipped
-- Shorten French labels slightly: "Sur place" to "Sur place", "En ligne" stays, "Hybride" stays (they're already short, the issue is the button height + overflow)
+## Changes
 
 ### File: `src/i18n/locales/fr/events.json`
 
-No label changes needed — the French labels are already concise. The fix is purely layout/CSS.
+Shorten cost labels to fit compact buttons:
+- `cost.online`: "Paiement en ligne" -> "En ligne"
+- `cost.split`: "Partager les frais" -> "Partager"
+- `cost.onSite`: "Sur place" stays (already short)
 
-## Technical Summary
+### File: `src/components/events/UnifiedEventForm.tsx`
 
-All changes in `src/components/events/UnifiedEventForm.tsx`:
-- Line 403: Category buttons — change class from `flex-col` to `flex-row`, remove `overflow-hidden`
-- Line 609: Location mode buttons — remove `overflow-hidden`, increase to `h-9`
-- Line 828: Cost section — change from `flex flex-wrap` to `grid grid-cols-2`
+**Location mode buttons (line 612):**
+Remove `truncate` from the span so "Sur place" displays fully:
+```
+<span className="text-xs">{t(`form.locationMode.${mode}`)}</span>
+```
+
+**Meetup category buttons (lines 396-408):**
+Change grid to always `grid-cols-3` and increase height to `h-10`:
+```
+<div className="grid grid-cols-3 gap-1.5">
+  ...
+  className="h-10 flex flex-row items-center justify-center gap-1.5 text-xs px-1.5"
+```
+
+**Cost buttons (lines 828-840):**
+Increase height to `h-8` to prevent text clipping:
+```
+className="h-8 text-xs px-2 truncate"
+```
+
+## Summary
+
+All changes are small CSS tweaks + 2 shortened French labels. No logic changes, no structural refactoring.
 
