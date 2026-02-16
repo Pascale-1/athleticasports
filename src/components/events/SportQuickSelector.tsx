@@ -49,7 +49,7 @@ export const SportQuickSelector = ({
             )}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent className="bg-background">
+        <SelectContent className="bg-background" onCloseAutoFocus={(e) => e.preventDefault()}>
           {[...featuredSports, ...regularSports].map((sport) => (
             <SelectItem key={sport.id} value={sport.id}>
               <span className="flex items-center gap-2">
