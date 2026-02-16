@@ -104,7 +104,7 @@
     "findGameSubtitle": "Set your availability",
     "createTeam": "Create Team",
     "organizeEvent": "Create Event",
-    "organizeEventSubtitle": "Match, training, hangout",
+    "organizeEventSubtitle": "Game, training, social",
     "noUpcomingGames": "No upcoming games",
     "createEvent": "Create Event",
     "lookingToPlay": "Looking to play?",
@@ -264,5 +264,18 @@
     "findPartners": "Find Players",
     "joinChallenge": "Join Challenge",
     "exploreTeams": "Explore Teams"
+  },
+  "profileCompletion": {
+    "title": "Complete Your Profile",
+    "addPhoto": "Add a profile photo",
+    "addDisplayName": "Set your display name",
+    "addBio": "Write a short bio",
+    "addSport": "Choose your primary sport",
+    "complete": "Complete Profile"
+  },
+  "nextEvent": {
+    "title": "Next Event",
+    "noEvents": "No upcoming events — find a game or create one!",
+    "browseEvents": "Browse Events"
   }
 }

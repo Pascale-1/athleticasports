@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trophy, Users, User, Mail, Calendar, Swords, Globe, MessageSquare, PlayCircle, Pencil, Settings, Activity, KeyRound } from "lucide-react";
+import { Trophy, Users, User, Mail, Calendar, Globe, MessageSquare, PlayCircle, Pencil, Settings, Activity, KeyRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,8 @@ import { formatMonthYear } from "@/lib/dateUtils";
 import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
 import { ProfileActivityTab } from "./ProfileActivityTab";
 import { ChangePasswordSection } from "./ChangePasswordSection";
+import { ProfileCompletionCard } from "./ProfileCompletionCard";
+import { NextEventCard } from "./NextEventCard";
 
 interface ProfileTabsProps {
   profile: any;
@@ -82,8 +84,12 @@ export const ProfileTabs = ({
     setEditingField(null);
   };
 
-  return (
-    <Tabs defaultValue="overview" className="w-full">
+    const [activeTab, setActiveTab] = useState("overview");
+
+    const switchToAbout = () => setActiveTab("about");
+
+    return (
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="overview" className="flex items-center gap-1.5 text-xs">
           <User className="h-3.5 w-3.5 shrink-0" />
@@ -134,30 +140,11 @@ export const ProfileTabs = ({
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
-        <Card>
-          <CardContent className="pt-6 space-y-4">
-            <h3 className="font-semibold text-lg">{t('actions.search')}</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <Button 
-                variant="outline" 
-                className="flex flex-col items-center gap-2 h-auto py-4"
-                onClick={() => navigate("/events?type=match")}
-              >
-                <Swords className="h-5 w-5 text-primary" />
-                <span className="text-xs">{t('home.findGame')}</span>
-              </Button>
-              <Button 
-                variant="outline" 
-                className="flex flex-col items-center gap-2 h-auto py-4"
-                onClick={() => navigate("/teams")}
-              >
-                <Users className="h-5 w-5 text-primary" />
-                <span className="text-xs">{t('nav.teams')}</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Profile Completion */}
+        <ProfileCompletionCard profile={profile} onGoToAbout={switchToAbout} />
+
+        {/* Next Event */}
+        <NextEventCard />
       </TabsContent>
 
       <TabsContent value="activity" className="space-y-4">

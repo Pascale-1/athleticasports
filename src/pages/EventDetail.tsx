@@ -42,7 +42,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { format, isSameDay } from "date-fns";
-import { EVENT_CONFIG } from "@/lib/eventConfig";
+import { EVENT_CONFIG, getEventTypeKey } from "@/lib/eventConfig";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -308,7 +308,7 @@ const EventDetail = () => {
                 style={{ backgroundColor: eventConfig.bgColor, color: eventConfig.color }}
               >
                 <EventIcon className="h-3.5 w-3.5 mr-1" />
-                {eventConfig.label}
+                {t(`types.${getEventTypeKey(event.type)}`)}
               </Badge>
               {teamName && (
                 <Badge variant="outline" className="bg-background/80">

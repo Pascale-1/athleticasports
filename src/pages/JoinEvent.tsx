@@ -9,7 +9,7 @@ import { PageContainer } from "@/components/mobile/PageContainer";
 import { Calendar, MapPin, Loader2, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatEventDateRange, getEventStatus } from "@/lib/events";
-import { EVENT_CONFIG } from "@/lib/eventConfig";
+import { EVENT_CONFIG, getEventTypeKey } from "@/lib/eventConfig";
 
 const JoinEvent = () => {
   const { code } = useParams();
@@ -119,9 +119,9 @@ const JoinEvent = () => {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2 mb-2">
-              <Badge variant="secondary" className={eventConfig.color}>
+              <Badge variant="secondary" style={{ backgroundColor: eventConfig.bgColor, color: eventConfig.color }}>
                 <EventIcon className="h-3 w-3 mr-1" />
-                {eventConfig.label}
+                {t(`events:types.${getEventTypeKey(event.type)}`)}
               </Badge>
               <Badge variant={status === 'upcoming' ? 'default' : 'secondary'}>
                 {status}

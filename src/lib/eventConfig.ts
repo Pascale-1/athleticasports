@@ -7,8 +7,8 @@ export interface EventTypeConfig {
   icon: LucideIcon;
   color: string;
   bgColor: string;
-  label: string;
-  description: string;
+  /** Translation key suffix for this event type (used with events:types.{key}) */
+  translationKey: string;
   features: string[];
   permissions: EventRole[];
   categories?: string[];
@@ -19,8 +19,7 @@ export const EVENT_CONFIG: Record<EventType, EventTypeConfig> = {
     icon: Dumbbell,
     color: 'hsl(var(--primary))',
     bgColor: 'hsl(var(--primary) / 0.1)',
-    label: 'Workout',
-    description: 'Run, train, practice, or work out together',
+    translationKey: 'training',
     features: ['generatedTeams', 'attendance', 'recurring', 'teamOnly'],
     permissions: ['coach', 'admin', 'owner'],
     categories: []
@@ -29,8 +28,7 @@ export const EVENT_CONFIG: Record<EventType, EventTypeConfig> = {
     icon: Users,
     color: 'hsl(var(--accent))',
     bgColor: 'hsl(var(--accent) / 0.1)',
-    label: 'Hangout',
-    description: 'Social events, watch parties, team dinners',
+    translationKey: 'meetup',
     features: ['attendance', 'public', 'maxParticipants', 'categories'],
     permissions: ['all'],
     categories: [
@@ -46,12 +44,16 @@ export const EVENT_CONFIG: Record<EventType, EventTypeConfig> = {
     icon: Trophy,
     color: 'hsl(var(--match))',
     bgColor: 'hsl(var(--match) / 0.1)',
-    label: 'Match',
-    description: 'Compete against another team or player',
+    translationKey: 'game',
     features: ['opponent', 'attendance', 'teamOnly', 'homeAway'],
     permissions: ['coach', 'admin', 'owner'],
     categories: []
   }
+};
+
+/** Get the i18n label for an event type: t(`events:types.${getEventTypeKey(type)}`) */
+export const getEventTypeKey = (type: EventType): string => {
+  return EVENT_CONFIG[type]?.translationKey || type;
 };
 
 export const LOCATION_TYPES = [

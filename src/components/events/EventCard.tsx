@@ -28,11 +28,13 @@ import { Event } from "@/lib/events";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
-// Type badge configuration with semantic colors
-const TYPE_BADGE_CONFIG = {
-  training: { label: 'Workout', labelFr: 'Séance', colorClass: 'bg-info/15 text-info' },
-  match: { label: 'Match', labelFr: 'Match', colorClass: 'bg-warning/15 text-warning' },
-  meetup: { label: 'Hangout', labelFr: 'Sortie', colorClass: 'bg-success/15 text-success' },
+import { getEventTypeKey } from "@/lib/eventConfig";
+
+// Type badge color classes
+const TYPE_BADGE_COLORS: Record<string, string> = {
+  training: 'bg-info/15 text-info',
+  match: 'bg-warning/15 text-warning',
+  meetup: 'bg-success/15 text-success',
 };
 
 interface EventCardProps {
@@ -79,8 +81,8 @@ export const EventCard = memo(({
     }
   };
 
-  const typeConfig = TYPE_BADGE_CONFIG[event.type] || TYPE_BADGE_CONFIG.meetup;
-  const typeLabel = isFr ? typeConfig.labelFr : typeConfig.label;
+  const typeColorClass = TYPE_BADGE_COLORS[event.type] || TYPE_BADGE_COLORS.meetup;
+  const typeLabel = t(`types.${getEventTypeKey(event.type)}`);
 
   const isPartOfSeries = !!event.parent_event_id;
   const isRecurringParent = event.is_recurring && !event.parent_event_id;
@@ -153,7 +155,7 @@ export const EventCard = memo(({
                       variant="secondary" 
                       className={cn(
                         "text-[10px] px-1.5 py-0 h-4 font-medium shrink-0",
-                        typeConfig.colorClass
+                        typeColorClass
                       )}
                     >
                       {typeLabel}
