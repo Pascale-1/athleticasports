@@ -1,24 +1,28 @@
 
 
-# Fix: Form Jumping Back to Team Selector on Every Click
+# Fix: Persistent Scroll-Jump to Team Selector
 
 ## Root Cause
 
-Three factors combine to cause the scroll-jump bug:
+The form re-renders on every single field interaction due to multiple `form.watch()` calls (lines 164-168). During each re-render:
 
-1. `AnimatePresence mode="sync"` forces synchronized enter/exit animations across all conditional sections. Any state change re-evaluates all children, causing layout shifts that scroll back to the first animated element (the team selector).
-2. `aria-live="polite"` on the parent wrapper tells the browser to announce and potentially scroll to any DOM changes inside it.
-3. The `fieldVariants` animate between `height: 0` and `height: 'auto'` with `overflow` toggling, which triggers expensive layout recalculations.
+1. The `useEffect` on line 185 has `form` in its dependency array and calls `form.setValue('title', ...)`, which can trigger additional re-renders.
+2. The `useEffect` on line 176 also has `form` in its dependency array and calls `form.setValue('opponentName', '')` for match mode on every render cycle.
+3. These cascading re-renders cause the Radix `Select` components (team selector, sport selector) to briefly unmount/remount their internal focus management, which triggers `scrollIntoView` behavior inside the scrollable `DialogContent`.
 
-## Fix (1 file)
+## Fix (1 file: `UnifiedEventForm.tsx`)
 
-### `src/components/events/UnifiedEventForm.tsx`
+### 1. Remove unnecessary `form.watch()` calls
+Lines 164-168 declare `watchedTitle`, `watchedDate`, `watchedStartTime`, `watchedMaxParticipants`, `watchedOpponentName`. Most of these are only used deep in the "More Options" section or in useEffects. Replace them with targeted usage:
+- Keep only `watchedDate` and `watchedStartTime` (used in RSVP deadline preview on line 928).
+- Remove `watchedTitle`, `watchedMaxParticipants`, `watchedOpponentName` -- they cause full component re-renders on every keystroke but aren't used in JSX.
 
-1. **Remove `mode="sync"` from `AnimatePresence`** (line 349) -- use default mode so animations don't force synchronization and layout recalculation across all children.
+### 2. Remove `form` from useEffect dependency arrays
+- Line 176-182: Change deps from `[selectedSport, eventType, form]` to `[selectedSport, eventType]`. Use a ref or extract `form.setValue` into a stable reference. Since `form` methods are stable in react-hook-form v7, removing it from deps is safe and prevents spurious runs.
+- Line 185-195: Change deps from `[selectedTeamName, opponentTeamName, homeAway, opponentInputMode, eventType, form]` to remove `form`. Same reasoning.
 
-2. **Remove `aria-live="polite"`** from the parent div (line 347) -- this attribute is causing the browser to scroll/focus to DOM changes inside the container.
+### 3. Prevent Select scroll behavior
+Add `onCloseAutoFocus={(e) => e.preventDefault()}` to `SelectContent` inside `MyTeamSelector.tsx` and `SportQuickSelector.tsx`. This prevents Radix Select from calling `scrollIntoView` on its trigger when the dropdown closes.
 
-3. **Add `layout={false}`** to each `motion.div` to prevent Framer Motion's automatic layout animation from triggering scroll repositioning.
-
-These are 3 small edits in the same file. No logic, data, or visual changes -- just fixing the animation configuration that causes the scroll-jump.
+These are small, surgical edits. No logic, visual, or data changes -- just fixing the re-render cascade and focus management that causes the scroll jump.
 
