@@ -253,7 +253,7 @@ export const MyTeamSelector = ({
           <SelectTrigger className="h-9 text-xs">
             <SelectValue placeholder={placeholder || (lang === 'fr' ? 'Sélectionner une équipe' : 'Select a team')} />
           </SelectTrigger>
-          <SelectContent className="bg-background">
+          <SelectContent className="bg-background" onCloseAutoFocus={(e) => e.preventDefault()}>
             {/* Pickup Game Option - only for match type */}
             {showPickupOption && (
               <SelectItem value="__pickup__">

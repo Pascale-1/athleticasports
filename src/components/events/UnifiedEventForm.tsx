@@ -161,11 +161,9 @@ export const UnifiedEventForm = ({
     },
   });
 
-  const watchedTitle = form.watch('title');
+  // Only watch fields actually used in JSX (RSVP deadline preview)
   const watchedDate = form.watch('date');
   const watchedStartTime = form.watch('startTime');
-  const watchedMaxParticipants = form.watch('maxParticipants');
-  const watchedOpponentName = form.watch('opponentName');
 
   // Update duration when event type changes
   useEffect(() => {
@@ -179,7 +177,8 @@ export const UnifiedEventForm = ({
       setOpponentTeamName('');
       form.setValue('opponentName', '');
     }
-  }, [selectedSport, eventType, form]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSport, eventType]);
 
   // Auto-generate title for matches
   useEffect(() => {
@@ -192,7 +191,8 @@ export const UnifiedEventForm = ({
         form.setValue('title', title);
       }
     }
-  }, [selectedTeamName, opponentTeamName, homeAway, opponentInputMode, eventType, form]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTeamName, opponentTeamName, homeAway, opponentInputMode, eventType]);
 
   // Handle team selection from MyTeamSelector
   const handleTeamSelect = (teamId: string | null, teamName?: string) => {
