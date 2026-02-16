@@ -1,76 +1,44 @@
 
 
-# Restructure Event Creation Form + Always-Visible Payment Link
+# Fix Dense/Clipped Form Elements in Event Creation
 
-## Problems Found
+## Issues Identified
 
-1. **Payment link is buried** inside "More options" > Cost section. Users have to expand options, pick a payment method, then see the link field. It should be upfront.
-2. **Match-specific fields are missing**: Opponent name, Home/Away toggle, and Match Format were accidentally removed from the JSX during the previous "More options" refactor. The visibility conditions exist (lines 319-321) but are never rendered.
-3. **Form still feels dense** in some areas (e.g., cost chips take up space with 4 options on one row).
+1. **Cost/Tarif buttons wrap to 2 lines**: The 4 payment method buttons ("Gratuit", "Sur place", "Paiement en ligne", "Partager les frais") are in a `flex-wrap` container with long French labels that overflow onto a second row.
 
-## Changes
+2. **Meetup category buttons — text/icons not visible**: Buttons use `flex-col` layout cramming an emoji + text label into only `h-9` (36px) height, with `overflow-hidden` clipping content.
 
-### 1. Add Payment Link to Essentials (always visible)
+3. **Location mode buttons ("Sur place", "En ligne", "Hybride") — text cut off**: The 3-column grid buttons at `h-8` (32px) with an icon + text are too tight, and "Sur place" gets truncated.
 
-Move a simple URL input field right after the Location section, before "More options". This is a clean single input:
-- Label: "Link" with a Link2 icon
-- Placeholder: "https://..." (booking, payment, or venue link)
-- Always visible regardless of event type
-- The existing `paymentLink` state and `payment_link` in the submit data will be reused
-
-### 2. Restore Match-Specific Fields in Essentials
-
-Re-add the missing match fields between Team selector and Title, inside the AnimatePresence block. These only appear when event type is "match":
-
-- **Opponent section**: Toggle between "Select team" and "Enter manually", with either a TeamSelector or a text Input
-- **Home/Away toggle**: 3 buttons (Home / Away / Neutral)
-- **Match Format**: Simple text input (e.g., "5v5", "11v11")
-
-These are essential for match creation and should NOT be in "More options".
-
-### 3. Simplify Cost Section in "More Options"
-
-Keep the cost method chips and cost amount input in "More options" but remove the payment link input from there (since it moved to essentials). This makes the "More options" section lighter.
-
-## Technical Details
+## Fixes
 
 ### File: `src/components/events/UnifiedEventForm.tsx`
 
-**Add after Location section (after line 577), before "More options" trigger:**
-```
-{/* Payment / Booking Link - always visible */}
-<div className="space-y-1.5">
-  <Label className="text-xs flex items-center gap-1.5">
-    <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
-    {t('cost.paymentLink')}
-  </Label>
-  <Input
-    value={paymentLink}
-    onChange={(e) => setPaymentLink(e.target.value)}
-    placeholder={t('cost.paymentLinkPlaceholder')}
-    className="h-9 text-xs"
-    type="url"
-  />
-</div>
-```
+**1. Cost buttons (lines 828-841) — switch to 2x2 grid**
+- Change from `flex flex-wrap gap-1.5` to `grid grid-cols-2 gap-1.5`
+- This guarantees 2 buttons per row, no wrapping issues
+- Keep `h-7 text-xs px-2` sizing
 
-**Add after Category selector (after line 412), inside AnimatePresence - match fields:**
-- Opponent section (select or manual input) with showOpponentSection guard
-- Home/Away 3-button toggle with showHomeAwayToggle guard
-- Match Format input with showMatchFormat guard
+**2. Meetup category buttons (lines 396-409) — fix visibility**
+- Change from `flex-col` layout to `flex-row` (horizontal icon + text)
+- Remove `overflow-hidden` that clips content
+- Keep `h-9` height since content is now single-line horizontal
+- Use `gap-1.5` between emoji and label
 
-**Remove from "More options" Cost section (lines 757-764):**
-- Remove the `paymentLink` input that was inside the `paymentMethod === 'online'` conditional (since link is now always visible in essentials)
+**3. Location mode buttons (lines 598-616) — fix text clipping**
+- Increase height from `h-8` to `h-9` for breathing room
+- Add `text-xs` to ensure consistent small text
+- Remove `overflow-hidden` from the button class so labels aren't clipped
+- Shorten French labels slightly: "Sur place" to "Sur place", "En ligne" stays, "Hybride" stays (they're already short, the issue is the button height + overflow)
 
-**Update submit handler (line 298):**
-- Change `payment_link` to always use `paymentLink` value instead of only when `paymentMethod === 'online'`
+### File: `src/i18n/locales/fr/events.json`
 
-### Files Modified
-- `src/components/events/UnifiedEventForm.tsx` (all changes in one file)
+No label changes needed — the French labels are already concise. The fix is purely layout/CSS.
 
-## Result
+## Technical Summary
 
-- **Payment link** is always one tap away in the essentials section
-- **Match creation** works again with opponent, home/away, and format fields restored
-- **"More options"** becomes even lighter with the payment link removed from it
-- Essential fields: Type, Sport/Team, [Match details], Category, Title, Date/Time/Duration, Location, Link, then Create button
+All changes in `src/components/events/UnifiedEventForm.tsx`:
+- Line 403: Category buttons — change class from `flex-col` to `flex-row`, remove `overflow-hidden`
+- Line 609: Location mode buttons — remove `overflow-hidden`, increase to `h-9`
+- Line 828: Cost section — change from `flex flex-wrap` to `grid grid-cols-2`
+
