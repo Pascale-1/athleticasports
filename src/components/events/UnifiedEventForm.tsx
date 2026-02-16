@@ -89,15 +89,11 @@ interface UnifiedEventFormProps {
 const fieldVariants = {
   hidden: { 
     opacity: 0, 
-    height: 0, 
-    marginBottom: 0,
-    overflow: 'hidden' as const,
+    scale: 0.98,
   },
   visible: { 
     opacity: 1, 
-    height: 'auto' as const, 
-    marginBottom: 12,
-    overflow: 'visible' as const,
+    scale: 1,
   },
 };
 
