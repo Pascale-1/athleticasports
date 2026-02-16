@@ -1,28 +1,39 @@
 
 
-# Fix: Persistent Scroll-Jump to Team Selector
+# Fix: Form Scroll Jump — Root Causes Found
 
-## Root Cause
+## Problem
 
-The form re-renders on every single field interaction due to multiple `form.watch()` calls (lines 164-168). During each re-render:
+After all previous fixes, clicking any field (e.g., "1h" duration button) still scrolls the form back to the top (Team selector area). The previous fixes addressed animation and watch calls but missed two critical re-render triggers.
 
-1. The `useEffect` on line 185 has `form` in its dependency array and calls `form.setValue('title', ...)`, which can trigger additional re-renders.
-2. The `useEffect` on line 176 also has `form` in its dependency array and calls `form.setValue('opponentName', '')` for match mode on every render cycle.
-3. These cascading re-renders cause the Radix `Select` components (team selector, sport selector) to briefly unmount/remount their internal focus management, which triggers `scrollIntoView` behavior inside the scrollable `DialogContent`.
+## Root Causes
+
+### 1. `FormSection` component defined INSIDE the render function (line 314)
+
+This is the **primary cause**. Every time the form re-renders (which happens on any state change), React creates a **new component type** for `FormSection`. React treats each new definition as a different component, so it **unmounts and remounts** all children — including the Radix Select components in `MyTeamSelector` and `SportQuickSelector`. When these Select components remount, the browser's focus management triggers `scrollIntoView`, jumping back to the Team selector at the top.
+
+### 2. `form.watch('isPublic')` called in the render body (line 311)
+
+```
+const isPublicEvent = isPickupGame || form.watch('isPublic');
+```
+
+This causes the entire component to re-render whenever ANY form field changes (watch subscribes to the whole form). Combined with issue #1, every keystroke or button click causes FormSection to remount its children.
 
 ## Fix (1 file: `UnifiedEventForm.tsx`)
 
-### 1. Remove unnecessary `form.watch()` calls
-Lines 164-168 declare `watchedTitle`, `watchedDate`, `watchedStartTime`, `watchedMaxParticipants`, `watchedOpponentName`. Most of these are only used deep in the "More Options" section or in useEffects. Replace them with targeted usage:
-- Keep only `watchedDate` and `watchedStartTime` (used in RSVP deadline preview on line 928).
-- Remove `watchedTitle`, `watchedMaxParticipants`, `watchedOpponentName` -- they cause full component re-renders on every keystroke but aren't used in JSX.
+### Step 1: Move `FormSection` outside the component
 
-### 2. Remove `form` from useEffect dependency arrays
-- Line 176-182: Change deps from `[selectedSport, eventType, form]` to `[selectedSport, eventType]`. Use a ref or extract `form.setValue` into a stable reference. Since `form` methods are stable in react-hook-form v7, removing it from deps is safe and prevents spurious runs.
-- Line 185-195: Change deps from `[selectedTeamName, opponentTeamName, homeAway, opponentInputMode, eventType, form]` to remove `form`. Same reasoning.
+Extract `FormSection` to a standalone component defined **outside** `UnifiedEventForm`. This gives it a stable identity across renders so React will update children in place instead of unmounting/remounting them.
 
-### 3. Prevent Select scroll behavior
-Add `onCloseAutoFocus={(e) => e.preventDefault()}` to `SelectContent` inside `MyTeamSelector.tsx` and `SportQuickSelector.tsx`. This prevents Radix Select from calling `scrollIntoView` on its trigger when the dropdown closes.
+### Step 2: Replace `form.watch('isPublic')` with `form.getValues('isPublic')`
 
-These are small, surgical edits. No logic, visual, or data changes -- just fixing the re-render cascade and focus management that causes the scroll jump.
+Since `isPublicEvent` is only used for display logic (showing a toggle state), using `getValues` reads the current value without subscribing to re-renders. Alternatively, use `useWatch` with a specific field name to limit re-renders to only when `isPublic` changes.
+
+### Summary of changes
+
+- Move `FormSection` component definition from line 314 to above the `UnifiedEventForm` component (around line 88)
+- Replace `form.watch('isPublic')` on line 311 with `form.getValues('isPublic')` or `useWatch({ control: form.control, name: 'isPublic' })`
+
+These are two small, surgical edits. No visual, logic, or data changes — just fixing the component identity stability that causes the scroll jump.
 
