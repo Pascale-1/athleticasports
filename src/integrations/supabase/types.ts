@@ -320,6 +320,7 @@ export type Database = {
         Row: {
           allow_public_join: boolean | null
           cost: string | null
+          cost_type: string | null
           created_at: string
           created_by: string
           created_invite_code_at: string | null
@@ -360,6 +361,7 @@ export type Database = {
         Insert: {
           allow_public_join?: boolean | null
           cost?: string | null
+          cost_type?: string | null
           created_at?: string
           created_by: string
           created_invite_code_at?: string | null
@@ -400,6 +402,7 @@ export type Database = {
         Update: {
           allow_public_join?: boolean | null
           cost?: string | null
+          cost_type?: string | null
           created_at?: string
           created_by?: string
           created_invite_code_at?: string | null

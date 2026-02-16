@@ -375,14 +375,14 @@
   },
   "cost": {
     "label": "Tarif",
-    "placeholder": "ex. 15€",
+    "placeholder": "0",
     "free": "Gratuit",
-    "onSite": "Sur place",
-    "online": "En ligne",
-    "split": "Partager",
+    "freeToggle": "Gratuit",
+    "total": "Total",
+    "perPerson": "/pers.",
+    "amount": "Montant",
     "paymentLink": "Lien de paiement",
     "paymentLinkPlaceholder": "https://...",
-    "paymentMethod": "Mode de paiement",
     "openPaymentLink": "Payer / Réserver"
   }
 }

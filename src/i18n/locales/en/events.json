@@ -379,14 +379,14 @@
   },
   "cost": {
     "label": "Cost",
-    "placeholder": "e.g. 15€",
+    "placeholder": "0",
     "free": "Free",
-    "onSite": "Pay on-site",
-    "online": "Pay online",
-    "split": "Split the cost",
+    "freeToggle": "Free event",
+    "total": "Total",
+    "perPerson": "/pers.",
+    "amount": "Amount",
     "paymentLink": "Payment link",
     "paymentLinkPlaceholder": "https://...",
-    "paymentMethod": "Payment method",
     "openPaymentLink": "Pay / Book"
   }
 }

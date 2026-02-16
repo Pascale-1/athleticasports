@@ -38,6 +38,7 @@ export interface Event {
   rsvp_deadline?: string | null;
   // Cost & payment
   cost?: string | null;
+  cost_type?: string | null;
   payment_link?: string | null;
   payment_method?: string | null;
 }

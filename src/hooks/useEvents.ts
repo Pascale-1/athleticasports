@@ -33,6 +33,7 @@ export interface CreateEventData {
   sport?: string;
   // Cost & payment
   cost?: string;
+  cost_type?: 'total' | 'per_person';
   payment_link?: string;
   payment_method?: string;
 }
