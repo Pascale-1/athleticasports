@@ -502,7 +502,7 @@ export const UnifiedEventForm = ({
                 <FormControl>
                   <Input
                     {...field}
-                    className="h-9"
+                    className="h-9 text-xs"
                     placeholder={
                       eventType === 'match'
                         ? t('form.game.titlePlaceholder')
@@ -656,20 +656,22 @@ export const UnifiedEventForm = ({
             )}
           </div>
 
-          {/* 1h. Payment / Booking Link - always visible */}
-          <div className="space-y-1.5">
-            <Label className="text-xs flex items-center gap-1.5">
-              <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
-              {t('cost.paymentLink')}
-            </Label>
-            <Input
-              value={paymentLink}
-              onChange={(e) => setPaymentLink(e.target.value)}
-              placeholder={t('cost.paymentLinkPlaceholder')}
-              className="h-9 text-xs"
-              type="url"
-            />
-          </div>
+          {/* 1h. Payment / Booking Link - visible for training & meetup only */}
+          {eventType !== 'match' && (
+            <div className="space-y-1.5">
+              <Label className="text-xs flex items-center gap-1.5">
+                <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
+                {t('cost.paymentLink')}
+              </Label>
+              <Input
+                value={paymentLink}
+                onChange={(e) => setPaymentLink(e.target.value)}
+                placeholder={t('cost.paymentLinkPlaceholder')}
+                className="h-9 text-xs"
+                type="url"
+              />
+            </div>
+          )}
 
           {/* ── "More options" collapsible trigger ── */}
           <div className="pt-1">
@@ -695,31 +697,33 @@ export const UnifiedEventForm = ({
                 className="overflow-hidden"
               >
                 <div className="space-y-3 pt-1">
-                  {/* Visibility Toggle */}
-                  <FormField
-                    control={form.control}
-                    name="isPublic"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex items-center justify-between py-2">
-                          <div className="flex items-center gap-2">
-                            {field.value ? <Globe className="h-3.5 w-3.5 text-primary" /> : <Lock className="h-3.5 w-3.5 text-muted-foreground" />}
-                            <div>
-                              <p className="text-xs font-medium">
-                                {field.value ? t('form.isPublic') : t('form.isPrivate', 'Private Event')}
-                              </p>
-                              <p className="text-[10px] text-muted-foreground">
-                                {field.value ? t('form.isPublicDesc') : t('form.isPrivateDesc', 'Only invited members can see this')}
-                              </p>
+                  {/* Visibility Toggle - hidden for match (auto-determined) */}
+                  {eventType !== 'match' && (
+                    <FormField
+                      control={form.control}
+                      name="isPublic"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center justify-between py-2">
+                            <div className="flex items-center gap-2">
+                              {field.value ? <Globe className="h-3.5 w-3.5 text-primary" /> : <Lock className="h-3.5 w-3.5 text-muted-foreground" />}
+                              <div>
+                                <p className="text-xs font-medium">
+                                  {field.value ? t('form.isPublic') : t('form.isPrivate', 'Private Event')}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground">
+                                  {field.value ? t('form.isPublicDesc') : t('form.isPrivateDesc', 'Only invited members can see this')}
+                                </p>
+                              </div>
                             </div>
+                            <FormControl>
+                              <Switch checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
                           </div>
-                          <FormControl>
-                            <Switch checked={field.value} onCheckedChange={field.onChange} />
-                          </FormControl>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
+                        </FormItem>
+                      )}
+                    />
+                  )}
 
                   {/* Description - tap to expand */}
                   {!showDescription ? (
