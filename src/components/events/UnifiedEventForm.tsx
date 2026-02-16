@@ -328,7 +328,7 @@ export const UnifiedEventForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 min-w-0 overflow-hidden">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 min-w-0 overflow-x-hidden">
         {/* ── Section 1: Essentials ── */}
         
         {/* 1a. Event Type */}

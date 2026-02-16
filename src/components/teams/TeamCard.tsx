@@ -68,7 +68,7 @@ export const TeamCard = memo(({ team, memberCount = 0, isMember, members = [] }:
 
                 {/* Description */}
                 {team.description && (
-                  <p className="text-caption text-muted-foreground truncate mt-0.5">
+                  <p className="text-caption text-muted-foreground line-clamp-2 mt-0.5">
                     {team.description}
                   </p>
                 )}

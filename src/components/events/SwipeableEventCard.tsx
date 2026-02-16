@@ -130,7 +130,7 @@ export const SwipeableEventCard = ({
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div>
-                  <h3 className="font-semibold text-base line-clamp-1">{event.title}</h3>
+                  <h3 className="font-semibold text-base line-clamp-2">{event.title}</h3>
                   <Badge variant="outline" className="mt-1">
                     {t(`types.${event.type}`)}
                   </Badge>
@@ -151,7 +151,7 @@ export const SwipeableEventCard = ({
                 </div>
 
                 {event.location && (
-                  <div className="flex items-center gap-1 min-w-0 max-w-[160px]">
+                  <div className="flex items-center gap-1 min-w-0 max-w-[200px]">
                     <MapPin className="h-4 w-4 shrink-0" />
                     <span className="truncate">{event.location}</span>
                   </div>

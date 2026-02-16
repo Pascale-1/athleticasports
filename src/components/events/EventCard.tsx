@@ -101,8 +101,8 @@ export const EventCard = memo(({
 
   // Truncate location for compact display
   const displayLocation = event.location 
-    ? event.location.length > 18 
-      ? event.location.slice(0, 16) + '…' 
+    ? event.location.length > 27 
+      ? event.location.slice(0, 25) + '…' 
       : event.location
     : null;
 

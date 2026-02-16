@@ -90,7 +90,7 @@ export const ActivityCard = memo(({
         </Avatar>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <span className="text-card-title font-semibold truncate">
+            <span className="text-card-title font-semibold truncate max-w-[60%]">
               {displayName || username}
             </span>
             <span className="text-caption text-muted-foreground">·</span>

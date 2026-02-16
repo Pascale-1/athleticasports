@@ -60,7 +60,7 @@ export const PageHeader = ({
       {/* Title Row */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <h1 className="text-page-title font-heading font-bold truncate">{title}</h1>
+          <h1 className="text-page-title font-heading font-bold line-clamp-2">{title}</h1>
           {subtitle && (
             <p className="text-caption text-muted-foreground mt-0.5">{subtitle}</p>
           )}
