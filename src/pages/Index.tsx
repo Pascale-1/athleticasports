@@ -298,20 +298,22 @@ const Index = () => {
               <div className="grid grid-cols-2 gap-2">
                 <Button 
                   variant="default"
-                  className="flex flex-col items-center justify-center gap-1.5 h-16 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98]"
+                  className="flex flex-col items-center justify-center gap-1 h-20 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98]"
                   onClick={() => setFindMatchSheetOpen(true)}
                 >
                   <Search className="h-5 w-5" />
                   <span className="text-xs font-medium leading-tight text-center">{t('home.findGame')}</span>
+                  <span className="text-[10px] opacity-80 leading-tight text-center">{t('home.findGameSubtitle')}</span>
                 </Button>
                 
                 <Button 
                   variant="default"
-                  className="flex flex-col items-center justify-center gap-1.5 h-16 active:scale-[0.98]"
+                  className="flex flex-col items-center justify-center gap-1 h-20 active:scale-[0.98]"
                   onClick={() => setCreateEventDialogOpen(true)}
                 >
                   <Plus className="h-5 w-5" />
                   <span className="text-xs font-medium leading-tight text-center">{t('home.organizeEvent')}</span>
+                  <span className="text-[10px] opacity-80 leading-tight text-center">{t('home.organizeEventSubtitle')}</span>
                 </Button>
               </div>
               
