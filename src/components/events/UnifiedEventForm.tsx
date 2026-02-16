@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format, subHours } from "date-fns";
 import { AnimatePresence, motion, Easing } from "framer-motion";
-import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Users, UserPlus, Clock, Euro, ChevronDown } from "lucide-react";
+import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Users, UserPlus, Clock, Euro, ChevronDown, Trophy, Dumbbell, Info, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -327,69 +327,81 @@ export const UnifiedEventForm = ({
   
   const isPublicEvent = isPickupGame || form.watch('isPublic');
 
+  // FormSection helper for card-based grouping
+  const FormSection = ({ icon: Icon, title, children, className }: { icon: LucideIcon; title: string; children: React.ReactNode; className?: string }) => (
+    <div className={cn("bg-muted/30 rounded-xl p-3 space-y-2.5", className)}>
+      <div className="flex items-center gap-1.5">
+        <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{title}</span>
+      </div>
+      {children}
+    </div>
+  );
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 min-w-0 overflow-x-hidden">
-        {/* ── Section 1: Essentials ── */}
-        
-        {/* 1a. Event Type */}
+        {/* ── Event Type Selector ── */}
         <EventTypeSelector value={eventType} onChange={setEventType} />
 
         <div className="space-y-3" aria-live="polite">
-          {/* 1b. Sport Selector (before title so match titles auto-generate) */}
+          {/* ── Sport & Team Section ── */}
           <AnimatePresence mode="sync">
-            {showSportSelector && (
-              <motion.div key="sport-selector" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                <SportQuickSelector
-                  value={selectedSport || null}
-                  onChange={(sport) => {
-                    setSelectedSport(sport);
-                    setSelectedTeamId(null);
-                    setSelectedTeamName('');
-                  }}
-                  label={t('form.sport')}
-                  lang={lang}
-                />
+            {(showSportSelector || showTeamSelector) && (
+              <motion.div key="sport-team-section" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
+                <FormSection icon={Dumbbell} title={t('form.sport')}>
+                  {showSportSelector && (
+                    <SportQuickSelector
+                      value={selectedSport || null}
+                      onChange={(sport) => {
+                        setSelectedSport(sport);
+                        setSelectedTeamId(null);
+                        setSelectedTeamName('');
+                      }}
+                      label={t('form.sport')}
+                      lang={lang}
+                    />
+                  )}
+
+                  {showTeamSelector && (
+                    <>
+                      <MyTeamSelector
+                        value={selectedTeamId}
+                        onChange={handleTeamSelect}
+                        sportFilter={selectedSport || undefined}
+                        label={eventType === 'match' ? t('form.game.yourTeam') : t('details.team')}
+                        placeholder={eventType === 'match' ? t('form.game.pickupOrTeam') : t('form.game.selectTeam')}
+                        forEventCreation={true}
+                        showCreateButton={true}
+                        showPickupOption={eventType === 'match'}
+                        onTeamCreated={(teamId, teamName) => {
+                          setSelectedTeamId(teamId);
+                          setSelectedTeamName(teamName);
+                        }}
+                      />
+                      
+                      {eventType === 'match' && (
+                        <div className="flex items-center gap-1.5 text-[10px] mt-1">
+                          {isPickupGame ? (
+                            <>
+                              <Globe className="h-3 w-3 text-accent-foreground" />
+                              <span className="text-muted-foreground">{t('form.visibility.public')}</span>
+                            </>
+                          ) : selectedTeamId ? (
+                            <>
+                              <Lock className="h-3 w-3 text-warning" />
+                              <span className="text-muted-foreground">{t('form.visibility.teamOnly')}</span>
+                            </>
+                          ) : null}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </FormSection>
               </motion.div>
             )}
 
-            {/* 1c. Team Selector */}
-            {showTeamSelector && (
-              <motion.div key="team-selector" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                <MyTeamSelector
-                  value={selectedTeamId}
-                  onChange={handleTeamSelect}
-                  sportFilter={selectedSport || undefined}
-                  label={eventType === 'match' ? t('form.game.yourTeam') : t('details.team')}
-                  placeholder={eventType === 'match' ? t('form.game.pickupOrTeam') : t('form.game.selectTeam')}
-                  forEventCreation={true}
-                  showCreateButton={true}
-                  showPickupOption={eventType === 'match'}
-                  onTeamCreated={(teamId, teamName) => {
-                    setSelectedTeamId(teamId);
-                    setSelectedTeamName(teamName);
-                  }}
-                />
-                
-                {eventType === 'match' && (
-                  <div className="flex items-center gap-1.5 text-[10px] mt-1.5">
-                    {isPickupGame ? (
-                      <>
-                        <Globe className="h-3 w-3 text-accent-foreground" />
-                        <span className="text-muted-foreground">{t('form.visibility.public')}</span>
-                      </>
-                    ) : selectedTeamId ? (
-                      <>
-                        <Lock className="h-3 w-3 text-warning" />
-                        <span className="text-muted-foreground">{t('form.visibility.teamOnly')}</span>
-                      </>
-                    ) : null}
-                  </div>
-                )}
-              </motion.div>
-            )}
-
-            {/* 1d. Meetup Category (right after type for meetups) */}
+            {/* ── Meetup Category ── */}
             {showCategorySelector && (
               <motion.div key="category-selector" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
                 <div className="space-y-1.5">
@@ -412,116 +424,144 @@ export const UnifiedEventForm = ({
               </motion.div>
             )}
 
-            {/* Match: Opponent */}
-            {showOpponentSection && (
-              <motion.div key="opponent-section" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">{t('form.game.opponentTeam')}</Label>
-                    <div className="flex gap-1">
-                      <Button type="button" variant={opponentInputMode === 'select' ? 'default' : 'outline'} size="sm" onClick={() => setOpponentInputMode('select')} className="h-6 text-[10px] px-2">
-                        {t('form.game.selectTeam')}
-                      </Button>
-                      <Button type="button" variant={opponentInputMode === 'manual' ? 'default' : 'outline'} size="sm" onClick={() => setOpponentInputMode('manual')} className="h-6 text-[10px] px-2">
-                        {t('form.game.enterManually')}
-                      </Button>
+            {/* ── Match Details Section ── */}
+            {(showOpponentSection || showHomeAwayToggle || showMatchFormat) && (
+              <motion.div key="match-details-section" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
+                <FormSection icon={Trophy} title={t('game.matchDetails', 'Match Details')}>
+                  {/* Opponent */}
+                  {showOpponentSection && (
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs">{t('form.game.opponentTeam')}</Label>
+                        <div className="flex gap-1">
+                          <Button type="button" variant={opponentInputMode === 'select' ? 'default' : 'outline'} size="sm" onClick={() => setOpponentInputMode('select')} className="h-6 text-[10px] px-2">
+                            {t('form.game.selectTeam')}
+                          </Button>
+                          <Button type="button" variant={opponentInputMode === 'manual' ? 'default' : 'outline'} size="sm" onClick={() => setOpponentInputMode('manual')} className="h-6 text-[10px] px-2">
+                            {t('form.game.enterManually')}
+                          </Button>
+                        </div>
+                      </div>
+                      {opponentInputMode === 'select' ? (
+                        <TeamSelector
+                          selectedTeamId={opponentTeamId || undefined}
+                          onSelect={handleOpponentSelect}
+                          excludeTeamId={selectedTeamId || undefined}
+                          sportFilter={selectedSport || undefined}
+                          placeholder={t('form.game.opponentPlaceholder')}
+                        />
+                      ) : (
+                        <FormField
+                          control={form.control}
+                          name="opponentName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input {...field} placeholder={t('form.game.opponentPlaceholder')} className="h-10 text-xs" />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      )}
                     </div>
-                  </div>
-                  {opponentInputMode === 'select' ? (
-                    <TeamSelector
-                      selectedTeamId={opponentTeamId || undefined}
-                      onSelect={handleOpponentSelect}
-                      excludeTeamId={selectedTeamId || undefined}
-                      sportFilter={selectedSport || undefined}
-                      placeholder={t('form.game.opponentPlaceholder')}
-                    />
-                  ) : (
+                  )}
+
+                  {/* Home/Away */}
+                  {showHomeAwayToggle && (
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">{t('game.homeAway')}</Label>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {(['home', 'away', 'neutral'] as const).map((option) => (
+                          <Button
+                            key={option}
+                            type="button"
+                            variant={homeAway === option ? 'default' : 'outline'}
+                            onClick={() => setHomeAway(option)}
+                            className="h-10 text-xs"
+                          >
+                            {t(`game.${option}`)}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Format */}
+                  {showMatchFormat && (
                     <FormField
                       control={form.control}
-                      name="opponentName"
+                      name="matchFormat"
                       render={({ field }) => (
                         <FormItem>
+                          <FormLabel className="text-xs">{t('game.format')}</FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder={t('form.game.opponentPlaceholder')} className="h-9 text-xs" />
+                            <Input {...field} placeholder={t('form.game.formatPlaceholder')} className="h-10 text-xs" />
                           </FormControl>
                         </FormItem>
                       )}
                     />
                   )}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Match: Home/Away */}
-            {showHomeAwayToggle && (
-              <motion.div key="home-away" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">{t('game.homeAway')}</Label>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {(['home', 'away', 'neutral'] as const).map((option) => (
-                      <Button
-                        key={option}
-                        type="button"
-                        variant={homeAway === option ? 'default' : 'outline'}
-                        onClick={() => setHomeAway(option)}
-                        className="h-8 text-xs"
-                      >
-                        {t(`game.${option}`)}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Match: Format */}
-            {showMatchFormat && (
-              <motion.div key="match-format" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                <FormField
-                  control={form.control}
-                  name="matchFormat"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs">{t('game.format')}</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder={t('form.game.formatPlaceholder')} className="h-9 text-xs" />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                </FormSection>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* 1e. Title */}
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-xs">{t('form.title')}</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    className="h-9 text-xs"
-                    placeholder={
-                      eventType === 'match'
-                        ? t('form.game.titlePlaceholder')
-                        : eventType === 'meetup'
-                        ? t('form.meetup.titlePlaceholder')
-                        : t('form.training.titlePlaceholder')
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* ── Event Info Section (Title + Visibility) ── */}
+          <FormSection icon={Info} title={t('form.title')}>
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      className="h-10 text-xs"
+                      placeholder={
+                        eventType === 'match'
+                          ? t('form.game.titlePlaceholder')
+                          : eventType === 'meetup'
+                          ? t('form.meetup.titlePlaceholder')
+                          : t('form.training.titlePlaceholder')
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* 1f. When — Date, Time, Duration (no card wrapper) */}
-          <div className="space-y-2">
-            <Label className="text-xs font-semibold">{t('details.when')}</Label>
-            
+            {/* Visibility Toggle - always visible for non-match */}
+            {eventType !== 'match' && (
+              <FormField
+                control={form.control}
+                name="isPublic"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between py-1">
+                      <div className="flex items-center gap-2">
+                        {field.value ? <Globe className="h-3.5 w-3.5 text-primary" /> : <Lock className="h-3.5 w-3.5 text-muted-foreground" />}
+                        <div>
+                          <p className="text-xs font-medium">
+                            {field.value ? t('form.isPublic') : t('form.isPrivate', 'Private Event')}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {field.value ? t('form.isPublicDesc') : t('form.isPrivateDesc', 'Only invited members can see this')}
+                          </p>
+                        </div>
+                      </div>
+                      <FormControl>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            )}
+          </FormSection>
+
+          {/* ── When Section ── */}
+          <FormSection icon={Clock} title={t('details.when')}>
             <div className="grid grid-cols-2 gap-2">
               {/* Date */}
               <FormField
@@ -536,7 +576,7 @@ export const UnifiedEventForm = ({
                           <Button
                             variant="outline"
                             className={cn(
-                              "h-9 pl-2.5 text-left font-normal w-full min-w-0 text-xs",
+                              "h-10 pl-2.5 text-left font-normal w-full min-w-0 text-xs",
                               !field.value && "text-muted-foreground"
                             )}
                           >
@@ -575,7 +615,7 @@ export const UnifiedEventForm = ({
                   <FormItem className="min-w-0">
                     <FormLabel className="text-xs text-muted-foreground">{t('form.startTime')}</FormLabel>
                     <FormControl>
-                      <Input {...field} type="time" className="h-9 text-xs" />
+                      <Input {...field} type="time" className="h-10 text-xs" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -588,12 +628,10 @@ export const UnifiedEventForm = ({
               <Label className="text-xs text-muted-foreground">{t('form.duration')}</Label>
               <DurationPicker value={duration} onChange={setDuration} />
             </div>
-          </div>
+          </FormSection>
 
-          {/* 1g. Where (no card wrapper) */}
-          <div className="space-y-2">
-            <Label className="text-xs font-semibold">{t('details.where')}</Label>
-
+          {/* ── Where Section ── */}
+          <FormSection icon={MapPin} title={t('details.where')}>
             {/* Location Mode Toggle - Meetup only */}
             {showLocationMode && (
               <div className="grid grid-cols-3 gap-1.5">
@@ -601,15 +639,15 @@ export const UnifiedEventForm = ({
                   { mode: 'physical' as const, icon: MapPin },
                   { mode: 'virtual' as const, icon: Video },
                   { mode: 'hybrid' as const, icon: Link2 },
-                ]).map(({ mode, icon: Icon }) => (
+                ]).map(({ mode, icon: ModeIcon }) => (
                   <Button
                     key={mode}
                     type="button"
                     variant={locationMode === mode ? 'default' : 'outline'}
                     onClick={() => setLocationMode(mode)}
-                    className="h-9 gap-1 text-xs"
+                    className="h-10 gap-1 text-xs"
                   >
-                    <Icon className="h-3.5 w-3.5 shrink-0" />
+                    <ModeIcon className="h-3.5 w-3.5 shrink-0" />
                     <span className="text-xs">{t(`form.locationMode.${mode}`)}</span>
                   </Button>
                 ))}
@@ -648,22 +686,17 @@ export const UnifiedEventForm = ({
                   <FormItem>
                     <FormLabel className="text-xs text-muted-foreground">{t('form.meetup.virtualLink')}</FormLabel>
                     <FormControl>
-                      <Input {...field} type="url" placeholder="https://zoom.us/j/..." className="h-9 text-xs" />
+                      <Input {...field} type="url" placeholder="https://zoom.us/j/..." className="h-10 text-xs" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             )}
-          </div>
+          </FormSection>
 
-          {/* 1h. Tarif (Cost) Section - visible for all event types */}
-          <div className="space-y-2">
-            <Label className="text-xs font-semibold flex items-center gap-1.5">
-              <Euro className="h-3.5 w-3.5 text-muted-foreground" />
-              {t('cost.label')}
-            </Label>
-
+          {/* ── Cost Section ── */}
+          <FormSection icon={Euro} title={t('cost.label')}>
             {/* Free toggle */}
             <div className="flex items-center gap-2">
               <Switch checked={isFree} onCheckedChange={(checked) => {
@@ -685,7 +718,7 @@ export const UnifiedEventForm = ({
                     value={cost}
                     onChange={(e) => setCost(e.target.value)}
                     placeholder={t('cost.placeholder')}
-                    className="h-9 text-xs pl-7"
+                    className="h-10 text-xs pl-7"
                   />
                 </div>
                 <div className="flex rounded-md border overflow-hidden shrink-0">
@@ -724,12 +757,12 @@ export const UnifiedEventForm = ({
                   value={paymentLink}
                   onChange={(e) => setPaymentLink(e.target.value)}
                   placeholder={t('cost.paymentLinkPlaceholder')}
-                  className="h-8 text-xs"
+                  className="h-10 text-xs"
                   type="url"
                 />
               </div>
             )}
-          </div>
+          </FormSection>
 
           {/* ── "More options" collapsible trigger ── */}
           <div className="pt-1">
@@ -754,35 +787,7 @@ export const UnifiedEventForm = ({
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                 className="overflow-hidden"
               >
-                <div className="space-y-3 pt-1">
-                  {/* Visibility Toggle - hidden for match (auto-determined) */}
-                  {eventType !== 'match' && (
-                    <FormField
-                      control={form.control}
-                      name="isPublic"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex items-center justify-between py-2">
-                            <div className="flex items-center gap-2">
-                              {field.value ? <Globe className="h-3.5 w-3.5 text-primary" /> : <Lock className="h-3.5 w-3.5 text-muted-foreground" />}
-                              <div>
-                                <p className="text-xs font-medium">
-                                  {field.value ? t('form.isPublic') : t('form.isPrivate', 'Private Event')}
-                                </p>
-                                <p className="text-[10px] text-muted-foreground">
-                                  {field.value ? t('form.isPublicDesc') : t('form.isPrivateDesc', 'Only invited members can see this')}
-                                </p>
-                              </div>
-                            </div>
-                            <FormControl>
-                              <Switch checked={field.value} onCheckedChange={field.onChange} />
-                            </FormControl>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  )}
-
+                <div className="bg-muted/30 rounded-xl p-3 space-y-3">
                   {/* Description - tap to expand */}
                   {!showDescription ? (
                     <Button
@@ -880,9 +885,6 @@ export const UnifiedEventForm = ({
                       </Popover>
                     </div>
                   )}
-
-
-
 
                   {/* RSVP Deadline - inline switch */}
                   <div className="space-y-2">
@@ -997,7 +999,7 @@ export const UnifiedEventForm = ({
             )}
           </AnimatePresence>
 
-          {/* ── Submit (single full-width button, no cancel) ── */}
+          {/* ── Submit ── */}
           <Button type="submit" className="w-full h-10" disabled={isSubmitting}>
             {isSubmitting ? '...' : t('createEvent')}
           </Button>
