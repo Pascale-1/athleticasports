@@ -1,39 +1,57 @@
 
 
-# Fix: Form Scroll Jump — Root Causes Found
+# Fix: Use Production Base URL for All Sharing Links
 
 ## Problem
 
-After all previous fixes, clicking any field (e.g., "1h" duration button) still scrolls the form back to the top (Team selector area). The previous fixes addressed animation and watch calls but missed two critical re-render triggers.
+All sharing links (event invites, team invites, password reset, etc.) currently use `window.location.origin`, which resolves to the Lovable preview URL (e.g., `https://id-preview--cf052cd2-...lovable.app`). When shared externally, these links:
 
-## Root Causes
+1. Point to a preview/dev environment, not a stable production URL
+2. Will not trigger deep links to open the native app on Android/iOS
+3. Look unprofessional to recipients
 
-### 1. `FormSection` component defined INSIDE the render function (line 314)
+## Solution
 
-This is the **primary cause**. Every time the form re-renders (which happens on any state change), React creates a **new component type** for `FormSection`. React treats each new definition as a different component, so it **unmounts and remounts** all children — including the Radix Select components in `MyTeamSelector` and `SportQuickSelector`. When these Select components remount, the browser's focus management triggers `scrollIntoView`, jumping back to the Team selector at the top.
+Create a single utility function that returns the correct base URL for sharing. It will use an environment variable (`VITE_APP_URL`) when set, falling back to `window.location.origin` for local development.
 
-### 2. `form.watch('isPublic')` called in the render body (line 311)
+## Files to Change
 
-```
-const isPublicEvent = isPickupGame || form.watch('isPublic');
-```
+### 1. New file: `src/lib/appUrl.ts`
 
-This causes the entire component to re-render whenever ANY form field changes (watch subscribes to the whole form). Combined with issue #1, every keystroke or button click causes FormSection to remount its children.
+A small utility that exports a `getAppBaseUrl()` function:
+- Returns `import.meta.env.VITE_APP_URL` if set (your production domain, e.g., `https://athleticasports.app`)
+- Falls back to `window.location.origin` otherwise (for dev/preview)
 
-## Fix (1 file: `UnifiedEventForm.tsx`)
+### 2. `src/components/events/EventInviteLink.tsx`
 
-### Step 1: Move `FormSection` outside the component
+Replace `window.location.origin` with `getAppBaseUrl()` on the invite link line.
 
-Extract `FormSection` to a standalone component defined **outside** `UnifiedEventForm`. This gives it a stable identity across renders so React will update children in place instead of unmounting/remounting them.
+### 3. `src/components/teams/TeamInviteLink.tsx`
 
-### Step 2: Replace `form.watch('isPublic')` with `form.getValues('isPublic')`
+Same replacement for the team invite link.
 
-Since `isPublicEvent` is only used for display logic (showing a toggle state), using `getValues` reads the current value without subscribing to re-renders. Alternatively, use `useWatch` with a specific field name to limit re-renders to only when `isPublic` changes.
+### 4. `src/hooks/useTeamInvitations.ts`
 
-### Summary of changes
+Replace `window.location.origin` in the `appOrigin` parameter passed to the edge function (used for email invitation links).
 
-- Move `FormSection` component definition from line 314 to above the `UnifiedEventForm` component (around line 88)
-- Replace `form.watch('isPublic')` on line 311 with `form.getValues('isPublic')` or `useWatch({ control: form.control, name: 'isPublic' })`
+### 5. `src/components/settings/ChangePasswordSection.tsx`
 
-These are two small, surgical edits. No visual, logic, or data changes — just fixing the component identity stability that causes the scroll jump.
+Replace `window.location.origin` in the password reset redirect URL.
+
+### 6. `src/pages/Auth.tsx`
+
+Replace `window.location.origin` in the email redirect URL and password reset redirect URL. (The OAuth `redirect_uri` will stay as `window.location.origin` since it must match the actual browser origin for the redirect to work.)
+
+## What You Need to Do After
+
+Once you have a production domain (either by publishing to get a `*.lovable.app` URL or connecting a custom domain like `athleticasports.app`):
+
+1. Add the environment variable `VITE_APP_URL` with your production URL (e.g., `https://athleticasports.app`)
+2. For native app deep linking to work from shared links, you will also need to host association files on that domain (`apple-app-site-association` for iOS, `assetlinks.json` for Android) -- this is a separate follow-up step
+
+## Technical Details
+
+- Only 6 files touched, all with a one-line import + one-line replacement
+- No visual or behavioral changes in development (falls back to current behavior)
+- The OAuth redirect URI in Auth.tsx is intentionally left as `window.location.origin` because it must match the browser's actual origin for the OAuth flow to complete
 
