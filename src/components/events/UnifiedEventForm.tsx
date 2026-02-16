@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format, subHours } from "date-fns";
-import { AnimatePresence, motion, Easing } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Users, UserPlus, Clock, Euro, ChevronDown, Trophy, Dumbbell, Info, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -86,21 +86,8 @@ interface UnifiedEventFormProps {
   isSubmitting?: boolean;
 }
 
-const fieldVariants = {
-  hidden: { 
-    opacity: 0, 
-    scale: 0.98,
-  },
-  visible: { 
-    opacity: 1, 
-    scale: 1,
-  },
-};
 
-const transitionConfig = { 
-  duration: 0.2, 
-  ease: [0.4, 0, 0.2, 1] as Easing 
-};
+
 
 export const UnifiedEventForm = ({
   teamId,
@@ -342,165 +329,157 @@ export const UnifiedEventForm = ({
 
         <div className="space-y-3">
           {/* ── Sport & Team Section ── */}
-          <AnimatePresence>
-            {(showSportSelector || showTeamSelector) && (
-              <motion.div key="sport-team-section" layout={false} variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                <FormSection icon={Dumbbell} title={t('form.sport')}>
-                  {showSportSelector && (
-                    <SportQuickSelector
-                      value={selectedSport || null}
-                      onChange={(sport) => {
-                        setSelectedSport(sport);
-                        setSelectedTeamId(null);
-                        setSelectedTeamName('');
+          {(showSportSelector || showTeamSelector) && (
+              <FormSection icon={Dumbbell} title={t('form.sport')}>
+                {showSportSelector && (
+                  <SportQuickSelector
+                    value={selectedSport || null}
+                    onChange={(sport) => {
+                      setSelectedSport(sport);
+                      setSelectedTeamId(null);
+                      setSelectedTeamName('');
+                    }}
+                    label={t('form.sport')}
+                    lang={lang}
+                  />
+                )}
+
+                {showTeamSelector && (
+                  <>
+                    <MyTeamSelector
+                      value={selectedTeamId}
+                      onChange={handleTeamSelect}
+                      sportFilter={selectedSport || undefined}
+                      label={eventType === 'match' ? t('form.game.yourTeam') : t('details.team')}
+                      placeholder={eventType === 'match' ? t('form.game.pickupOrTeam') : t('form.game.selectTeam')}
+                      forEventCreation={true}
+                      showCreateButton={true}
+                      showPickupOption={eventType === 'match'}
+                      onTeamCreated={(teamId, teamName) => {
+                        setSelectedTeamId(teamId);
+                        setSelectedTeamName(teamName);
                       }}
-                      label={t('form.sport')}
-                      lang={lang}
                     />
-                  )}
+                    
+                    {eventType === 'match' && (
+                      <div className="flex items-center gap-1.5 text-[10px] mt-1">
+                        {isPickupGame ? (
+                          <>
+                            <Globe className="h-3 w-3 text-accent-foreground" />
+                            <span className="text-muted-foreground">{t('form.visibility.public')}</span>
+                          </>
+                        ) : selectedTeamId ? (
+                          <>
+                            <Lock className="h-3 w-3 text-warning" />
+                            <span className="text-muted-foreground">{t('form.visibility.teamOnly')}</span>
+                          </>
+                        ) : null}
+                      </div>
+                    )}
+                  </>
+                )}
+              </FormSection>
+          )}
 
-                  {showTeamSelector && (
-                    <>
-                      <MyTeamSelector
-                        value={selectedTeamId}
-                        onChange={handleTeamSelect}
-                        sportFilter={selectedSport || undefined}
-                        label={eventType === 'match' ? t('form.game.yourTeam') : t('details.team')}
-                        placeholder={eventType === 'match' ? t('form.game.pickupOrTeam') : t('form.game.selectTeam')}
-                        forEventCreation={true}
-                        showCreateButton={true}
-                        showPickupOption={eventType === 'match'}
-                        onTeamCreated={(teamId, teamName) => {
-                          setSelectedTeamId(teamId);
-                          setSelectedTeamName(teamName);
-                        }}
-                      />
-                      
-                      {eventType === 'match' && (
-                        <div className="flex items-center gap-1.5 text-[10px] mt-1">
-                          {isPickupGame ? (
-                            <>
-                              <Globe className="h-3 w-3 text-accent-foreground" />
-                              <span className="text-muted-foreground">{t('form.visibility.public')}</span>
-                            </>
-                          ) : selectedTeamId ? (
-                            <>
-                              <Lock className="h-3 w-3 text-warning" />
-                              <span className="text-muted-foreground">{t('form.visibility.teamOnly')}</span>
-                            </>
-                          ) : null}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </FormSection>
-              </motion.div>
-            )}
-
-            {/* ── Meetup Category ── */}
-            {showCategorySelector && (
-              <motion.div key="category-selector" layout={false} variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">{t('form.meetup.category')}</Label>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {MEETUP_CATEGORIES.map(({ value, emoji }) => (
-                      <Button
-                        key={value}
-                        type="button"
-                        variant={selectedCategory === value ? 'default' : 'outline'}
-                        onClick={() => setSelectedCategory(value)}
-                        className="h-10 flex flex-row items-center justify-center gap-1.5 text-xs px-1.5"
-                      >
-                        <span className="text-sm shrink-0">{emoji}</span>
-                        <span>{getCategoryLabel(value)}</span>
-                      </Button>
-                    ))}
-                  </div>
+          {/* ── Meetup Category ── */}
+          {showCategorySelector && (
+              <div className="space-y-1.5">
+                <Label className="text-xs">{t('form.meetup.category')}</Label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {MEETUP_CATEGORIES.map(({ value, emoji }) => (
+                    <Button
+                      key={value}
+                      type="button"
+                      variant={selectedCategory === value ? 'default' : 'outline'}
+                      onClick={() => setSelectedCategory(value)}
+                      className="h-10 flex flex-row items-center justify-center gap-1.5 text-xs px-1.5"
+                    >
+                      <span className="text-sm shrink-0">{emoji}</span>
+                      <span>{getCategoryLabel(value)}</span>
+                    </Button>
+                  ))}
                 </div>
-              </motion.div>
-            )}
+              </div>
+          )}
 
-            {/* ── Match Details Section ── */}
-            {(showOpponentSection || showHomeAwayToggle || showMatchFormat) && (
-              <motion.div key="match-details-section" layout={false} variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
-                <FormSection icon={Trophy} title={t('game.matchDetails', 'Match Details')}>
-                  {/* Opponent */}
-                  {showOpponentSection && (
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-xs">{t('form.game.opponentTeam')}</Label>
-                        <div className="flex gap-1">
-                          <Button type="button" variant={opponentInputMode === 'select' ? 'default' : 'outline'} size="sm" onClick={() => setOpponentInputMode('select')} className="h-6 text-[10px] px-2">
-                            {t('form.game.selectTeam')}
-                          </Button>
-                          <Button type="button" variant={opponentInputMode === 'manual' ? 'default' : 'outline'} size="sm" onClick={() => setOpponentInputMode('manual')} className="h-6 text-[10px] px-2">
-                            {t('form.game.enterManually')}
-                          </Button>
-                        </div>
-                      </div>
-                      {opponentInputMode === 'select' ? (
-                        <TeamSelector
-                          selectedTeamId={opponentTeamId || undefined}
-                          onSelect={handleOpponentSelect}
-                          excludeTeamId={selectedTeamId || undefined}
-                          sportFilter={selectedSport || undefined}
-                          placeholder={t('form.game.opponentPlaceholder')}
-                        />
-                      ) : (
-                        <FormField
-                          control={form.control}
-                          name="opponentName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input {...field} placeholder={t('form.game.opponentPlaceholder')} className="h-10 text-xs" />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                      )}
-                    </div>
-                  )}
-
-                  {/* Home/Away */}
-                  {showHomeAwayToggle && (
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">{t('game.homeAway')}</Label>
-                      <div className="grid grid-cols-3 gap-1.5">
-                        {(['home', 'away', 'neutral'] as const).map((option) => (
-                          <Button
-                            key={option}
-                            type="button"
-                            variant={homeAway === option ? 'default' : 'outline'}
-                            onClick={() => setHomeAway(option)}
-                            className="h-10 text-xs"
-                          >
-                            {t(`game.${option}`)}
-                          </Button>
-                        ))}
+          {/* ── Match Details Section ── */}
+          {(showOpponentSection || showHomeAwayToggle || showMatchFormat) && (
+              <FormSection icon={Trophy} title={t('game.matchDetails', 'Match Details')}>
+                {/* Opponent */}
+                {showOpponentSection && (
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs">{t('form.game.opponentTeam')}</Label>
+                      <div className="flex gap-1">
+                        <Button type="button" variant={opponentInputMode === 'select' ? 'default' : 'outline'} size="sm" onClick={() => setOpponentInputMode('select')} className="h-6 text-[10px] px-2">
+                          {t('form.game.selectTeam')}
+                        </Button>
+                        <Button type="button" variant={opponentInputMode === 'manual' ? 'default' : 'outline'} size="sm" onClick={() => setOpponentInputMode('manual')} className="h-6 text-[10px] px-2">
+                          {t('form.game.enterManually')}
+                        </Button>
                       </div>
                     </div>
-                  )}
+                    {opponentInputMode === 'select' ? (
+                      <TeamSelector
+                        selectedTeamId={opponentTeamId || undefined}
+                        onSelect={handleOpponentSelect}
+                        excludeTeamId={selectedTeamId || undefined}
+                        sportFilter={selectedSport || undefined}
+                        placeholder={t('form.game.opponentPlaceholder')}
+                      />
+                    ) : (
+                      <FormField
+                        control={form.control}
+                        name="opponentName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input {...field} placeholder={t('form.game.opponentPlaceholder')} className="h-10 text-xs" />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                  </div>
+                )}
 
-                  {/* Format */}
-                  {showMatchFormat && (
-                    <FormField
-                      control={form.control}
-                      name="matchFormat"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs">{t('game.format')}</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder={t('form.game.formatPlaceholder')} className="h-10 text-xs" />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  )}
-                </FormSection>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                {/* Home/Away */}
+                {showHomeAwayToggle && (
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">{t('game.homeAway')}</Label>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {(['home', 'away', 'neutral'] as const).map((option) => (
+                        <Button
+                          key={option}
+                          type="button"
+                          variant={homeAway === option ? 'default' : 'outline'}
+                          onClick={() => setHomeAway(option)}
+                          className="h-10 text-xs"
+                        >
+                          {t(`game.${option}`)}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Format */}
+                {showMatchFormat && (
+                  <FormField
+                    control={form.control}
+                    name="matchFormat"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">{t('game.format')}</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder={t('form.game.formatPlaceholder')} className="h-10 text-xs" />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </FormSection>
+          )}
 
           {/* ── Event Info Section (Title + Visibility) ── */}
           <FormSection icon={Info} title={t('form.title')}>
