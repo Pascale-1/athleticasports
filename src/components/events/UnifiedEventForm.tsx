@@ -400,10 +400,10 @@ export const UnifiedEventForm = ({
                         type="button"
                         variant={selectedCategory === value ? 'default' : 'outline'}
                         onClick={() => setSelectedCategory(value)}
-                        className="h-9 flex flex-col items-center gap-0 text-xs overflow-hidden px-1"
+                        className="h-9 flex flex-row items-center gap-1.5 text-xs px-2"
                       >
-                        <span className="text-sm leading-none">{emoji}</span>
-                        <span className="truncate w-full text-center leading-tight">{getCategoryLabel(value)}</span>
+                        <span className="text-sm shrink-0">{emoji}</span>
+                        <span className="truncate">{getCategoryLabel(value)}</span>
                       </Button>
                     ))}
                   </div>
@@ -606,7 +606,7 @@ export const UnifiedEventForm = ({
                     type="button"
                     variant={locationMode === mode ? 'default' : 'outline'}
                     onClick={() => setLocationMode(mode)}
-                    className="h-8 gap-1 overflow-hidden"
+                    className="h-9 gap-1 text-xs"
                   >
                     <Icon className="h-3.5 w-3.5 shrink-0" />
                     <span className="text-xs truncate">{t(`form.locationMode.${mode}`)}</span>
@@ -825,7 +825,7 @@ export const UnifiedEventForm = ({
                       <Euro className="h-3.5 w-3.5 text-muted-foreground" />
                       {t('cost.label')}
                     </Label>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="grid grid-cols-2 gap-1.5">
                       {(['free', 'on_site', 'online', 'split'] as const).map((method) => (
                         <Button
                           key={method}
