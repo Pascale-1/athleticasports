@@ -1,71 +1,76 @@
 
 
-# Improve Quick Action Buttons — Clearer Labels and Better UX
+# Restructure Event Creation Form + Always-Visible Payment Link
 
-## Problem
+## Problems Found
 
-The two main action buttons on the home screen use very short, ambiguous labels:
-- **"Dispo"** — cryptic abbreviation, doesn't explain what happens when you tap it
-- **"Organiser"** — vague, organize what exactly?
+1. **Payment link is buried** inside "More options" > Cost section. Users have to expand options, pick a payment method, then see the link field. It should be upfront.
+2. **Match-specific fields are missing**: Opponent name, Home/Away toggle, and Match Format were accidentally removed from the JSX during the previous "More options" refactor. The visibility conditions exist (lines 319-321) but are never rendered.
+3. **Form still feels dense** in some areas (e.g., cost chips take up space with 4 options on one row).
 
-For a women-only sports community app, these buttons are the primary entry points. They need to be instantly understandable.
+## Changes
 
-## Proposed Changes
+### 1. Add Payment Link to Essentials (always visible)
 
-### 1. Better Labels with Action-Oriented Wording
+Move a simple URL input field right after the Location section, before "More options". This is a clean single input:
+- Label: "Link" with a Link2 icon
+- Placeholder: "https://..." (booking, payment, or venue link)
+- Always visible regardless of event type
+- The existing `paymentLink` state and `payment_link` in the submit data will be reused
 
-| Current (FR) | Current (EN) | Proposed (FR) | Proposed (EN) |
-|---|---|---|---|
-| Dispo | Find Game | Trouver un match | Find a Game |
-| Organiser | Organize | Creer un event | Create Event |
+### 2. Restore Match-Specific Fields in Essentials
 
-The labels become verb-first, telling the user exactly what tapping the button does.
+Re-add the missing match fields between Team selector and Title, inside the AnimatePresence block. These only appear when event type is "match":
 
-### 2. Add Short Subtitles for Context
+- **Opponent section**: Toggle between "Select team" and "Enter manually", with either a TeamSelector or a text Input
+- **Home/Away toggle**: 3 buttons (Home / Away / Neutral)
+- **Match Format**: Simple text input (e.g., "5v5", "11v11")
 
-Each button gets a tiny one-line subtitle beneath the label to reinforce the action:
+These are essential for match creation and should NOT be in "More options".
 
-- **Find a Game**: subtitle "Set your availability" / "Indique ta dispo"
-- **Create Event**: subtitle "Match, training, hangout" / "Match, entrainement, sortie"
+### 3. Simplify Cost Section in "More Options"
 
-### 3. Visual Layout Adjustment
+Keep the cost method chips and cost amount input in "More options" but remove the payment link input from there (since it moved to essentials). This makes the "More options" section lighter.
 
-Keep the 2-column grid but make the buttons slightly taller (h-16 to h-20) to accommodate the subtitle without feeling cramped. The icon stays above the label.
+## Technical Details
 
-```text
-+-------------------------+  +-------------------------+
-|       [Search icon]     |  |       [Plus icon]       |
-|    Trouver un match     |  |     Creer un event      |
-|   Indique ta dispo      |  | Match, entrainement...  |
-+-------------------------+  +-------------------------+
+### File: `src/components/events/UnifiedEventForm.tsx`
+
+**Add after Location section (after line 577), before "More options" trigger:**
+```
+{/* Payment / Booking Link - always visible */}
+<div className="space-y-1.5">
+  <Label className="text-xs flex items-center gap-1.5">
+    <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
+    {t('cost.paymentLink')}
+  </Label>
+  <Input
+    value={paymentLink}
+    onChange={(e) => setPaymentLink(e.target.value)}
+    placeholder={t('cost.paymentLinkPlaceholder')}
+    className="h-9 text-xs"
+    type="url"
+  />
+</div>
 ```
 
-### 4. Keep the "Create Team" Button Below
+**Add after Category selector (after line 412), inside AnimatePresence - match fields:**
+- Opponent section (select or manual input) with showOpponentSection guard
+- Home/Away 3-button toggle with showHomeAwayToggle guard
+- Match Format input with showMatchFormat guard
 
-No changes to the third row button — it's already clear.
+**Remove from "More options" Cost section (lines 757-764):**
+- Remove the `paymentLink` input that was inside the `paymentMethod === 'online'` conditional (since link is now always visible in essentials)
 
-## Technical Changes
+**Update submit handler (line 298):**
+- Change `payment_link` to always use `paymentLink` value instead of only when `paymentMethod === 'online'`
 
-### File: `src/i18n/locales/fr/common.json`
-- Update `quickActions.findGame` from `"Dispo"` to `"Trouver un match"`
-- Update `quickActions.organizeEvent` from `"Organiser"` to `"Creer un event"`
-- Add `quickActions.findGameSubtitle`: `"Indique ta dispo"`
-- Add `quickActions.organizeEventSubtitle`: `"Match, entrainement, sortie"`
-
-### File: `src/i18n/locales/en/common.json`
-- Update `quickActions.findGame` from `"Find Game"` to `"Find a Game"`
-- Update `quickActions.organizeEvent` from `"Organize"` to `"Create Event"`
-- Add `quickActions.findGameSubtitle`: `"Set your availability"`
-- Add `quickActions.organizeEventSubtitle`: `"Match, training, hangout"`
-
-### File: `src/pages/Index.tsx`
-- Update the two Button components in the Quick Actions section (lines 299-316):
-  - Increase height from `h-16` to `h-20`
-  - Add a subtitle `<span>` below each label with `text-[10px] opacity-80` styling
-  - Use the new translation keys for subtitles
+### Files Modified
+- `src/components/events/UnifiedEventForm.tsx` (all changes in one file)
 
 ## Result
 
-**Before**: Two cryptic one-word buttons ("Dispo", "Organiser")
-**After**: Two clear action buttons with descriptive labels and helpful subtitles that tell new users exactly what each button does
-
+- **Payment link** is always one tap away in the essentials section
+- **Match creation** works again with opponent, home/away, and format fields restored
+- **"More options"** becomes even lighter with the payment link removed from it
+- Essential fields: Type, Sport/Team, [Match details], Category, Title, Date/Time/Duration, Location, Link, then Create button
