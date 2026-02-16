@@ -19,6 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
+import { getAppBaseUrl } from "@/lib/appUrl";
 
 interface EventInviteLinkProps {
   eventId: string;
@@ -39,7 +40,7 @@ export const EventInviteLink = ({
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [localAllowPublicJoin, setLocalAllowPublicJoin] = useState(allowPublicJoin);
 
-  const inviteLink = `${window.location.origin}/events/join/${inviteCode}`;
+  const inviteLink = `${getAppBaseUrl()}/events/join/${inviteCode}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(inviteLink);
