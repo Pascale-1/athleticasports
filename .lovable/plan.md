@@ -1,74 +1,71 @@
 
 
-# Simplify Event Creation Form -- Faster, Lighter, Modern
+# Improve Quick Action Buttons — Clearer Labels and Better UX
 
-## What is "Partager les frais"?
+## Problem
 
-"Partager les frais" is French for **"Split the cost"** -- it means participants split the event cost among themselves (e.g. each person pays their share via Lydia, PayPal, etc.). It's the right label, no change needed.
+The two main action buttons on the home screen use very short, ambiguous labels:
+- **"Dispo"** — cryptic abbreviation, doesn't explain what happens when you tap it
+- **"Organiser"** — vague, organize what exactly?
 
-## Current Problems
+For a women-only sports community app, these buttons are the primary entry points. They need to be instantly understandable.
 
-The form currently shows **everything at once**: event type, sport, team, title, date, time, duration, location, visibility toggle, description, participants, recurrence, cost/payment chips, RSVP deadline, and looking-for-players -- all in one long scroll. For a quick "let's play football Tuesday at 7pm" event, this is overwhelming.
+## Proposed Changes
 
-## Design Approach: Progressive Disclosure
+### 1. Better Labels with Action-Oriented Wording
 
-Show only what matters upfront. Hide advanced options behind a single expandable section. The goal: **create a basic event in 5 taps**.
+| Current (FR) | Current (EN) | Proposed (FR) | Proposed (EN) |
+|---|---|---|---|
+| Dispo | Find Game | Trouver un match | Find a Game |
+| Organiser | Organize | Creer un event | Create Event |
 
-### What stays visible (Essential Fields)
-- Event type selector (Match / Workout / Hangout)
-- Sport + Team (contextual, same as now)
-- Title
-- Date + Time (side by side)
-- Duration (preset chips)
-- Location
-- Create button
+The labels become verb-first, telling the user exactly what tapping the button does.
 
-### What moves into "More options" collapsible
-- Visibility toggle (Public/Private)
-- Description (+ Add a note...)
-- Max participants
-- Recurrence
-- Cost and Payment
-- RSVP Deadline
-- Looking for Players
-- Match details card (opponent, home/away, format) -- stays visible for Match type since it's essential
+### 2. Add Short Subtitles for Context
 
-### Visual Improvements
-- Remove the `<Separator>` line between essentials and options -- replace with a subtle "More options" collapsible trigger
-- Add breathing room with slightly larger spacing between the essentials section and the options trigger
-- The "More options" row uses a chevron icon that rotates when expanded
-- Keep the match details card visible (not collapsible) since opponent info is essential for matches
+Each button gets a tiny one-line subtitle beneath the label to reinforce the action:
+
+- **Find a Game**: subtitle "Set your availability" / "Indique ta dispo"
+- **Create Event**: subtitle "Match, training, hangout" / "Match, entrainement, sortie"
+
+### 3. Visual Layout Adjustment
+
+Keep the 2-column grid but make the buttons slightly taller (h-16 to h-20) to accommodate the subtitle without feeling cramped. The icon stays above the label.
+
+```text
++-------------------------+  +-------------------------+
+|       [Search icon]     |  |       [Plus icon]       |
+|    Trouver un match     |  |     Creer un event      |
+|   Indique ta dispo      |  | Match, entrainement...  |
++-------------------------+  +-------------------------+
+```
+
+### 4. Keep the "Create Team" Button Below
+
+No changes to the third row button — it's already clear.
 
 ## Technical Changes
 
-### File: `src/components/events/UnifiedEventForm.tsx`
+### File: `src/i18n/locales/fr/common.json`
+- Update `quickActions.findGame` from `"Dispo"` to `"Trouver un match"`
+- Update `quickActions.organizeEvent` from `"Organiser"` to `"Creer un event"`
+- Add `quickActions.findGameSubtitle`: `"Indique ta dispo"`
+- Add `quickActions.organizeEventSubtitle`: `"Match, entrainement, sortie"`
 
-1. **Add collapsible state**: `const [showMoreOptions, setShowMoreOptions] = useState(false);`
+### File: `src/i18n/locales/en/common.json`
+- Update `quickActions.findGame` from `"Find Game"` to `"Find a Game"`
+- Update `quickActions.organizeEvent` from `"Organize"` to `"Create Event"`
+- Add `quickActions.findGameSubtitle`: `"Set your availability"`
+- Add `quickActions.organizeEventSubtitle`: `"Match, training, hangout"`
 
-2. **Restructure layout** into two zones:
-   - **Zone 1 (always visible)**: Event type, sport, team, category (meetup), title, date/time/duration, location, match details card
-   - **Zone 2 (collapsible "More options")**: Visibility toggle, description, participants, recurrence, cost/payment, RSVP deadline, looking for players
-
-3. **Replace the Separator** (line 690) with a "More options" button:
-   ```
-   <Button variant="ghost" onClick toggle className="w-full justify-between text-xs text-muted-foreground">
-     <span>More options</span>
-     <ChevronDown rotating />
-   </Button>
-   ```
-
-4. **Wrap optional fields** (lines 692-937) in a collapsible `AnimatePresence` block that shows/hides based on `showMoreOptions`
-
-5. **Add translations** for "More options" / "Plus d'options" in both locale files
-
-### File: `src/i18n/locales/en/events.json`
-- Add `"form.moreOptions"` key (value: "More options") -- already exists as `"moreOptions": "More options"`, just need to use it
-
-### File: `src/i18n/locales/fr/events.json`
-- Add/verify `"form.moreOptions"` key (value: "Plus d'options")
+### File: `src/pages/Index.tsx`
+- Update the two Button components in the Quick Actions section (lines 299-316):
+  - Increase height from `h-16` to `h-20`
+  - Add a subtitle `<span>` below each label with `text-[10px] opacity-80` styling
+  - Use the new translation keys for subtitles
 
 ## Result
 
-**Before**: ~15 visible fields, long scroll, everything exposed
-**After**: ~7 visible fields for quick creation, with "More options" expandable for power users. Same functionality, 60% less visual noise on first load.
+**Before**: Two cryptic one-word buttons ("Dispo", "Organiser")
+**After**: Two clear action buttons with descriptive labels and helpful subtitles that tell new users exactly what each button does
 
