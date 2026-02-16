@@ -5,9 +5,9 @@
     "title": "Create New Event",
     "chooseType": "Choose Event Type",
     "selectTypeDesc": "Select the type of event you want to create",
-    "trainingDesc": "Run, train, or practice",
-    "meetupDesc": "Social gatherings",
-    "gameDesc": "Compete vs opponent"
+    "trainingDesc": "Practice, run, or work out together",
+    "meetupDesc": "Watch parties, dinners, team bonding",
+    "gameDesc": "Pickup or competitive games"
   },
   "upcoming": "Upcoming",
   "past": "Past",
@@ -34,9 +34,9 @@
   },
   "types": {
     "all": "All",
-    "training": "Workout",
-    "game": "Match",
-    "meetup": "Hangout"
+    "training": "Training",
+    "game": "Game",
+    "meetup": "Social"
   },
   "timeGroups": {
     "today": "Today",
@@ -267,9 +267,9 @@
   "filters": {
     "filterBy": "Filter by:",
     "allTypes": "All Types",
-    "training": "Workout",
-    "meetup": "Hangout",
-    "match": "Match",
+    "training": "Training",
+    "meetup": "Social",
+    "match": "Game",
     "upcoming": "Upcoming",
     "past": "Past",
     "allEvents": "All Events",

@@ -104,7 +104,7 @@
     "findGameSubtitle": "Indique ta dispo",
     "createTeam": "Équipe +",
     "organizeEvent": "Créer un event",
-    "organizeEventSubtitle": "Match, entraînement, sortie",
+    "organizeEventSubtitle": "Match, séance, sortie",
     "noUpcomingGames": "Aucune partie à venir",
     "createEvent": "Créer un événement",
     "lookingToPlay": "Envie de jouer ?",
@@ -264,5 +264,18 @@
     "findPartners": "Trouver joueuses",
     "joinChallenge": "Défis",
     "exploreTeams": "Explorer"
+  },
+  "profileCompletion": {
+    "title": "Complétez votre profil",
+    "addPhoto": "Ajouter une photo de profil",
+    "addDisplayName": "Définir un nom d'affichage",
+    "addBio": "Écrire une courte bio",
+    "addSport": "Choisir votre sport principal",
+    "complete": "Compléter le profil"
+  },
+  "nextEvent": {
+    "title": "Prochain événement",
+    "noEvents": "Aucun événement à venir — trouve une partie ou crée-en une !",
+    "browseEvents": "Parcourir les événements"
   }
 }
