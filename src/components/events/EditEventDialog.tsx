@@ -46,7 +46,8 @@ export const EditEventDialog = ({
 
   // Cost & Payment fields
   const [cost, setCost] = useState(event.cost || '');
-  const [paymentMethod, setPaymentMethod] = useState(event.payment_method || '');
+  const [costType, setCostType] = useState<'total' | 'per_person'>((event.cost_type as 'total' | 'per_person') || 'total');
+  const [isFree, setIsFree] = useState(!event.cost);
   const [paymentLink, setPaymentLink] = useState(event.payment_link || '');
 
   // Initialize form with event data
@@ -62,7 +63,8 @@ export const EditEventDialog = ({
       setHomeAway(event.home_away || 'home');
       setMatchFormat(event.match_format || '');
       setCost(event.cost || '');
-      setPaymentMethod(event.payment_method || '');
+      setCostType((event.cost_type as 'total' | 'per_person') || 'total');
+      setIsFree(!event.cost);
       setPaymentLink(event.payment_link || '');
       
       // Parse dates
@@ -99,9 +101,9 @@ export const EditEventDialog = ({
     }
 
     // Add cost & payment fields
-    data.cost = cost || undefined;
-    data.payment_method = paymentMethod || undefined;
-    data.payment_link = paymentMethod === 'online' && paymentLink ? paymentLink : undefined;
+    data.cost = isFree ? undefined : (cost || undefined);
+    data.cost_type = isFree ? undefined : costType;
+    data.payment_link = !isFree && cost && parseFloat(cost) > 0 && paymentLink ? paymentLink : undefined;
 
     const success = await onUpdate(event.id, data);
     setIsSubmitting(false);
@@ -261,31 +263,49 @@ export const EditEventDialog = ({
               <Euro className="h-3.5 w-3.5 text-muted-foreground" />
               {t('cost.label')}
             </Label>
-            <div className="flex flex-wrap gap-1.5">
-              {(['free', 'on_site', 'online', 'split'] as const).map((method) => (
-                <Button
-                  key={method}
-                  type="button"
-                  variant={paymentMethod === method ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setPaymentMethod(prev => prev === method ? '' : method)}
-                  className="h-7 text-xs px-2"
-                >
-                  {t(`cost.${method === 'on_site' ? 'onSite' : method}`)}
-                </Button>
-              ))}
+
+            <div className="flex items-center gap-2">
+              <Switch checked={isFree} onCheckedChange={(checked) => {
+                setIsFree(checked);
+                if (checked) { setCost(''); setPaymentLink(''); }
+              }} />
+              <span className="text-xs text-muted-foreground">{t('cost.freeToggle')}</span>
             </div>
 
-            {paymentMethod && paymentMethod !== 'free' && (
-              <Input
-                value={cost}
-                onChange={(e) => setCost(e.target.value)}
-                placeholder={t('cost.placeholder')}
-                className="h-8 text-xs"
-              />
+            {!isFree && (
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">€</span>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={cost}
+                    onChange={(e) => setCost(e.target.value)}
+                    placeholder={t('cost.placeholder')}
+                    className="h-8 text-xs pl-7"
+                  />
+                </div>
+                <div className="flex rounded-md border overflow-hidden shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setCostType('total')}
+                    className={`px-2 py-1 text-xs transition-colors ${costType === 'total' ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'}`}
+                  >
+                    {t('cost.total')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCostType('per_person')}
+                    className={`px-2 py-1 text-xs transition-colors border-l ${costType === 'per_person' ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'}`}
+                  >
+                    {t('cost.perPerson')}
+                  </button>
+                </div>
+              </div>
             )}
 
-            {paymentMethod === 'online' && (
+            {!isFree && cost && parseFloat(cost) > 0 && (
               <Input
                 value={paymentLink}
                 onChange={(e) => setPaymentLink(e.target.value)}

@@ -158,7 +158,8 @@ export const UnifiedEventForm = ({
 
   // Cost & Payment state
   const [cost, setCost] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<string>('');
+  const [costType, setCostType] = useState<'total' | 'per_person'>('total');
+  const [isFree, setIsFree] = useState(false);
   const [paymentLink, setPaymentLink] = useState('');
 
   const form = useForm<FormData>({
@@ -293,9 +294,9 @@ export const UnifiedEventForm = ({
       is_recurring: isRecurring,
       recurrence_rule: generateRecurrenceRule(),
       rsvp_deadline: showRsvpDeadline ? calculateRsvpDeadline(startDate)?.toISOString() : undefined,
-      cost: paymentMethod === 'free' ? undefined : (cost || undefined),
-      payment_method: paymentMethod || undefined,
-      payment_link: paymentLink || undefined,
+      cost: isFree ? undefined : (cost || undefined),
+      cost_type: isFree ? undefined : costType,
+      payment_link: !isFree && cost && parseFloat(cost) > 0 && paymentLink ? paymentLink : undefined,
     };
 
     await onSubmit(eventData);
@@ -656,22 +657,79 @@ export const UnifiedEventForm = ({
             )}
           </div>
 
-          {/* 1h. Payment / Booking Link - visible for training & meetup only */}
-          {eventType !== 'match' && (
-            <div className="space-y-1.5">
-              <Label className="text-xs flex items-center gap-1.5">
-                <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
-                {t('cost.paymentLink')}
-              </Label>
-              <Input
-                value={paymentLink}
-                onChange={(e) => setPaymentLink(e.target.value)}
-                placeholder={t('cost.paymentLinkPlaceholder')}
-                className="h-9 text-xs"
-                type="url"
-              />
+          {/* 1h. Tarif (Cost) Section - visible for all event types */}
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold flex items-center gap-1.5">
+              <Euro className="h-3.5 w-3.5 text-muted-foreground" />
+              {t('cost.label')}
+            </Label>
+
+            {/* Free toggle */}
+            <div className="flex items-center gap-2">
+              <Switch checked={isFree} onCheckedChange={(checked) => {
+                setIsFree(checked);
+                if (checked) { setCost(''); setPaymentLink(''); }
+              }} />
+              <span className="text-xs text-muted-foreground">{t('cost.freeToggle')}</span>
             </div>
-          )}
+
+            {/* Amount + Total/Per person */}
+            {!isFree && (
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">€</span>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={cost}
+                    onChange={(e) => setCost(e.target.value)}
+                    placeholder={t('cost.placeholder')}
+                    className="h-9 text-xs pl-7"
+                  />
+                </div>
+                <div className="flex rounded-md border overflow-hidden shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setCostType('total')}
+                    className={cn(
+                      "px-2.5 py-1.5 text-xs transition-colors",
+                      costType === 'total' ? "bg-primary text-primary-foreground" : "bg-background hover:bg-muted"
+                    )}
+                  >
+                    {t('cost.total')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCostType('per_person')}
+                    className={cn(
+                      "px-2.5 py-1.5 text-xs transition-colors border-l",
+                      costType === 'per_person' ? "bg-primary text-primary-foreground" : "bg-background hover:bg-muted"
+                    )}
+                  >
+                    {t('cost.perPerson')}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Payment link - only when cost > 0 */}
+            {!isFree && cost && parseFloat(cost) > 0 && (
+              <div className="space-y-1">
+                <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
+                  <Link2 className="h-3 w-3" />
+                  {t('cost.paymentLink')}
+                </Label>
+                <Input
+                  value={paymentLink}
+                  onChange={(e) => setPaymentLink(e.target.value)}
+                  placeholder={t('cost.paymentLinkPlaceholder')}
+                  className="h-8 text-xs"
+                  type="url"
+                />
+              </div>
+            )}
+          </div>
 
           {/* ── "More options" collapsible trigger ── */}
           <div className="pt-1">
@@ -823,37 +881,8 @@ export const UnifiedEventForm = ({
                     </div>
                   )}
 
-                  {/* Cost & Payment */}
-                  <div className="space-y-2">
-                    <Label className="text-xs flex items-center gap-1.5">
-                      <Euro className="h-3.5 w-3.5 text-muted-foreground" />
-                      {t('cost.label')}
-                    </Label>
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {(['free', 'on_site', 'online', 'split'] as const).map((method) => (
-                        <Button
-                          key={method}
-                          type="button"
-                          variant={paymentMethod === method ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setPaymentMethod(prev => prev === method ? '' : method)}
-                          className="h-8 text-xs px-2"
-                        >
-                          {t(`cost.${method === 'on_site' ? 'onSite' : method}`)}
-                        </Button>
-                      ))}
-                    </div>
 
-                    {paymentMethod && paymentMethod !== 'free' && (
-                      <Input
-                        value={cost}
-                        onChange={(e) => setCost(e.target.value)}
-                        placeholder={t('cost.placeholder')}
-                        className="h-8 text-xs"
-                      />
-                    )}
 
-                  </div>
 
                   {/* RSVP Deadline - inline switch */}
                   <div className="space-y-2">

@@ -447,12 +447,9 @@ const EventDetail = () => {
                   <Euro className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">{event.cost}</p>
-                  {event.payment_method && event.payment_method !== 'free' && (
-                    <p className="text-xs text-muted-foreground">
-                      {t(`cost.${event.payment_method === 'on_site' ? 'onSite' : event.payment_method}`)}
-                    </p>
-                  )}
+                  <p className="text-sm font-medium">
+                    {event.cost}€ {event.cost_type === 'per_person' ? t('cost.perPerson') : t('cost.total')}
+                  </p>
                 </div>
                 {event.payment_link && (
                   <Button
