@@ -88,7 +88,7 @@ export const NotificationItem = ({ notification }: NotificationItemProps) => {
       
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className={cn("text-card-title leading-tight", !notification.read && "font-semibold")}>
+        <p className={cn("text-card-title leading-tight line-clamp-2", !notification.read && "font-semibold")}>
           {notification.title}
         </p>
         <p className="text-caption text-muted-foreground line-clamp-2 mt-0.5">

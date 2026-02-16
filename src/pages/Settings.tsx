@@ -241,7 +241,7 @@ const Settings = () => {
 
             {/* Name and Info */}
             <div className="flex-1 min-w-0 space-y-1">
-              <h1 className="text-lg font-bold truncate">
+              <h1 className="text-lg font-bold break-words">
                 {profile.display_name || profile.username}
               </h1>
               <p className="text-sm text-muted-foreground">@{profile.username}</p>
