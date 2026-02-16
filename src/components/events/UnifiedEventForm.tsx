@@ -344,11 +344,11 @@ export const UnifiedEventForm = ({
         {/* ── Event Type Selector ── */}
         <EventTypeSelector value={eventType} onChange={setEventType} />
 
-        <div className="space-y-3" aria-live="polite">
+        <div className="space-y-3">
           {/* ── Sport & Team Section ── */}
-          <AnimatePresence mode="sync">
+          <AnimatePresence>
             {(showSportSelector || showTeamSelector) && (
-              <motion.div key="sport-team-section" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
+              <motion.div key="sport-team-section" layout={false} variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
                 <FormSection icon={Dumbbell} title={t('form.sport')}>
                   {showSportSelector && (
                     <SportQuickSelector
@@ -403,7 +403,7 @@ export const UnifiedEventForm = ({
 
             {/* ── Meetup Category ── */}
             {showCategorySelector && (
-              <motion.div key="category-selector" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
+              <motion.div key="category-selector" layout={false} variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
                 <div className="space-y-1.5">
                   <Label className="text-xs">{t('form.meetup.category')}</Label>
                   <div className="grid grid-cols-3 gap-1.5">
@@ -426,7 +426,7 @@ export const UnifiedEventForm = ({
 
             {/* ── Match Details Section ── */}
             {(showOpponentSection || showHomeAwayToggle || showMatchFormat) && (
-              <motion.div key="match-details-section" variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
+              <motion.div key="match-details-section" layout={false} variants={fieldVariants} initial="hidden" animate="visible" exit="hidden" transition={transitionConfig}>
                 <FormSection icon={Trophy} title={t('game.matchDetails', 'Match Details')}>
                   {/* Opponent */}
                   {showOpponentSection && (
@@ -780,6 +780,7 @@ export const UnifiedEventForm = ({
           <AnimatePresence initial={false}>
             {showMoreOptions && (
               <motion.div
+                layout={false}
                 key="more-options"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
