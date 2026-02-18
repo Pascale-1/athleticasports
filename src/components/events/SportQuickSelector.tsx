@@ -1,13 +1,8 @@
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { getFeaturedSports, getRegularSports, getSportLabel, getSportById } from "@/lib/sports";
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
+import { getFeaturedSports, getRegularSports, getSportLabel, getActiveSports } from "@/lib/sports";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface SportQuickSelectorProps {
   value: string | null;
@@ -18,53 +13,89 @@ interface SportQuickSelectorProps {
   required?: boolean;
 }
 
+const VISIBLE_COUNT = 6;
+
 export const SportQuickSelector = ({
   value,
   onChange,
-  label,
   lang = 'fr',
   className,
-  required = false,
 }: SportQuickSelectorProps) => {
-  const featuredSports = getFeaturedSports();
-  const regularSports = getRegularSports();
-  const selectedSport = value ? getSportById(value) : null;
+  const [moreOpen, setMoreOpen] = useState(false);
+  const allSports = getActiveSports();
+  const visibleSports = allSports.slice(0, VISIBLE_COUNT);
+  const moreSports = allSports.slice(VISIBLE_COUNT);
+
+  const handleSelect = (id: string) => {
+    onChange(id);
+    setMoreOpen(false);
+  };
 
   return (
-    <div className={cn("space-y-2", className)}>
-      {label && (
-        <Label className="text-xs font-medium">
-          {label} {required && <span className="text-destructive">*</span>}
-        </Label>
-      )}
-      
-      <Select value={value || undefined} onValueChange={onChange}>
-        <SelectTrigger className="w-full h-9 text-xs">
-          <SelectValue placeholder={lang === 'fr' ? 'Sélectionner un sport' : 'Select a sport'}>
-            {selectedSport && (
-              <span className="flex items-center gap-2">
-                <span>{selectedSport.emoji}</span>
-                <span>{getSportLabel(selectedSport.id, lang)}</span>
-              </span>
+    <div className={cn("flex flex-wrap gap-1.5", className)}>
+      {visibleSports.map((sport) => {
+        const isSelected = value === sport.id;
+        return (
+          <button
+            key={sport.id}
+            type="button"
+            onClick={() => handleSelect(sport.id)}
+            className={cn(
+              "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-150 shrink-0",
+              isSelected
+                ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                : "bg-transparent border-border text-foreground hover:border-foreground/40 hover:bg-muted/50"
             )}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent className="bg-background" onCloseAutoFocus={(e) => e.preventDefault()}>
-          {[...featuredSports, ...regularSports].map((sport) => (
-            <SelectItem key={sport.id} value={sport.id}>
-              <span className="flex items-center gap-2">
-                <span>{sport.emoji}</span>
-                <span>{getSportLabel(sport.id, lang)}</span>
-              </span>
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      
-      {required && !value && (
-        <p className="text-xs text-destructive">
-          {lang === 'fr' ? 'Veuillez sélectionner un sport' : 'Please select a sport'}
-        </p>
+          >
+            <span className="text-sm leading-none">{sport.emoji}</span>
+            <span>{getSportLabel(sport.id, lang)}</span>
+          </button>
+        );
+      })}
+
+      {moreSports.length > 0 && (
+        <Popover open={moreOpen} onOpenChange={setMoreOpen}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className={cn(
+                "flex items-center gap-0.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-150 shrink-0",
+                moreSports.some(s => s.id === value)
+                  ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                  : "bg-transparent border-border text-muted-foreground hover:text-foreground hover:border-foreground/40"
+              )}
+            >
+              {moreSports.find(s => s.id === value)
+                ? `${moreSports.find(s => s.id === value)!.emoji} ${getSportLabel(value!, lang)}`
+                : `+${moreSports.length}`
+              }
+              <ChevronDown className="h-3 w-3 ml-0.5" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-52 p-2 bg-popover" align="start" onCloseAutoFocus={e => e.preventDefault()}>
+            <div className="flex flex-wrap gap-1.5">
+              {moreSports.map((sport) => {
+                const isSelected = value === sport.id;
+                return (
+                  <button
+                    key={sport.id}
+                    type="button"
+                    onClick={() => handleSelect(sport.id)}
+                    className={cn(
+                      "flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border transition-all duration-150",
+                      isSelected
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-transparent border-border text-foreground hover:border-foreground/40 hover:bg-muted/50"
+                    )}
+                  >
+                    <span className="text-sm leading-none">{sport.emoji}</span>
+                    <span>{getSportLabel(sport.id, lang)}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </PopoverContent>
+        </Popover>
       )}
     </div>
   );

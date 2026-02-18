@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 interface DurationPickerProps {
@@ -13,12 +11,11 @@ interface DurationPickerProps {
   className?: string;
 }
 
-const DEFAULT_PRESETS = [60, 90, 120]; // 1h, 1.5h, 2h
+const DEFAULT_PRESETS = [60, 90, 120];
 
 export const DurationPicker = ({
   value,
   onChange,
-  label,
   presets = DEFAULT_PRESETS,
   className,
 }: DurationPickerProps) => {
@@ -40,10 +37,6 @@ export const DurationPicker = ({
     onChange(minutes);
   };
 
-  const handleCustomClick = () => {
-    setIsCustom(true);
-  };
-
   const handleCustomChange = (hours: number, mins: number) => {
     const safeHours = Math.max(0, Math.min(12, hours));
     const safeMins = Math.max(0, Math.min(59, mins));
@@ -53,36 +46,38 @@ export const DurationPicker = ({
   };
 
   return (
-    <div className={cn("space-y-2", className)}>
-      {label && <Label className="text-sm font-medium">{label}</Label>}
-      
-      <div className="flex flex-wrap gap-2">
-        {presets.map((preset) => (
-          <Button
-            key={preset}
-            type="button"
-            size="sm"
-            variant={!isCustom && value === preset ? "default" : "outline"}
-            onClick={() => handlePresetClick(preset)}
-            className="min-w-[48px] h-9 text-xs"
-          >
-            {formatDuration(preset)}
-          </Button>
-        ))}
-        
-        <Button
+    <div className={cn("flex flex-wrap gap-1.5", className)}>
+      {presets.map((preset) => (
+        <button
+          key={preset}
           type="button"
-          size="sm"
-          variant={isCustom ? "default" : "outline"}
-          onClick={handleCustomClick}
-          className="min-w-[48px] h-9 text-xs"
+          onClick={() => handlePresetClick(preset)}
+          className={cn(
+            "px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-150",
+            !isCustom && value === preset
+              ? "bg-primary text-primary-foreground border-primary shadow-sm"
+              : "bg-transparent border-border text-muted-foreground hover:text-foreground hover:border-foreground/40"
+          )}
         >
-          {isCustom ? formatDuration(value) : t('form.durationCustom')}
-        </Button>
-      </div>
+          {formatDuration(preset)}
+        </button>
+      ))}
+
+      <button
+        type="button"
+        onClick={() => setIsCustom(true)}
+        className={cn(
+          "px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-150",
+          isCustom
+            ? "bg-primary text-primary-foreground border-primary shadow-sm"
+            : "bg-transparent border-border text-muted-foreground hover:text-foreground hover:border-foreground/40"
+        )}
+      >
+        {isCustom ? formatDuration(value) : t('form.durationCustom')}
+      </button>
 
       {isCustom && (
-        <div className="flex items-center gap-2 mt-2">
+        <div className="flex items-center gap-1.5 w-full mt-1">
           <div className="flex items-center gap-1">
             <Input
               type="number"
@@ -90,9 +85,9 @@ export const DurationPicker = ({
               max="12"
               value={customHours}
               onChange={(e) => handleCustomChange(parseInt(e.target.value) || 0, customMinutes)}
-              className="w-16 text-center"
+              className="w-14 h-7 text-center text-xs"
             />
-            <span className="text-sm text-muted-foreground">h</span>
+            <span className="text-xs text-muted-foreground">h</span>
           </div>
           <div className="flex items-center gap-1">
             <Input
@@ -102,9 +97,9 @@ export const DurationPicker = ({
               step="15"
               value={customMinutes}
               onChange={(e) => handleCustomChange(customHours, parseInt(e.target.value) || 0)}
-              className="w-16 text-center"
+              className="w-14 h-7 text-center text-xs"
             />
-            <span className="text-sm text-muted-foreground">min</span>
+            <span className="text-xs text-muted-foreground">min</span>
           </div>
         </div>
       )}
