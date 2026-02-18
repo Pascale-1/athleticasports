@@ -8,18 +8,18 @@ interface EventTypeSelectorProps {
   onChange: (type: EventType) => void;
 }
 
-const EVENT_TYPE_OPTIONS: { type: EventType; icon: typeof Trophy; colorClass: string }[] = [
-  { type: 'training', icon: Dumbbell, colorClass: 'text-primary' },
-  { type: 'match', icon: Trophy, colorClass: 'text-amber-500' },
-  { type: 'meetup', icon: Users, colorClass: 'text-emerald-500' },
+const EVENT_TYPE_OPTIONS: { type: EventType; icon: typeof Trophy }[] = [
+  { type: 'training', icon: Dumbbell },
+  { type: 'match', icon: Trophy },
+  { type: 'meetup', icon: Users },
 ];
 
 export const EventTypeSelector = ({ value, onChange }: EventTypeSelectorProps) => {
   const { t } = useTranslation('events');
 
   return (
-    <div className="flex gap-2 pb-1 mb-1">
-      {EVENT_TYPE_OPTIONS.map(({ type, icon: Icon, colorClass }) => {
+    <div className="flex border-b border-border mb-1">
+      {EVENT_TYPE_OPTIONS.map(({ type, icon: Icon }) => {
         const isSelected = value === type;
         return (
           <button
@@ -28,13 +28,13 @@ export const EventTypeSelector = ({ value, onChange }: EventTypeSelectorProps) =
             onClick={() => onChange(type)}
             aria-pressed={isSelected}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 border",
+              "flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-all duration-200 -mb-px",
               isSelected
-                ? "bg-primary/10 text-primary border-primary/40"
-                : "bg-transparent border-border text-muted-foreground hover:text-foreground hover:border-foreground/30"
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
             )}
           >
-            <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-primary" : colorClass)} />
+            <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-primary" : "text-muted-foreground")} />
             {t(`types.${type === 'match' ? 'game' : type}`)}
           </button>
         );
