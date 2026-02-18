@@ -1,115 +1,87 @@
 
-# Revolutionary Event Form Redesign
+# Form Polish: Harmonize Layout, Typography & Visual Consistency
 
-## What's Wrong Today
-The current form is a stack of `bg-muted/30` rounded card sections with icon + uppercase label headers. Each section adds visual weight: padding, background, borders on inputs. The result is dense, misaligned, and visually noisy — like a list of settings rather than a creation experience.
+## Critique of the Current Form
 
-## Design Vision: "Inline Magic" Form
+After reading all the code, here are the concrete issues causing the "weird" feeling:
 
-Inspired by Strava, Notion, and Linear — a completely flat, whitespace-driven layout with no card backgrounds. Fields use subtle separators rather than card boxes. Large-tap touch targets, strong typographic hierarchy, and animated micro-transitions make it feel fast and alive.
+### 1. Mixed input paradigms — jarring inconsistency
+The form mixes 3 different input styles with no clear rule:
+- Ghost/borderless `<input>` (Title, Description, payment link, virtual URL)
+- Styled `<Input>` component with border + height (cost amount `h-8`, max participants `h-8`, recurrence end date `h-8`)
+- Native `<input type="time">` with no border or casing (looks broken next to the duration pills)
 
-### Core Design Principles Applied
-1. **No background cards** — remove all `bg-muted/30` section boxes. Replace with subtle `border-b` line separators between logical groups.
-2. **Floating label inputs** — Title and Description use full-width borderless inputs that feel like a rich text editor.
-3. **Icon-anchored rows** — each row has a left-aligned icon column (16px) + content, creating perfect vertical alignment throughout the form.
-4. **Pill-based selectors** — Sport, Duration, Intensity use horizontal scrollable chip pills, not dropdowns.
-5. **Date/time as a single tappable row** — calendar icon + "Saturday, March 8 · 19:00 · 90 min" in one line, popover expands inline below.
-6. **Visibility as an icon toggle row** — no card wrapper, just a clean row with globe/lock icon.
-7. **Cost as a smart inline row** — "Free" by default, tap to expand amount + payment link.
-8. **"More" as a subtle text link** — not a button, just "More options ↓" at the bottom.
+**Fix:** Standardize. Ghost inputs only for Title & Description (text area feel). All other inputs use the same compact bordered style (`h-9`). The `<input type="time">` needs a visible container/border to feel intentional.
 
----
+### 2. `FieldRow` icon misalignment
+The icon sits at `mt-0.5` (`items-start`), which pushes it down slightly. For single-line rows (Visibility, Cost), this creates a slight misalignment between the icon and the text. For multi-content rows it's inconsistent.
 
-## Detailed Layout
+**Fix:** Use `items-center` for rows with only a single line of content (Visibility, Cost header). Keep `items-start` for rows that expand (Sport, Description, Location). The cleanest solution: always `items-start` but standardize `mt-0.5` consistently per icon.
 
-```text
-┌──────────────────────────────────────┐
-│  [Training]  [Game]  [Social]         │  ← pill selector, no border box
-├──────────────────────────────────────┤
-│  🏃 Football (chip pills scrollable)  │  ← sport row, icon + pills
-│  ─────────────────────────────────── │
-│  📝  Event title...                   │  ← large ghost input, no border
-│  ─────────────────────────────────── │
-│  ✏️  Add a note (2-line textarea)      │  ← ghost textarea
-│  ─────────────────────────────────── │
-│  📅  Sat, Mar 8 · 19:00 · 90 min ›   │  ← tappable date row, expands
-│  ─────────────────────────────────── │
-│  📍  Address or venue...              │  ← ghost address input
-│  ─────────────────────────────────── │
-│  👥  Your team (select)               │  ← team row
-│  ─────────────────────────────────── │
-│  🌐  Public event      [toggle]       │  ← visibility row
-│  ─────────────────────────────────── │
-│  💶  Free              [toggle]       │  ← cost row, expands when toggled
-│  ─────────────────────────────────── │
-│  ·  More options                      │  ← subtle text link
-└──────────────────────────────────────┘
-│  [Create Training]                    │  ← full-width CTA
-```
+### 3. Type selector — orphaned border
+`EventTypeSelector` has `pb-3 border-b` as its own bottom border, then the `divide-y divide-border` div below starts. This creates a double-border gap at the top — the first separator is taller/heavier than the rest.
 
----
+**Fix:** Remove the `border-b` from `EventTypeSelector` and let it live inside the `divide-y` container like all other rows. Or add a consistent `pt-3` to the first row so the spacing is balanced.
 
-## Technical Implementation
+### 4. Cost row — toggle logic is inverted and confusing
+The switch is `checked={!isFree}`. Default state is `isFree = false`, so the switch is ON by default even though the default label says "Cost". This is semantically backwards — the user expects to toggle FROM free TO paid, not the other way.
 
-### New `FieldRow` component (replaces `FormSection`)
-A lightweight row component with a left icon column and right content area — defined outside the render function (no scroll-jump):
-```tsx
-const FieldRow = ({ icon: Icon, children, separator = true }) => (
-  <div className="flex items-start gap-3 py-3">
-    <Icon className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-    <div className="flex-1 min-w-0">{children}</div>
-    {separator && <div className="absolute bottom-0 left-7 right-0 h-px bg-border" />}
-  </div>
-)
-```
+**Fix:** Rename the state to `hasCost` (boolean, default `false`). Switch is `checked={hasCost}`. Label shows "Free" when off, toggles to show the cost inputs when on. Much more natural.
 
-### EventTypeSelector — pill redesign
-Replace the current 3-column card buttons with compact inline pills:
-- Selected: `bg-primary/10 text-primary border border-primary/30 font-semibold`
-- Unselected: `text-muted-foreground hover:text-foreground`
-- Layout: `flex gap-2` instead of `grid grid-cols-3` — pills are auto-width, horizontally centered
+### 5. Date row — time input looks broken
+After selecting a date, the time `<input type="time">` appears inline with no border, sitting next to duration pills. There's no visual container — the time just floats. The `·` separator is positioned oddly.
 
-### SportQuickSelector — chip pill row
-Replace the `<Select>` dropdown with horizontally scrollable emoji+label chip pills (top 6 sports visible, "+ more" chip opens a popover for the rest). Eliminates the dropdown interaction overhead entirely.
+**Fix:** Wrap the time + duration sub-row in a small `rounded-lg border border-border bg-muted/30 px-3 py-1.5` pill-container, making it a cohesive secondary row under the date summary. This mirrors how Linear/Notion handle date detail rows.
 
-### Date/Time — single collapsed row
-Default state: `📅 Sat, Mar 8 · 19:00 · 1h30 ›` — a single tappable row.
-Expanded state (in-place): shows a compact date picker + time input + duration pills in a `motion.div` that slides down.
+### 6. Submit button — loading state shows just `...`
+When `isSubmitting`, the button renders `...` — no spinner, no localized text. This looks unfinished.
 
-### Title + Description
-Remove all wrappers. Use full-width `bg-transparent border-0 focus-visible:ring-0 shadow-none` inputs for a "document editor" feel. Title is `text-base font-medium placeholder:text-muted-foreground/50`. Description is 2-row textarea with same ghost treatment.
+**Fix:** Add a small inline spinner (a simple `animate-spin` border div or Loader2 icon) and show `t('form.creating')` text alongside it.
 
-### Visibility Row
-Clean toggle row without any card:
-```
-🌐 Public  "Anyone can join"    [switch]
-```
-or
-```
-🔒 Private "Team members only" [switch]
-```
+### 7. "More options" section — inconsistent interior padding
+Inside the expanded "More options", the items use `py-2.5` with a `pl-6` indent for sub-items. But the indent doesn't align with the main `FieldRow` icon column (which is `gap-3` = 12px icon + 12px gap = 24px left offset). The `pl-6` (24px) is close but the expanded sections start from the edge (no `gap-3` offset), so they look shifted.
 
-### Cost Row
-Default: shows "Free event" with a toggle. Toggle ON reveals:
-- Amount input (€ prefix, inline)
-- Per person / Total pills
-- Payment link (appears only when amount > 0)
+**Fix:** Add a `pl-7` (28px, matching icon width 16px + gap 12px) to the interior of "More options" rows, so sub-items align with the main content column of the `FieldRow` above them.
 
-### More Options
-Changed from a `Button` to a styled `button` text link: `text-xs text-muted-foreground underline-offset-4 hover:underline`
+### 8. `EventTypeSelector` — active state styling mismatch
+Active pills use `bg-primary text-primary-foreground border-primary` (filled, solid blue). Inactive use `border-border text-muted-foreground`. This is fine — but the pills have no gap from the bottom of the dialog header. There's a visual crowding at the top.
 
-### Form Container
-Remove the outer `space-y-2.5` — replaced with `divide-y divide-border` on the rows container, giving a clean ruled-line separation between each logical group.
+**Fix:** Add `mb-1` to the `EventTypeSelector` wrapper for breathing room before the first row.
+
+### 9. Visibility row — description text below label but no visual separation from next row
+The two-line text block (title + description) in the Visibility row sits inside `FieldRow` which has `border-b`. The description line uses `text-xs text-muted-foreground`, which is fine, but it has no `mt-0.5` separating it from the title, making the two lines feel jammed together.
+
+**Fix:** Add `mt-0.5` between the title `<p>` and the description `<p>` in the visibility row, and reduce the description font to `text-[11px]` for a better visual hierarchy.
+
+### 10. Sport chip row — no vertical alignment with the Dumbbell icon
+The `SportQuickSelector` renders chips that are taller than the icon, so `items-start` is used — but the icon top doesn't match the first chip's vertical center. Visually the icon hangs in an ambiguous position.
+
+**Fix:** For the sport row specifically, change the `FieldRow` icon alignment: wrap icon in `<div className="mt-1">` to align it to the center of the first chip row.
 
 ---
 
-## Files Changed
+## Summary of All Fixes
 
-| File | Change |
-|------|--------|
-| `src/components/events/UnifiedEventForm.tsx` | Full visual redesign: remove `FormSection` card backgrounds, introduce `FieldRow` layout, ghost inputs, icon-anchored rows, pill sport selector, collapsed date row, clean cost/visibility rows |
-| `src/components/events/EventTypeSelector.tsx` | Redesign from 3-column card grid to compact horizontal pill tabs |
-| `src/components/events/SportQuickSelector.tsx` | Replace `<Select>` dropdown with horizontally scrollable chip pills (top 6 + overflow popover) |
-| `src/components/events/DurationPicker.tsx` | Slim down pill styling: `h-7` height, tighter gaps, remove Label wrapper |
+| # | Problem | Fix |
+|---|---------|-----|
+| 1 | Mixed input styles | Standardize: ghost for title/notes, bordered `h-9` for all others |
+| 2 | FieldRow icon alignment | Consistent `mt-0.5`, use `items-center` on single-line rows |
+| 3 | Double border at top | Remove `border-b` from `EventTypeSelector`, absorb into `divide-y` |
+| 4 | Cost toggle inverted | Rename to `hasCost`, default `false`, natural ON=paid flow |
+| 5 | Time input looks broken | Wrap time+duration in bordered pill container |
+| 6 | Submit shows `...` | Replace with Loader2 spinner + localized creating text |
+| 7 | "More options" misaligned | `pl-7` on interior items to align with content column |
+| 8 | Type selector crowding | Add `mb-1` breathing room after EventTypeSelector |
+| 9 | Visibility row text jammed | `mt-0.5` + `text-[11px]` on description sub-line |
+| 10 | Sport icon float | `mt-1` wrapper on Dumbbell icon in sport row |
 
-No database changes. No new dependencies (framer-motion already installed). No translation changes needed.
+---
+
+## Files to Change
+
+| File | Changes |
+|------|---------|
+| `src/components/events/UnifiedEventForm.tsx` | Fixes #1 #2 #4 #5 #6 #7 #9 #10 — the bulk of the polish |
+| `src/components/events/EventTypeSelector.tsx` | Fix #3 + #8 — remove border-b, add mb-1 |
+
+No database, schema, or translation changes needed.
