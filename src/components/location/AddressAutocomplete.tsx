@@ -30,6 +30,7 @@ interface AddressAutocompleteProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  ghost?: boolean;
 }
 
 export const AddressAutocomplete = ({
@@ -39,6 +40,7 @@ export const AddressAutocomplete = ({
   placeholder,
   className,
   disabled = false,
+  ghost = false,
 }: AddressAutocompleteProps) => {
   const { i18n } = useTranslation();
   const lang = i18n.language?.split('-')[0] || 'fr';
@@ -244,18 +246,33 @@ export const AddressAutocomplete = ({
       )}
 
       <div className="relative">
-        <Input
-          ref={inputRef}
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-          placeholder={placeholder || (lang === "fr" ? "Rechercher une adresse..." : "Search for an address...")}
-          disabled={disabled}
-          className="pr-16"
-          autoComplete="off"
-        />
+        {ghost ? (
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+            placeholder={placeholder || (lang === "fr" ? "Rechercher une adresse..." : "Search for an address...")}
+            disabled={disabled}
+            className="w-full bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground/50 text-foreground pr-8"
+            autoComplete="off"
+          />
+        ) : (
+          <Input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+            placeholder={placeholder || (lang === "fr" ? "Rechercher une adresse..." : "Search for an address...")}
+            disabled={disabled}
+            className="pr-16"
+            autoComplete="off"
+          />
+        )}
 
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
           {isLoading && (

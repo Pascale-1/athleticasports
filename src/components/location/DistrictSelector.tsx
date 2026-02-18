@@ -11,6 +11,7 @@ interface DistrictSelectorProps {
   label?: string;
   venueLabel?: string;
   venuePlaceholder?: string;
+  ghost?: boolean;
 }
 
 export const DistrictSelector = ({
@@ -19,13 +20,14 @@ export const DistrictSelector = ({
   placeholder,
   label,
   venuePlaceholder,
+  ghost = false,
 }: DistrictSelectorProps) => {
   const { i18n } = useTranslation();
   const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
 
   const handleAddressChange = (address: string, coordinates?: { lat: number; lng: number }) => {
     onChange({
-      district: '', // Not using district anymore
+      district: '',
       venueName: address,
       coordinates
     });
@@ -43,6 +45,7 @@ export const DistrictSelector = ({
         value={value.venueName || ''}
         onChange={handleAddressChange}
         placeholder={venuePlaceholder || placeholder || (lang === 'fr' ? 'Rechercher une adresse...' : 'Search for an address...')}
+        ghost={ghost}
       />
     </div>
   );

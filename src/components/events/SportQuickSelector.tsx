@@ -32,7 +32,7 @@ export const SportQuickSelector = ({
   };
 
   return (
-    <div className={cn("flex flex-wrap gap-1.5", className)}>
+    <div className={cn("flex flex-nowrap overflow-x-auto gap-1.5 pb-0.5 scrollbar-hide", className)}>
       {visibleSports.map((sport) => {
         const isSelected = value === sport.id;
         return (

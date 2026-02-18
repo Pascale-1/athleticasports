@@ -30,11 +30,11 @@ export const EventTypeSelector = ({ value, onChange }: EventTypeSelectorProps) =
             className={cn(
               "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 border",
               isSelected
-                ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                ? "bg-primary/10 text-primary border-primary/40"
                 : "bg-transparent border-border text-muted-foreground hover:text-foreground hover:border-foreground/30"
             )}
           >
-            <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-primary-foreground" : colorClass)} />
+            <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-primary" : colorClass)} />
             {t(`types.${type === 'match' ? 'game' : type}`)}
           </button>
         );
