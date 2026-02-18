@@ -1,49 +1,55 @@
 
-# Two Focused Fixes: Remove Duplicate Cost Section + Address Pre-fill in Edit Dialog
+# Fix Address Autocomplete: Dropdown Gets Clipped by overflow-hidden
 
-## Fix 1 — Remove the Duplicate "Tarif" Section
+## Root Cause (Two Layers)
 
-### Root Cause
-The Cost section exists **twice** in `UnifiedEventForm.tsx`:
-- **Above** "More options" — a full `FormSection` card with Euro icon and title (lines 710–777), always visible
-- **Inside** "More options" — an inline row version (lines 834–903), hidden by default
+The suggestions dropdown in `AddressAutocomplete` is `position: absolute` and rendered inside its container `div`. Two `overflow-hidden` ancestors are clipping it:
 
-The previous redesign added the Cost block inside "More options" but forgot to remove the original standalone section. Result: two tarif fields, one always visible.
+1. **`AddressAutocomplete` container** (line 238): `className="relative space-y-2 w-full min-w-0 overflow-hidden"` — the `overflow-hidden` here clips the absolutely-positioned dropdown, making it unclickable even though it partially appears.
 
-### Fix
-Remove the entire standalone `FormSection` for Cost (lines 710–777). The copy inside "More options" is already there and already correct.
+2. **`EditEventDialog` form** (line 123): `className="space-y-4 min-w-0 overflow-hidden"` — a second layer of clipping on the `<form>` itself.
 
----
+The session replay confirms this: suggestions visually appear (they bleed through partially) but pointer events on them are blocked by the clipping ancestors.
 
-## Fix 2 — Address Pre-fill in EditEventDialog
+## Fixes
 
-### Root Cause
-The `EditEventDialog` uses a plain `<Input>` for location (lines 186–194). It does **not** use `AddressAutocomplete` or `DistrictSelector`. So:
-- The existing address is displayed as plain text ✓ (value is set from `event.location`)
-- But there's no autocomplete — typing a new address is manual, no suggestions
-- More importantly: the user sees a plain text box that looks like it can't be edited in a smart way, which reads as "not pre-filled" when the field is empty (events without a saved location show a blank plain input with no guidance)
+### Fix 1 — `AddressAutocomplete.tsx` (line 238)
+Remove `overflow-hidden` from the container div. The `min-w-0` stays (it prevents flex child overflow which is unrelated). The `overflow-hidden` was added to prevent horizontal scroll bleed on mobile, but since the dropdown is positioned absolutely it must not be clipped.
 
-### Fix
-Replace the plain `<Input>` in `EditEventDialog` for the location field with `AddressAutocomplete`. Since `AddressAutocomplete` accepts a `value` prop and syncs it via `useEffect`, it will correctly pre-fill with `event.location` when the dialog opens.
+```
+Before: "relative space-y-2 w-full min-w-0 overflow-hidden"
+After:  "relative space-y-2 w-full min-w-0"
+```
 
-Also clean up `EditEventDialog` while we're in it:
-- Remove the `matchFormat` field from the match-specific section (it was removed from the create form already — the edit form still has it at lines 248–256)
-- The `matchFormat` state variable (line 45) and the data assignment (line 100) should also be removed
+### Fix 2 — `EditEventDialog.tsx` (line 123)
+Remove `overflow-hidden` from the `<form>` element. This is also clipping the dropdown. The `min-w-0` stays.
 
----
+```
+Before: "space-y-4 min-w-0 overflow-hidden"
+After:  "space-y-4 min-w-0"
+```
+
+### Fix 3 — `AddressAutocomplete.tsx` suggestion buttons (line 285)
+Switch suggestion buttons from `onClick` to `onMouseDown` + `e.preventDefault()`. This is a defensive fix: in any Dialog/Modal context, Radix UI's focus management can cause the dropdown to close before a `click` event fires, but `mousedown` fires first and is immune to focus traps. This ensures selection always works regardless of which dialog wraps the component.
+
+```tsx
+onMouseDown={(e) => {
+  e.preventDefault(); // Prevent input blur
+  handleSelectSuggestion(suggestion);
+}}
+```
 
 ## Files Changed
 
 | File | Change |
 |------|--------|
-| `src/components/events/UnifiedEventForm.tsx` | Remove the standalone Cost `FormSection` (lines 710–777) that sits between the "Where" section and the "More options" button |
-| `src/components/events/EditEventDialog.tsx` | Replace plain `<Input>` for location with `AddressAutocomplete`; import `AddressAutocomplete`; remove the `matchFormat` field from the match section and its state |
+| `src/components/location/AddressAutocomplete.tsx` | Remove `overflow-hidden` from container; switch suggestion buttons to `onMouseDown` + `e.preventDefault()` |
+| `src/components/events/EditEventDialog.tsx` | Remove `overflow-hidden` from the `<form>` |
 
----
+## Why These Three Together
 
-## Technical Details
+- Fix 1 removes the primary clip that blocks pointer events on the dropdown
+- Fix 2 removes the secondary clip on the dialog form wrapper
+- Fix 3 makes selection robust against focus/blur race conditions in any future modal context
 
-- `AddressAutocomplete` already accepts `value: string` and `onChange: (value, coords?) => void` — it's a drop-in replacement for the plain `<Input>` in `EditEventDialog`
-- The `location` state in `EditEventDialog` is already initialized from `event.location` in the `useEffect`, so `AddressAutocomplete` will receive the correct pre-filled value automatically
-- No schema or database changes needed
-- No translation changes needed
+No database changes, no new dependencies, no translation changes needed.
