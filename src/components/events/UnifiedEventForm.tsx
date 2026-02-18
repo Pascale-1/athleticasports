@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Users, UserPlus,
   Clock, Euro, ChevronDown, Dumbbell, AlignLeft, type LucideIcon,
-  PenLine, Loader2
+  PenLine, Loader2, Swords
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -23,10 +23,10 @@ import { cn } from "@/lib/utils";
 
 import { EventType } from "@/lib/eventConfig";
 import { CreateEventData } from "@/hooks/useEvents";
+import { getActiveSports, getSportLabel } from "@/lib/sports";
 
 import { EventTypeSelector } from "./EventTypeSelector";
 import { DurationPicker } from "./DurationPicker";
-import { SportQuickSelector } from "./SportQuickSelector";
 import { DistrictSelector } from "@/components/location/DistrictSelector";
 import { MyTeamSelector } from "@/components/teams/MyTeamSelector";
 import { TeamSelector } from "@/components/teams/TeamSelector";
@@ -115,6 +115,11 @@ const FieldRow = ({
   </div>
 );
 
+// Section divider between groups
+const SectionDivider = () => (
+  <div className="h-px bg-muted/60 my-1" />
+);
+
 export const UnifiedEventForm = ({
   teamId,
   sport: initialSport,
@@ -146,7 +151,7 @@ export const UnifiedEventForm = ({
   const [homeAway, setHomeAway] = useState<'home' | 'away' | 'neutral'>('home');
   const [opponentTeamId, setOpponentTeamId] = useState<string | null>(null);
   const [opponentTeamName, setOpponentTeamName] = useState<string>('');
-  const [opponentInputMode, setOpponentInputMode] = useState<'select' | 'manual'>('select');
+  const [opponentInputMode, setOpponentInputMode] = useState<'select' | 'manual'>('manual');
 
   // Meetup-specific states
   const [locationMode, setLocationMode] = useState<'physical' | 'virtual' | 'hybrid'>('physical');
@@ -179,6 +184,8 @@ export const UnifiedEventForm = ({
 
   // Date picker popover
   const [dateOpen, setDateOpen] = useState(false);
+
+  const allSports = getActiveSports();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -335,7 +342,7 @@ export const UnifiedEventForm = ({
   const isPickupGame = eventType === 'match' && !selectedTeamId && !teamId;
   const showSportSelector = !teamId && (eventType === 'match' || eventType === 'training');
   const showTeamSelector = !teamId && (eventType === 'match' || eventType === 'training');
-  const showOpponentSection = eventType === 'match' && !isPickupGame;
+  const showOpponentSection = eventType === 'match';
   const showHomeAwayToggle = eventType === 'match' && !isPickupGame;
   const showCategorySelector = eventType === 'meetup';
   const showLocationMode = eventType === 'meetup';
@@ -346,32 +353,12 @@ export const UnifiedEventForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="min-w-0 overflow-x-hidden">
 
-        {/* 1 ── Event Type Tabs ── */}
+        {/* 1 ── Event Type Tabs (underline style) ── */}
         <EventTypeSelector value={eventType} onChange={handleTypeChange} />
 
         <div className="divide-y divide-border">
 
-          {/* 2 ── Sport ── */}
-          {showSportSelector && (
-            <div className="relative flex gap-3 py-3 border-b border-border items-start">
-              <div className="mt-1 shrink-0">
-                <Dumbbell className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <SportQuickSelector
-                  value={selectedSport || null}
-                  onChange={(sport) => {
-                    setSelectedSport(sport);
-                    setSelectedTeamId(null);
-                    setSelectedTeamName('');
-                  }}
-                  lang={lang}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* 3 ── Title ── */}
+          {/* 2 ── Title ── */}
           <FieldRow icon={PenLine} separator={false}>
             <FormField
               control={form.control}
@@ -381,7 +368,7 @@ export const UnifiedEventForm = ({
                   <FormControl>
                     <input
                       {...field}
-                      className="w-full bg-transparent border-0 outline-none text-sm font-medium placeholder:text-muted-foreground/50 text-foreground"
+                      className="w-full bg-transparent border-0 outline-none text-base font-medium placeholder:text-muted-foreground/50 text-foreground"
                       placeholder={
                         eventType === 'match'
                           ? t('form.game.titlePlaceholder')
@@ -397,7 +384,7 @@ export const UnifiedEventForm = ({
             />
           </FieldRow>
 
-          {/* 4 ── Description ── */}
+          {/* 3 ── Description ── */}
           <FieldRow icon={AlignLeft} separator={false}>
             <FormField
               control={form.control}
@@ -418,7 +405,173 @@ export const UnifiedEventForm = ({
             />
           </FieldRow>
 
-          {/* 5 ── Date / Time / Duration ── */}
+        </div>
+
+        {/* ── Section divider ── */}
+        <SectionDivider />
+
+        <div className="divide-y divide-border">
+
+          {/* 4 ── Sport (dropdown) ── */}
+          {showSportSelector && (
+            <FieldRow icon={Dumbbell} separator={false} iconAlign="center">
+              <Select
+                value={selectedSport || '__none__'}
+                onValueChange={(val) => {
+                  const sport = val === '__none__' ? '' : val;
+                  setSelectedSport(sport);
+                  setSelectedTeamId(null);
+                  setSelectedTeamName('');
+                }}
+              >
+                <SelectTrigger className="border-0 bg-transparent shadow-none px-0 h-auto py-0 text-sm focus:ring-0 [&>span]:text-left [&>svg]:text-muted-foreground">
+                  <SelectValue placeholder={lang === 'fr' ? 'Quel sport ?' : 'Which sport?'}>
+                    {selectedSport
+                      ? (() => {
+                          const sport = allSports.find(s => s.id === selectedSport);
+                          return sport ? `${sport.emoji} ${getSportLabel(selectedSport, lang)}` : selectedSport;
+                        })()
+                      : <span className="text-muted-foreground/60">{lang === 'fr' ? 'Quel sport ?' : 'Which sport?'}</span>
+                    }
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-popover border border-border shadow-lg z-50">
+                  {allSports.map((sport) => (
+                    <SelectItem key={sport.id} value={sport.id} className="text-sm">
+                      {sport.emoji} {getSportLabel(sport.id, lang)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FieldRow>
+          )}
+
+          {/* 5 ── Team ── */}
+          {showTeamSelector && (
+            <FieldRow icon={Users} separator={false}>
+              <MyTeamSelector
+                value={selectedTeamId}
+                onChange={handleTeamSelect}
+                sportFilter={selectedSport || undefined}
+                label={eventType === 'match' ? t('form.game.yourTeam') : t('details.team')}
+                placeholder={eventType === 'match' ? t('form.game.pickupOrTeam') : t('form.game.selectTeam')}
+                forEventCreation={true}
+                showCreateButton={true}
+                showPickupOption={eventType === 'match'}
+                onTeamCreated={(teamId, teamName) => {
+                  setSelectedTeamId(teamId);
+                  setSelectedTeamName(teamName);
+                }}
+              />
+              {eventType === 'match' && (
+                <div className="flex items-center gap-1.5 text-[10px] mt-1">
+                  {isPickupGame ? (
+                    <>
+                      <Globe className="h-3 w-3 text-primary" />
+                      <span className="text-muted-foreground">{t('form.visibility.public')}</span>
+                    </>
+                  ) : selectedTeamId ? (
+                    <>
+                      <Lock className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-muted-foreground">{t('form.visibility.teamOnly')}</span>
+                    </>
+                  ) : null}
+                </div>
+              )}
+            </FieldRow>
+          )}
+
+          {/* 6 ── Opponent (match only, always visible in main form) ── */}
+          {showOpponentSection && (
+            <FieldRow icon={Swords} separator={false} iconAlign="top">
+              <div className="space-y-2">
+                {/* Mode toggle */}
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setOpponentInputMode('manual')}
+                    className={cn(
+                      "h-5 px-2 rounded-full text-[10px] font-medium border transition-all",
+                      opponentInputMode === 'manual'
+                        ? "bg-primary/10 text-primary border-primary/30"
+                        : "border-border text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {t('form.game.enterManually')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOpponentInputMode('select')}
+                    className={cn(
+                      "h-5 px-2 rounded-full text-[10px] font-medium border transition-all",
+                      opponentInputMode === 'select'
+                        ? "bg-primary/10 text-primary border-primary/30"
+                        : "border-border text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {t('form.game.selectTeam')}
+                  </button>
+                </div>
+
+                {/* Opponent input */}
+                {opponentInputMode === 'manual' ? (
+                  <FormField
+                    control={form.control}
+                    name="opponentName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <input
+                            {...field}
+                            placeholder={t('form.game.opponentPlaceholder')}
+                            className="w-full bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground/50 text-foreground"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                ) : (
+                  <TeamSelector
+                    selectedTeamId={opponentTeamId || undefined}
+                    onSelect={handleOpponentSelect}
+                    excludeTeamId={selectedTeamId || undefined}
+                    sportFilter={selectedSport || undefined}
+                    placeholder={t('form.game.opponentPlaceholder')}
+                  />
+                )}
+
+                {/* Home / Away / Neutral — only when a team is selected */}
+                {showHomeAwayToggle && (
+                  <div className="flex gap-1">
+                    {(['home', 'away', 'neutral'] as const).map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setHomeAway(option)}
+                        className={cn(
+                          "px-2.5 py-0.5 rounded-full text-[10px] font-medium border transition-all duration-150",
+                          homeAway === option
+                            ? "bg-primary/10 text-primary border-primary/30"
+                            : "border-border text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        {t(`game.${option}`)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </FieldRow>
+          )}
+
+        </div>
+
+        {/* ── Section divider ── */}
+        <SectionDivider />
+
+        <div className="divide-y divide-border">
+
+          {/* 7 ── Date / Time / Duration ── */}
           <FieldRow icon={CalendarIcon} separator={false}>
             <Popover open={dateOpen} onOpenChange={setDateOpen}>
               <PopoverTrigger asChild>
@@ -431,7 +584,7 @@ export const UnifiedEventForm = ({
                   </span>
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-auto p-0 bg-popover border border-border shadow-lg z-50" align="start">
                 <FormField
                   control={form.control}
                   name="date"
@@ -478,7 +631,7 @@ export const UnifiedEventForm = ({
             <FormField control={form.control} name="date" render={() => <FormMessage className="text-xs mt-1" />} />
           </FieldRow>
 
-          {/* 6 ── Where ── */}
+          {/* 8 ── Where ── */}
           <FieldRow icon={MapPin} separator={false}>
             {showLocationMode && (
               <div className="flex gap-1.5 mb-2">
@@ -494,7 +647,7 @@ export const UnifiedEventForm = ({
                     className={cn(
                       "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-150",
                       locationMode === mode
-                        ? "bg-primary text-primary-foreground border-primary"
+                        ? "bg-primary/10 text-primary border-primary/30"
                         : "border-border text-muted-foreground hover:text-foreground"
                     )}
                   >
@@ -549,42 +702,7 @@ export const UnifiedEventForm = ({
             )}
           </FieldRow>
 
-          {/* 7 ── Team(s) ── */}
-          {showTeamSelector && (
-            <FieldRow icon={Users} separator={false}>
-              <MyTeamSelector
-                value={selectedTeamId}
-                onChange={handleTeamSelect}
-                sportFilter={selectedSport || undefined}
-                label={eventType === 'match' ? t('form.game.yourTeam') : t('details.team')}
-                placeholder={eventType === 'match' ? t('form.game.pickupOrTeam') : t('form.game.selectTeam')}
-                forEventCreation={true}
-                showCreateButton={true}
-                showPickupOption={eventType === 'match'}
-                onTeamCreated={(teamId, teamName) => {
-                  setSelectedTeamId(teamId);
-                  setSelectedTeamName(teamName);
-                }}
-              />
-              {eventType === 'match' && (
-                <div className="flex items-center gap-1.5 text-[10px] mt-1">
-                  {isPickupGame ? (
-                    <>
-                      <Globe className="h-3 w-3 text-primary" />
-                      <span className="text-muted-foreground">{t('form.visibility.public')}</span>
-                    </>
-                  ) : selectedTeamId ? (
-                    <>
-                      <Lock className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-muted-foreground">{t('form.visibility.teamOnly')}</span>
-                    </>
-                  ) : null}
-                </div>
-              )}
-            </FieldRow>
-          )}
-
-          {/* 8 ── Visibility ── */}
+          {/* 9 ── Visibility ── */}
           {eventType !== 'match' && (
             <FormField
               control={form.control}
@@ -609,7 +727,7 @@ export const UnifiedEventForm = ({
             />
           )}
 
-          {/* 9 ── Cost ── */}
+          {/* 10 ── Cost ── */}
           <FieldRow icon={Euro} separator={false} iconAlign="center">
             <div className="flex items-center justify-between">
               <p className="text-sm">
@@ -681,374 +799,292 @@ export const UnifiedEventForm = ({
             </AnimatePresence>
           </FieldRow>
 
-          {/* 10 ── More options ── */}
-          <div className="py-3">
-            <button
-              type="button"
-              onClick={() => setShowMoreOptions(!showMoreOptions)}
-              className="pl-7 text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition-colors flex items-center gap-1"
-            >
-              {t('form.moreOptions')}
-              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", showMoreOptions && "rotate-180")} />
-            </button>
+        </div>
 
-            <AnimatePresence initial={false}>
-              {showMoreOptions && (
-                <motion.div
-                  layout={false}
-                  key="more-options"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                  className="overflow-hidden"
-                >
-                  <div className="divide-y divide-border mt-2 border-t border-border">
+        {/* 11 ── More options ── */}
+        <div className="py-3">
+          <button
+            type="button"
+            onClick={() => setShowMoreOptions(!showMoreOptions)}
+            className="pl-7 text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition-colors flex items-center gap-1"
+          >
+            {t('form.moreOptions')}
+            <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", showMoreOptions && "rotate-180")} />
+          </button>
 
-                    {/* Max participants */}
-                    <FormField
-                      control={form.control}
-                      name="maxParticipants"
-                      render={({ field }) => (
-                        <div className="flex items-center justify-between py-2.5 pl-7">
-                          <Label className="text-sm flex items-center gap-2 text-foreground">
-                            <Users className="h-4 w-4 text-muted-foreground" />
-                            {t('form.maxParticipants')}
-                          </Label>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              type="number"
-                              min="2"
-                              max="100"
-                              placeholder="--"
-                              className="w-20 h-9 text-xs text-right"
-                            />
-                          </FormControl>
-                        </div>
-                      )}
-                    />
+          <AnimatePresence initial={false}>
+            {showMoreOptions && (
+              <motion.div
+                layout={false}
+                key="more-options"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="divide-y divide-border mt-2 border-t border-border">
 
-                    {/* Recurrence */}
-                    <div className="flex items-center justify-between py-2.5 pl-7">
-                      <Label className="text-sm flex items-center gap-2 text-foreground">
-                        <Repeat className="h-4 w-4 text-muted-foreground" />
-                        {t('form.repeat')}
-                      </Label>
-                      <Select
-                        value={recurrenceType}
-                        onValueChange={(value: RecurrenceType) => {
-                          setRecurrenceType(value);
-                          setIsRecurring(value !== 'none');
-                        }}
-                      >
-                        <SelectTrigger className="w-28 h-8 text-xs">
-                          <SelectValue placeholder={t('form.recurrence.selectFrequency')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(['none', 'daily', 'weekly', 'monthly'] as RecurrenceType[]).map((type) => (
-                            <SelectItem key={type} value={type}>{t(`form.recurrence.${type}`)}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {isRecurring && (
-                      <div className="py-2 pl-6">
-                        <Label className="text-[10px] text-muted-foreground block mb-1">{t('form.recurrence.until')}</Label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button variant="outline" className="w-full h-8 justify-start text-left font-normal min-w-0 text-xs">
-                              <span className="truncate flex-1">
-                                {recurrenceEndDate ? format(recurrenceEndDate, "MMM dd, yyyy") : t('form.recurrence.noEndDate')}
-                              </span>
-                              <CalendarIcon className="ml-1.5 h-3.5 w-3.5 opacity-50 shrink-0" />
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar mode="single" selected={recurrenceEndDate} onSelect={setRecurrenceEndDate} disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }} className="pointer-events-auto" />
-                          </PopoverContent>
-                        </Popover>
-                      </div>
-                    )}
-
-                    {/* RSVP Deadline */}
-                    <div className="py-2.5 space-y-2">
-                      <div className="flex items-center justify-between pl-7">
+                  {/* Max participants */}
+                  <FormField
+                    control={form.control}
+                    name="maxParticipants"
+                    render={({ field }) => (
+                      <div className="flex items-center justify-between py-2.5 pl-7">
                         <Label className="text-sm flex items-center gap-2 text-foreground">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          {t('form.rsvpDeadline')}
+                          <Users className="h-4 w-4 text-muted-foreground" />
+                          {t('form.maxParticipants')}
                         </Label>
-                        <Switch checked={showRsvpDeadline} onCheckedChange={setShowRsvpDeadline} />
-                      </div>
-
-                      {showRsvpDeadline && (
-                        <div className="space-y-2 pl-6">
-                          <div className="flex flex-wrap gap-1.5">
-                            {DEADLINE_PRESETS.map((preset) => (
-                              <button
-                                key={preset.value}
-                                type="button"
-                                onClick={() => setDeadlinePreset(preset.value)}
-                                className={cn(
-                                  "px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-150",
-                                  deadlinePreset === preset.value
-                                    ? "bg-primary text-primary-foreground border-primary"
-                                    : "border-border text-muted-foreground hover:text-foreground"
-                                )}
-                              >
-                                {t(`form.deadline.${preset.value}`)}
-                              </button>
-                            ))}
-                          </div>
-
-                          {deadlinePreset === 'custom' && (
-                            <div className="flex gap-2">
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button type="button" variant="outline" className="flex-1 h-8 justify-start text-left font-normal text-xs">
-                                    <CalendarIcon className="mr-1.5 h-3.5 w-3.5 opacity-50" />
-                                    {customDeadline ? format(customDeadline, "MMM dd, yyyy") : t('form.pickDate')}
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                  <Calendar
-                                    mode="single"
-                                    selected={customDeadline}
-                                    onSelect={(date) => {
-                                      if (date) {
-                                        const newDate = new Date(date);
-                                        if (customDeadline) {
-                                          newDate.setHours(customDeadline.getHours(), customDeadline.getMinutes());
-                                        } else {
-                                          newDate.setHours(18, 0);
-                                        }
-                                        setCustomDeadline(newDate);
-                                      }
-                                    }}
-                                    disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }}
-                                    className="pointer-events-auto"
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                              <Input
-                                type="time"
-                                value={customDeadline ? format(customDeadline, 'HH:mm') : '18:00'}
-                                onChange={(e) => {
-                                  const [hours, mins] = e.target.value.split(':').map(Number);
-                                  const newDate = customDeadline ? new Date(customDeadline) : new Date();
-                                  newDate.setHours(hours, mins);
-                                  setCustomDeadline(newDate);
-                                }}
-                                className="w-20 h-8 text-xs"
-                              />
-                            </div>
-                          )}
-
-                          {watchedDate && watchedStartTime && (
-                            <p className="text-[10px] text-primary">
-                              {(() => {
-                                const [hours, minutes] = watchedStartTime.split(':').map(Number);
-                                const eventDateTime = new Date(watchedDate);
-                                eventDateTime.setHours(hours, minutes, 0, 0);
-                                const deadline = calculateRsvpDeadline(eventDateTime);
-                                if (deadline) return t('form.deadlinePreview', { time: format(deadline, 'EEE MMM d, HH:mm') });
-                                return null;
-                              })()}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Looking for Players */}
-                    {showLookingForPlayersSection && (
-                      <div className="py-2.5 space-y-2">
-                        <div className="flex items-center justify-between pl-7">
-                          <Label className="text-sm flex items-center gap-2 text-foreground">
-                            <UserPlus className="h-4 w-4 text-muted-foreground" />
-                            {t('lookingForPlayers.title')}
-                          </Label>
-                          <Switch checked={lookingForPlayers} onCheckedChange={setLookingForPlayers} />
-                        </div>
-
-                        {lookingForPlayers && (
-                          <div className="pl-6">
-                            <Select value={playersNeeded} onValueChange={setPlayersNeeded}>
-                              <SelectTrigger className="h-8 text-xs">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {[1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 20].map((num) => (
-                                  <SelectItem key={num} value={num.toString()}>
-                                    {num} {num === 1 ? t('lookingForPlayers.player', { defaultValue: 'player' }) : t('lookingForPlayers.players', { defaultValue: 'players' })}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        )}
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="number"
+                            min="2"
+                            max="100"
+                            placeholder="--"
+                            className="w-20 h-9 text-xs text-right"
+                          />
+                        </FormControl>
                       </div>
                     )}
+                  />
 
-                    {/* Training intensity */}
-                    {eventType === 'training' && (
-                      <div className="py-2.5 space-y-2">
-                        <Label className="text-xs text-muted-foreground">{t('form.training.intensity')}</Label>
-                        <div className="flex gap-1.5">
-                          {TRAINING_INTENSITIES.map((level) => (
+                  {/* Recurrence */}
+                  <div className="flex items-center justify-between py-2.5 pl-7">
+                    <Label className="text-sm flex items-center gap-2 text-foreground">
+                      <Repeat className="h-4 w-4 text-muted-foreground" />
+                      {t('form.repeat')}
+                    </Label>
+                    <Select
+                      value={recurrenceType}
+                      onValueChange={(value: RecurrenceType) => {
+                        setRecurrenceType(value);
+                        setIsRecurring(value !== 'none');
+                      }}
+                    >
+                      <SelectTrigger className="w-28 h-8 text-xs">
+                        <SelectValue placeholder={t('form.recurrence.selectFrequency')} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border border-border shadow-lg z-50">
+                        {(['none', 'daily', 'weekly', 'monthly'] as RecurrenceType[]).map((type) => (
+                          <SelectItem key={type} value={type}>{t(`form.recurrence.${type}`)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {isRecurring && (
+                    <div className="py-2 pl-6">
+                      <Label className="text-[10px] text-muted-foreground block mb-1">{t('form.recurrence.until')}</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="w-full h-8 justify-start text-left font-normal min-w-0 text-xs">
+                            <span className="truncate flex-1">
+                              {recurrenceEndDate ? format(recurrenceEndDate, "MMM dd, yyyy") : t('form.recurrence.noEndDate')}
+                            </span>
+                            <CalendarIcon className="ml-1.5 h-3.5 w-3.5 opacity-50 shrink-0" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 bg-popover border border-border shadow-lg z-50" align="start">
+                          <Calendar mode="single" selected={recurrenceEndDate} onSelect={setRecurrenceEndDate} disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }} className="pointer-events-auto" />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  )}
+
+                  {/* RSVP Deadline */}
+                  <div className="py-2.5 space-y-2">
+                    <div className="flex items-center justify-between pl-7">
+                      <Label className="text-sm flex items-center gap-2 text-foreground">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        {t('form.rsvpDeadline')}
+                      </Label>
+                      <Switch checked={showRsvpDeadline} onCheckedChange={setShowRsvpDeadline} />
+                    </div>
+
+                    {showRsvpDeadline && (
+                      <div className="space-y-2 pl-6">
+                        <div className="flex flex-wrap gap-1.5">
+                          {DEADLINE_PRESETS.map((preset) => (
                             <button
-                              key={level}
+                              key={preset.value}
                               type="button"
-                              onClick={() => setTrainingIntensity(level)}
+                              onClick={() => setDeadlinePreset(preset.value)}
                               className={cn(
-                                "flex-1 h-8 rounded-full text-xs font-medium border transition-all duration-150",
-                                trainingIntensity === level
-                                  ? "bg-primary text-primary-foreground border-primary"
+                                "px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-150",
+                                deadlinePreset === preset.value
+                                  ? "bg-primary/10 text-primary border-primary/30"
                                   : "border-border text-muted-foreground hover:text-foreground"
                               )}
                             >
-                              {t(`form.training.intensity_${level}`)}
+                              {t(`form.deadline.${preset.value}`)}
                             </button>
                           ))}
                         </div>
-                      </div>
-                    )}
 
-                    {/* Meetup category */}
-                    {showCategorySelector && (
-                      <div className="py-2.5 space-y-2">
-                        <Label className="text-xs text-muted-foreground">{t('form.meetup.category')}</Label>
-                        <div className="flex flex-wrap gap-1.5">
-                          {MEETUP_CATEGORIES.map(({ value, emoji }) => {
-                            const isSelected = selectedCategory === value;
-                            return (
-                              <button
-                                key={value}
-                                type="button"
-                                onClick={() => setSelectedCategory(value)}
-                                className={cn(
-                                  "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-150",
-                                  isSelected
-                                    ? "bg-primary text-primary-foreground border-primary"
-                                    : "border-border text-foreground hover:border-foreground/40"
-                                )}
-                              >
-                                <span className="text-sm leading-none">{emoji}</span>
-                                {getCategoryLabel(value)}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Match details: opponent + home/away */}
-                    {(showOpponentSection || showHomeAwayToggle) && (
-                      <div className="py-2.5 space-y-3">
-                        {showOpponentSection && (
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <Label className="text-xs text-muted-foreground">{t('form.game.opponentTeam')}</Label>
-                              <div className="flex gap-1">
-                                <button
-                                  type="button"
-                                  onClick={() => setOpponentInputMode('select')}
-                                  className={cn(
-                                    "h-6 px-2 rounded-full text-[10px] font-medium border transition-all",
-                                    opponentInputMode === 'select'
-                                      ? "bg-primary text-primary-foreground border-primary"
-                                      : "border-border text-muted-foreground hover:text-foreground"
-                                  )}
-                                >
-                                  {t('form.game.selectTeam')}
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setOpponentInputMode('manual')}
-                                  className={cn(
-                                    "h-6 px-2 rounded-full text-[10px] font-medium border transition-all",
-                                    opponentInputMode === 'manual'
-                                      ? "bg-primary text-primary-foreground border-primary"
-                                      : "border-border text-muted-foreground hover:text-foreground"
-                                  )}
-                                >
-                                  {t('form.game.enterManually')}
-                                </button>
-                              </div>
-                            </div>
-                            {opponentInputMode === 'select' ? (
-                              <TeamSelector
-                                selectedTeamId={opponentTeamId || undefined}
-                                onSelect={handleOpponentSelect}
-                                excludeTeamId={selectedTeamId || undefined}
-                                sportFilter={selectedSport || undefined}
-                                placeholder={t('form.game.opponentPlaceholder')}
-                              />
-                            ) : (
-                              <FormField
-                                control={form.control}
-                                name="opponentName"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input {...field} placeholder={t('form.game.opponentPlaceholder')} className="h-8 text-xs" />
-                                    </FormControl>
-                                  </FormItem>
-                                )}
-                              />
-                            )}
+                        {deadlinePreset === 'custom' && (
+                          <div className="flex gap-2">
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button type="button" variant="outline" className="flex-1 h-8 justify-start text-left font-normal text-xs">
+                                  <CalendarIcon className="mr-1.5 h-3.5 w-3.5 opacity-50" />
+                                  {customDeadline ? format(customDeadline, "MMM dd, yyyy") : t('form.pickDate')}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0 bg-popover border border-border shadow-lg z-50" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={customDeadline}
+                                  onSelect={(date) => {
+                                    if (date) {
+                                      const newDate = new Date(date);
+                                      if (customDeadline) {
+                                        newDate.setHours(customDeadline.getHours(), customDeadline.getMinutes());
+                                      } else {
+                                        newDate.setHours(18, 0);
+                                      }
+                                      setCustomDeadline(newDate);
+                                    }
+                                  }}
+                                  disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }}
+                                  className="pointer-events-auto"
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            <Input
+                              type="time"
+                              value={customDeadline ? format(customDeadline, 'HH:mm') : '18:00'}
+                              onChange={(e) => {
+                                const [hours, mins] = e.target.value.split(':').map(Number);
+                                const newDate = customDeadline ? new Date(customDeadline) : new Date();
+                                newDate.setHours(hours, mins);
+                                setCustomDeadline(newDate);
+                              }}
+                              className="w-20 h-8 text-xs"
+                            />
                           </div>
                         )}
 
-                        {showHomeAwayToggle && (
-                          <div className="space-y-2">
-                            <Label className="text-xs text-muted-foreground">{t('game.homeAway')}</Label>
-                            <div className="flex gap-1.5">
-                              {(['home', 'away', 'neutral'] as const).map((option) => (
-                                <button
-                                  key={option}
-                                  type="button"
-                                  onClick={() => setHomeAway(option)}
-                                  className={cn(
-                                    "flex-1 h-8 rounded-full text-xs font-medium border transition-all duration-150",
-                                    homeAway === option
-                                      ? "bg-primary text-primary-foreground border-primary"
-                                      : "border-border text-muted-foreground hover:text-foreground"
-                                  )}
-                                >
-                                  {t(`game.${option}`)}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
+                        {watchedDate && watchedStartTime && (
+                          <p className="text-[10px] text-primary">
+                            {(() => {
+                              const [hours, minutes] = watchedStartTime.split(':').map(Number);
+                              const eventDateTime = new Date(watchedDate);
+                              eventDateTime.setHours(hours, minutes, 0, 0);
+                              const deadline = calculateRsvpDeadline(eventDateTime);
+                              if (deadline) return t('form.deadlinePreview', { time: format(deadline, 'EEE MMM d, HH:mm') });
+                              return null;
+                            })()}
+                          </p>
                         )}
                       </div>
                     )}
-
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
 
-          {/* ── Submit ── */}
-          <div className="pt-3">
-            <Button type="submit" className="w-full h-11 text-sm font-semibold" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {t('form.creating', 'Creating...')}
-                </span>
-              ) : (
-                eventType === 'training' ? t('form.training.create')
-                : eventType === 'match' ? t('form.game.create')
-                : t('form.meetup.create')
-              )}
-            </Button>
-          </div>
+                  {/* Looking for Players */}
+                  {showLookingForPlayersSection && (
+                    <div className="py-2.5 space-y-2">
+                      <div className="flex items-center justify-between pl-7">
+                        <Label className="text-sm flex items-center gap-2 text-foreground">
+                          <UserPlus className="h-4 w-4 text-muted-foreground" />
+                          {t('lookingForPlayers.title')}
+                        </Label>
+                        <Switch checked={lookingForPlayers} onCheckedChange={setLookingForPlayers} />
+                      </div>
 
+                      {lookingForPlayers && (
+                        <div className="pl-6">
+                          <Select value={playersNeeded} onValueChange={setPlayersNeeded}>
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-popover border border-border shadow-lg z-50">
+                              {[1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 20].map((num) => (
+                                <SelectItem key={num} value={num.toString()}>
+                                  {num} {num === 1 ? t('lookingForPlayers.player', { defaultValue: 'player' }) : t('lookingForPlayers.players', { defaultValue: 'players' })}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Training intensity */}
+                  {eventType === 'training' && (
+                    <div className="py-2.5 space-y-2 pl-7">
+                      <Label className="text-xs text-muted-foreground">{t('form.training.intensity')}</Label>
+                      <div className="flex gap-1.5">
+                        {TRAINING_INTENSITIES.map((level) => (
+                          <button
+                            key={level}
+                            type="button"
+                            onClick={() => setTrainingIntensity(level)}
+                            className={cn(
+                              "flex-1 h-8 rounded-full text-xs font-medium border transition-all duration-150",
+                              trainingIntensity === level
+                                ? "bg-primary/10 text-primary border-primary/30"
+                                : "border-border text-muted-foreground hover:text-foreground"
+                            )}
+                          >
+                            {t(`form.training.intensity_${level}`)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Meetup category */}
+                  {showCategorySelector && (
+                    <div className="py-2.5 space-y-2 pl-7">
+                      <Label className="text-xs text-muted-foreground">{t('form.meetup.category')}</Label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {MEETUP_CATEGORIES.map(({ value, emoji }) => {
+                          const isSelected = selectedCategory === value;
+                          return (
+                            <button
+                              key={value}
+                              type="button"
+                              onClick={() => setSelectedCategory(value)}
+                              className={cn(
+                                "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-150",
+                                isSelected
+                                  ? "bg-primary/10 text-primary border-primary/30"
+                                  : "border-border text-foreground hover:border-foreground/40"
+                              )}
+                            >
+                              <span className="text-sm leading-none">{emoji}</span>
+                              {getCategoryLabel(value)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
+
+        {/* ── Submit ── */}
+        <div className="mt-2 pt-3 border-t border-border">
+          <Button type="submit" className="w-full h-11 text-sm font-semibold" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {t('form.creating', 'Creating...')}
+              </span>
+            ) : (
+              eventType === 'training' ? t('form.training.create')
+              : eventType === 'match' ? t('form.game.create')
+              : t('form.meetup.create')
+            )}
+          </Button>
+        </div>
+
       </form>
     </Form>
   );
