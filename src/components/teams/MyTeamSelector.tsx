@@ -34,6 +34,8 @@ interface MyTeamSelectorProps {
   onTeamCreated?: (teamId: string, teamName: string) => void;
   /** Show pickup game option for match events */
   showPickupOption?: boolean;
+  /** When true, suppress the label element — value/placeholder shown only in trigger */
+  hideLabel?: boolean;
 }
 
 export const MyTeamSelector = ({
@@ -48,6 +50,7 @@ export const MyTeamSelector = ({
   showCreateButton = false,
   onTeamCreated,
   showPickupOption = false,
+  hideLabel = false,
 }: MyTeamSelectorProps) => {
   const { t, i18n } = useTranslation(['teams', 'common', 'events']);
   const lang = (i18n.language?.split('-')[0] || 'en') as 'en' | 'fr';
@@ -190,7 +193,7 @@ export const MyTeamSelector = ({
 
   return (
     <div className="space-y-2">
-      {label && <Label className="text-xs">{label}</Label>}
+      {label && !hideLabel && <Label className="text-xs">{label}</Label>}
       
       {loading ? (
         <Skeleton className="h-10 w-full" />
