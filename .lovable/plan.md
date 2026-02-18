@@ -1,82 +1,91 @@
 
-# Apply "Inline Magic" Design to the Edit Event Dialog
+# Event Form Critique & Modernization Plan
 
-## What the Edit Dialog Currently Is
+## What I See Right Now (Visual Audit)
 
-The `EditEventDialog` is a completely separate component that still uses the **old card-based design** from before the revolutionary redesign — `Label + Input` pairs stacked with `space-y-4`, a `bg-muted/30 rounded-xl border` card for visibility, and a visually inconsistent cost section with inverted toggle logic. It looks like a different app compared to the polished creation form.
+Looking at the live form screenshot, here are the specific problems in descending order of impact:
 
-## Gap Analysis: Creation vs. Edit
+---
 
-| Aspect | Creation Form (new) | Edit Dialog (old) |
-|--------|--------------------|--------------------|
-| Layout | Icon-anchored `FieldRow` rows with `divide-y` | `space-y-4` stacked `Label + Input` pairs |
-| Title/Notes | Ghost input, borderless | Bordered `<Input>` with a `<Label>` header |
-| Date/Time | Single tappable row → expands to time + duration pills | Separate `<Input type="date">` + 2 `<Input type="time">` side by side |
-| Location | `AddressAutocomplete` (ghost style via `DistrictSelector`) | `AddressAutocomplete` with full `<Label>` header |
-| Visibility | Clean toggle row with icon that changes Globe/Lock | Card box (`bg-muted/30 rounded-xl border`) with Switch |
-| Cost | `hasCost` default `false`, AnimatePresence expand | `isFree` (inverted logic), plain styled section |
-| Match fields | Inside "More options" collapsible | Always visible, above visibility |
-| Max participants | Inside "More options" | Progressive disclosure ghost button |
-| Submit | `w-full h-11` with Loader2 spinner | `flex justify-end` with two buttons |
-| Separator style | `divide-y divide-border` between rows | None — open space |
+### Problem 1 — Sport selector is a chaotic wrapping grid, not a pill row
+The 6 sport chips **wrap into 3 rows** (Padel/Tennis, Soccer/Basketball, Badminton/Volleyball, then +7). This makes it look like a tag cloud, not a selector. The icon to the left of the chip area is also a weird double-icon (the sport chip has its own emoji AND the row has a Dumbbell icon to its left). The wrapping also creates uneven bottom margins that misalign the separator below it.
 
-## Redesign Approach
+**Fix:** Make the sport chips horizontally scrollable in a single row (`overflow-x-auto flex-nowrap`), so they never wrap. Hide the scrollbar. This is how every modern app (Airbnb, Meetup, Strava) handles chip selectors.
 
-The edit dialog will adopt **every design pattern** from the creation form:
+---
 
-### 1. `FieldRow` component (same definition, local copy)
-Same icon-anchored row pattern with `border-b border-border`, `gap-3`, `py-3`, and `iconAlign` prop — defined outside the component to prevent scroll-jump.
+### Problem 2 — Location input is a bordered box inside a FieldRow — broken paradigm
+The `Address or venue name` field renders inside a **`rounded-lg border`** box, while every other field (Title, Description, Date) is a flat ghost input. This completely breaks the visual language of the form — it looks like a different component pasted in.
 
-### 2. Ghost inputs for Title & Description
-- Title: `bg-transparent border-0 outline-none text-sm font-medium` full-width input
-- Description: `bg-transparent border-0 outline-none text-sm resize-none` 2-row textarea
+**Fix:** The `DistrictSelector`/`AddressAutocomplete` must render as a ghost input (`bg-transparent border-0`) consistent with Title and Description. The `MapPin` icon in the FieldRow is the visual anchor — no extra border needed.
 
-### 3. Date/Time as a single collapsed row
-- Display: `📅 Sat, Mar 8 · 19:00 → 20:30` (computed from existing start/end times)
-- When date row is tapped: show a native `<input type="date">` + time pickers in a `bg-muted/30 rounded-lg border` container, matching the creation form's "time + duration" sub-row pattern
-- Keep `startTime` and `endTime` state as-is (edit doesn't use duration, it uses an explicit end time — that distinction is preserved)
+---
 
-### 4. Location as ghost address autocomplete
-Remove the `Label` header; the `MapPin` icon in `FieldRow` provides the semantic anchor. `AddressAutocomplete` renders inline.
+### Problem 3 — Team row is a full-height bordered Select dropdown — incongruent
+The "Team" row uses a large `Select` component that renders a rounded border + "Select" placeholder with a chevron. This is the only field in the form that uses a standard form dropdown, visually it fights everything around it.
 
-### 5. Visibility: clean toggle row
-Replace the `bg-muted/30 rounded-xl border` card with a `FieldRow` using the Globe/Lock icon (switching based on state), matching the creation form exactly.
+**Fix:** The team selector should look like a ghost trigger (text + chevron inline, no border box), consistent with the date row's tap-to-expand pattern.
 
-### 6. Cost: fix inverted logic + AnimatePresence
-- Rename `isFree` → `hasCost` (default `false` = free, toggle ON = paid)
-- Add `AnimatePresence` for the expanding cost detail section
-- Use the `Link2` + ghost input pill for the payment link, matching creation
+---
 
-### 7. Match fields + Max Participants → "More options"
-- Move opponent name, home/away selector, and max participants into a collapsible "More options" section at the bottom
-- Use the same `ChevronDown` subtle text link pattern as the creation form
-- Interior items use `pl-7` indent and `divide-y divide-border` separation
+### Problem 4 — Type selector pills are filled/solid blue — too heavy for a tab
+The "Training" pill has `bg-primary text-primary-foreground` (solid blue fill). For a form that uses ghost inputs and subtle separators, a **solid filled pill** at the very top is jarring — it commands too much visual weight. This is the first element the eye hits.
 
-### 8. Submit actions redesign
-- Remove the side-by-side Cancel + Save buttons
-- Replace with a full-width `w-full h-11` "Save Changes" button with `Loader2` spinner
-- Add a small "Cancel" text link above or the dialog's built-in X close button handles cancel
+**Fix:** Change the selected type pill to use `bg-primary/10 text-primary border-primary/40` (tinted, not filled). Same primary color brand, but lighter — feels like a tab, not a button. This harmonizes with the rest of the form's light aesthetic.
 
-## Field Order (matching the plan's specification)
+---
 
-```text
-1. Title (ghost input, PenLine icon)
-2. Description/Note (ghost textarea, AlignLeft icon)
-3. Date & Time (single row → expands inline, CalendarIcon)
-4. Location (address autocomplete, MapPin icon)
-5. Visibility Public/Private (Globe/Lock icon toggle row)
-6. Cost/Tarif (Euro icon toggle row, AnimatePresence expand)
-7. "More options" text link → collapsible:
-   - Max participants
-   - Match: Opponent + Home/Away (only for match type)
-[Save Changes button - full width]
-```
+### Problem 5 — "Public Event / Free event" rows have inconsistent label weights
+"Public Event" uses `font-medium` (bold) while "Free event" also uses `font-medium`. But the descriptions below them ("Visible to all users") are `text-[11px] text-muted-foreground`. This creates a heavy title → tiny description contrast that feels cramped.
+
+**Fix:** Reduce the toggle label to `text-sm` (no font-medium), and bump the description to `text-xs` for a more proportional hierarchy. The Switch on the right gives enough affordance — the label doesn't need to be bold.
+
+---
+
+### Problem 6 — Vertical rhythm is uneven: some rows feel taller
+The Sport row is 3 rows tall (chip wrap), Date row is 1 line, Location row has an inner box with padding, Team row has the Select height. This creates extremely variable row heights with no visual rhythm. The user's eye has to re-calibrate between every row.
+
+**Fix:** With the sport chip scroll fix and the location ghost fix, all rows settle into a natural ~44px single-line height, creating a consistent rhythm.
+
+---
+
+### Problem 7 — "More options" chevron link is at the far left, Submit button is flush to the edge
+The "More options ↓" link starts from `x=0` (left edge), while all FieldRow content starts at `x=~28px` (after the icon). This creates a misalignment — the link isn't anchored to anything. Similarly the `Create Training` button is a nice full-width pill but has no top breathing room from the "More options" row.
+
+**Fix:** Add `pl-7` to the "More options" trigger, aligning it with the main content column. Add `mt-1` spacing between "More options" and the submit button.
+
+---
+
+### Problem 8 — Dialog title "Create New Event" is generic
+The dialog shows "Create New Event" as a static title regardless of which type is selected. This is a missed opportunity for micro-feedback.
+
+**Fix:** Make the title dynamic: "New Training", "New Game", "New Social" — updating reactively when the user taps a type pill. This is the Notion/Linear approach to form identity.
+
+---
+
+## Summary Table
+
+| # | Issue | Where | Fix |
+|---|-------|--------|-----|
+| 1 | Sport chips wrap into 3 rows | SportQuickSelector | `flex-nowrap overflow-x-auto` single scrollable row |
+| 2 | Location has a bordered box inside ghost form | DistrictSelector | Ghost styling — remove inner border |
+| 3 | Team uses full Select dropdown | MyTeamSelector row | Ghost trigger inline style |
+| 4 | Type pill is solid filled blue | EventTypeSelector | Tinted (`bg-primary/10 text-primary`) not solid |
+| 5 | Toggle labels too bold, descriptions too small | UnifiedEventForm | `text-sm` label, `text-xs` description |
+| 6 | Uneven row heights | Multiple | Fixed by #1 + #2 above |
+| 7 | "More options" misaligned, no breathing room | UnifiedEventForm | `pl-7` + `mt-1` |
+| 8 | Static generic dialog title | CreateEventDialog | Dynamic title per event type |
+
+---
 
 ## Files Changed
 
-| File | Change |
-|------|--------|
-| `src/components/events/EditEventDialog.tsx` | Full redesign: add local `FieldRow`, ghost inputs, collapsed date row, clean visibility row, fixed cost logic with `hasCost`, match details in "More options", full-width submit button. Imports: add `AnimatePresence`, `motion`, `Link2`, `ChevronDown`, `PenLine`, `AlignLeft`, `MapPin`, `Popover`, `Calendar` from existing deps |
+| File | Changes |
+|------|---------|
+| `src/components/events/SportQuickSelector.tsx` | `flex-nowrap overflow-x-auto` + hide scrollbar — chips never wrap |
+| `src/components/events/EventTypeSelector.tsx` | Selected pill style: `bg-primary/10 text-primary border-primary/40` instead of solid |
+| `src/components/events/UnifiedEventForm.tsx` | Location ghost style, toggle label sizing, "More options" `pl-7`, `mt-1` button spacing, dynamic title prop |
+| `src/components/location/DistrictSelector.tsx` | Expose a `ghost` prop or className pass-through to remove inner border when used in the form |
+| `src/components/events/CreateEventDialog.tsx` | Dynamic dialog title based on selected event type (requires lifting type state or passing title down) |
 
-No new dependencies needed — `framer-motion`, `lucide-react`, and all UI components are already installed.
-No database, schema, or translation changes required.
+No database changes. No new dependencies.
