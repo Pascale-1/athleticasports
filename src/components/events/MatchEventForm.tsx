@@ -28,7 +28,6 @@ const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(100),
   opponentName: z.string().max(100).optional(),
   homeAway: z.enum(['home', 'away', 'neutral']),
-  matchFormat: z.string().max(100).optional(),
   description: z.string().max(500).optional(),
   date: z.date({ required_error: "Date is required" }),
   startTime: z.string().min(1, "Start time is required"),
@@ -67,31 +66,18 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
       title: "",
       opponentName: "",
       homeAway: 'home',
-      matchFormat: "",
       description: "",
       startTime: "15:00",
       maxParticipants: "",
     },
   });
 
-  const selectedFormat = form.watch('matchFormat');
-
-  // Update duration and players when sport/format changes
+  // Update duration when sport changes
   useEffect(() => {
     if (effectiveSport) {
       setDuration(sportDefaults.duration);
     }
   }, [effectiveSport, sportDefaults.duration]);
-
-  // Auto-fill players when format is selected
-  useEffect(() => {
-    if (selectedFormat && effectiveSport) {
-      const players = getPlayersForFormat(effectiveSport, selectedFormat);
-      if (players) {
-        form.setValue('maxParticipants', String(players));
-      }
-    }
-  }, [selectedFormat, effectiveSport, form]);
 
   // Reset opponent and home team when sport changes (only if no fixed teamId)
   useEffect(() => {
@@ -130,7 +116,6 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
       opponent_name: opponentTeamId ? undefined : (opponentTeamName || values.opponentName),
       opponent_logo_url: opponentLogoUrl || undefined,
       home_away: values.homeAway,
-      match_format: values.matchFormat || undefined,
       location: locationString,
       location_type: locationString ? 'physical' : 'tbd',
       start_time: startDateTime.toISOString(),
@@ -377,32 +362,6 @@ export const MatchEventForm = ({ teamId, sport: initialSport, onSubmit, onCancel
 
         {/* Details section */}
         <div className="grid grid-cols-2 gap-3">
-          <FormField
-            control={form.control}
-            name="matchFormat"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('form.game.format')}</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="h-10">
-                      <SelectValue placeholder={lang === 'fr' ? 'Format' : 'Format'} />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="bg-background">
-                    {sportDefaults.formats.map((fmt) => (
-                      <SelectItem key={fmt.value} value={fmt.value}>
-                        {fmt.label[lang]}
-                        {fmt.players && ` (${fmt.players})`}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           <FormField
             control={form.control}
             name="maxParticipants"

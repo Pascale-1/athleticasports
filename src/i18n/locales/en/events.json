@@ -147,6 +147,7 @@
     "descriptionOptional": "Description (Optional)",
     "descriptionPlaceholder": "Describe your event...",
     "addDescription": "Add description",
+    "addNote": "Add a note...",
     "makeRecurring": "Make recurring",
     "addParticipantLimit": "Set participant limit",
     "remove": "Remove",
@@ -200,7 +201,11 @@
       "title": "Training Title",
       "titlePlaceholder": "e.g., Tuesday Practice Session",
       "descPlaceholder": "What will you be working on?",
-      "create": "Create Training"
+      "create": "Create Training",
+      "intensity": "Intensity",
+      "intensity_light": "Light",
+      "intensity_moderate": "Moderate",
+      "intensity_intense": "Intense"
     },
     "meetup": {
       "title": "Meetup Title",
@@ -317,6 +322,7 @@
     "teamDinner": "Team Dinner",
     "social": "Social",
     "fitness": "Fitness",
+    "activity": "Activity",
     "other": "Other"
   },
   "calendar": {
