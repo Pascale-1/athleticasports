@@ -250,7 +250,7 @@ export const MyTeamSelector = ({
           onValueChange={handleChange}
           disabled={disabled || (teams.length === 0 && !showPickupOption)}
         >
-          <SelectTrigger className="h-9 text-xs">
+          <SelectTrigger className="h-9 text-sm border-0 bg-transparent shadow-none px-0 focus:ring-0 text-foreground hover:text-primary transition-colors">
             <SelectValue placeholder={placeholder || (lang === 'fr' ? 'Sélectionner une équipe' : 'Select a team')} />
           </SelectTrigger>
           <SelectContent className="bg-background" onCloseAutoFocus={(e) => e.preventDefault()}>

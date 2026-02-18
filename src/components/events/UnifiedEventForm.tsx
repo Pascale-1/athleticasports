@@ -92,6 +92,7 @@ interface UnifiedEventFormProps {
   onSubmit: (data: CreateEventData) => Promise<boolean>;
   onCancel: () => void;
   isSubmitting?: boolean;
+  onTypeChange?: (type: EventType) => void;
 }
 
 // FieldRow — icon-anchored row, defined outside component for stable identity
@@ -121,12 +122,18 @@ export const UnifiedEventForm = ({
   onSubmit,
   onCancel,
   isSubmitting = false,
+  onTypeChange,
 }: UnifiedEventFormProps) => {
   const { t, i18n } = useTranslation('events');
   const lang = (i18n.language?.split('-')[0] || 'en') as 'en' | 'fr';
 
   // Event type state
   const [eventType, setEventType] = useState<EventType>(defaultType);
+
+  const handleTypeChange = (type: EventType) => {
+    setEventType(type);
+    onTypeChange?.(type);
+  };
 
   // Shared states
   const [selectedSport, setSelectedSport] = useState(initialSport || '');
@@ -340,7 +347,7 @@ export const UnifiedEventForm = ({
       <form onSubmit={form.handleSubmit(handleSubmit)} className="min-w-0 overflow-x-hidden">
 
         {/* 1 ── Event Type Tabs ── */}
-        <EventTypeSelector value={eventType} onChange={setEventType} />
+        <EventTypeSelector value={eventType} onChange={handleTypeChange} />
 
         <div className="divide-y divide-border">
 
@@ -511,6 +518,7 @@ export const UnifiedEventForm = ({
                         field.onChange(val.venueName || '');
                       }}
                       placeholder={t('form.locationPlaceholder')}
+                      ghost
                     />
                     {fieldState.error && (
                       <FormMessage className="text-xs">{t('form.locationRequired')}</FormMessage>
@@ -567,7 +575,7 @@ export const UnifiedEventForm = ({
                     </>
                   ) : selectedTeamId ? (
                     <>
-                      <Lock className="h-3 w-3 text-amber-500" />
+                      <Lock className="h-3 w-3 text-muted-foreground" />
                       <span className="text-muted-foreground">{t('form.visibility.teamOnly')}</span>
                     </>
                   ) : null}
@@ -585,10 +593,10 @@ export const UnifiedEventForm = ({
                 <FieldRow icon={field.value ? Globe : Lock} separator={false} iconAlign="center">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">
+                      <p className="text-sm">
                         {field.value ? t('form.isPublic') : t('form.isPrivate', 'Private Event')}
                       </p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         {field.value ? t('form.isPublicDesc') : t('form.isPrivateDesc', 'Only invited members can see this')}
                       </p>
                     </div>
@@ -604,7 +612,7 @@ export const UnifiedEventForm = ({
           {/* 9 ── Cost ── */}
           <FieldRow icon={Euro} separator={false} iconAlign="center">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium">
+              <p className="text-sm">
                 {hasCost
                   ? (cost ? `€${cost} ${costType === 'per_person' ? t('cost.perPerson') : t('cost.total')}` : t('cost.label'))
                   : t('cost.freeToggle')}
@@ -678,7 +686,7 @@ export const UnifiedEventForm = ({
             <button
               type="button"
               onClick={() => setShowMoreOptions(!showMoreOptions)}
-              className="text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition-colors flex items-center gap-1"
+              className="pl-7 text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition-colors flex items-center gap-1"
             >
               {t('form.moreOptions')}
               <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", showMoreOptions && "rotate-180")} />
@@ -1025,7 +1033,7 @@ export const UnifiedEventForm = ({
           </div>
 
           {/* ── Submit ── */}
-          <div className="pt-2">
+          <div className="pt-3">
             <Button type="submit" className="w-full h-11 text-sm font-semibold" disabled={isSubmitting}>
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
