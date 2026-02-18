@@ -52,7 +52,7 @@ export const EditEventDialog = ({
 
   // Initialize form with event data
   useEffect(() => {
-    if (event && open) {
+    if (open) {
       setTitle(event.title);
       setDescription(event.description || '');
       setLocation(event.location || '');
@@ -74,7 +74,8 @@ export const EditEventDialog = ({
       setStartTime(format(start, 'HH:mm'));
       setEndTime(format(end, 'HH:mm'));
     }
-  }, [event, open]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, event.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
