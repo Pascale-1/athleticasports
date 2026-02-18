@@ -120,7 +120,7 @@ export const EditEventDialog = ({
           <DialogTitle>{t('edit.title')}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 min-w-0 overflow-hidden">
+        <form onSubmit={handleSubmit} className="space-y-4 min-w-0">
           {/* Title */}
           <div className="space-y-1.5">
             <Label htmlFor="title">{t('form.title')}</Label>

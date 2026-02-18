@@ -235,7 +235,7 @@ export const AddressAutocomplete = ({
   };
 
   return (
-    <div ref={containerRef} className={cn("relative space-y-2 w-full min-w-0 overflow-hidden", className)}>
+    <div ref={containerRef} className={cn("relative space-y-2 w-full min-w-0", className)}>
       {label && (
         <Label className="flex items-center gap-2">
           <MapPin className="h-4 w-4" />
@@ -282,7 +282,10 @@ export const AddressAutocomplete = ({
               <button
                 key={suggestion.place_id}
                 type="button"
-                onClick={() => handleSelectSuggestion(suggestion)}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleSelectSuggestion(suggestion);
+                }}
                 className={cn(
                   "w-full px-3 py-2 text-left hover:bg-accent transition-colors flex items-start gap-2",
                   index === selectedIndex && "bg-accent"
