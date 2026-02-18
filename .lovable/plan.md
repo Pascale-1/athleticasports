@@ -1,55 +1,58 @@
 
-# Fix Address Autocomplete: Dropdown Gets Clipped by overflow-hidden
+# Fix Address Autocomplete in the Event Creation Form
 
-## Root Cause (Two Layers)
+## Root Cause — Found
 
-The suggestions dropdown in `AddressAutocomplete` is `position: absolute` and rendered inside its container `div`. Two `overflow-hidden` ancestors are clipping it:
-
-1. **`AddressAutocomplete` container** (line 238): `className="relative space-y-2 w-full min-w-0 overflow-hidden"` — the `overflow-hidden` here clips the absolutely-positioned dropdown, making it unclickable even though it partially appears.
-
-2. **`EditEventDialog` form** (line 123): `className="space-y-4 min-w-0 overflow-hidden"` — a second layer of clipping on the `<form>` itself.
-
-The session replay confirms this: suggestions visually appear (they bleed through partially) but pointer events on them are blocked by the clipping ancestors.
-
-## Fixes
-
-### Fix 1 — `AddressAutocomplete.tsx` (line 238)
-Remove `overflow-hidden` from the container div. The `min-w-0` stays (it prevents flex child overflow which is unrelated). The `overflow-hidden` was added to prevent horizontal scroll bleed on mobile, but since the dropdown is positioned absolutely it must not be clipped.
+The `AddressAutocomplete` component itself was fixed (the `overflow-hidden` was removed from its container). However, the **`DistrictSelector`** component — which wraps `AddressAutocomplete` and is the one actually used in `UnifiedEventForm` — still has `overflow-hidden` on its wrapper div:
 
 ```
-Before: "relative space-y-2 w-full min-w-0 overflow-hidden"
-After:  "relative space-y-2 w-full min-w-0"
+// src/components/location/DistrictSelector.tsx — line 35
+<div className="space-y-2 min-w-0 overflow-hidden">   ← THIS clips the dropdown
 ```
 
-### Fix 2 — `EditEventDialog.tsx` (line 123)
-Remove `overflow-hidden` from the `<form>` element. This is also clipping the dropdown. The `min-w-0` stays.
+This outer `overflow-hidden` clips the absolutely-positioned suggestions dropdown before it can be shown, making suggestions invisible/unclickable in the event creation form. The `EditEventDialog` uses `AddressAutocomplete` directly (no `DistrictSelector` wrapper), which is why those earlier fixes helped there.
+
+## The Fix — One Line Change
+
+**File: `src/components/location/DistrictSelector.tsx`, line 35**
+
+Remove `overflow-hidden` from the wrapper div. Keep `min-w-0` (it prevents flex overflow, unrelated to the dropdown clipping).
 
 ```
-Before: "space-y-4 min-w-0 overflow-hidden"
-After:  "space-y-4 min-w-0"
+Before: <div className="space-y-2 min-w-0 overflow-hidden">
+After:  <div className="space-y-2 min-w-0">
 ```
 
-### Fix 3 — `AddressAutocomplete.tsx` suggestion buttons (line 285)
-Switch suggestion buttons from `onClick` to `onMouseDown` + `e.preventDefault()`. This is a defensive fix: in any Dialog/Modal context, Radix UI's focus management can cause the dropdown to close before a `click` event fires, but `mousedown` fires first and is immune to focus traps. This ensures selection always works regardless of which dialog wraps the component.
+That is the only change needed.
 
-```tsx
-onMouseDown={(e) => {
-  e.preventDefault(); // Prevent input blur
-  handleSelectSuggestion(suggestion);
-}}
+## Why This Is The Real Fix
+
+The suggestion dropdown in `AddressAutocomplete` is rendered as `position: absolute` inside the component's container div. For the dropdown to be visible and clickable, no ancestor in the DOM can have `overflow: hidden`. The chain was:
+
+```text
+UnifiedEventForm
+  └── FormSection (bg-muted/30 card) — no overflow
+       └── DistrictSelector
+            └── div.overflow-hidden  ← CLIPS the dropdown  ✗
+                 └── AddressAutocomplete
+                      └── div (relative, no overflow-hidden now) ← was fixed
+                           └── suggestions dropdown (absolute)  ← gets clipped by DistrictSelector
+```
+
+After the fix:
+```text
+UnifiedEventForm
+  └── FormSection
+       └── DistrictSelector
+            └── div (no overflow-hidden) ← ALLOWS dropdown to show  ✓
+                 └── AddressAutocomplete
+                      └── suggestions dropdown  ← visible and clickable ✓
 ```
 
 ## Files Changed
 
 | File | Change |
 |------|--------|
-| `src/components/location/AddressAutocomplete.tsx` | Remove `overflow-hidden` from container; switch suggestion buttons to `onMouseDown` + `e.preventDefault()` |
-| `src/components/events/EditEventDialog.tsx` | Remove `overflow-hidden` from the `<form>` |
+| `src/components/location/DistrictSelector.tsx` | Remove `overflow-hidden` from wrapper div on line 35 |
 
-## Why These Three Together
-
-- Fix 1 removes the primary clip that blocks pointer events on the dropdown
-- Fix 2 removes the secondary clip on the dialog form wrapper
-- Fix 3 makes selection robust against focus/blur race conditions in any future modal context
-
-No database changes, no new dependencies, no translation changes needed.
+No other changes needed. No database changes. No translation changes.
