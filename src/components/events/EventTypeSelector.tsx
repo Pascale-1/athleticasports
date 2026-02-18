@@ -18,7 +18,7 @@ export const EventTypeSelector = ({ value, onChange }: EventTypeSelectorProps) =
   const { t } = useTranslation('events');
 
   return (
-    <div className="flex gap-2 pb-3 border-b border-border">
+    <div className="flex gap-2 pb-1 mb-1">
       {EVENT_TYPE_OPTIONS.map(({ type, icon: Icon, colorClass }) => {
         const isSelected = value === type;
         return (

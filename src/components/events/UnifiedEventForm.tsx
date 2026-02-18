@@ -7,8 +7,8 @@ import { format, subHours } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   CalendarIcon, Globe, Lock, Link2, MapPin, Video, Repeat, Users, UserPlus,
-  Clock, Euro, ChevronDown, Trophy, Dumbbell, AlignLeft, type LucideIcon,
-  FileText, PenLine
+  Clock, Euro, ChevronDown, Dumbbell, AlignLeft, type LucideIcon,
+  PenLine, Loader2
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -100,14 +100,16 @@ const FieldRow = ({
   children,
   className,
   separator = true,
+  iconAlign = 'top',
 }: {
   icon: LucideIcon;
   children: React.ReactNode;
   className?: string;
   separator?: boolean;
+  iconAlign?: 'top' | 'center';
 }) => (
-  <div className={cn("relative flex items-start gap-3 py-3", separator && "border-b border-border", className)}>
-    <Icon className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+  <div className={cn("relative flex gap-3 py-3", separator && "border-b border-border", iconAlign === 'center' ? 'items-center' : 'items-start', className)}>
+    <Icon className={cn("h-4 w-4 text-muted-foreground shrink-0", iconAlign === 'top' ? 'mt-0.5' : '')} />
     <div className="flex-1 min-w-0">{children}</div>
   </div>
 );
@@ -165,7 +167,7 @@ export const UnifiedEventForm = ({
   // Cost & Payment state
   const [cost, setCost] = useState('');
   const [costType, setCostType] = useState<'total' | 'per_person'>('total');
-  const [isFree, setIsFree] = useState(false);
+  const [hasCost, setHasCost] = useState(false);
   const [paymentLink, setPaymentLink] = useState('');
 
   // Date picker popover
@@ -314,9 +316,9 @@ export const UnifiedEventForm = ({
       is_recurring: isRecurring,
       recurrence_rule: generateRecurrenceRule(),
       rsvp_deadline: showRsvpDeadline ? calculateRsvpDeadline(startDate)?.toISOString() : undefined,
-      cost: isFree ? undefined : (cost || undefined),
-      cost_type: isFree ? undefined : costType,
-      payment_link: !isFree && cost && parseFloat(cost) > 0 && paymentLink ? paymentLink : undefined,
+      cost: hasCost ? (cost || undefined) : undefined,
+      cost_type: hasCost ? costType : undefined,
+      payment_link: hasCost && cost && parseFloat(cost) > 0 && paymentLink ? paymentLink : undefined,
     };
 
     await onSubmit(eventData);
@@ -344,17 +346,22 @@ export const UnifiedEventForm = ({
 
           {/* 2 ── Sport ── */}
           {showSportSelector && (
-            <FieldRow icon={Dumbbell} separator={false}>
-              <SportQuickSelector
-                value={selectedSport || null}
-                onChange={(sport) => {
-                  setSelectedSport(sport);
-                  setSelectedTeamId(null);
-                  setSelectedTeamName('');
-                }}
-                lang={lang}
-              />
-            </FieldRow>
+            <div className="relative flex gap-3 py-3 border-b border-border items-start">
+              <div className="mt-1 shrink-0">
+                <Dumbbell className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <SportQuickSelector
+                  value={selectedSport || null}
+                  onChange={(sport) => {
+                    setSelectedSport(sport);
+                    setSelectedTeamId(null);
+                    setSelectedTeamName('');
+                  }}
+                  lang={lang}
+                />
+              </div>
+            </div>
           )}
 
           {/* 3 ── Title ── */}
@@ -441,7 +448,7 @@ export const UnifiedEventForm = ({
 
             {/* Inline time + duration when date is set */}
             {watchedDate && (
-              <div className="flex items-center gap-3 mt-2">
+              <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-1.5 mt-2">
                 <FormField
                   control={form.control}
                   name="startTime"
@@ -575,13 +582,13 @@ export const UnifiedEventForm = ({
               control={form.control}
               name="isPublic"
               render={({ field }) => (
-                <FieldRow icon={field.value ? Globe : Lock} separator={false}>
+                <FieldRow icon={field.value ? Globe : Lock} separator={false} iconAlign="center">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">
                         {field.value ? t('form.isPublic') : t('form.isPrivate', 'Private Event')}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
                         {field.value ? t('form.isPublicDesc') : t('form.isPrivateDesc', 'Only invited members can see this')}
                       </p>
                     </div>
@@ -595,19 +602,21 @@ export const UnifiedEventForm = ({
           )}
 
           {/* 9 ── Cost ── */}
-          <FieldRow icon={Euro} separator={false}>
+          <FieldRow icon={Euro} separator={false} iconAlign="center">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium">
-                {isFree ? t('cost.freeToggle') : cost ? `€${cost} ${costType === 'per_person' ? t('cost.perPerson') : t('cost.total')}` : t('cost.label')}
+                {hasCost
+                  ? (cost ? `€${cost} ${costType === 'per_person' ? t('cost.perPerson') : t('cost.total')}` : t('cost.label'))
+                  : t('cost.freeToggle')}
               </p>
-              <Switch checked={!isFree} onCheckedChange={(checked) => {
-                setIsFree(!checked);
+              <Switch checked={hasCost} onCheckedChange={(checked) => {
+                setHasCost(checked);
                 if (!checked) { setCost(''); setPaymentLink(''); }
               }} />
             </div>
 
             <AnimatePresence initial={false}>
-              {!isFree && (
+              {hasCost && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
@@ -626,7 +635,7 @@ export const UnifiedEventForm = ({
                           value={cost}
                           onChange={(e) => setCost(e.target.value)}
                           placeholder={t('cost.placeholder')}
-                          className="h-8 text-xs pl-7"
+                          className="h-9 text-xs pl-7"
                         />
                       </div>
                       <div className="flex rounded-md border overflow-hidden shrink-0">
@@ -647,7 +656,7 @@ export const UnifiedEventForm = ({
                       </div>
                     </div>
                     {cost && parseFloat(cost) > 0 && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-1.5">
                         <Link2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                         <input
                           value={paymentLink}
@@ -693,7 +702,7 @@ export const UnifiedEventForm = ({
                       control={form.control}
                       name="maxParticipants"
                       render={({ field }) => (
-                        <div className="flex items-center justify-between py-2.5">
+                        <div className="flex items-center justify-between py-2.5 pl-7">
                           <Label className="text-sm flex items-center gap-2 text-foreground">
                             <Users className="h-4 w-4 text-muted-foreground" />
                             {t('form.maxParticipants')}
@@ -705,7 +714,7 @@ export const UnifiedEventForm = ({
                               min="2"
                               max="100"
                               placeholder="--"
-                              className="w-20 h-8 text-xs text-right"
+                              className="w-20 h-9 text-xs text-right"
                             />
                           </FormControl>
                         </div>
@@ -713,7 +722,7 @@ export const UnifiedEventForm = ({
                     />
 
                     {/* Recurrence */}
-                    <div className="flex items-center justify-between py-2.5">
+                    <div className="flex items-center justify-between py-2.5 pl-7">
                       <Label className="text-sm flex items-center gap-2 text-foreground">
                         <Repeat className="h-4 w-4 text-muted-foreground" />
                         {t('form.repeat')}
@@ -757,7 +766,7 @@ export const UnifiedEventForm = ({
 
                     {/* RSVP Deadline */}
                     <div className="py-2.5 space-y-2">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between pl-7">
                         <Label className="text-sm flex items-center gap-2 text-foreground">
                           <Clock className="h-4 w-4 text-muted-foreground" />
                           {t('form.rsvpDeadline')}
@@ -847,7 +856,7 @@ export const UnifiedEventForm = ({
                     {/* Looking for Players */}
                     {showLookingForPlayersSection && (
                       <div className="py-2.5 space-y-2">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between pl-7">
                           <Label className="text-sm flex items-center gap-2 text-foreground">
                             <UserPlus className="h-4 w-4 text-muted-foreground" />
                             {t('lookingForPlayers.title')}
@@ -1018,7 +1027,12 @@ export const UnifiedEventForm = ({
           {/* ── Submit ── */}
           <div className="pt-2">
             <Button type="submit" className="w-full h-11 text-sm font-semibold" disabled={isSubmitting}>
-              {isSubmitting ? '...' : (
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {t('form.creating', 'Creating...')}
+                </span>
+              ) : (
                 eventType === 'training' ? t('form.training.create')
                 : eventType === 'match' ? t('form.game.create')
                 : t('form.meetup.create')
