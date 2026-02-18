@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { CreateEventData } from "@/hooks/useEvents";
 import { Event } from "@/lib/events";
 import { format } from "date-fns";
+import { AddressAutocomplete } from "@/components/location/AddressAutocomplete";
 
 interface EditEventDialogProps {
   open: boolean;
@@ -42,7 +43,6 @@ export const EditEventDialog = ({
   // Match-specific fields
   const [opponentName, setOpponentName] = useState(event.opponent_name || '');
   const [homeAway, setHomeAway] = useState<'home' | 'away' | 'neutral'>(event.home_away || 'home');
-  const [matchFormat, setMatchFormat] = useState(event.match_format || '');
 
   // Cost & Payment fields
   const [cost, setCost] = useState(event.cost || '');
@@ -61,7 +61,7 @@ export const EditEventDialog = ({
       setIsPublic(event.is_public);
       setOpponentName(event.opponent_name || '');
       setHomeAway(event.home_away || 'home');
-      setMatchFormat(event.match_format || '');
+      
       setCost(event.cost || '');
       setCostType((event.cost_type as 'total' | 'per_person') || 'total');
       setIsFree(!event.cost);
@@ -97,7 +97,6 @@ export const EditEventDialog = ({
     if (event.type === 'match') {
       data.opponent_name = opponentName || undefined;
       data.home_away = homeAway;
-      data.match_format = matchFormat || undefined;
     }
 
     // Add cost & payment fields
@@ -184,11 +183,10 @@ export const EditEventDialog = ({
 
           {/* Location */}
           <div className="space-y-1.5">
-            <Label htmlFor="location">{t('form.location')}</Label>
-            <Input
-              id="location"
+            <Label>{t('form.location')}</Label>
+            <AddressAutocomplete
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              onChange={(val) => setLocation(val)}
               placeholder={t('form.locationPlaceholder')}
             />
           </div>
@@ -243,16 +241,6 @@ export const EditEventDialog = ({
                     <SelectItem value="neutral">{t('game.neutral')}</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="format">{t('game.format')}</Label>
-                <Input
-                  id="format"
-                  value={matchFormat}
-                  onChange={(e) => setMatchFormat(e.target.value)}
-                  placeholder="e.g., 5v5, 11v11"
-                />
               </div>
             </>
           )}
