@@ -1,91 +1,122 @@
 
-# Event Form Critique & Modernization Plan
+# Event Form: Full Modern Redesign
 
-## What I See Right Now (Visual Audit)
+## Core Problem
 
-Looking at the live form screenshot, here are the specific problems in descending order of impact:
+After reading all 1,055 lines of `UnifiedEventForm.tsx` and the component tree, the form has structural issues that no amount of incremental polish can fix. The problems are:
 
----
+1. **No visual hierarchy** — Title, Date, Location, Cost all have identical weight. A modern form uses progressive disclosure: the most important fields are prominent, the rest are secondary.
+2. **Sport = pills that scroll** — Strava/Meetup use a **dropdown** for sport selection (you asked for this). Pills in a scrollable row are a pattern for filters, not for form input.
+3. **"Adversaire" is buried** — The opponent field (key for match events) is hidden in "More options". This is wrong for a match form.
+4. **FieldRow pattern is inconsistent** — Some rows use `FieldRow`, others bypass it (sport, more options, etc.), creating inconsistent indentation and spacing.
+5. **Type pills look like navigation tabs, not input selectors** — The Training/Game/Social pills at the top look like page tabs, not a segmented control.
+6. **"More options" contains too much** — Recurrence, RSVP deadline, Looking for Players, Category — these are all secondary. But they're mixed with important things like Max Participants.
 
-### Problem 1 — Sport selector is a chaotic wrapping grid, not a pill row
-The 6 sport chips **wrap into 3 rows** (Padel/Tennis, Soccer/Basketball, Badminton/Volleyball, then +7). This makes it look like a tag cloud, not a selector. The icon to the left of the chip area is also a weird double-icon (the sport chip has its own emoji AND the row has a Dumbbell icon to its left). The wrapping also creates uneven bottom margins that misalign the separator below it.
+## Target: Strava-style Layout
 
-**Fix:** Make the sport chips horizontally scrollable in a single row (`overflow-x-auto flex-nowrap`), so they never wrap. Hide the scrollbar. This is how every modern app (Airbnb, Meetup, Strava) handles chip selectors.
+```text
+┌─────────────────────────────────────┐
+│  [ Training ] [ Game ] [ Social ]   │  ← Segmented control (underline style)
+├─────────────────────────────────────┤
+│  ✏️  Nom de la séance               │  ← Ghost input, prominent
+│  📝  Description (optional)         │  ← Ghost textarea, secondary
+├─────────────────────────────────────┤
+│  🏃  Sport ▾  Padel                 │  ← Dropdown (not pills!)
+│  👥  Mon équipe ▾  FC Paris         │  ← Ghost select
+│  🏆  Adversaire   Entrer nom...     │  ← MATCH ONLY, always visible, ghost input
+│      ● Domicile  ○ Extérieur  ○ N.  │  ← MATCH ONLY, compact 3-way toggle
+├─────────────────────────────────────┤
+│  📅  Sam, 8 Mar · 19:00 · 1h30     │  ← Collapsed date row
+│     [date picker expands here]      │
+│  📍  Adresse ou lieu                │  ← Ghost location
+│  🌐  Public  ————————————  ●       │  ← Visibility toggle row
+│  €   Gratuit ————————————  ○       │  ← Cost toggle row
+├─────────────────────────────────────┤
+│  ⌄  Plus d'options                  │  ← Collapsible, secondary
+│     Max participants                │
+│     Répétition                      │
+│     Limite RSVP                     │
+│     Intensité (training only)       │
+│     Catégorie (social only)         │
+├─────────────────────────────────────┤
+│  [      Créer la séance      ]      │  ← Full-width, h-11
+└─────────────────────────────────────┘
+```
 
----
+## 8 Precise Fixes
 
-### Problem 2 — Location input is a bordered box inside a FieldRow — broken paradigm
-The `Address or venue name` field renders inside a **`rounded-lg border`** box, while every other field (Title, Description, Date) is a flat ghost input. This completely breaks the visual language of the form — it looks like a different component pasted in.
+### Fix 1 — Type Selector: Underline segmented control
+Replace the rounded pill tabs with an **underline tab bar** — the modern standard (Strava, Instagram, Twitter). Active tab gets a colored underline + bold text, no filled background. This looks like navigation for the form, not a button cluster.
 
-**Fix:** The `DistrictSelector`/`AddressAutocomplete` must render as a ghost input (`bg-transparent border-0`) consistent with Title and Description. The `MapPin` icon in the FieldRow is the visual anchor — no extra border needed.
+```tsx
+// Before: rounded-full pills with bg-primary/10
+// After: underline tab bar
+<button className={cn(
+  "pb-2 text-sm font-medium border-b-2 transition-all",
+  isSelected 
+    ? "border-primary text-foreground" 
+    : "border-transparent text-muted-foreground hover:text-foreground"
+)}>
+```
 
----
+### Fix 2 — Sport: Native dropdown (not chips)
+Replace `SportQuickSelector` (scrollable chips) with a standard `Select` dropdown showing `{emoji} Sport name`. This is what every mainstream sports app uses and what the user explicitly asked for.
 
-### Problem 3 — Team row is a full-height bordered Select dropdown — incongruent
-The "Team" row uses a large `Select` component that renders a rounded border + "Select" placeholder with a chevron. This is the only field in the form that uses a standard form dropdown, visually it fights everything around it.
+- The `Dumbbell` icon in the FieldRow is the visual anchor
+- Placeholder: "Quel sport ?" / "What sport?"
+- Dropdown shows all sports with emoji prefix and proper grouping (Featured first, then Others)
+- `SelectContent` uses `bg-popover` (no transparency issue)
 
-**Fix:** The team selector should look like a ghost trigger (text + chevron inline, no border box), consistent with the date row's tap-to-expand pattern.
+### Fix 3 — Opponent: Promoted to main fields (match only)
+Move the opponent section **out of "More options"** and into the main form body, directly below the team selector. This is what the user asked for explicitly. It only renders when `eventType === 'match'`.
 
----
+The opponent section becomes a single clean `FieldRow` with a `Swords` (or `Trophy`) icon:
+- Ghost text input for opponent name (most common case)
+- Small toggle: "Équipe connue / Nom libre" — to switch to `TeamSelector` if needed
+- Immediately below: home/away 3-way toggle (`● Dom · ✈ Ext · ⚖ Neutre`) as compact inline pills
 
-### Problem 4 — Type selector pills are filled/solid blue — too heavy for a tab
-The "Training" pill has `bg-primary text-primary-foreground` (solid blue fill). For a form that uses ghost inputs and subtle separators, a **solid filled pill** at the very top is jarring — it commands too much visual weight. This is the first element the eye hits.
+### Fix 4 — Remove the FieldRow inconsistency for sport row
+The sport row currently bypasses `FieldRow` (uses a raw `div`). Replace it with `<FieldRow icon={Dumbbell}>` wrapping the new dropdown. This makes every single row consistent.
 
-**Fix:** Change the selected type pill to use `bg-primary/10 text-primary border-primary/40` (tinted, not filled). Same primary color brand, but lighter — feels like a tab, not a button. This harmonizes with the rest of the form's light aesthetic.
+### Fix 5 — "More options" cleanup
+After moving opponent + home/away to main fields, "More options" becomes a genuinely secondary section:
+- Max participants
+- Recurrence 
+- RSVP Deadline
+- Training Intensity (training only)
+- Looking for Players (training/match only)
+- Meetup Category (social only)
 
----
+This is now logically coherent — everything in "more options" is truly optional.
 
-### Problem 5 — "Public Event / Free event" rows have inconsistent label weights
-"Public Event" uses `font-medium` (bold) while "Free event" also uses `font-medium`. But the descriptions below them ("Visible to all users") are `text-[11px] text-muted-foreground`. This creates a heavy title → tiny description contrast that feels cramped.
+### Fix 6 — Title field: Make it feel like a title
+The title ghost input currently has no visual differentiation from description. Use `text-base font-medium` (slightly larger than `text-sm`) so the title reads as a **heading input** — this is the Notion/Linear/Strava pattern.
 
-**Fix:** Reduce the toggle label to `text-sm` (no font-medium), and bump the description to `text-xs` for a more proportional hierarchy. The Switch on the right gives enough affordance — the label doesn't need to be bold.
+### Fix 7 — Separator between section groups
+Add a slightly heavier visual gap between the "title/desc" group and the "sport/team/opponent" group, and between that and the "date/location/visibility/cost" group. Use a `py-0.5 bg-muted/50` divider — creates breathing room without adding border noise.
 
----
+### Fix 8 — Submit button: type-aware and tighter top spacing
+The submit button already has the right shape (`w-full h-11`). Minor fix: add `mt-2` spacing from the last row (currently `pt-3` which is fine). Keep the `Loader2` spinner. Ensure the button text updates live as type changes.
 
-### Problem 6 — Vertical rhythm is uneven: some rows feel taller
-The Sport row is 3 rows tall (chip wrap), Date row is 1 line, Location row has an inner box with padding, Team row has the Select height. This creates extremely variable row heights with no visual rhythm. The user's eye has to re-calibrate between every row.
+## Files to Change
 
-**Fix:** With the sport chip scroll fix and the location ghost fix, all rows settle into a natural ~44px single-line height, creating a consistent rhythm.
+| File | What changes |
+|------|-------------|
+| `src/components/events/UnifiedEventForm.tsx` | Full restructure: sport dropdown, opponent in main body, type selector → underline tabs, title text-base, group dividers |
+| `src/components/events/EventTypeSelector.tsx` | Replace pill buttons with underline tab bar |
+| `src/components/events/SportQuickSelector.tsx` | No longer used in the form — keep file (used elsewhere), just swap at point of use |
 
----
+No DB changes. No new packages. No translation changes (all keys already exist).
 
-### Problem 7 — "More options" chevron link is at the far left, Submit button is flush to the edge
-The "More options ↓" link starts from `x=0` (left edge), while all FieldRow content starts at `x=~28px` (after the icon). This creates a misalignment — the link isn't anchored to anything. Similarly the `Create Training` button is a nice full-width pill but has no top breathing room from the "More options" row.
+## Opponent Field Design (main body, match only)
 
-**Fix:** Add `pl-7` to the "More options" trigger, aligning it with the main content column. Add `mt-1` spacing between "More options" and the submit button.
+The opponent field in the main body will look like:
 
----
+```text
+🏆  [Nom de l'adversaire]          (ghost text input, manual mode)
+    [Équipe app ▾]  [Nom libre ●]  (small mode toggle pills, text-[10px])
 
-### Problem 8 — Dialog title "Create New Event" is generic
-The dialog shows "Create New Event" as a static title regardless of which type is selected. This is a missed opportunity for micro-feedback.
+    ● Domicile  ○ Extérieur  ○ Neutre   (inline 3-way pills, below)
+```
 
-**Fix:** Make the title dynamic: "New Training", "New Game", "New Social" — updating reactively when the user taps a type pill. This is the Notion/Linear approach to form identity.
-
----
-
-## Summary Table
-
-| # | Issue | Where | Fix |
-|---|-------|--------|-----|
-| 1 | Sport chips wrap into 3 rows | SportQuickSelector | `flex-nowrap overflow-x-auto` single scrollable row |
-| 2 | Location has a bordered box inside ghost form | DistrictSelector | Ghost styling — remove inner border |
-| 3 | Team uses full Select dropdown | MyTeamSelector row | Ghost trigger inline style |
-| 4 | Type pill is solid filled blue | EventTypeSelector | Tinted (`bg-primary/10 text-primary`) not solid |
-| 5 | Toggle labels too bold, descriptions too small | UnifiedEventForm | `text-sm` label, `text-xs` description |
-| 6 | Uneven row heights | Multiple | Fixed by #1 + #2 above |
-| 7 | "More options" misaligned, no breathing room | UnifiedEventForm | `pl-7` + `mt-1` |
-| 8 | Static generic dialog title | CreateEventDialog | Dynamic title per event type |
-
----
-
-## Files Changed
-
-| File | Changes |
-|------|---------|
-| `src/components/events/SportQuickSelector.tsx` | `flex-nowrap overflow-x-auto` + hide scrollbar — chips never wrap |
-| `src/components/events/EventTypeSelector.tsx` | Selected pill style: `bg-primary/10 text-primary border-primary/40` instead of solid |
-| `src/components/events/UnifiedEventForm.tsx` | Location ghost style, toggle label sizing, "More options" `pl-7`, `mt-1` button spacing, dynamic title prop |
-| `src/components/location/DistrictSelector.tsx` | Expose a `ghost` prop or className pass-through to remove inner border when used in the form |
-| `src/components/events/CreateEventDialog.tsx` | Dynamic dialog title based on selected event type (requires lifting type state or passing title down) |
-
-No database changes. No new dependencies.
+Default mode is "manual" (free text) since most pickup and casual games don't involve a registered team. The "Équipe app" toggle switches to `TeamSelector` dropdown for registered teams. This matches the previous behavior but makes it discoverable by default instead of buried.
