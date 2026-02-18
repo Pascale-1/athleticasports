@@ -50,8 +50,13 @@ const MEETUP_CATEGORIES = [
   { value: 'team_dinner', emoji: '🍽️' },
   { value: 'social', emoji: '🎉' },
   { value: 'fitness', emoji: '💪' },
+  { value: 'activity', emoji: '🏃' },
   { value: 'other', emoji: '📋' },
 ];
+
+// Training intensity options
+type TrainingIntensity = 'light' | 'moderate' | 'intense';
+const TRAINING_INTENSITIES: TrainingIntensity[] = ['light', 'moderate', 'intense'];
 
 // Default durations by event type
 const DEFAULT_DURATIONS: Record<EventType, number> = {
@@ -139,6 +144,9 @@ export const UnifiedEventForm = ({
   const [showDescription, setShowDescription] = useState(false);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
   
+  // Training intensity
+  const [trainingIntensity, setTrainingIntensity] = useState<TrainingIntensity>('moderate');
+
   // RSVP Deadline state
   const [showRsvpDeadline, setShowRsvpDeadline] = useState(false);
   const [deadlinePreset, setDeadlinePreset] = useState<DeadlinePreset>('24h');
@@ -223,6 +231,7 @@ export const UnifiedEventForm = ({
       team_dinner: t('categories.teamDinner'),
       social: t('categories.social'),
       fitness: t('categories.fitness'),
+      activity: t('categories.activity'),
       other: t('categories.other'),
     };
     return categoryMap[value] || value;
@@ -264,7 +273,14 @@ export const UnifiedEventForm = ({
     const eventData: CreateEventData = {
       type: eventType,
       title: values.title,
-      description: values.description || undefined,
+      description: (() => {
+        let desc = values.description || '';
+        if (eventType === 'training' && trainingIntensity !== 'moderate') {
+          const prefix = `[${trainingIntensity.charAt(0).toUpperCase() + trainingIntensity.slice(1)}]`;
+          desc = desc ? `${prefix} ${desc}` : prefix;
+        }
+        return desc || undefined;
+      })(),
       start_time: startDate.toISOString(),
       end_time: endDate.toISOString(),
       location: locationValue.venueName || undefined,
@@ -279,7 +295,6 @@ export const UnifiedEventForm = ({
         : undefined,
       opponent_team_id: eventType === 'match' && opponentInputMode === 'select' ? opponentTeamId || undefined : undefined,
       home_away: eventType === 'match' ? homeAway : undefined,
-      match_format: eventType === 'match' ? values.matchFormat || undefined : undefined,
       meetup_category: eventType === 'meetup' ? selectedCategory || undefined : undefined,
       looking_for_players: showLookingForPlayersSection ? lookingForPlayers : undefined,
       players_needed: showLookingForPlayersSection && lookingForPlayers ? parseInt(playersNeeded, 10) : undefined,
@@ -311,7 +326,6 @@ export const UnifiedEventForm = ({
   const showTeamSelector = !teamId && (eventType === 'match' || eventType === 'training');
   const showOpponentSection = eventType === 'match' && !isPickupGame;
   const showHomeAwayToggle = eventType === 'match' && !isPickupGame;
-  const showMatchFormat = eventType === 'match';
   const showCategorySelector = eventType === 'meetup';
   const showLocationMode = eventType === 'meetup';
   const showVirtualLink = eventType === 'meetup' && (locationMode === 'virtual' || locationMode === 'hybrid');
@@ -384,25 +398,44 @@ export const UnifiedEventForm = ({
               <div className="space-y-1.5">
                 <Label className="text-xs">{t('form.meetup.category')}</Label>
                 <div className="grid grid-cols-3 gap-1.5">
-                  {MEETUP_CATEGORIES.map(({ value, emoji }) => (
-                    <Button
-                      key={value}
-                      type="button"
-                      variant={selectedCategory === value ? 'default' : 'outline'}
-                      onClick={() => setSelectedCategory(value)}
-                      className="h-10 flex flex-row items-center justify-center gap-1.5 text-xs px-1.5"
-                    >
-                      <span className="text-sm shrink-0">{emoji}</span>
-                      <span>{getCategoryLabel(value)}</span>
-                    </Button>
-                  ))}
+                  {MEETUP_CATEGORIES.map(({ value, emoji }) => {
+                    const isSelected = selectedCategory === value;
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setSelectedCategory(value)}
+                        className={cn(
+                          "h-10 flex flex-row items-center justify-center gap-1.5 text-xs px-1.5 rounded-lg border transition-all duration-150",
+                          isSelected
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-muted/40 border-transparent text-foreground hover:bg-muted/70"
+                        )}
+                      >
+                        <span className="text-sm shrink-0">{emoji}</span>
+                        <span className="truncate">{getCategoryLabel(value)}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
           )}
 
           {/* ── Match Details Section ── */}
-          {(showOpponentSection || showHomeAwayToggle || showMatchFormat) && (
+          {(showOpponentSection || showHomeAwayToggle) && (
               <FormSection icon={Trophy} title={t('game.matchDetails', 'Match Details')}>
+                {/* Pickup game banner */}
+                {isPickupGame && (
+                  <div className="flex items-start gap-2 rounded-lg bg-accent/20 border border-accent/30 p-2.5">
+                    <Globe className="h-3.5 w-3.5 text-accent-foreground mt-0.5 shrink-0" />
+                    <p className="text-xs text-accent-foreground/80 leading-snug">
+                      {lang === 'fr'
+                        ? 'Partie ouverte — tout le monde peut trouver et rejoindre cette partie.'
+                        : 'Open Game — anyone can find and join this game.'}
+                    </p>
+                  </div>
+                )}
+
                 {/* Opponent */}
                 {showOpponentSection && (
                   <div className="space-y-1.5">
@@ -459,22 +492,6 @@ export const UnifiedEventForm = ({
                       ))}
                     </div>
                   </div>
-                )}
-
-                {/* Format */}
-                {showMatchFormat && (
-                  <FormField
-                    control={form.control}
-                    name="matchFormat"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">{t('game.format')}</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder={t('form.game.formatPlaceholder')} className="h-10 text-xs" />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
                 )}
               </FormSection>
           )}
@@ -533,68 +550,90 @@ export const UnifiedEventForm = ({
             )}
           </FormSection>
 
+          {/* ── Training Intensity ── */}
+          {eventType === 'training' && (
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">{t('form.training.intensity')}</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {TRAINING_INTENSITIES.map((level) => (
+                  <button
+                    key={level}
+                    type="button"
+                    onClick={() => setTrainingIntensity(level)}
+                    className={cn(
+                      "h-9 rounded-lg text-xs font-medium border transition-all duration-150",
+                      trainingIntensity === level
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-muted/40 border-transparent text-muted-foreground hover:bg-muted/70"
+                    )}
+                  >
+                    {t(`form.training.intensity_${level}`)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* ── When Section ── */}
           <FormSection icon={Clock} title={t('details.when')}>
-            <div className="grid grid-cols-2 gap-2">
-              {/* Date */}
-              <FormField
-                control={form.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col min-w-0">
-                    <FormLabel className="text-xs text-muted-foreground">{t('form.date')}</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "h-10 pl-2.5 text-left font-normal w-full min-w-0 text-xs",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            <span className="truncate flex-1">
-                              {field.value ? format(field.value, "MMM dd") : t('form.pickDate')}
-                            </span>
-                            <CalendarIcon className="ml-1.5 h-3.5 w-3.5 opacity-50 shrink-0" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => {
-                            const today = new Date();
-                            today.setHours(0, 0, 0, 0);
-                            return date < today;
-                          }}
-                          initialFocus
-                          className="pointer-events-auto"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            {/* Date - full width */}
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel className="text-xs text-muted-foreground">{t('form.date')}</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "h-10 pl-2.5 text-left font-normal w-full text-xs",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          <span className="flex-1">
+                            {field.value ? format(field.value, "EEE, MMM dd yyyy") : t('form.pickDate')}
+                          </span>
+                          <CalendarIcon className="ml-1.5 h-3.5 w-3.5 opacity-50 shrink-0" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) => {
+                          const today = new Date();
+                          today.setHours(0, 0, 0, 0);
+                          return date < today;
+                        }}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              {/* Start Time */}
-              <FormField
-                control={form.control}
-                name="startTime"
-                render={({ field }) => (
-                  <FormItem className="min-w-0">
-                    <FormLabel className="text-xs text-muted-foreground">{t('form.startTime')}</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="time" className="h-10 text-xs" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            {/* Start Time - full width */}
+            <FormField
+              control={form.control}
+              name="startTime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs text-muted-foreground">{t('form.startTime')}</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="time" className="h-10 text-xs w-full" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Duration */}
             <div className="space-y-1">
@@ -770,7 +809,7 @@ export const UnifiedEventForm = ({
                       onClick={() => setShowDescription(true)}
                       className="w-full justify-start h-8 text-xs text-muted-foreground px-0 hover:text-foreground"
                     >
-                      + {t('form.addNote', 'Add a note...')}
+                      + {t('form.addNote')}
                     </Button>
                   ) : (
                     <FormField
@@ -791,6 +830,77 @@ export const UnifiedEventForm = ({
                       )}
                     />
                   )}
+
+                  {/* Cost section */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between h-9">
+                      <Label className="text-xs flex items-center gap-1.5">
+                        <Euro className="h-3.5 w-3.5 text-muted-foreground" />
+                        {t('cost.label')}
+                      </Label>
+                      <Switch checked={isFree} onCheckedChange={(checked) => {
+                        setIsFree(checked);
+                        if (checked) { setCost(''); setPaymentLink(''); }
+                      }} />
+                    </div>
+                    <span className="text-[10px] text-muted-foreground -mt-1 block">{t('cost.freeToggle')}</span>
+
+                    {!isFree && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="relative flex-1">
+                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">€</span>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={cost}
+                              onChange={(e) => setCost(e.target.value)}
+                              placeholder={t('cost.placeholder')}
+                              className="h-10 text-xs pl-7"
+                            />
+                          </div>
+                          <div className="flex rounded-md border overflow-hidden shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => setCostType('total')}
+                              className={cn(
+                                "px-2.5 py-1.5 text-xs transition-colors",
+                                costType === 'total' ? "bg-primary text-primary-foreground" : "bg-background hover:bg-muted"
+                              )}
+                            >
+                              {t('cost.total')}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setCostType('per_person')}
+                              className={cn(
+                                "px-2.5 py-1.5 text-xs transition-colors border-l",
+                                costType === 'per_person' ? "bg-primary text-primary-foreground" : "bg-background hover:bg-muted"
+                              )}
+                            >
+                              {t('cost.perPerson')}
+                            </button>
+                          </div>
+                        </div>
+                        {cost && parseFloat(cost) > 0 && (
+                          <div className="space-y-1">
+                            <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
+                              <Link2 className="h-3 w-3" />
+                              {t('cost.paymentLink')}
+                            </Label>
+                            <Input
+                              value={paymentLink}
+                              onChange={(e) => setPaymentLink(e.target.value)}
+                              placeholder={t('cost.paymentLinkPlaceholder')}
+                              className="h-10 text-xs"
+                              type="url"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
 
                   {/* Participants - inline row */}
                   <FormField
@@ -975,7 +1085,11 @@ export const UnifiedEventForm = ({
 
           {/* ── Submit ── */}
           <Button type="submit" className="w-full h-10" disabled={isSubmitting}>
-            {isSubmitting ? '...' : t('createEvent')}
+            {isSubmitting ? '...' : (
+              eventType === 'training' ? t('form.training.create')
+              : eventType === 'match' ? t('form.game.create')
+              : t('form.meetup.create')
+            )}
           </Button>
         </div>
       </form>

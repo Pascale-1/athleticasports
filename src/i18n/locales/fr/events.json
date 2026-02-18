@@ -147,6 +147,7 @@
     "descriptionOptional": "Description (optionnel)",
     "descriptionPlaceholder": "Décrivez votre événement...",
     "addDescription": "Ajouter une description",
+    "addNote": "Ajouter une note...",
     "makeRecurring": "Rendre récurrent",
     "addParticipantLimit": "Limiter les participants",
     "remove": "Retirer",
@@ -200,7 +201,11 @@
       "title": "Titre de l'entraînement",
       "titlePlaceholder": "ex: Entraînement du mardi",
       "descPlaceholder": "Sur quoi allez-vous travailler ?",
-      "create": "Créer l'entraînement"
+      "create": "Créer l'entraînement",
+      "intensity": "Intensité",
+      "intensity_light": "Légère",
+      "intensity_moderate": "Modérée",
+      "intensity_intense": "Intense"
     },
     "meetup": {
       "title": "Titre du meetup",
@@ -372,6 +377,7 @@
     "teamDinner": "Repas",
     "social": "Social",
     "fitness": "Fitness",
+    "activity": "Activité",
     "other": "Autre"
   },
   "cost": {
