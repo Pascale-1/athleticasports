@@ -287,6 +287,17 @@ export const UnifiedEventForm = ({
     return `${format(date, 'EEE, MMM d')} · ${time} · ${durStr}`;
   };
 
+  // Derived flags — must be declared BEFORE handleSubmit to avoid temporal dead zone
+  const isPickupGame = eventType === 'match' && !selectedTeamId && !teamId;
+  const showSportSelector = !teamId && (eventType === 'match' || eventType === 'training');
+  const showTeamSelector = !teamId && (eventType === 'match' || eventType === 'training');
+  const showOpponentSection = eventType === 'match';
+  const showHomeAwayToggle = eventType === 'match' && !isPickupGame;
+  const showCategorySelector = eventType === 'meetup';
+  const showLocationMode = eventType === 'meetup';
+  const showVirtualLink = eventType === 'meetup' && (locationMode === 'virtual' || locationMode === 'hybrid');
+  const showLookingForPlayersSection = eventType === 'match' || eventType === 'training';
+
   const handleSubmit = async (values: FormData) => {
     const [hours, minutes] = values.startTime.split(':').map(Number);
     const startDate = new Date(values.date);
@@ -338,16 +349,6 @@ export const UnifiedEventForm = ({
     await onSubmit(eventData);
   };
 
-  // Derived flags
-  const isPickupGame = eventType === 'match' && !selectedTeamId && !teamId;
-  const showSportSelector = !teamId && (eventType === 'match' || eventType === 'training');
-  const showTeamSelector = !teamId && (eventType === 'match' || eventType === 'training');
-  const showOpponentSection = eventType === 'match';
-  const showHomeAwayToggle = eventType === 'match' && !isPickupGame;
-  const showCategorySelector = eventType === 'meetup';
-  const showLocationMode = eventType === 'meetup';
-  const showVirtualLink = eventType === 'meetup' && (locationMode === 'virtual' || locationMode === 'hybrid');
-  const showLookingForPlayersSection = eventType === 'match' || eventType === 'training';
 
   return (
     <Form {...form}>
