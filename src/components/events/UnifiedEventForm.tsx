@@ -354,10 +354,10 @@ export const UnifiedEventForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="min-w-0 overflow-x-hidden">
 
-        {/* 1 ── Event Type Tabs (underline style) ── */}
+        {/* 1 ── Event Type Tabs (underline style, acts as dialog header) ── */}
         <EventTypeSelector value={eventType} onChange={handleTypeChange} />
 
-        <div className="divide-y divide-border">
+        <div className="divide-y divide-border px-4">
 
           {/* 2 ── Title ── */}
           <FieldRow icon={PenLine} separator={false}>
@@ -411,30 +411,21 @@ export const UnifiedEventForm = ({
         {/* ── Section divider ── */}
         <SectionDivider />
 
-        <div className="divide-y divide-border">
+        <div className="divide-y divide-border px-4">
 
           {/* 4 ── Sport (dropdown) ── */}
           {showSportSelector && (
             <FieldRow icon={Dumbbell} separator={false} iconAlign="center">
               <Select
-                value={selectedSport || '__none__'}
+                value={selectedSport || ''}
                 onValueChange={(val) => {
-                  const sport = val === '__none__' ? '' : val;
-                  setSelectedSport(sport);
+                  setSelectedSport(val);
                   setSelectedTeamId(null);
                   setSelectedTeamName('');
                 }}
               >
                 <SelectTrigger className="border-0 bg-transparent shadow-none px-0 h-auto py-0 text-sm focus:ring-0 [&>span]:text-left [&>svg]:text-muted-foreground">
-                  <SelectValue placeholder={lang === 'fr' ? 'Quel sport ?' : 'Which sport?'}>
-                    {selectedSport
-                      ? (() => {
-                          const sport = allSports.find(s => s.id === selectedSport);
-                          return sport ? `${sport.emoji} ${getSportLabel(selectedSport, lang)}` : selectedSport;
-                        })()
-                      : <span className="text-muted-foreground/60">{lang === 'fr' ? 'Quel sport ?' : 'Which sport?'}</span>
-                    }
-                  </SelectValue>
+                  <SelectValue placeholder={lang === 'fr' ? 'Quel sport ?' : 'Which sport?'} />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border border-border shadow-lg z-50">
                   {allSports.map((sport) => (
@@ -574,7 +565,7 @@ export const UnifiedEventForm = ({
         {/* ── Section divider ── */}
         <SectionDivider />
 
-        <div className="divide-y divide-border">
+        <div className="divide-y divide-border px-4">
 
           {/* 7 ── Date / Time / Duration ── */}
           <FieldRow icon={CalendarIcon} separator={false}>
@@ -611,9 +602,9 @@ export const UnifiedEventForm = ({
               </PopoverContent>
             </Popover>
 
-            {/* Inline time + duration when date is set */}
+            {/* Inline time + duration — always visible after date is set, ghost style */}
             {watchedDate && (
-              <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-1.5 mt-2">
+              <div className="flex items-center gap-2 mt-1.5">
                 <FormField
                   control={form.control}
                   name="startTime"
@@ -715,14 +706,9 @@ export const UnifiedEventForm = ({
               render={({ field }) => (
                 <FieldRow icon={field.value ? Globe : Lock} separator={false} iconAlign="center">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm">
-                        {field.value ? t('form.isPublic') : t('form.isPrivate', 'Private Event')}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {field.value ? t('form.isPublicDesc') : t('form.isPrivateDesc', 'Only invited members can see this')}
-                      </p>
-                    </div>
+                    <span className="text-sm">
+                      {field.value ? t('form.isPublic') : t('form.isPrivate', 'Private Event')}
+                    </span>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
@@ -733,13 +719,13 @@ export const UnifiedEventForm = ({
           )}
 
           {/* 10 ── Cost ── */}
-          <FieldRow icon={Euro} separator={false} iconAlign="center">
+          <FieldRow icon={Euro} separator={false} iconAlign={hasCost ? 'top' : 'center'}>
             <div className="flex items-center justify-between">
-              <p className="text-sm">
+              <span className="text-sm">
                 {hasCost
                   ? (cost ? `€${cost} ${costType === 'per_person' ? t('cost.perPerson') : t('cost.total')}` : t('cost.label'))
                   : t('cost.freeToggle')}
-              </p>
+              </span>
               <Switch checked={hasCost} onCheckedChange={(checked) => {
                 setHasCost(checked);
                 if (!checked) { setCost(''); setPaymentLink(''); }
@@ -806,16 +792,20 @@ export const UnifiedEventForm = ({
 
         </div>
 
-        {/* 11 ── More options ── */}
-        <div className="py-3">
-          <button
-            type="button"
-            onClick={() => setShowMoreOptions(!showMoreOptions)}
-            className="pl-7 text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition-colors flex items-center gap-1"
-          >
-            {t('form.moreOptions')}
-            <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", showMoreOptions && "rotate-180")} />
-          </button>
+        {/* 11 ── More options — pill toggle with divider lines (Notion/Linear pattern) ── */}
+        <div className="px-4 py-3">
+          <div className="flex items-center gap-2">
+            <div className="h-px bg-border flex-1" />
+            <button
+              type="button"
+              onClick={() => setShowMoreOptions(!showMoreOptions)}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground px-2.5 py-0.5 rounded-full border border-border hover:border-foreground/30 transition-all duration-200"
+            >
+              {t('form.moreOptions')}
+              <ChevronDown className={cn("h-3 w-3 transition-transform duration-200", showMoreOptions && "rotate-180")} />
+            </button>
+            <div className="h-px bg-border flex-1" />
+          </div>
 
           <AnimatePresence initial={false}>
             {showMoreOptions && (
@@ -828,14 +818,14 @@ export const UnifiedEventForm = ({
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                 className="overflow-hidden"
               >
-                <div className="divide-y divide-border mt-2 border-t border-border">
+                <div className="divide-y divide-border border-t border-border mt-2">
 
                   {/* Max participants */}
                   <FormField
                     control={form.control}
                     name="maxParticipants"
                     render={({ field }) => (
-                      <div className="flex items-center justify-between py-2.5 pl-7">
+                      <div className="flex items-center justify-between py-2.5 px-4">
                         <Label className="text-sm flex items-center gap-2 text-foreground">
                           <Users className="h-4 w-4 text-muted-foreground" />
                           {t('form.maxParticipants')}
@@ -855,7 +845,7 @@ export const UnifiedEventForm = ({
                   />
 
                   {/* Recurrence */}
-                  <div className="flex items-center justify-between py-2.5 pl-7">
+                  <div className="flex items-center justify-between py-2.5 px-4">
                     <Label className="text-sm flex items-center gap-2 text-foreground">
                       <Repeat className="h-4 w-4 text-muted-foreground" />
                       {t('form.repeat')}
@@ -879,7 +869,7 @@ export const UnifiedEventForm = ({
                   </div>
 
                   {isRecurring && (
-                    <div className="py-2 pl-6">
+                    <div className="py-2.5 px-4">
                       <Label className="text-[10px] text-muted-foreground block mb-1">{t('form.recurrence.until')}</Label>
                       <Popover>
                         <PopoverTrigger asChild>
@@ -898,8 +888,8 @@ export const UnifiedEventForm = ({
                   )}
 
                   {/* RSVP Deadline */}
-                  <div className="py-2.5 space-y-2">
-                    <div className="flex items-center justify-between pl-7">
+                  <div className="py-2.5 space-y-2 px-4">
+                    <div className="flex items-center justify-between">
                       <Label className="text-sm flex items-center gap-2 text-foreground">
                         <Clock className="h-4 w-4 text-muted-foreground" />
                         {t('form.rsvpDeadline')}
@@ -988,8 +978,8 @@ export const UnifiedEventForm = ({
 
                   {/* Looking for Players */}
                   {showLookingForPlayersSection && (
-                    <div className="py-2.5 space-y-2">
-                      <div className="flex items-center justify-between pl-7">
+                    <div className="py-2.5 space-y-2 px-4">
+                      <div className="flex items-center justify-between">
                         <Label className="text-sm flex items-center gap-2 text-foreground">
                           <UserPlus className="h-4 w-4 text-muted-foreground" />
                           {t('lookingForPlayers.title')}
@@ -1018,7 +1008,7 @@ export const UnifiedEventForm = ({
 
                   {/* Training intensity */}
                   {eventType === 'training' && (
-                    <div className="py-2.5 space-y-2 pl-7">
+                    <div className="py-2.5 space-y-2 px-4">
                       <Label className="text-xs text-muted-foreground">{t('form.training.intensity')}</Label>
                       <div className="flex gap-1.5">
                         {TRAINING_INTENSITIES.map((level) => (
@@ -1042,7 +1032,7 @@ export const UnifiedEventForm = ({
 
                   {/* Meetup category */}
                   {showCategorySelector && (
-                    <div className="py-2.5 space-y-2 pl-7">
+                    <div className="py-2.5 space-y-2 px-4">
                       <Label className="text-xs text-muted-foreground">{t('form.meetup.category')}</Label>
                       <div className="flex flex-wrap gap-1.5">
                         {MEETUP_CATEGORIES.map(({ value, emoji }) => {
@@ -1075,7 +1065,7 @@ export const UnifiedEventForm = ({
         </div>
 
         {/* ── Submit ── */}
-        <div className="mt-2 pt-3 border-t border-border">
+        <div className="mt-2 pt-3 border-t border-border px-4 pb-2">
           <Button type="submit" className="w-full h-11 text-sm font-semibold" disabled={isSubmitting}>
             {isSubmitting ? (
               <span className="flex items-center gap-2">

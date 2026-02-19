@@ -18,7 +18,7 @@ export const EventTypeSelector = ({ value, onChange }: EventTypeSelectorProps) =
   const { t } = useTranslation('events');
 
   return (
-    <div className="flex border-b border-border mb-1">
+    <div className="flex border-b border-border">
       {EVENT_TYPE_OPTIONS.map(({ type, icon: Icon }) => {
         const isSelected = value === type;
         return (
@@ -28,10 +28,10 @@ export const EventTypeSelector = ({ value, onChange }: EventTypeSelectorProps) =
             onClick={() => onChange(type)}
             aria-pressed={isSelected}
             className={cn(
-              "flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-all duration-200 -mb-px",
+              "flex items-center gap-2 px-4 py-3 text-sm border-b-2 transition-all duration-200 -mb-px",
               isSelected
-                ? "border-primary text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                ? "border-primary text-foreground font-semibold"
+                : "border-transparent text-muted-foreground font-medium hover:text-foreground hover:border-border"
             )}
           >
             <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-primary" : "text-muted-foreground")} />
