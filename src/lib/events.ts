@@ -36,6 +36,8 @@ export interface Event {
   players_needed?: number | null;
   // RSVP deadline
   rsvp_deadline?: string | null;
+  // Sport
+  sport?: string | null;
   // Cost & payment
   cost?: string | null;
   cost_type?: string | null;
