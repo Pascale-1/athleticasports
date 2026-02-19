@@ -76,11 +76,21 @@ const EventCardWithAttendance = ({
   onEdit?: (e: React.MouseEvent) => void;
   onDelete?: (e: React.MouseEvent) => void;
 }) => {
-  const { stats, userStatus, updateAttendance } = useEventAttendance(event.id);
+  const { stats, attendees, userStatus, updateAttendance } = useEventAttendance(event.id);
 
   // Prioritize real-time hook data over prefetched values for immediate updates
   const finalUserStatus = userStatus ?? prefetchedUserStatus ?? null;
   const finalAttendeeCount = stats.attending ?? prefetchedAttendingCount ?? 0;
+
+  // Map attendees to the format EventCard expects
+  const mappedAttendees = attendees
+    .filter(a => a.status === 'attending' && a.profiles)
+    .map(a => ({
+      user_id: a.user_id,
+      username: a.profiles?.username,
+      display_name: a.profiles?.display_name ?? undefined,
+      avatar_url: a.profiles?.avatar_url ?? null,
+    }));
 
   return (
     <EventCard
@@ -92,6 +102,7 @@ const EventCardWithAttendance = ({
       isOrganizerView={isOrganizerView}
       onEdit={isOrganizerView ? onEdit : undefined}
       onDelete={isOrganizerView ? onDelete : undefined}
+      attendees={mappedAttendees}
     />
   );
 };

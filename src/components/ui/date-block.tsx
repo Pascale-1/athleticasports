@@ -6,14 +6,16 @@ interface DateBlockProps {
   date: Date | string;
   size?: "inline" | "compact" | "sm" | "md" | "lg";
   className?: string;
+  showWeekday?: boolean;
 }
 
-export const DateBlock = ({ date, size = "sm", className }: DateBlockProps) => {
+export const DateBlock = ({ date, size = "sm", className, showWeekday = false }: DateBlockProps) => {
   const d = typeof date === "string" ? new Date(date) : date;
   const locale = getLocale();
   
   const day = format(d, "d", { locale });
   const month = format(d, "MMM", { locale });
+  const weekday = format(d, "EEE", { locale });
   
   const isEventToday = isToday(d);
   const isEventTomorrow = isTomorrow(d);
@@ -39,23 +41,25 @@ export const DateBlock = ({ date, size = "sm", className }: DateBlockProps) => {
   }
   
   const sizeClasses = {
-    compact: "w-11 h-14 text-[9px] gap-0.5",
-    sm: "w-10 h-12 text-[9px] gap-0",
-    md: "w-11 h-13 text-[10px] gap-0",
-    lg: "w-13 h-16 text-xs gap-0.5",
+    compact: "w-12 text-[9px] gap-0",
+    sm: "w-12 text-[9px] gap-0",
+    md: "w-13 text-[10px] gap-0",
+    lg: "w-14 text-xs gap-0.5",
   };
   
   const dayClasses = {
     compact: "text-lg font-bold",
-    sm: "text-base font-bold",
-    md: "text-lg font-bold",
-    lg: "text-xl font-bold",
+    sm: "text-lg font-bold",
+    md: "text-xl font-bold",
+    lg: "text-2xl font-bold",
   };
+
+  const showWd = showWeekday || size === "compact" || size === "sm";
 
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center rounded-lg shrink-0",
+        "flex flex-col items-center justify-center rounded-lg shrink-0 py-2 px-1",
         sizeClasses[size],
         isEventToday && "bg-primary text-primary-foreground",
         isEventTomorrow && "bg-warning/15 text-warning",
@@ -65,7 +69,10 @@ export const DateBlock = ({ date, size = "sm", className }: DateBlockProps) => {
       )}
     >
       <span className="uppercase leading-none tracking-wide font-medium">{month}</span>
-      <span className={cn(dayClasses[size], "leading-none")}>{day}</span>
+      <span className={cn(dayClasses[size], "leading-tight")}>{day}</span>
+      {showWd && (
+        <span className="uppercase leading-none tracking-wide font-medium opacity-70">{weekday}</span>
+      )}
     </div>
   );
 };
