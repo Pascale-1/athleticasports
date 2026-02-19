@@ -1,175 +1,182 @@
 
-# Event Form: Full Modern Redesign — Final Pass
+# Event Card Redesign: Full Review & Modernization Plan
 
-## What the Form Currently Looks Like (Code Audit)
+## What I Can See Right Now (from live screenshots)
 
-After reading all 1,096 lines of `UnifiedEventForm.tsx` plus every related component, here is what is actually rendering versus what was intended:
-
-### Problems Confirmed
-
-**1. Dialog title duplicates the form tabs**
-`CreateEventDialog` renders a `DialogHeader` with a title ("New Training / New Game / New Social") AND the form renders its own `EventTypeSelector` tabs directly below. This creates a redundant header — the dialog title and the tab bar both say the same thing. Strava, Meetup, and Google Calendar all eliminate the modal title and let the type selector speak for itself.
-
-**2. The date row is the most broken field**
-The date row shows a plain ghost text "Pick a date" but there is no visual affordance that it is interactive. When a date IS selected, it renders a second row (time + duration picker) inside a `bg-muted/30 border` box inside the same FieldRow. This creates an inconsistent double-height row that doesn't match the ghost style of the other rows. Apple Calendar and Strava solve this with an inline expanding panel.
-
-**3. Visibility and Cost rows feel like settings, not form fields**
-The `Switch` toggle is right-aligned on both the Visibility and Cost rows, but the left side just shows text — no visual affordance that these are toggleable. The switch feels orphaned. The modern pattern (Strava, Luma) puts the toggle label inline as part of the row, not as a separate paragraph.
-
-**4. "More options" is visually dull and buried**
-The expand button is `pl-7 text-xs text-muted-foreground underline`. It looks like a small link, not a section header. Inside, the items use inconsistent spacing (`py-2.5 pl-7`, `py-2.5 pl-6`, `pl-6`, `pl-7`) — no consistent alignment.
-
-**5. The type tabs have no animation / active indicator weight**
-`border-b-2 border-primary` is applied but the tab labels use `text-sm font-medium` for both active and inactive. Active tabs should use `font-semibold` to visually distinguish them. Additionally the tab bar has `mb-1` below it before the form body — creating a noticeable gap before the first field.
-
-**6. Sport dropdown `SelectTrigger` has no visible value display**
-The sport select uses `value={selectedSport || '__none__'}` but `__none__` is not a `SelectItem` so Radix returns an empty display. The custom `SelectValue` children rendering approach (where a child renders when there's a value) is the correct fix but needs to be verified — the current code may be silently failing to show the selected sport name.
-
-**7. The entire form sits in a `divide-y divide-border` wrapper — but FieldRow also has `border-b border-border`**
-This creates **double borders** on every row. Both `divide-y` on the parent AND `border-b` on each `FieldRow` separator prop are fighting each other. The fix: use only one approach — keep `divide-y` on the wrappers and remove `separator` from `FieldRow`, OR remove `divide-y` and let `FieldRow` handle its own border.
-
----
-
-## Target: What Modern Apps Do
-
-Looking at Strava's segment creation, Luma's event form, and Apple Calendar:
+The cards currently render like this:
 
 ```text
 ┌─────────────────────────────────────────┐
-│ ✕  New Event              [Training ▾]  │  ← close btn + type in header
-├─────────────────────────────────────────┤
-│ ✏  Nom de la séance                     │  ← large, prominent
-│ ─────────────────────────────────────── │
-│ 📝 Description (optional)               │
-├─────────────────────────────────────────┤
-│ 🏋 Padel ▾                              │  ← sport dropdown, inline
-│ ─────────────────────────────────────── │  
-│ 👥 Mon équipe ▾                         │
-│ ─────────────────────────────────────── │
-│ ⚔️ Adversaire         Type · Pick       │  ← match only
-│    ● Dom  ○ Ext  ○ Neutre               │
-├─────────────────────────────────────────┤
-│ 📅 Sam, 8 Mar · 19:00 · 1h30           │  ← tappable row
-│    [── date panel expands ──]           │
-│ ─────────────────────────────────────── │
-│ 📍 Stade Charléty, Paris                │
-│ ─────────────────────────────────────── │
-│ 🌐 Public              ●               │  ← switch same line as label
-│ ─────────────────────────────────────── │
-│ €  Free                ○               │
-├─────────────────────────────────────────┤
-│ ∨  More options                         │
-│ ─────────────────────────────────────── │
-│          [ Create Training ]            │
+│ FEB │ Foot foot   [Game] 🌐              │
+│  20 │ 10 am · 217 Rue d'Aubervilliers…   │
+│     │ 1 going  👥3              ✓ Going  │
 └─────────────────────────────────────────┘
 ```
 
 ---
 
-## 7 Surgical Fixes
+## What Is Not Visually Appealing — 9 Specific Problems
 
-### Fix 1 — Remove dialog title, move type into dialog header area
+### Problem 1 — The colored top-border accent is too subtle and inconsistent
+The card uses `border-t-2 border-t-warning` (amber for Game, blue for Training, green for Meetup). At 2px it is barely visible and carries almost no visual weight. It looks like a rendering artifact rather than a deliberate design choice. Strava, Luma, and FotMob use a **left-side accent bar** (4px) or a **full colored header zone** to communicate event type instantly.
 
-**In `CreateEventDialog.tsx`**: Remove the `DialogHeader` + `DialogTitle`. Instead, move the `EventTypeSelector` tabs to the very top of the dialog — flush with the dialog top, acting as the title bar. This eliminates redundancy and gives the tabs more visual weight.
+### Problem 2 — The DateBlock is visually isolated and awkwardly proportioned
+The `DateBlock` is `w-11 h-14` — a narrow tall rectangle sitting on the left. It shows only month abbreviation + day number, no weekday. This means:
+- "FEB 20" tells you nothing about whether it's a Tuesday or a Saturday — critical for sports scheduling
+- The block's proportions feel cramped and hard to read at a glance
+- The color logic (today=primary, past=muted, future=primary/10) is good but the **size** weakens the signal
 
-The `DialogContent` needs `pt-0` so the tabs touch the top. The form starts immediately after the tab bar.
+### Problem 3 — Title font size is too small (`text-sm`) — the most important element is not the most prominent
+The event title uses `text-sm font-semibold`. On a card that fills the full viewport width, the title should be the dominant text element. Competitors like Luma and Eventbrite use `text-base` or `text-lg` for the title. Currently "Foot foot" and "Tina Corner vs Five team" both render at the same visual weight as the location text below.
 
-**In `EventTypeSelector.tsx`**: Increase tab label from `font-medium` to `font-semibold` on the active tab. The border-bottom is already `border-primary`. Add `gap-2` between icon and label.
+### Problem 4 — The type badge duplicates the top-border accent color with no added value
+Every card has both:
+1. A colored top border (`border-t-warning` for Game)
+2. A `[Game]` badge in amber
 
-### Fix 2 — Fix the double-border bug
+This is **double-signaling** the same information with two different visual treatments. The badge uses `text-[10px]` — extremely small text — and a faint background color, making it nearly invisible in practice. It adds clutter without adding clarity.
 
-**In `UnifiedEventForm.tsx`**: The `<div className="divide-y divide-border">` wrapper already handles row separation. Remove the `separator` prop usage from all `FieldRow` calls (set `separator={false}`) because `divide-y` does the same job. This eliminates the double-border.
+### Problem 5 — Globe/Lock icons are meaningless noise at this size
+`h-3 w-3` icons for public/private visibility sit inline with the title row at a near-invisible size. Users cannot parse the meaning of these icons at 12px width without already knowing what they mean. At minimum they need a tooltip or label. More importantly: **public/private visibility is metadata that belongs in a secondary info row**, not cluttering the already-busy title line.
 
-The current `FieldRow` has `border-b border-border` when `separator=true`. Since all calls already use `separator={false}`, the `divide-y divide-border` on the parent is doing the work. BUT the `divide-y` wraps only some rows — the sport/team/opponent block is in one wrapper, and date/location/visibility/cost in another. The gap between sections is the `SectionDivider`. This is fine — just ensure every `FieldRow` that is inside a `divide-y` wrapper uses `separator={false}`.
+### Problem 6 — The time + location row lacks visual hierarchy separation
+`10 am · 217 Rue d'Aubervilliers…` uses `text-xs text-muted-foreground` for both time and location with only a `·` dot separator. There is no icon, no visual weight differentiation, and the location gets truncated at 27 characters (hardcoded). On a narrow screen, `217 Rue d'Aubervilliers…` with `…` after 25 chars tells the user almost nothing about where the event actually is.
 
-### Fix 3 — Date row: always show time + duration inline (no collapsing sub-row)
+### Problem 7 — The "X going" count and avatar stack conflict with the RSVP button spatially
+The bottom row tries to fit:
+- Avatar stack (up to 3 circles)
+- "X going" count text
+- Optional "Need X" badge
+- RSVP dropdown button
 
-Currently: date trigger is a ghost text → on date pick, a secondary `bg-muted/30 border` box appears below for time + duration.
+All in one `flex justify-between` row. When avatars + count + need badge all appear simultaneously, the RSVP button gets visually crowded and the whole row feels cluttered. The RSVP button at `h-6 px-2 text-[11px]` is too small to be a confident primary action.
 
-Fix: Remove the collapsing time+duration sub-box. Instead:
-- Before date is picked: `"📅 Pick a date"` ghost text
-- After date is picked: replace with two rows:
-  - Row 1 (date): `"📅 Sat, Mar 8"` — tappable to change
-  - Row 2 (time + duration, no icon, indent): `"19:00 · 1h30"` inline with preset pills
+### Problem 8 — The RSVP button label "RSVP" is unclear for a sports app
+When no status is set, the button shows "RSVP" with no icon — a generic hospitality term. Sports app competitors use: "Join", "I'm in", "Going", or a thumbs-up icon. The label choice combined with the tiny `h-6` button size makes the primary action feel secondary.
 
-This matches how Luma's event creation works. It's always visible, never hides behind a toggle.
-
-### Fix 4 — Visibility + Cost rows: Single-line switch pattern
-
-Currently, both rows have a `<div className="flex items-center justify-between">` with a paragraph of text on the left and a Switch on the right. The text has a `<p>` label AND a `<p className="text-xs text-muted-foreground mt-0.5">` description below.
-
-The description lines (`t('form.isPublicDesc')` etc.) add unnecessary height. Remove the secondary description lines. Keep only the single label + switch on one line. This matches every modern form pattern.
-
-For the cost row: when `hasCost=false`, show `"€  Free"`. When `hasCost=true`, show `"€  Paid"` with the amount expanding below. The switch flips between Free/Paid.
-
-### Fix 5 — "More options" chevron: make it look like a real section
-
-Replace the `pl-7 text-xs underline` link with a proper section divider-style toggle:
-
-```tsx
-<div className="flex items-center gap-2 py-2">
-  <div className="h-px bg-border flex-1" />
-  <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground px-2 py-0.5 rounded-full border border-border hover:border-foreground/30 transition-all">
-    {t('form.moreOptions')}
-    <ChevronDown className={cn("h-3 w-3 transition-transform", showMoreOptions && "rotate-180")} />
-  </button>
-  <div className="h-px bg-border flex-1" />
-</div>
-```
-
-This is the Notion/Linear pattern for "more settings" — a pill button with lines on both sides. Much cleaner than an underline text link.
-
-### Fix 6 — Fix sport dropdown display (SelectValue sentinel)
-
-The sport `Select` uses `value={selectedSport || '__none__'}`. When `selectedSport` is empty, the value `'__none__'` is set but there is no `<SelectItem value="__none__">`, so Radix shows nothing. The `SelectValue` children override shows the placeholder div but this may not render reliably.
-
-Fix: Use `value={selectedSport || undefined}` so Radix treats an empty sport as truly uncontrolled placeholder state, and it shows the `placeholder` prop of `SelectValue`. Add a proper `SelectItem value="">` as a non-selectable placeholder item:
-
-```tsx
-<Select
-  value={selectedSport || ''}
-  onValueChange={(val) => { setSelectedSport(val); ... }}
->
-  <SelectTrigger ...>
-    <SelectValue placeholder={lang === 'fr' ? 'Quel sport ?' : 'Which sport?'} />
-  </SelectTrigger>
-  <SelectContent>
-    {allSports.map(sport => (
-      <SelectItem key={sport.id} value={sport.id}>
-        {sport.emoji} {getSportLabel(sport.id, lang)}
-      </SelectItem>
-    ))}
-  </SelectContent>
-</Select>
-```
-
-The key insight: Radix `Select` shows the `placeholder` when `value` is `''` (empty string). No sentinel needed.
-
-### Fix 7 — Consistent internal spacing in "More options"
-
-All items inside "More options" currently use inconsistent padding (`pl-6`, `pl-7`, no indent). Fix: wrap all items in a consistent `divide-y divide-border` with uniform `py-3 gap-3` using the same `FieldRow` pattern as the main form, but with smaller `py-2.5` sizing. Remove the manual `pl-7` hacks.
+### Problem 9 — No visual distinction between past events and upcoming events
+Past events render with `bg-muted/50 text-muted-foreground` on the DateBlock only. The rest of the card — title, location, RSVP button — renders identically to upcoming events. There is no "Past" badge, reduced opacity, or other visual treatment to tell the user at a glance that "Basket test" from Feb 19 is already over.
 
 ---
 
-## Files Changed
+## What Should Be Added or Changed — 9 Fixes
 
-| File | What changes |
-|------|-------------|
-| `src/components/events/CreateEventDialog.tsx` | Remove `DialogHeader`/`DialogTitle`. Move `EventTypeSelector` to the very top of the dialog. Add `pt-0` to `DialogContent`. Pass `onTypeChange` state to display in header. |
-| `src/components/events/EventTypeSelector.tsx` | Active tab: `font-semibold` (was `font-medium`). Icon: `gap-2` between icon and label. Tab bar: `mb-0` (remove bottom margin gap). |
-| `src/components/events/UnifiedEventForm.tsx` | Fix 7 items: double-border, date row always visible, visibility/cost single-line, more-options pill toggle, sport dropdown empty state, consistent more-options spacing. |
+### Fix 1 — Replace top-border accent with a left-side 4px accent bar + type icon in DateBlock
 
-No database changes. No new packages. No translation additions.
+**Instead of:** `border-t-2 border-t-warning`
+**Use:** `border-l-4 border-l-warning` (left-side bar — the FotMob / Strava pattern)
 
-## Before/After Summary
+This gives **4× more visual weight** to the type color and is more recognizable as a navigation/categorization signal. Pair this with adding the event type icon (Dumbbell / Trophy / Users) as a small overlay on the DateBlock.
 
-| Element | Before | After |
-|---------|--------|-------|
-| Dialog header | Title text ("New Training") + tabs below | Tabs only, flush to top |
-| Active tab | `font-medium` border-b | `font-semibold` border-b primary |
-| Double border | `divide-y` + `border-b` on each row | `divide-y` only |
-| Date row | Ghost text → collapses open time+duration box | Ghost text → time+duration inline always |
-| Visibility/Cost | Label + description paragraph + switch | Single-line label + switch |
-| More options toggle | Small underline text link `pl-7` | Centered pill button with hr lines |
-| Sport dropdown | May show blank when no sport selected | Correctly shows placeholder |
-| More options content | `pl-6`/`pl-7` inconsistent | Consistent `FieldRow` pattern |
+### Fix 2 — Redesign DateBlock to include the weekday abbreviation
+
+**Instead of:**
+```
+FEB
+ 20
+```
+**Show:**
+```
+FEB
+ 20
+SAT
+```
+Add the weekday (`EEE` format, e.g., "SAT") in small text below the day number. This is the single most useful piece of scheduling information (knowing if an event is on a weekend vs. weekday), and every sports calendar app (FotMob, Google Calendar, Apple Calendar) includes it.
+
+### Fix 3 — Increase title to `text-base font-semibold`, remove type badge
+
+The title should dominate the card. Remove the `[Game]` / `[Training]` badge — the left accent bar + DateBlock icon already communicate the type. The freed-up horizontal space allows the title to never need truncation for reasonable event names.
+
+### Fix 4 — Redesign the secondary info row with distinct icons
+
+Replace the plain `10 am · location` text row with icon-prefixed elements:
+
+```
+🕐 10:00  📍 Stade Charléty (arrondissement or short name)
+```
+
+Use `Clock` icon for time and `MapPin` for location. Keep them as separate elements so they're individually scannable. Limit location to the **venue name only** (before the comma in the address), not the full street address.
+
+### Fix 5 — Move visibility/recurrence to a tertiary "chip" strip below
+
+Create a compact third row (only when relevant data exists) with small pill chips:
+- `🌐 Public` or `🔒 Private` (with text label, not just icon)
+- `🔁 Recurring` (only if applicable)
+- `€ 5` or `Free` (cost chip)
+
+These are **secondary metadata** and should live below the main content, not compete with the title.
+
+### Fix 6 — Make the RSVP button a proper primary action
+
+Replace the `h-6 px-2 text-[11px]` ghost button with:
+- `h-8 px-3 text-xs rounded-full` for unset status
+- Filled colored pill when status is set (green for Going, yellow for Maybe)
+- Label: `"Join"` instead of `"RSVP"` for unset state
+
+This makes the CTA feel deliberate and tappable on mobile.
+
+### Fix 7 — Separate the attendance count from the RSVP area
+
+Move the avatar stack + count to sit immediately below the location row as a standalone element. Give it its own visual treatment:
+
+```
+👥 Thomas, Marie + 6 others · 8 going
+```
+
+Or in compact form: `[avatar][avatar][avatar] 3 going`
+
+This removes the cramped bottom row and lets the RSVP button stand alone in the bottom-right.
+
+### Fix 8 — Add a "Full" state and a "Past" state to cards
+
+**Full:** When `isFull`, show the RSVP button as a disabled "Full" badge (amber/red) with no dropdown. The current code calculates `isFull` but never renders anything for it.
+
+**Past:** Add `opacity-60` to the entire card content (not the card border) and add a small `Past` chip over the DateBlock. This tells users at a glance that events in their list are historical.
+
+### Fix 9 — Add a sport indicator to the card
+
+The card currently shows event **type** (Training/Game/Social) but not **sport** (Football, Tennis, Padel). For a sports app, the sport is the most discriminating filter. Add a sport emoji or name as a small chip next to the time row:
+
+```
+⚽ Football  ·  🕐 10:00  ·  📍 Stade Charléty
+```
+
+---
+
+## Target Layout After Redesign
+
+```text
+┌──────────────────────────────────────────┐
+│▌  FEB  │ Foot foot                  🌐   │  ← left accent bar (amber=game)
+│▌   20  │ ⚽ Football · 🕐 10:00          │  ← sport + time on one row
+│▌  THU  │ 📍 217 Rue d'Aubervilliers      │  ← full location on its own row
+│        │ 👥👤+ 1 going         [ Join ]  │  ← avatars + clear CTA
+└──────────────────────────────────────────┘
+
+┌──────────────────────────────────────────┐
+│▌  FEB  │ Basket test              🔁 🌐  │  ← recurring + public chips
+│▌   19  │ 🏀 Basketball · 🕐 10:00        │
+│▌  WED  │ 📍 Place Jean Ferrat, 75011     │
+│        │ 👥👤👤👤 +5 · 8 going  [ RSVP ] │
+└──────────────────────────────────────────┘
+```
+
+---
+
+## Technical Summary
+
+### Files to Change
+
+| File | Changes |
+|------|---------|
+| `src/components/events/EventCard.tsx` | Full layout redesign: left accent bar, `text-base` title, remove type badge, icon-prefixed info rows, sport chip, better RSVP button, Full/Past states |
+| `src/components/ui/date-block.tsx` | Add weekday (`EEE`) as a third row in the compact/sm DateBlock sizes; widen to `w-12` to accommodate |
+| `src/components/events/EventsList.tsx` | Pass `attendees` array through to `EventCard` (currently `attendees` prop is always `[]` because `EventCardWithAttendance` never fetches them — add attendee list to the attendance hook response) |
+
+### No changes needed to
+- Database schema
+- Translation files (all strings are already translated or use existing keys)
+- Any Supabase functions
+
+### One bonus addition — sport display
+The event object from `@/lib/events` includes a `sport` field. The card currently ignores it entirely. Reading it from the event and showing the emoji from `@/lib/sports.ts` is straightforward and costs zero API calls.
