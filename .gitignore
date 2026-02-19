@@ -25,3 +25,7 @@ dist-ssr
 
 # CI scripts must be tracked
 !ci_scripts/
+
+# Android signing
+*.keystore
+*.jks
