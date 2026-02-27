@@ -94,6 +94,30 @@ const Settings = () => {
     }
   };
 
+  const handleSaveAllFields = async (values: Record<string, string>) => {
+    if (!profile) return;
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: values.fullName || null,
+          display_name: values.displayName || null,
+          primary_sport: values.primarySport || null,
+          team_name: values.teamName || null,
+          bio: values.bio || null,
+        })
+        .eq('user_id', profile.user_id);
+
+      if (error) throw error;
+      toast.success("Profile updated");
+      setEditingField(null);
+      fetchProfile();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error("Failed to update profile");
+    }
+  };
+
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setUploading(true);
@@ -275,6 +299,7 @@ const Settings = () => {
           stats={stats}
           onEditField={handleSaveField}
           onSaveField={handleSaveField}
+          onSaveAllFields={handleSaveAllFields}
           editingField={editingField}
           setEditingField={setEditingField}
           tempValues={tempValues}

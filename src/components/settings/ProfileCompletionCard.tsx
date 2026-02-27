@@ -25,8 +25,12 @@ const COMPLETION_FIELDS = [
 export const ProfileCompletionCard = ({ profile, onGoToAbout }: ProfileCompletionCardProps) => {
   const { t } = useTranslation();
   const [dismissed, setDismissed] = useState(() => {
-    try { return localStorage.getItem('profile-completion-dismissed') === 'true'; }
-    catch { return false; }
+    try {
+      const ts = localStorage.getItem('profile-completion-dismissed');
+      if (!ts) return false;
+      const daysSince = (Date.now() - parseInt(ts)) / 86400000;
+      return daysSince < 7;
+    } catch { return false; }
   });
 
   const completedFields = COMPLETION_FIELDS.filter(
@@ -41,7 +45,7 @@ export const ProfileCompletionCard = ({ profile, onGoToAbout }: ProfileCompletio
 
   const handleDismiss = () => {
     setDismissed(true);
-    try { localStorage.setItem('profile-completion-dismissed', 'true'); }
+    try { localStorage.setItem('profile-completion-dismissed', Date.now().toString()); }
     catch {}
   };
 
