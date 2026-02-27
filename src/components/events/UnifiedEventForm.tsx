@@ -369,8 +369,23 @@ export const UnifiedEventForm = ({
     return labels;
   }, [step2HasContent, lang]);
 
-  const goNext = () => {
+  const validateCurrentStep = async (): Promise<boolean> => {
+    switch (currentStep) {
+      case 0:
+        return await form.trigger('title');
+      case 1:
+        return true;
+      case 2:
+        return await form.trigger(['date', 'startTime', 'location']);
+      default:
+        return true;
+    }
+  };
+
+  const goNext = async () => {
     if (currentStep < totalSteps - 1) {
+      const isValid = await validateCurrentStep();
+      if (!isValid) return;
       setDirection(1);
       setCurrentStep(currentStep + 1);
     }
