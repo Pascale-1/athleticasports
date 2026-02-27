@@ -141,7 +141,7 @@ const StepDots = ({ current, total, labels }: { current: number; total: number; 
 
 // Step card wrapper
 const StepCard = ({ children }: { children: React.ReactNode }) => (
-  <div className="rounded-2xl bg-card/80 backdrop-blur border border-border/50 shadow-sm mx-1 overflow-y-auto">
+  <div className="rounded-2xl bg-card/80 backdrop-blur border border-border/50 shadow-sm mx-1">
     <div className="px-4 py-3 space-y-0">
       {children}
     </div>
@@ -370,13 +370,15 @@ export const UnifiedEventForm = ({
   }, [step2HasContent, lang]);
 
   const validateCurrentStep = async (): Promise<boolean> => {
-    switch (currentStep) {
+    switch (currentStepId) {
       case 0:
         return await form.trigger('title');
       case 1:
         return true;
       case 2:
         return await form.trigger(['date', 'startTime', 'location']);
+      case 3:
+        return true;
       default:
         return true;
     }
@@ -821,7 +823,7 @@ export const UnifiedEventForm = ({
 
   const renderStep3 = () => (
     <StepCard>
-      {/* Visibility */}
+      {/* Visibility — pill toggle */}
       {eventType !== 'match' && (
         <FormField
           control={form.control}
@@ -829,30 +831,76 @@ export const UnifiedEventForm = ({
           render={({ field }) => (
             <FieldRow icon={field.value ? Globe : Lock} separator={true} iconAlign="center">
               <div className="flex items-center justify-between min-h-[32px]">
-                <span className="text-sm">
-                  {field.value ? t('form.isPublic') : t('form.isPrivate', 'Private Event')}
+                <span className="text-sm font-medium">
+                  {lang === 'fr' ? 'Visibilité' : 'Visibility'}
                 </span>
-                <FormControl>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
+                <div className="flex rounded-full border border-border overflow-hidden bg-muted/50">
+                  <button
+                    type="button"
+                    onClick={() => field.onChange(true)}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all duration-150 min-h-[32px]",
+                      field.value
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <Globe className="h-3.5 w-3.5" />
+                    {lang === 'fr' ? 'Public' : 'Public'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => field.onChange(false)}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all duration-150 min-h-[32px]",
+                      !field.value
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <Lock className="h-3.5 w-3.5" />
+                    {lang === 'fr' ? 'Privé' : 'Private'}
+                  </button>
+                </div>
               </div>
             </FieldRow>
           )}
         />
       )}
 
-      {/* Cost */}
+      {/* Cost — pill toggle */}
       <FieldRow icon={Euro} separator={true} iconAlign={hasCost ? 'top' : 'center'}>
         <div className="flex items-center justify-between min-h-[32px]">
-          <span className="text-sm">
-            {hasCost
-              ? (cost ? `€${cost} ${costType === 'per_person' ? t('cost.perPerson') : t('cost.total')}` : t('cost.label'))
-              : t('cost.freeToggle')}
+          <span className="text-sm font-medium">
+            {lang === 'fr' ? 'Coût' : 'Cost'}
           </span>
-          <Switch checked={hasCost} onCheckedChange={(checked) => {
-            setHasCost(checked);
-            if (!checked) { setCost(''); setPaymentLink(''); }
-          }} />
+          <div className="flex rounded-full border border-border overflow-hidden bg-muted/50">
+            <button
+              type="button"
+              onClick={() => { setHasCost(false); setCost(''); setPaymentLink(''); }}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all duration-150 min-h-[32px]",
+                !hasCost
+                  ? "bg-success/90 text-white shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {lang === 'fr' ? 'Gratuit' : 'Free'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setHasCost(true)}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all duration-150 min-h-[32px]",
+                hasCost
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Euro className="h-3.5 w-3.5" />
+              {lang === 'fr' ? 'Payant' : 'Paid'}
+            </button>
+          </div>
         </div>
 
         <AnimatePresence initial={false}>
