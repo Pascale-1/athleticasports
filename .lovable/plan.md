@@ -1,58 +1,87 @@
 
 
-# Fix Auto-Submit Bug + Modernize Event Form
+# Fix: Auto-Submit, Text Overlaps, and Address Clipping
 
 ## Root Cause of Auto-Submit
 
-The Enter key in any `<input>` triggers the native HTML form submission. The current `onSubmit` handler calls `goNext()` on non-last steps, which advances to the Options step. But the Enter keypress event can also trigger the newly-rendered submit button on the next frame, causing an immediate double-fire: advance + submit.
+The `onKeyDown` and `onSubmit` fixes are already in place, but the event still auto-creates. The cause is a **mobile tap-through**: when the user taps "Next: Options" (the penultimate step), React re-renders with the `type="submit"` button in the **exact same position**. The touch/click event propagates to the newly rendered submit button on the same frame, triggering immediate submission.
 
-**Fix**: Intercept Enter at the `<form>` level via `onKeyDown`, preventing native form submission entirely. Only the explicit submit button click should create the event.
+**Evidence**: The session replay shows "Creating..." appearing instantly with no user interaction on the Options step.
 
 ## Changes
 
 ### `src/components/events/UnifiedEventForm.tsx`
 
-**1. Prevent Enter-key submission (the real fix)**
+**1. Fix tap-through auto-submit**
 
-Add `onKeyDown` to the `<form>` element that blocks Enter on all inputs (except `<textarea>`):
+Add a `useRef` guard (`justAdvancedRef`) that is set to `true` when `goNext()` fires and cleared after a 400ms timeout. The `onSubmit` handler checks this guard and refuses to submit if it's `true`.
 
 ```tsx
-<form
-  onSubmit={(e) => {
-    e.preventDefault();
-    if (isLastStep) {
+const justAdvancedRef = useRef(false);
+
+const goNext = async () => {
+  if (currentStep < totalSteps - 1) {
+    const isValid = await validateCurrentStep();
+    if (!isValid) return;
+    justAdvancedRef.current = true;
+    setTimeout(() => { justAdvancedRef.current = false; }, 400);
+    setDirection(1);
+    setCurrentStep(currentStep + 1);
+  }
+};
+
+// In onSubmit:
+onSubmit={(e) => {
+  e.preventDefault();
+  if (isLastStep && !justAdvancedRef.current) {
+    form.handleSubmit(handleSubmit)();
+  }
+}}
+```
+
+**2. Make the submit button `type="button"` instead of `type="submit"`**
+
+As a belt-and-suspenders fix, change the final step's create button from `type="submit"` to `type="button"` with an explicit `onClick` that calls `form.handleSubmit(handleSubmit)()` only when `!justAdvancedRef.current`. This completely eliminates any native form submission path.
+
+```tsx
+<Button
+  type="button"
+  onClick={() => {
+    if (!justAdvancedRef.current) {
       form.handleSubmit(handleSubmit)();
     }
-    // Remove the else { goNext() } — Enter should NOT auto-advance
   }}
-  onKeyDown={(e) => {
-    if (e.key === 'Enter' && !(e.target instanceof HTMLTextAreaElement)) {
-      e.preventDefault();
-    }
-  }}
+  // ... rest of props
 >
 ```
 
-This completely stops Enter from triggering form submission or step advancement. Users must tap the explicit Next/Submit buttons.
+**3. Fix address input display — ghost input too narrow / clipped**
 
-**2. Modernize typography and layout (using existing tokens only)**
+The ghost input in the location `FieldRow` has no bottom border and `pr-8` which can clip long addresses. Add the same `border-b border-border/40 focus:border-primary` styling as other ghost inputs, and change `pr-8` to `pr-10` to accommodate the clear button without overlapping text.
 
-- **StepHeader**: Larger step title (`text-base font-bold` → ~16px), thin `h-1` progress bar below filling with `bg-primary`
-- **StepCard**: Slightly more padding (`px-5 py-4`), border at `border-border/30`, background `bg-card`
-- **FieldRow**: Icon containers slightly larger (`h-9 w-9`), icons at 18px (`h-[18px] w-[18px]`), gap increased to `gap-4`
-- **Ghost inputs**: Add `focus:shadow-[0_1px_0_0_hsl(var(--primary))]` for a subtle glow on focus, `transition-all duration-200`
-- **Section titles** ("Essentials", "More options"): `tracking-widest uppercase text-[11px] font-semibold text-muted-foreground`
-- **CTA button**: `h-[52px] rounded-xl text-sm font-bold shadow-colored` using existing primary color
-- **Spacing**: `space-y-1` in StepCard content → `space-y-2` for breathing room
+**4. Fix text overlaps in EventCard**
+
+- Location text on line 243 uses `truncate` — change to `line-clamp-2 break-words` per project text-visibility standard
+- Title `<h3>` already wraps correctly (no truncate), confirmed OK
+
+**5. Address input horizontal scroll for long values**
+
+In `AddressAutocomplete`, add `overflow-x-auto` to the ghost input wrapper so long selected addresses can be scrolled horizontally rather than silently clipped.
 
 ### `src/components/location/AddressAutocomplete.tsx`
 
-No changes needed — the existing `onKeyDown` handler with `e.preventDefault()` on Enter works correctly when suggestions are showing. The form-level `onKeyDown` handler will catch the case when suggestions are NOT showing.
+- Ghost input: add `border-b border-border/40 focus:border-primary pb-1 transition-all duration-200` to match other ghost inputs in the form
+- Ensure the input container allows horizontal scroll for long addresses: `overflow-x-auto`
 
-## Summary of visual changes
-- Same brand colors throughout (primary, muted, card, border tokens)
-- Larger step indicator with progress bar
-- More generous spacing and larger touch targets
-- Subtle focus glow on inputs using existing primary color
-- Bolder CTA button with shadow
+### `src/components/events/EventCard.tsx`
+
+- Line 243: Change location `<span className="truncate">` to `<span className="line-clamp-2 break-words">` so full venue names are visible
+
+## Summary
+
+| Issue | Root Cause | Fix |
+|-------|-----------|-----|
+| Auto-submit | Mobile tap-through on same-position button swap | Guard ref + `type="button"` on submit |
+| Address clipped | Ghost input has no visible boundary, no horizontal scroll | Add border-b styling + overflow-x-auto |
+| Text overlap risk | Location truncated to single line | Use line-clamp-2 per project standard |
 
