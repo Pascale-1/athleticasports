@@ -91,7 +91,7 @@ export const BottomNavigation = () => {
   ];
 
   return (
-    <nav data-walkthrough="navigation" className="lg:hidden fixed bottom-0 left-0 right-0 z-50 h-14 border-t border-border/50 bg-background/95 backdrop-blur-lg shadow-lg">
+    <nav data-walkthrough="navigation" className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border/50 bg-background/95 backdrop-blur-lg shadow-lg h-[calc(3.5rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)]">
       <div className="flex h-full items-center justify-around px-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.url || 

@@ -22,7 +22,7 @@ export const NotificationBell = () => {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-96 p-0" align="end">
+      <PopoverContent className="w-[calc(100vw-2rem)] sm:w-96 p-0" align="end" sideOffset={8}>
         <NotificationPanel />
       </PopoverContent>
     </Popover>

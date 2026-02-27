@@ -194,7 +194,10 @@ export function AccountDangerZone() {
               {t("actions.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleRequestDeletion}
+              onClick={(e) => {
+                e.preventDefault();
+                handleRequestDeletion();
+              }}
               disabled={!isConfirmValid || isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
