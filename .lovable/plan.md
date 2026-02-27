@@ -1,30 +1,43 @@
 
 
-# Fix: Pending Invitations Banner 404
+# Fix: Stale Pending Invitations Banner
 
 ## Problem
-In `src/pages/Teams.tsx` line 204, clicking the "You have X pending invitations" banner navigates to `/invitations`, which doesn't exist as a route in `App.tsx`. This causes a 404.
+Two issues cause the banner to show "1 pending invitation" while the page shows 0:
+
+1. **`usePendingInvitations` hook** (line 36) does NOT filter by `expires_at`, so it counts expired invitations
+2. **`PendingInvitations` page** (line 57) DOES filter `.gt("expires_at", ...)`, so it returns 0 results
+
+Additionally, navigating to a separate page just to see an empty list is a poor UX.
 
 ## Solution
-Two things need to happen:
+Better approach: **show invitations inline on the Teams page** instead of navigating to a separate page. Replace the banner with expandable invitation cards directly in the Teams page. This eliminates the mismatch entirely.
 
-### 1. Create a new `PendingInvitations` page
-Create `src/pages/PendingInvitations.tsx` that:
-- Fetches all pending invitations for the current user (matching by `user_id`, `email`, or `username`)
-- Displays each invitation as a card showing team name, invited by, and date
-- Provides Accept and Decline buttons per invitation
-- Accept calls the existing `accept-team-invitation` edge function
-- Decline updates the invitation status to `rejected`
-
-### 2. Add the route in `App.tsx`
-Add a protected route at `/invitations` pointing to the new `PendingInvitations` page, wrapped in `AppLayout`.
-
-## Files Changed
+### Changes
 
 | File | Change |
 |------|--------|
-| `src/pages/PendingInvitations.tsx` | New page: list pending invitations with accept/decline actions |
-| `src/App.tsx` | Add `/invitations` route (lazy-loaded, protected, with AppLayout) |
+| `src/hooks/usePendingInvitations.ts` | Add `.gt("expires_at", new Date().toISOString())` filter to match the page query. Also return the actual invitation data (not just count) so Teams page can render them inline. |
+| `src/pages/Teams.tsx` | Replace the banner that navigates to `/invitations` with inline invitation cards showing team name + accept/decline buttons directly. Use the enriched data from the updated hook. |
 
-No database changes needed — the `team_invitations` table and `accept-team-invitation` edge function already exist.
+### Hook changes (`usePendingInvitations.ts`)
+- Add `expires_at` filter to the count query
+- Add a second state `invitations` that fetches full invitation data (team name, inviter, etc.)
+- Return `{ count, invitations, loading, refetch }`
+
+### Teams page changes (`Teams.tsx`)
+- Remove the `navigate('/invitations')` banner
+- When `invitations.length > 0`, render each invitation as an inline card with:
+  - Team avatar + name + sport badge
+  - "Invited by X" subtitle
+  - Accept / Decline buttons
+- On Accept: call `accept-team-invitation` edge function, handle expired error gracefully, remove from list
+- On Decline: update status to `declined`, remove from list
+- Keep the `/invitations` route working as a fallback but the primary UX is inline
+
+### Expired error handling
+- If accept returns "expired", show a toast and remove from local state
+- The hook's `expires_at` filter prevents most cases, but edge function validation catches race conditions
+
+No database changes. No new packages.
 
