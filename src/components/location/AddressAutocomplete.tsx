@@ -237,7 +237,7 @@ export const AddressAutocomplete = ({
   };
 
   return (
-    <div ref={containerRef} className={cn("relative space-y-2 w-full min-w-0", className)}>
+    <div ref={containerRef} className={cn("relative space-y-2 w-full min-w-0", showSuggestions && suggestions.length > 0 && "pb-[220px]", className)}>
       {label && (
         <Label className="flex items-center gap-2">
           <MapPin className="h-4 w-4" />

@@ -110,38 +110,36 @@ const FieldRow = ({
   iconAlign?: 'top' | 'center';
 }) => (
   <div className={cn("relative flex gap-3 py-3", separator && "border-b border-border/30", iconAlign === 'center' ? 'items-center' : 'items-start', className)}>
-    <Icon className={cn("h-4 w-4 text-muted-foreground shrink-0", iconAlign === 'top' ? 'mt-0.5' : '')} />
+    <div className={cn(
+      "h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0",
+      iconAlign === 'top' ? 'mt-0.5' : ''
+    )}>
+      <Icon className="h-4 w-4 text-primary" />
+    </div>
     <div className="flex-1 min-w-0">{children}</div>
   </div>
 );
 
-// Step progress dots
-const StepDots = ({ current, total, labels }: { current: number; total: number; labels: string[] }) => (
-  <div className="flex flex-col items-center gap-1.5 pt-4 pb-2">
+// Step progress header — "Step 2 of 4 · When & Where"
+const StepHeader = ({ current, total, labels }: { current: number; total: number; labels: string[] }) => (
+  <div className="flex items-center justify-between px-4 pt-4 pb-2">
     <div className="flex items-center gap-2">
-      {Array.from({ length: total }).map((_, i) => (
-        <div
-          key={i}
-          className={cn(
-            "h-2 rounded-full transition-all duration-300",
-            i === current
-              ? "w-6 bg-primary"
-              : i < current
-              ? "w-2 bg-primary/60"
-              : "w-2 bg-muted-foreground/20"
-          )}
-        />
-      ))}
+      <span className="text-xs font-semibold text-primary bg-primary/10 rounded-full h-6 w-6 flex items-center justify-center">
+        {current + 1}
+      </span>
+      <span className="text-sm font-semibold text-foreground">
+        {labels[current]}
+      </span>
     </div>
-    <span className="text-[11px] text-muted-foreground font-medium">
-      {labels[current]}
+    <span className="text-xs text-muted-foreground">
+      {current + 1} / {total}
     </span>
   </div>
 );
 
 // Step card wrapper
 const StepCard = ({ children }: { children: React.ReactNode }) => (
-  <div className="rounded-2xl bg-card/80 backdrop-blur border border-border/50 shadow-sm mx-1">
+  <div className="rounded-2xl bg-card/80 backdrop-blur border border-border/50 shadow-sm mx-1 overflow-visible">
     <div className="px-4 py-3 space-y-0">
       {children}
     </div>
@@ -470,7 +468,7 @@ export const UnifiedEventForm = ({
               <FormControl>
                 <input
                   {...field}
-                  className="w-full bg-transparent border-0 outline-none text-base font-medium placeholder:text-muted-foreground/50 text-foreground min-h-[28px]"
+                  className="w-full bg-transparent border-b border-border/40 focus:border-primary outline-none text-base font-medium placeholder:text-muted-foreground/50 text-foreground min-h-[28px] pb-1 transition-colors"
                   placeholder={
                     eventType === 'match'
                       ? t('form.game.titlePlaceholder')
@@ -497,7 +495,7 @@ export const UnifiedEventForm = ({
                 <textarea
                   {...field}
                   rows={2}
-                  className="w-full bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground/50 text-foreground resize-none leading-snug min-h-[40px]"
+                  className="w-full bg-transparent border-b border-border/40 focus:border-primary outline-none text-sm placeholder:text-muted-foreground/50 text-foreground resize-none leading-snug min-h-[40px] pb-1 transition-colors"
                   placeholder={t('form.descriptionPlaceholder')}
                 />
               </FormControl>
@@ -585,8 +583,8 @@ export const UnifiedEventForm = ({
                       <FormControl>
                         <input
                           {...field}
-                          placeholder={t('form.game.opponentPlaceholder')}
-                          className="w-full bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground/50 text-foreground min-h-[28px]"
+                         placeholder={t('form.game.opponentPlaceholder')}
+                          className="w-full bg-transparent border-b border-border/40 focus:border-primary outline-none text-sm placeholder:text-muted-foreground/50 text-foreground min-h-[28px] pb-1 transition-colors"
                         />
                       </FormControl>
                     </FormItem>
@@ -807,9 +805,9 @@ export const UnifiedEventForm = ({
                 <FormControl>
                   <input
                     {...field}
-                    type="url"
+                   type="url"
                     placeholder="https://zoom.us/j/..."
-                    className="w-full bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground/50 text-foreground min-h-[28px]"
+                    className="w-full bg-transparent border-b border-border/40 focus:border-primary outline-none text-sm placeholder:text-muted-foreground/50 text-foreground min-h-[28px] pb-1 transition-colors"
                   />
                 </FormControl>
                 <FormMessage className="text-xs" />
@@ -823,6 +821,13 @@ export const UnifiedEventForm = ({
 
   const renderStep3 = () => (
     <StepCard>
+      {/* ── Essentials ── */}
+      <div className="pb-1">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+          {lang === 'fr' ? 'Essentiel' : 'Essentials'}
+        </span>
+      </div>
+
       {/* Visibility — pill toggle */}
       {eventType !== 'match' && (
         <FormField
@@ -986,194 +991,220 @@ export const UnifiedEventForm = ({
         )}
       />
 
-      {/* Recurrence */}
-      <FieldRow icon={Repeat} separator={true} iconAlign="center">
-        <div className="flex items-center justify-between min-h-[32px]">
-          <Label className="text-sm text-foreground">
-            {t('form.repeat')}
-          </Label>
-          <Select
-            value={recurrenceType}
-            onValueChange={(value: RecurrenceType) => {
-              setRecurrenceType(value);
-              setIsRecurring(value !== 'none');
-            }}
+      {/* ── Advanced (collapsible) ── */}
+      <div className="pt-2">
+        <button
+          type="button"
+          onClick={() => setShowMoreOptions(!showMoreOptions)}
+          className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors py-1"
+        >
+          <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", showMoreOptions && "rotate-180")} />
+          <span className="uppercase tracking-wider text-[10px]">
+            {lang === 'fr' ? 'Plus d\'options' : 'More options'}
+          </span>
+        </button>
+      </div>
+
+      <AnimatePresence initial={false}>
+        {showMoreOptions && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
           >
-            <SelectTrigger className="w-28 h-8 text-xs">
-              <SelectValue placeholder={t('form.recurrence.selectFrequency')} />
-            </SelectTrigger>
-            <SelectContent className="bg-popover border border-border shadow-lg z-50">
-              {(['none', 'daily', 'weekly', 'monthly'] as RecurrenceType[]).map((type) => (
-                <SelectItem key={type} value={type}>{t(`form.recurrence.${type}`)}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {isRecurring && (
-          <div className="pt-2">
-            <Label className="text-[10px] text-muted-foreground block mb-1">{t('form.recurrence.until')}</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full h-8 justify-start text-left font-normal min-w-0 text-xs">
-                  <span className="truncate flex-1">
-                    {recurrenceEndDate ? format(recurrenceEndDate, "MMM dd, yyyy") : t('form.recurrence.noEndDate')}
-                  </span>
-                  <CalendarIcon className="ml-1.5 h-3.5 w-3.5 opacity-50 shrink-0" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-popover border border-border shadow-lg z-50" align="start" side="top">
-                <Calendar mode="single" selected={recurrenceEndDate} onSelect={setRecurrenceEndDate} disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }} className="pointer-events-auto" />
-              </PopoverContent>
-            </Popover>
-          </div>
-        )}
-      </FieldRow>
-
-      {/* RSVP Deadline */}
-      <FieldRow icon={Clock} separator={true} iconAlign="center">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between min-h-[32px]">
-            <Label className="text-sm text-foreground">
-              {t('form.rsvpDeadline')}
-            </Label>
-            <Switch checked={showRsvpDeadline} onCheckedChange={setShowRsvpDeadline} />
-          </div>
-
-          {showRsvpDeadline && (
-            <div className="space-y-2">
-              <div className="flex flex-wrap gap-1.5">
-                {DEADLINE_PRESETS.map((preset) => (
-                  <button
-                    key={preset.value}
-                    type="button"
-                    onClick={() => setDeadlinePreset(preset.value)}
-                    className={cn(
-                      "px-2.5 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 min-h-[32px]",
-                      deadlinePreset === preset.value
-                        ? "bg-primary/10 text-primary border-primary/30"
-                        : "border-border text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    {t(`form.deadline.${preset.value}`)}
-                  </button>
-                ))}
+            {/* Recurrence */}
+            <FieldRow icon={Repeat} separator={true} iconAlign="center">
+              <div className="flex items-center justify-between min-h-[32px]">
+                <Label className="text-sm text-foreground">
+                  {t('form.repeat')}
+                </Label>
+                <Select
+                  value={recurrenceType}
+                  onValueChange={(value: RecurrenceType) => {
+                    setRecurrenceType(value);
+                    setIsRecurring(value !== 'none');
+                  }}
+                >
+                  <SelectTrigger className="w-28 h-8 text-xs">
+                    <SelectValue placeholder={t('form.recurrence.selectFrequency')} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border border-border shadow-lg z-50">
+                    {(['none', 'daily', 'weekly', 'monthly'] as RecurrenceType[]).map((type) => (
+                      <SelectItem key={type} value={type}>{t(`form.recurrence.${type}`)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              {deadlinePreset === 'custom' && (
-                <div className="flex gap-2">
+              {isRecurring && (
+                <div className="pt-2">
+                  <Label className="text-[10px] text-muted-foreground block mb-1">{t('form.recurrence.until')}</Label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button type="button" variant="outline" className="flex-1 h-8 justify-start text-left font-normal text-xs">
-                        <CalendarIcon className="mr-1.5 h-3.5 w-3.5 opacity-50" />
-                        {customDeadline ? format(customDeadline, "MMM dd, yyyy") : t('form.pickDate')}
+                      <Button variant="outline" className="w-full h-8 justify-start text-left font-normal min-w-0 text-xs">
+                        <span className="truncate flex-1">
+                          {recurrenceEndDate ? format(recurrenceEndDate, "MMM dd, yyyy") : t('form.recurrence.noEndDate')}
+                        </span>
+                        <CalendarIcon className="ml-1.5 h-3.5 w-3.5 opacity-50 shrink-0" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0 bg-popover border border-border shadow-lg z-50" align="start" side="top">
-                      <Calendar
-                        mode="single"
-                        selected={customDeadline}
-                        onSelect={(date) => {
-                          if (date) {
-                            const newDate = new Date(date);
-                            if (customDeadline) {
-                              newDate.setHours(customDeadline.getHours(), customDeadline.getMinutes());
-                            } else {
-                              newDate.setHours(18, 0);
-                            }
-                            setCustomDeadline(newDate);
-                          }
-                        }}
-                        disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }}
-                        className="pointer-events-auto"
-                      />
+                      <Calendar mode="single" selected={recurrenceEndDate} onSelect={setRecurrenceEndDate} disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }} className="pointer-events-auto" />
                     </PopoverContent>
                   </Popover>
-                  <Input
-                    type="time"
-                    value={customDeadline ? format(customDeadline, 'HH:mm') : '18:00'}
-                    onChange={(e) => {
-                      const [hours, mins] = e.target.value.split(':').map(Number);
-                      const newDate = customDeadline ? new Date(customDeadline) : new Date();
-                      newDate.setHours(hours, mins);
-                      setCustomDeadline(newDate);
-                    }}
-                    className="w-20 h-8 text-xs"
-                  />
                 </div>
               )}
+            </FieldRow>
 
-              {watchedDate && watchedStartTime && (
-                <p className="text-[10px] text-primary">
-                  {(() => {
-                    const [hours, minutes] = watchedStartTime.split(':').map(Number);
-                    const eventDateTime = new Date(watchedDate);
-                    eventDateTime.setHours(hours, minutes, 0, 0);
-                    const deadline = calculateRsvpDeadline(eventDateTime);
-                    if (deadline) return t('form.deadlinePreview', { time: format(deadline, 'EEE MMM d, HH:mm') });
-                    return null;
-                  })()}
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      </FieldRow>
+            {/* RSVP Deadline */}
+            <FieldRow icon={Clock} separator={true} iconAlign="center">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between min-h-[32px]">
+                  <Label className="text-sm text-foreground">
+                    {t('form.rsvpDeadline')}
+                  </Label>
+                  <Switch checked={showRsvpDeadline} onCheckedChange={setShowRsvpDeadline} />
+                </div>
 
-      {/* Looking for Players */}
-      {showLookingForPlayersSection && (
-        <FieldRow icon={UserPlus} separator={true} iconAlign="center">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between min-h-[32px]">
-              <Label className="text-sm text-foreground">
-                {t('lookingForPlayers.title')}
-              </Label>
-              <Switch checked={lookingForPlayers} onCheckedChange={setLookingForPlayers} />
-            </div>
+                {showRsvpDeadline && (
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap gap-1.5">
+                      {DEADLINE_PRESETS.map((preset) => (
+                        <button
+                          key={preset.value}
+                          type="button"
+                          onClick={() => setDeadlinePreset(preset.value)}
+                          className={cn(
+                            "px-2.5 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 min-h-[32px]",
+                            deadlinePreset === preset.value
+                              ? "bg-primary/10 text-primary border-primary/30"
+                              : "border-border text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          {t(`form.deadline.${preset.value}`)}
+                        </button>
+                      ))}
+                    </div>
 
-            {lookingForPlayers && (
-              <Select value={playersNeeded} onValueChange={setPlayersNeeded}>
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border border-border shadow-lg z-50">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 20].map((num) => (
-                    <SelectItem key={num} value={num.toString()}>
-                      {num} {num === 1 ? t('lookingForPlayers.player', { defaultValue: 'player' }) : t('lookingForPlayers.players', { defaultValue: 'players' })}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
-        </FieldRow>
-      )}
+                    {deadlinePreset === 'custom' && (
+                      <div className="flex gap-2">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button type="button" variant="outline" className="flex-1 h-8 justify-start text-left font-normal text-xs">
+                              <CalendarIcon className="mr-1.5 h-3.5 w-3.5 opacity-50" />
+                              {customDeadline ? format(customDeadline, "MMM dd, yyyy") : t('form.pickDate')}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0 bg-popover border border-border shadow-lg z-50" align="start" side="top">
+                            <Calendar
+                              mode="single"
+                              selected={customDeadline}
+                              onSelect={(date) => {
+                                if (date) {
+                                  const newDate = new Date(date);
+                                  if (customDeadline) {
+                                    newDate.setHours(customDeadline.getHours(), customDeadline.getMinutes());
+                                  } else {
+                                    newDate.setHours(18, 0);
+                                  }
+                                  setCustomDeadline(newDate);
+                                }
+                              }}
+                              disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }}
+                              className="pointer-events-auto"
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <Input
+                          type="time"
+                          value={customDeadline ? format(customDeadline, 'HH:mm') : '18:00'}
+                          onChange={(e) => {
+                            const [hours, mins] = e.target.value.split(':').map(Number);
+                            const newDate = customDeadline ? new Date(customDeadline) : new Date();
+                            newDate.setHours(hours, mins);
+                            setCustomDeadline(newDate);
+                          }}
+                          className="w-20 h-8 text-xs"
+                        />
+                      </div>
+                    )}
 
-      {/* Training intensity */}
-      {eventType === 'training' && (
-        <FieldRow icon={Dumbbell} separator={false} iconAlign="top">
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">{t('form.training.intensity')}</Label>
-            <div className="flex gap-1.5">
-              {TRAINING_INTENSITIES.map((level) => (
-                <button
-                  key={level}
-                  type="button"
-                  onClick={() => setTrainingIntensity(level)}
-                  className={cn(
-                    "flex-1 h-9 rounded-full text-xs font-medium border transition-all duration-150 min-h-[36px]",
-                    trainingIntensity === level
-                      ? "bg-primary/10 text-primary border-primary/30"
-                      : "border-border text-muted-foreground hover:text-foreground"
+                    {watchedDate && watchedStartTime && (
+                      <p className="text-[10px] text-primary">
+                        {(() => {
+                          const [hours, minutes] = watchedStartTime.split(':').map(Number);
+                          const eventDateTime = new Date(watchedDate);
+                          eventDateTime.setHours(hours, minutes, 0, 0);
+                          const deadline = calculateRsvpDeadline(eventDateTime);
+                          if (deadline) return t('form.deadlinePreview', { time: format(deadline, 'EEE MMM d, HH:mm') });
+                          return null;
+                        })()}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </FieldRow>
+
+            {/* Looking for Players */}
+            {showLookingForPlayersSection && (
+              <FieldRow icon={UserPlus} separator={true} iconAlign="center">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between min-h-[32px]">
+                    <Label className="text-sm text-foreground">
+                      {t('lookingForPlayers.title')}
+                    </Label>
+                    <Switch checked={lookingForPlayers} onCheckedChange={setLookingForPlayers} />
+                  </div>
+
+                  {lookingForPlayers && (
+                    <Select value={playersNeeded} onValueChange={setPlayersNeeded}>
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border border-border shadow-lg z-50">
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 20].map((num) => (
+                          <SelectItem key={num} value={num.toString()}>
+                            {num} {num === 1 ? t('lookingForPlayers.player', { defaultValue: 'player' }) : t('lookingForPlayers.players', { defaultValue: 'players' })}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   )}
-                >
-                  {t(`form.training.intensity_${level}`)}
-                </button>
-              ))}
-            </div>
-          </div>
-        </FieldRow>
-      )}
+                </div>
+              </FieldRow>
+            )}
+
+            {/* Training intensity */}
+            {eventType === 'training' && (
+              <FieldRow icon={Dumbbell} separator={false} iconAlign="top">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">{t('form.training.intensity')}</Label>
+                  <div className="flex gap-1.5">
+                    {TRAINING_INTENSITIES.map((level) => (
+                      <button
+                        key={level}
+                        type="button"
+                        onClick={() => setTrainingIntensity(level)}
+                        className={cn(
+                          "flex-1 h-9 rounded-full text-xs font-medium border transition-all duration-150 min-h-[36px]",
+                          trainingIntensity === level
+                            ? "bg-primary/10 text-primary border-primary/30"
+                            : "border-border text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        {t(`form.training.intensity_${level}`)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </FieldRow>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </StepCard>
   );
 
@@ -1191,10 +1222,20 @@ export const UnifiedEventForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="min-w-0 overflow-x-hidden flex flex-col h-full">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (isLastStep) {
+            form.handleSubmit(handleSubmit)();
+          } else {
+            goNext();
+          }
+        }}
+        className="min-w-0 overflow-x-hidden flex flex-col h-full"
+      >
 
-        {/* Progress dots — fixed at top */}
-        <StepDots current={currentStep} total={totalSteps} labels={stepLabels} />
+        {/* Step header */}
+        <StepHeader current={currentStep} total={totalSteps} labels={stepLabels} />
 
         {/* Step content — scrollable area */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 pb-4">
@@ -1249,7 +1290,7 @@ export const UnifiedEventForm = ({
                 className="flex-1 h-12 text-sm font-semibold rounded-xl"
               >
                 <span className="flex items-center gap-2">
-                  {lang === 'fr' ? 'Suivant' : 'Next'}
+                  {lang === 'fr' ? 'Suivant' : 'Next'}: {stepLabels[currentStep + 1]}
                   <ChevronRight className="h-4 w-4" />
                 </span>
               </Button>
