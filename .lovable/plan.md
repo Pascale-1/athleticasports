@@ -1,24 +1,35 @@
 
 
-# Improvements: Username Display & Email Privacy in Invite Search
+# Fix: RSVP Bar Overlap + "user_" Display Names in Attendees
 
-## Issue 1: Usernames showing as "user_" prefix
-The auto-generated usernames from `generate_random_username()` actually produce names like "SwiftTiger1234" — but anywhere a user hasn't set a `display_name`, the fallback shows the raw `username` field which may look generic. The real issue is likely that the `@{user.username}` display in search results and profiles creates noise. Modern apps (like Strava, TeamSnap, Heja) use **display names** as the primary identifier and hide technical usernames entirely, or use a simpler handle system.
+## Issue 1: RSVP Bar Overlapping Content
 
-**Suggestion**: Stop showing `@username` in search results and member lists. Show `display_name` as the primary label, and only fall back to username when display_name is null. For the invite dialog specifically, remove the `@{user.username}` subtitle line when a display_name exists.
+The RSVP bar uses `fixed bottom-16` positioning and the page has `pb-36` (144px). When the RSVP bar includes the cancel button + stats text, its total height exceeds the padding. The bar can be ~150-160px tall.
 
-## Issue 2: Emails visible in invite search — confirmed, should not be shown
-Yes, confirmed: the search query in `InviteMemberDialog.tsx` line 66 includes `email.ilike.%...%`, meaning typing a partial email will match users. The `email` column is selected implicitly through the search but not displayed in the UI — however, the fact that you can **search by email** and find users is itself a privacy concern. Other apps typically let you invite by exact email (sending an email invitation) but don't let you **search/discover** users by partial email.
+**Fix in `src/pages/EventDetail.tsx`**: Change `pb-36` to `pb-48` (192px) to give enough clearance for the full RSVP bar height.
 
-**Proposed changes:**
+## Issue 2: "user_" Usernames in Attendees
+
+The `EventAttendees` component already uses `display_name || username` as fallback. The problem is many users have no `display_name` set, so it falls back to auto-generated usernames like `user_abc123`. Two changes:
+
+**Fix in `src/components/events/EventAttendees.tsx`**:
+- When `display_name` is null and `username` starts with `user_`, show a friendlier fallback like "Player" or just the avatar with no name clutter
+- Strip the `user_` prefix: if username starts with `user_`, display it as the remaining portion capitalized, or just show "Player"
+
+**Fix in `src/hooks/useEventAttendance.ts`**:
+- Already fetches `profiles:user_id (username, display_name, avatar_url)` — no change needed, data is available
+
+### Specific approach for username cleanup
+In `EventAttendees.tsx`, update the `displayName` derivation in `AttendeeRow` (line 47):
+```
+const rawName = attendee.profiles?.display_name || attendee.profiles?.username || 'Player';
+const displayName = rawName.startsWith('user_') ? 'Player' : rawName;
+```
+
+This replaces cryptic `user_abc123` with "Player" — clean and anonymous-friendly. The avatar initials will show "P" which is fine.
 
 | File | Change |
 |------|--------|
-| `src/components/teams/InviteMemberDialog.tsx` | Remove `email.ilike.%...%` from the `.or()` search filter. Only search by `username` and `display_name`. Remove the `@{user.username}` subtitle when `display_name` exists — show username only as fallback. |
-
-This is a one-file, two-line change:
-1. Line 66: Remove `,email.ilike.%${sanitizedQuery}%` from the `.or()` clause
-2. Lines 158-160: Only show `@{user.username}` subtitle when it differs from display_name or when display_name is null
-
-No database changes needed.
+| `src/pages/EventDetail.tsx` | Line 256: `pb-36` → `pb-48` |
+| `src/components/events/EventAttendees.tsx` | Lines 47, ~130, ~145: sanitize usernames starting with `user_` to show "Player" instead |
 
