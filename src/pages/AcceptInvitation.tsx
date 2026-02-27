@@ -64,9 +64,16 @@ const AcceptInvitation = () => {
         body: { invitationId }
       });
 
-      if (error) {
-        // Enhanced error handling with specific error types
-        if (error.message?.includes('not authorized') || error.message?.includes('email')) {
+      // Edge functions return errors in data when status is non-2xx
+      const errorMessage = data?.error || error?.message;
+
+      if (error || data?.error) {
+        if (errorMessage?.includes('expired')) {
+          setErrorDetails({ errorType: 'expired' });
+          throw new Error(t('invitations.expired', 'This invitation has expired. Please ask the team admin to send a new one.'));
+        }
+        
+        if (errorMessage?.includes('not authorized') || errorMessage?.includes('email')) {
           // Try to fetch invitation details to show which email was invited
           const { data: invitationData } = await supabase
             .from('team_invitations')
@@ -82,7 +89,7 @@ const AcceptInvitation = () => {
           
           throw new Error(`This invitation was sent to ${invitationData?.email}, but you're signed in as ${session.user.email}`);
         }
-        throw error;
+        throw new Error(errorMessage || 'Failed to accept invitation');
       }
 
       if (!data?.teamId) {
@@ -162,6 +169,16 @@ const AcceptInvitation = () => {
             <>
               <XCircle className="h-12 w-12 text-destructive" />
               <p className="text-sm text-center mb-4">{error}</p>
+              
+              {errorDetails.errorType === 'expired' && (
+                <Alert className="mb-4 border-muted">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Invitation Expired</AlertTitle>
+                  <AlertDescription className="text-xs mt-2 text-muted-foreground">
+                    This invitation link is no longer valid. Please contact the team administrator to receive a new invitation.
+                  </AlertDescription>
+                </Alert>
+              )}
               
               {errorDetails.errorType === 'wrong_email' && (
                 <Alert className="mb-4 border-warning">
