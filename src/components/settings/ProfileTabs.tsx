@@ -29,6 +29,7 @@ interface ProfileTabsProps {
   };
   onEditField: (field: string, value: string) => void;
   onSaveField: () => void;
+  onSaveAllFields: (values: Record<string, string>) => Promise<void>;
   editingField: string | null;
   setEditingField: (field: string | null) => void;
   tempValues: any;
@@ -41,6 +42,7 @@ export const ProfileTabs = ({
   stats,
   onEditField,
   onSaveField,
+  onSaveAllFields,
   editingField,
   setEditingField,
   tempValues,
@@ -69,14 +71,9 @@ export const ProfileTabs = ({
     });
   };
 
-  const handleSaveAll = () => {
-    // Save all fields in sequence
-    ['fullName', 'displayName', 'primarySport', 'teamName', 'bio'].forEach(field => {
-      setEditingField(field);
-    });
-    onSaveField();
+  const handleSaveAll = async () => {
+    await onSaveAllFields(tempValues);
     setIsEditMode(false);
-    setEditingField(null);
   };
 
   const handleCancelEdit = () => {
