@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { getSportById } from "@/lib/sports";
-import { Link } from "react-router-dom";
-import { AlertCircle, Plus, Users, Globe } from "lucide-react";
+import { AlertCircle, Plus, Globe, ChevronRight, Check, Search } from "lucide-react";
 import { QuickTeamCreateDialog } from "./QuickTeamCreateDialog";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { cn } from "@/lib/utils";
 
 interface Team {
   id: string;
@@ -26,15 +26,10 @@ interface MyTeamSelectorProps {
   placeholder?: string;
   optional?: boolean;
   disabled?: boolean;
-  /** When true, only shows teams user can create events for (owner/admin/coach) */
   forEventCreation?: boolean;
-  /** Show "Create Team" button when no teams available */
   showCreateButton?: boolean;
-  /** Callback when a new team is created */
   onTeamCreated?: (teamId: string, teamName: string) => void;
-  /** Show pickup game option for match events */
   showPickupOption?: boolean;
-  /** When true, suppress the label element — value/placeholder shown only in trigger */
   hideLabel?: boolean;
 }
 
@@ -58,6 +53,8 @@ export const MyTeamSelector = ({
   const [loading, setLoading] = useState(true);
   const [allMyTeams, setAllMyTeams] = useState<Team[]>([]);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchMyTeams = async () => {
@@ -73,7 +70,6 @@ export const MyTeamSelector = ({
         let myTeams: Team[] = [];
 
         if (forEventCreation) {
-          // Fetch teams where user has management permissions (owner/admin/coach)
           const { data, error } = await supabase
             .from("team_members")
             .select(`
@@ -88,7 +84,6 @@ export const MyTeamSelector = ({
           if (error) throw error;
           myTeams = data?.map((item: any) => item.teams as Team) || [];
         } else {
-          // Fetch all teams where user is an active member
           const { data, error } = await supabase
             .from("team_members")
             .select("team_id, teams!inner(id, name, sport, avatar_url)")
@@ -101,7 +96,6 @@ export const MyTeamSelector = ({
 
         setAllMyTeams(myTeams);
 
-        // Filter by sport if specified
         if (sportFilter) {
           const filteredTeams = myTeams.filter((team) => matchesSport(team.sport, sportFilter));
           setTeams(filteredTeams);
@@ -120,42 +114,32 @@ export const MyTeamSelector = ({
     fetchMyTeams();
   }, [sportFilter, forEventCreation]);
 
-  // Case-insensitive sport matching that handles ID/label variations
   const matchesSport = (teamSport: string | null, filterSport: string): boolean => {
     if (!teamSport || !filterSport) return false;
-    
     const teamSportLower = teamSport.toLowerCase();
     const filterLower = filterSport.toLowerCase();
-    
-    // Direct match
     if (teamSportLower === filterLower) return true;
-    
-    // Get the sport by ID and check labels
     const sport = getSportById(filterSport);
     if (sport) {
       if (teamSportLower === sport.id.toLowerCase()) return true;
       if (teamSportLower === sport.label.en.toLowerCase()) return true;
       if (teamSportLower === sport.label.fr.toLowerCase()) return true;
     }
-    
-    // Handle soccer/football alias
     if ((filterLower === 'football' || filterLower === 'soccer') && 
         (teamSportLower === 'football' || teamSportLower === 'soccer')) {
       return true;
     }
-    
     return false;
   };
 
-  const handleChange = (teamId: string) => {
-    if (teamId === "__none__") {
-      onChange(null, undefined);
-    } else if (teamId === "__pickup__") {
+  const handleSelect = (teamId: string) => {
+    if (teamId === "__pickup__") {
       onChange(null, undefined);
     } else {
       const team = teams.find((t) => t.id === teamId);
       onChange(teamId, team?.name);
     }
+    setDrawerOpen(false);
   };
 
   const getSportLabel = (sportId: string | null): string => {
@@ -165,7 +149,6 @@ export const MyTeamSelector = ({
   };
 
   const handleTeamCreated = (teamId: string, teamName: string) => {
-    // Add the new team to our list
     const newTeam: Team = {
       id: teamId,
       name: teamName,
@@ -174,22 +157,20 @@ export const MyTeamSelector = ({
     };
     setTeams(prev => [...prev, newTeam]);
     setAllMyTeams(prev => [...prev, newTeam]);
-    
-    // Select the newly created team
     onChange(teamId, teamName);
-    
-    // Call external callback if provided
     onTeamCreated?.(teamId, teamName);
-    
     setShowCreateDialog(false);
   };
 
-  // Show message if sport filter is applied but no matching teams
   const showNoMatchingTeams = sportFilter && teams.length === 0 && allMyTeams.length > 0 && !loading;
   const showNoTeamsAtAll = teams.length === 0 && allMyTeams.length === 0 && !loading;
-
-  // Determine if we should show the create team prompt
   const showCreatePrompt = showCreateButton && (showNoTeamsAtAll || showNoMatchingTeams);
+
+  const selectedTeam = teams.find((t) => t.id === value);
+
+  const filteredTeams = searchQuery
+    ? teams.filter((t) => t.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : teams;
 
   return (
     <div className="space-y-2">
@@ -248,73 +229,145 @@ export const MyTeamSelector = ({
           )}
         </div>
       ) : (
-        <Select
-          value={value || (showPickupOption ? "__pickup__" : undefined)}
-          onValueChange={handleChange}
-          disabled={disabled || (teams.length === 0 && !showPickupOption)}
-        >
-          <SelectTrigger className="h-9 text-sm border-0 bg-transparent shadow-none px-0 focus:ring-0 text-foreground hover:text-primary transition-colors">
-            <SelectValue placeholder={placeholder || (lang === 'fr' ? 'Sélectionner une équipe' : 'Select a team')} />
-          </SelectTrigger>
-          <SelectContent className="bg-background" onCloseAutoFocus={(e) => e.preventDefault()}>
-            {/* Pickup Game Option - only for match type */}
-            {showPickupOption && (
-              <SelectItem value="__pickup__">
-                <div className="flex items-center gap-2">
-                  <div className="h-5 w-5 rounded-full bg-accent/20 flex items-center justify-center">
-                    <Globe className="h-3 w-3 text-accent-foreground" />
+        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+          <DrawerTrigger asChild disabled={disabled}>
+            <button
+              type="button"
+              className="w-full flex items-center gap-3 min-h-[36px] text-left"
+              disabled={disabled}
+            >
+              {selectedTeam ? (
+                <>
+                  <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    {selectedTeam.avatar_url ? (
+                      <Avatar className="h-9 w-9">
+                        <AvatarImage src={selectedTeam.avatar_url} />
+                        <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+                          {selectedTeam.name.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <span className="text-primary text-sm font-semibold">
+                        {selectedTeam.name.substring(0, 2).toUpperCase()}
+                      </span>
+                    )}
                   </div>
-                  <div className="flex flex-col">
-                    <span>{lang === 'fr' ? 'Partie ouverte (sans équipe)' : 'Pickup Game (no team)'}</span>
-                  </div>
-                </div>
-              </SelectItem>
-            )}
-            
-            {optional && !showPickupOption && (
-              <SelectItem value="__none__">
-                <span className="text-muted-foreground">
-                  {lang === 'fr' ? 'Aucune équipe' : 'No team'}
+                  <span className="flex-1 text-sm font-semibold text-foreground break-words">
+                    {selectedTeam.name}
+                  </span>
+                </>
+              ) : (
+                <span className="flex-1 text-sm text-muted-foreground">
+                  {placeholder || (lang === 'fr' ? 'Sélectionner une équipe' : 'Select a team')}
                 </span>
-              </SelectItem>
-            )}
-            
-            {teams.map((team) => (
-              <SelectItem key={team.id} value={team.id}>
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-5 w-5">
-                    {team.avatar_url && <AvatarImage src={team.avatar_url} alt={team.name} />}
-                    <AvatarFallback className="text-[10px] bg-primary/10">
-                      {team.name.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="truncate">{team.name}</span>
-                </div>
-              </SelectItem>
-            ))}
-            
-            {/* Create Team option at bottom */}
-            {showCreateButton && teams.length > 0 && (
-              <div className="border-t mt-1 pt-1">
-                <button
-                  type="button"
-                  className="w-full flex items-center gap-2 px-2 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowCreateDialog(true);
-                  }}
-                >
-                  <Plus className="h-4 w-4" />
-                  {lang === 'fr' ? 'Créer une nouvelle équipe' : 'Create new team'}
-                </button>
+              )}
+              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+            </button>
+          </DrawerTrigger>
+
+          <DrawerContent className="bg-card rounded-t-2xl">
+            <div className="p-4 space-y-3">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="ex: FC City Rivals..."
+                  className="w-full rounded-xl bg-background border border-border/50 px-4 pl-10 h-11 text-sm outline-none placeholder:text-muted-foreground/50 focus:border-primary transition-colors"
+                />
               </div>
-            )}
-          </SelectContent>
-        </Select>
+
+              {/* Team list */}
+              <div className="max-h-[50vh] overflow-y-auto -mx-4">
+                {showPickupOption && (
+                  <button
+                    type="button"
+                    onClick={() => handleSelect("__pickup__")}
+                    className={cn(
+                      "w-full h-16 px-4 border-b border-border flex items-center gap-3 transition-colors",
+                      !value && "border-l-[3px] border-l-primary bg-primary/5"
+                    )}
+                  >
+                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <Globe className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0 text-left">
+                      <p className="font-semibold text-sm text-foreground">
+                        {lang === 'fr' ? 'Partie ouverte' : 'Pickup Game'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {lang === 'fr' ? 'Sans équipe' : 'No team'}
+                      </p>
+                    </div>
+                    {!value && <Check className="h-5 w-5 text-primary shrink-0" />}
+                  </button>
+                )}
+
+                {filteredTeams.map((team) => (
+                  <button
+                    key={team.id}
+                    type="button"
+                    onClick={() => handleSelect(team.id)}
+                    className={cn(
+                      "w-full h-16 px-4 border-b border-border flex items-center gap-3 transition-colors",
+                      value === team.id && "border-l-[3px] border-l-primary bg-primary/5"
+                    )}
+                  >
+                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      {team.avatar_url ? (
+                        <Avatar className="h-9 w-9">
+                          <AvatarImage src={team.avatar_url} />
+                          <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+                            {team.name.substring(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      ) : (
+                        <span className="text-primary text-sm font-semibold">
+                          {team.name.substring(0, 2).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0 text-left">
+                      <p className="font-semibold text-sm text-foreground break-words">
+                        {team.name}
+                      </p>
+                      {team.sport && (
+                        <p className="text-xs text-muted-foreground">{getSportLabel(team.sport)}</p>
+                      )}
+                    </div>
+                    {value === team.id && <Check className="h-5 w-5 text-primary shrink-0" />}
+                  </button>
+                ))}
+
+                {filteredTeams.length === 0 && !showPickupOption && (
+                  <div className="py-8 text-center text-sm text-muted-foreground">
+                    {lang === 'fr' ? 'Aucune équipe trouvée' : 'No teams found'}
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              {showCreateButton && (
+                <div className="pt-2 text-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDrawerOpen(false);
+                      setShowCreateDialog(true);
+                    }}
+                    className="text-primary text-sm font-medium"
+                  >
+                    {lang === 'fr' ? "Équipe introuvable ? Créez-en une" : "Can't find your team? Create one"}
+                  </button>
+                </div>
+              )}
+            </div>
+          </DrawerContent>
+        </Drawer>
       )}
       
-      {/* Quick Team Create Dialog */}
       <QuickTeamCreateDialog
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
