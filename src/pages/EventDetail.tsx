@@ -253,7 +253,7 @@ const EventDetail = () => {
   const hasMatchDetails = event.type === 'match' && (event.opponent_name || event.match_format || event.home_away);
 
   return (
-    <PageContainer className="pb-36 lg:pb-8">
+    <PageContainer className="pb-48 lg:pb-8">
       <motion.div 
         className="space-y-5"
         initial={{ opacity: 0, y: 20 }}
