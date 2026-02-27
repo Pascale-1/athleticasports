@@ -54,6 +54,7 @@ const PendingInvitations = () => {
         .from("team_invitations")
         .select("id, team_id, role, email, created_at, expires_at, invited_by")
         .eq("status", "pending")
+        .gt("expires_at", new Date().toISOString())
         .or(filters.join(","))
         .order("created_at", { ascending: false });
 
@@ -95,6 +96,12 @@ const PendingInvitations = () => {
 
       const errorMessage = data?.error || error?.message;
       if (error || data?.error) {
+        if (errorMessage?.toLowerCase().includes("expired")) {
+          // Remove expired invitation from list
+          setInvitations((prev) => prev.filter((i) => i.id !== invitationId));
+          toast({ title: t("common.error", "Error"), description: t("teams.invitationExpired", "This invitation has expired. Ask the team admin for a new one."), variant: "destructive" });
+          return;
+        }
         throw new Error(errorMessage || "Failed to accept invitation");
       }
 
