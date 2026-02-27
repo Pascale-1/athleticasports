@@ -46,10 +46,9 @@ export const TeamMemberCard = ({
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <p className="font-medium text-sm sm:text-base truncate">@{member.profile.username}</p>
-            {member.profile.display_name && (
-              <p className="text-xs sm:text-sm text-muted-foreground truncate">{member.profile.display_name}</p>
-            )}
+            <p className="font-medium text-sm sm:text-base truncate">
+              {member.profile.display_name || member.profile.username}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
