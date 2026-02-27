@@ -4,8 +4,7 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Plus, Loader2, Users, Search as SearchIcon, Mail, ChevronRight } from "lucide-react";
+import { Plus, Loader2, Users, Search as SearchIcon } from "lucide-react";
 import { Team } from "@/lib/teams";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
@@ -16,6 +15,7 @@ import { FAB } from "@/components/mobile/FAB";
 import { EmptyState } from "@/components/EmptyState";
 import { useTeamFilters } from "@/hooks/useTeamFilters";
 import { usePendingInvitations } from "@/hooks/usePendingInvitations";
+import { InlineInvitationCards } from "@/components/teams/InlineInvitationCards";
 import { toast } from "sonner";
 import { PullToRefresh } from "@/components/animations/PullToRefresh";
 import { AnimatedCard } from "@/components/animations/AnimatedCard";
@@ -40,7 +40,7 @@ const Teams = () => {
   const [showAllTeams, setShowAllTeams] = useState(false);
   
   // Pending invitations hook
-  const { count: pendingInvitesCount, loading: invitesLoading } = usePendingInvitations();
+  const { invitations: pendingInvitations, loading: invitesLoading, removeInvitation } = usePendingInvitations();
   
   const {
     searchQuery,
@@ -192,34 +192,18 @@ const Teams = () => {
             />
           )}
 
-          {/* Pending Invitations Banner */}
-          {!invitesLoading && pendingInvitesCount > 0 && (
+          {/* Pending Invitations Inline */}
+          {!invitesLoading && pendingInvitations.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <Card 
-                className="p-3 bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 cursor-pointer active:scale-[0.98] transition-transform"
-                onClick={() => navigate('/invitations')}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-8 w-8 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
-                      <Mail className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <span className="text-sm font-medium text-amber-800 dark:text-amber-200">
-                      {t('pendingInvites', { count: pendingInvitesCount })}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Badge className="bg-amber-500 text-white text-xs">
-                      {pendingInvitesCount}
-                    </Badge>
-                    <ChevronRight className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                  </div>
-                </div>
-              </Card>
+              <InlineInvitationCards
+                invitations={pendingInvitations}
+                onRemove={removeInvitation}
+                onRefresh={handleRefresh}
+              />
             </motion.div>
           )}
 
