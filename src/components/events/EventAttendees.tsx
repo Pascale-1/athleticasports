@@ -34,7 +34,8 @@ const AttendeeRow = ({
   youLabel: string;
   committedLabel: string;
 }) => {
-  const displayName = attendee.profiles?.display_name || attendee.profiles?.username || 'Unknown';
+  const rawName = attendee.profiles?.display_name || attendee.profiles?.username || 'Player';
+  const displayName = rawName.startsWith('user_') ? 'Player' : rawName;
   const isCurrentUser = attendee.user_id === currentUserId;
   
   return (
@@ -153,7 +154,8 @@ export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps
   const previewNames = previewAttendees
     .slice(0, 3)
     .map(a => {
-      const name = a.profiles?.display_name || a.profiles?.username || '';
+      const raw = a.profiles?.display_name || a.profiles?.username || '';
+      const name = raw.startsWith('user_') ? 'Player' : raw;
       return name.split(' ')[0];
     })
     .filter(Boolean);
