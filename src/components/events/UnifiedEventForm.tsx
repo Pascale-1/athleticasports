@@ -109,12 +109,12 @@ const FieldRow = ({
   separator?: boolean;
   iconAlign?: 'top' | 'center';
 }) => (
-  <div className={cn("relative flex gap-3 py-3", separator && "border-b border-border/30", iconAlign === 'center' ? 'items-center' : 'items-start', className)}>
+  <div className={cn("relative flex gap-4 py-3.5", separator && "border-b border-border/30", iconAlign === 'center' ? 'items-center' : 'items-start', className)}>
     <div className={cn(
-      "h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0",
+      "h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0",
       iconAlign === 'top' ? 'mt-0.5' : ''
     )}>
-      <Icon className="h-4 w-4 text-primary" />
+      <Icon className="h-[18px] w-[18px] text-primary" />
     </div>
     <div className="flex-1 min-w-0">{children}</div>
   </div>
@@ -122,25 +122,34 @@ const FieldRow = ({
 
 // Step progress header — "Step 2 of 4 · When & Where"
 const StepHeader = ({ current, total, labels }: { current: number; total: number; labels: string[] }) => (
-  <div className="flex items-center justify-between px-4 pt-4 pb-2">
-    <div className="flex items-center gap-2">
-      <span className="text-xs font-semibold text-primary bg-primary/10 rounded-full h-6 w-6 flex items-center justify-center">
-        {current + 1}
-      </span>
-      <span className="text-sm font-semibold text-foreground">
-        {labels[current]}
+  <div className="px-4 pt-4 pb-3 space-y-2.5">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2.5">
+        <span className="text-xs font-bold text-primary-foreground bg-primary rounded-full h-6 w-6 flex items-center justify-center">
+          {current + 1}
+        </span>
+        <span className="text-base font-bold text-foreground tracking-tight">
+          {labels[current]}
+        </span>
+      </div>
+      <span className="text-xs text-muted-foreground font-medium">
+        {current + 1} / {total}
       </span>
     </div>
-    <span className="text-xs text-muted-foreground">
-      {current + 1} / {total}
-    </span>
+    {/* Progress bar */}
+    <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
+      <div
+        className="h-full bg-primary rounded-full transition-all duration-300 ease-out"
+        style={{ width: `${((current + 1) / total) * 100}%` }}
+      />
+    </div>
   </div>
 );
 
 // Step card wrapper
 const StepCard = ({ children }: { children: React.ReactNode }) => (
-  <div className="rounded-2xl bg-card/80 backdrop-blur border border-border/50 shadow-sm mx-1 overflow-visible">
-    <div className="px-4 py-3 space-y-0">
+  <div className="rounded-2xl bg-card border border-border/30 shadow-sm mx-2 overflow-visible">
+    <div className="px-5 py-4 space-y-1">
       {children}
     </div>
   </div>
@@ -468,7 +477,7 @@ export const UnifiedEventForm = ({
               <FormControl>
                 <input
                   {...field}
-                  className="w-full bg-transparent border-b border-border/40 focus:border-primary outline-none text-base font-medium placeholder:text-muted-foreground/50 text-foreground min-h-[28px] pb-1 transition-colors"
+                  className="w-full bg-transparent border-b border-border/40 focus:border-primary focus:shadow-[0_1px_0_0_hsl(var(--primary))] outline-none text-base font-medium placeholder:text-muted-foreground/50 text-foreground min-h-[28px] pb-1 transition-all duration-200"
                   placeholder={
                     eventType === 'match'
                       ? t('form.game.titlePlaceholder')
@@ -495,7 +504,7 @@ export const UnifiedEventForm = ({
                 <textarea
                   {...field}
                   rows={2}
-                  className="w-full bg-transparent border-b border-border/40 focus:border-primary outline-none text-sm placeholder:text-muted-foreground/50 text-foreground resize-none leading-snug min-h-[40px] pb-1 transition-colors"
+                  className="w-full bg-transparent border-b border-border/40 focus:border-primary focus:shadow-[0_1px_0_0_hsl(var(--primary))] outline-none text-sm placeholder:text-muted-foreground/50 text-foreground resize-none leading-snug min-h-[40px] pb-1 transition-all duration-200"
                   placeholder={t('form.descriptionPlaceholder')}
                 />
               </FormControl>
@@ -822,8 +831,8 @@ export const UnifiedEventForm = ({
   const renderStep3 = () => (
     <StepCard>
       {/* ── Essentials ── */}
-      <div className="pb-1">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+      <div className="pb-1 pt-0.5">
+        <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
           {lang === 'fr' ? 'Essentiel' : 'Essentials'}
         </span>
       </div>
@@ -996,10 +1005,10 @@ export const UnifiedEventForm = ({
         <button
           type="button"
           onClick={() => setShowMoreOptions(!showMoreOptions)}
-          className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors py-1"
+          className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors py-1.5"
         >
           <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", showMoreOptions && "rotate-180")} />
-          <span className="uppercase tracking-wider text-[10px]">
+          <span className="uppercase tracking-widest">
             {lang === 'fr' ? 'Plus d\'options' : 'More options'}
           </span>
         </button>
@@ -1227,8 +1236,12 @@ export const UnifiedEventForm = ({
           e.preventDefault();
           if (isLastStep) {
             form.handleSubmit(handleSubmit)();
-          } else {
-            goNext();
+          }
+          // Do NOT call goNext() here — only explicit button clicks should advance
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && !(e.target instanceof HTMLTextAreaElement)) {
+            e.preventDefault();
           }
         }}
         className="min-w-0 overflow-x-hidden flex flex-col h-full"
@@ -1255,20 +1268,20 @@ export const UnifiedEventForm = ({
         </div>
 
         {/* Sticky bottom CTA */}
-        <div className="shrink-0 border-t border-border/50 bg-background px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="shrink-0 border-t border-border/30 bg-background px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           <div className="flex gap-2">
             {currentStep > 0 && (
               <Button
                 type="button"
                 variant="outline"
                 onClick={goBack}
-                className="h-12 px-4 rounded-xl"
+                className="h-[52px] px-4 rounded-xl border-border/50"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
             )}
             {isLastStep ? (
-              <Button type="submit" className="flex-1 h-12 text-sm font-semibold rounded-xl" disabled={isSubmitting}>
+              <Button type="submit" className="flex-1 h-[52px] text-sm font-bold rounded-xl shadow-colored" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -1287,7 +1300,7 @@ export const UnifiedEventForm = ({
               <Button
                 type="button"
                 onClick={goNext}
-                className="flex-1 h-12 text-sm font-semibold rounded-xl"
+                className="flex-1 h-[52px] text-sm font-bold rounded-xl shadow-colored"
               >
                 <span className="flex items-center gap-2">
                   {lang === 'fr' ? 'Suivant' : 'Next'}: {stepLabels[currentStep + 1]}
