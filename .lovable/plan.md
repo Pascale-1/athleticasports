@@ -1,87 +1,85 @@
 
 
-# Fix: Auto-Submit, Text Overlaps, and Address Clipping
+# Redesign Team Selectors as Bottom Sheets
 
-## Root Cause of Auto-Submit
+## Scope
 
-The `onKeyDown` and `onSubmit` fixes are already in place, but the event still auto-creates. The cause is a **mobile tap-through**: when the user taps "Next: Options" (the penultimate step), React re-renders with the `type="submit"` button in the **exact same position**. The touch/click event propagates to the newly rendered submit button on the same frame, triggering immediate submission.
-
-**Evidence**: The session replay shows "Creating..." appearing instantly with no user interaction on the Options step.
+Two team selectors need redesign:
+1. **MyTeamSelector** (user's own team, Step 2) — currently a `<Select>` dropdown
+2. **TeamSelector** (opponent picker, Step 2) — currently an inline `<Command>` list with search
+3. **Opponent section in UnifiedEventForm** — remove floating "Saisir/Choisir" buttons, restructure
 
 ## Changes
 
-### `src/components/events/UnifiedEventForm.tsx`
+### 1. `src/components/teams/MyTeamSelector.tsx` — Full rewrite of UI (keep data logic)
 
-**1. Fix tap-through auto-submit**
+Replace the `<Select>` with a tap-to-open bottom sheet using the existing `Drawer` (vaul) component:
 
-Add a `useRef` guard (`justAdvancedRef`) that is set to `true` when `goNext()` fires and cleared after a 400ms timeout. The `onSubmit` handler checks this guard and refuses to submit if it's `true`.
+**Closed state (field row):**
+- Single row: 36px avatar circle (bg-primary/10, initials in primary color, 14px semibold) + team name in full (no truncation, `break-words`) + `ChevronRight` icon on the right
+- If no team selected: muted placeholder text + chevron
+- Tapping opens the drawer
 
-```tsx
-const justAdvancedRef = useRef(false);
+**Open state (bottom sheet):**
+- `rounded-t-2xl` on DrawerContent, `bg-card` background
+- Drag handle bar (already in Drawer component)
+- Full-width search input at top: `rounded-xl`, `bg-background`, search icon, placeholder "ex: FC City Rivals..."
+- Scrollable list below (`max-h-[50vh] overflow-y-auto`):
+  - Each row: 64px height, 16px horizontal padding, `border-b border-border`
+  - Avatar (36px, `rounded-full`, `bg-primary/10`, primary text) + team name (semibold, no truncation, wrap allowed) + sport tag below in muted text + check icon if selected
+  - Selected row: `border-l-[3px] border-primary bg-primary/5`
+  - Pickup game option (if match type): Globe icon + label, same row style
+- Footer: "Can't find your team? Create one" as accent-colored text button, centered
+- Selecting a team closes the drawer
 
-const goNext = async () => {
-  if (currentStep < totalSteps - 1) {
-    const isValid = await validateCurrentStep();
-    if (!isValid) return;
-    justAdvancedRef.current = true;
-    setTimeout(() => { justAdvancedRef.current = false; }, 400);
-    setDirection(1);
-    setCurrentStep(currentStep + 1);
-  }
-};
+**Data/logic preserved:** Same `fetchMyTeams`, `matchesSport`, `handleChange`, `QuickTeamCreateDialog` — only the rendering changes.
 
-// In onSubmit:
-onSubmit={(e) => {
-  e.preventDefault();
-  if (isLastStep && !justAdvancedRef.current) {
-    form.handleSubmit(handleSubmit)();
-  }
-}}
-```
+### 2. `src/components/teams/TeamSelector.tsx` — Full rewrite of UI (keep data logic)
 
-**2. Make the submit button `type="button"` instead of `type="submit"`**
+Replace the inline `<Command>` list with a controlled bottom sheet:
 
-As a belt-and-suspenders fix, change the final step's create button from `type="submit"` to `type="button"` with an explicit `onClick` that calls `form.handleSubmit(handleSubmit)()` only when `!justAdvancedRef.current`. This completely eliminates any native form submission path.
+**Closed state:**
+- Same row style as MyTeamSelector: avatar + name + chevron (or placeholder if none selected)
+- `open` / `onOpenChange` controlled by parent or internal state
 
-```tsx
-<Button
-  type="button"
-  onClick={() => {
-    if (!justAdvancedRef.current) {
-      form.handleSubmit(handleSubmit)();
-    }
-  }}
-  // ... rest of props
->
-```
+**Open state (bottom sheet):**
+- Same visual pattern as MyTeamSelector's sheet
+- Search input at top (reuse existing search/debounce logic)
+- Team rows: 64px, avatar, name (no truncation), sport tag, check indicator
+- Selected row: accent left border + tint background
+- Loading skeleton while fetching
+- "Can't find your team? Create one" button at bottom
 
-**3. Fix address input display — ghost input too narrow / clipped**
+### 3. `src/components/events/UnifiedEventForm.tsx` — Opponent section (lines 586-667)
 
-The ghost input in the location `FieldRow` has no bottom border and `pr-8` which can clip long addresses. Add the same `border-b border-border/40 focus:border-primary` styling as other ghost inputs, and change `pr-8` to `pr-10` to accommodate the clear button without overlapping text.
+**Remove:**
+- The "Saisir" / "Choisir" toggle buttons (lines 618-644)
 
-**4. Fix text overlaps in EventCard**
+**Replace with:**
+- Default mode: manual text input (ghost input for opponent name) — same as current "Saisir" mode
+- Inside the opponent TeamSelector bottom sheet footer: add a ghost button "Saisir manuellement" / "Type manually" that switches `opponentInputMode` to `'manual'` and closes the sheet
+- When in manual mode, show a small "Pick from list" text link below the input that opens the TeamSelector sheet
 
-- Location text on line 243 uses `truncate` — change to `line-clamp-2 break-words` per project text-visibility standard
-- Title `<h3>` already wraps correctly (no truncate), confirmed OK
+This removes the floating mid-screen placement and makes the flow: tap field → bottom sheet opens → either pick a team OR tap "Type manually" in the footer.
 
-**5. Address input horizontal scroll for long values**
+## Visual specifications (using existing tokens only)
 
-In `AddressAutocomplete`, add `overflow-x-auto` to the ghost input wrapper so long selected addresses can be scrolled horizontally rather than silently clipped.
+| Element | Style |
+|---------|-------|
+| Avatar badge | `h-9 w-9 rounded-full bg-primary/10`, text: `text-primary text-sm font-semibold` |
+| Team row | `h-16 px-4 border-b border-border flex items-center gap-3` |
+| Selected row | `border-l-[3px] border-primary bg-primary/5` |
+| Search input | `rounded-xl bg-background border border-border/50 px-4 h-11` |
+| Sheet bg | `bg-card rounded-t-2xl` |
+| Create button | `text-primary text-sm font-medium`, centered, in footer |
+| Team name | `font-semibold text-sm text-foreground`, no truncation |
+| Sport tag | `text-xs text-muted-foreground` |
 
-### `src/components/location/AddressAutocomplete.tsx`
+## Files modified
 
-- Ghost input: add `border-b border-border/40 focus:border-primary pb-1 transition-all duration-200` to match other ghost inputs in the form
-- Ensure the input container allows horizontal scroll for long addresses: `overflow-x-auto`
-
-### `src/components/events/EventCard.tsx`
-
-- Line 243: Change location `<span className="truncate">` to `<span className="line-clamp-2 break-words">` so full venue names are visible
-
-## Summary
-
-| Issue | Root Cause | Fix |
-|-------|-----------|-----|
-| Auto-submit | Mobile tap-through on same-position button swap | Guard ref + `type="button"` on submit |
-| Address clipped | Ghost input has no visible boundary, no horizontal scroll | Add border-b styling + overflow-x-auto |
-| Text overlap risk | Location truncated to single line | Use line-clamp-2 per project standard |
+| File | What changes |
+|------|-------------|
+| `src/components/teams/MyTeamSelector.tsx` | Replace Select UI with Drawer-based bottom sheet, keep all data fetching and team creation logic |
+| `src/components/teams/TeamSelector.tsx` | Replace Command list with Drawer-based bottom sheet, keep search/fetch logic |
+| `src/components/events/UnifiedEventForm.tsx` | Remove Saisir/Choisir toggle buttons, add "Type manually" link inside opponent section, restructure opponent FieldRow |
 
