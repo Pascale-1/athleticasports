@@ -63,7 +63,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canMa
         const { data, error } = await supabase
           .from("profiles")
           .select("user_id, username, display_name, avatar_url")
-          .or(`username.ilike.%${sanitizedQuery}%,display_name.ilike.%${sanitizedQuery}%,email.ilike.%${sanitizedQuery}%`)
+          .or(`username.ilike.%${sanitizedQuery}%,display_name.ilike.%${sanitizedQuery}%`)
           .limit(5);
 
         if (error) throw error;
@@ -179,9 +179,11 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canMa
                         <p className="text-sm font-medium truncate">
                           {user.display_name || user.username}
                         </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          @{user.username}
-                        </p>
+                        {(!user.display_name || user.display_name === user.username) && (
+                          <p className="text-xs text-muted-foreground truncate">
+                            @{user.username}
+                          </p>
+                        )}
                       </div>
                       <Badge variant={getRoleBadgeVariant(selectedRole)}>
                         {selectedRole}
