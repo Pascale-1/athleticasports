@@ -247,18 +247,20 @@ export const AddressAutocomplete = ({
 
       <div className="relative">
         {ghost ? (
-          <input
-            ref={inputRef}
-            type="text"
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-            placeholder={placeholder || (lang === "fr" ? "Rechercher une adresse..." : "Search for an address...")}
-            disabled={disabled}
-            className="w-full bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground/50 text-foreground pr-8"
-            autoComplete="off"
-          />
+          <div className="overflow-x-auto">
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+              placeholder={placeholder || (lang === "fr" ? "Rechercher une adresse..." : "Search for an address...")}
+              disabled={disabled}
+              className="w-full bg-transparent border-b border-border/40 focus:border-primary outline-none text-sm placeholder:text-muted-foreground/50 text-foreground pr-10 pb-1 transition-all duration-200"
+              autoComplete="off"
+            />
+          </div>
         ) : (
           <Input
             ref={inputRef}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -391,10 +391,15 @@ export const UnifiedEventForm = ({
     }
   };
 
+  // Guard against mobile tap-through: when "Next" swaps to "Create" in the same position
+  const justAdvancedRef = useRef(false);
+
   const goNext = async () => {
     if (currentStep < totalSteps - 1) {
       const isValid = await validateCurrentStep();
       if (!isValid) return;
+      justAdvancedRef.current = true;
+      setTimeout(() => { justAdvancedRef.current = false; }, 400);
       setDirection(1);
       setCurrentStep(currentStep + 1);
     }
@@ -1281,7 +1286,16 @@ export const UnifiedEventForm = ({
               </Button>
             )}
             {isLastStep ? (
-              <Button type="submit" className="flex-1 h-[52px] text-sm font-bold rounded-xl shadow-colored" disabled={isSubmitting}>
+              <Button
+                type="button"
+                onClick={() => {
+                  if (!justAdvancedRef.current) {
+                    form.handleSubmit(handleSubmit)();
+                  }
+                }}
+                className="flex-1 h-[52px] text-sm font-bold rounded-xl shadow-colored"
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
