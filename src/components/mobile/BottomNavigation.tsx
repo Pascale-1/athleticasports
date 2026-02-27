@@ -33,6 +33,7 @@ export const BottomNavigation = () => {
         .from('team_invitations')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'pending')
+        .gt('expires_at', new Date().toISOString())
         .or(`invited_user_id.eq.${user.id},email.eq.${profile.username},email.eq.${profile.email || ''}`);
 
       setPendingInvites(inviteCount || 0);
