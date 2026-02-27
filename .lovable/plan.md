@@ -1,35 +1,42 @@
 
 
-# Fix: RSVP Bar Overlap + "user_" Display Names in Attendees
+# Fix: Proper Display Names Instead of "Player"
 
-## Issue 1: RSVP Bar Overlapping Content
+## Root Cause
 
-The RSVP bar uses `fixed bottom-16` positioning and the page has `pb-36` (144px). When the RSVP bar includes the cancel button + stats text, its total height exceeds the padding. The bar can be ~150-160px tall.
+The signup form (`Auth.tsx`) only collects email + password — no name field. So for email signups:
+- `raw_user_meta_data->>'full_name'` is null
+- The DB trigger `handle_new_user()` sets `display_name` to null
+- The onboarding page (`Onboarding.tsx`) also reads from `user.user_metadata?.full_name` which is null
+- Result: everyone shows as "Player" (our recent sanitization) or `user_abc123`
 
-**Fix in `src/pages/EventDetail.tsx`**: Change `pb-36` to `pb-48` (192px) to give enough clearance for the full RSVP bar height.
+OAuth users (Google, etc.) get a name from the provider, but email users never provide one.
 
-## Issue 2: "user_" Usernames in Attendees
+## Modern Practice
 
-The `EventAttendees` component already uses `display_name || username` as fallback. The problem is many users have no `display_name` set, so it falls back to auto-generated usernames like `user_abc123`. Two changes:
+Apps like Strava, Heja, TeamSnap, and Discord all ask for a **first name** (or full name) during signup. This is the standard approach — collect the name at registration time, not as an optional profile edit later.
 
-**Fix in `src/components/events/EventAttendees.tsx`**:
-- When `display_name` is null and `username` starts with `user_`, show a friendlier fallback like "Player" or just the avatar with no name clutter
-- Strip the `user_` prefix: if username starts with `user_`, display it as the remaining portion capitalized, or just show "Player"
+## Plan
 
-**Fix in `src/hooks/useEventAttendance.ts`**:
-- Already fetches `profiles:user_id (username, display_name, avatar_url)` — no change needed, data is available
+### 1. Add "Full Name" field to signup form (`src/pages/Auth.tsx`)
+- Add a `fullName` text input that appears only during sign-up (not login)
+- Pass it as `data.full_name` in the `options.data` metadata of `supabase.auth.signUp()`
+- This makes it available to the DB trigger `handle_new_user()` which already reads `raw_user_meta_data->>'full_name'`
 
-### Specific approach for username cleanup
-In `EventAttendees.tsx`, update the `displayName` derivation in `AttendeeRow` (line 47):
-```
-const rawName = attendee.profiles?.display_name || attendee.profiles?.username || 'Player';
-const displayName = rawName.startsWith('user_') ? 'Player' : rawName;
-```
+### 2. Update onboarding fallback (`src/pages/Onboarding.tsx`)
+- The onboarding upsert already reads `user.user_metadata?.full_name` — no change needed there, it will now have a value
 
-This replaces cryptic `user_abc123` with "Player" — clean and anonymous-friendly. The avatar initials will show "P" which is fine.
+### 3. Update display name fallback across the app
+- In `EventAttendees.tsx`: instead of showing "Player" for `user_` prefixed names, keep "Player" only as the absolute last resort — but now most users will have a real `display_name`
+- The `handle_new_user()` trigger already sets `display_name = coalesce(new.raw_user_meta_data->>'full_name', ...)` so new signups will automatically get proper names
+
+### Files to Change
 
 | File | Change |
 |------|--------|
-| `src/pages/EventDetail.tsx` | Line 256: `pb-36` → `pb-48` |
-| `src/components/events/EventAttendees.tsx` | Lines 47, ~130, ~145: sanitize usernames starting with `user_` to show "Player" instead |
+| `src/pages/Auth.tsx` | Add `fullName` field to signup schema + form UI, pass in `signUp()` metadata |
+| `src/i18n/locales/en/auth.json` | Add `"fullName"` and `"fullNameRequired"` translation keys |
+| `src/i18n/locales/fr/auth.json` | Add French equivalents |
+
+Three files. Existing users without names will still show "Player" until they update their profile, which is acceptable.
 
