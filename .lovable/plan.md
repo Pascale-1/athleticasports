@@ -1,65 +1,54 @@
 
 
-# Fix: Catch Up Existing Users on Display Names
+# Revamp Event Creation: Multi-Step Wizard Layout
 
 ## Current State
-- The `ProfileCompletionCard` already tracks `display_name` as a completion item and shows on the Overview tab
-- The "About" tab has an editable `display_name` field
-- **However**, the "Save All" button in edit mode is broken — it only saves the last field (`bio`) because `setEditingField` is called in a sync loop but `onSaveField` only reads the final state
+The `UnifiedEventForm.tsx` (1086 lines) renders all fields in a single scrollable view inside a dialog. It uses icon-anchored rows with dividers (Strava inline style). The `CreateEventDialog.tsx` wraps it in a basic `Dialog`.
 
-## Problems to Fix
+## Proposed Architecture
+Convert to a **4-step card-based wizard** with progress dots, fade+slide transitions, and a sticky bottom CTA. All existing fields, state, logic, validation, and data flow remain 100% untouched.
 
-### 1. Save All is broken (bug)
-`handleSaveAll` in `ProfileTabs.tsx` calls `setEditingField` in a loop, but React batches state updates, so only the last value sticks. `handleSaveField` in `Settings.tsx` then only saves that one field.
+### Step Groupings
 
-**Fix**: Change `handleSaveField` to accept all temp values directly and save them in a single update call, instead of relying on `editingField` to pick one field at a time.
+```text
+Step 1: "What"         Step 2: "Details"       Step 3: "When & Where"    Step 4: "Options"
+┌──────────────┐      ┌──────────────┐        ┌──────────────┐          ┌──────────────┐
+│ Event Type   │      │ Sport        │        │ Date picker  │          │ Visibility   │
+│ Title        │      │ Team         │        │ Time         │          │ Cost         │
+│ Description  │      │ Opponent     │        │ Duration     │          │ Max players  │
+│              │      │ Home/Away    │        │ Location     │          │ Recurrence   │
+│              │      │ Category     │        │ Virtual link │          │ RSVP deadline│
+│              │      │              │        │              │          │ Looking 4 P  │
+│              │      │              │        │              │          │ Intensity    │
+│              │      │              │        │              │          │ Category     │
+└──────────────┘      └──────────────┘        └──────────────┘          └──────────────┘
+     [Next →]              [Next →]                [Next →]              [Create Event]
+```
 
-### 2. Profile Completion Card is dismissible forever
-Once dismissed, the card never comes back — even if the user still has no display name. This means the main nudge mechanism is easily bypassed.
-
-**Fix**: Store the dismissed timestamp instead of a boolean. Re-show the card if it was dismissed more than 7 days ago and the profile is still incomplete.
-
-## Changes
+### Files to Change
 
 | File | Change |
 |------|--------|
-| `src/pages/Settings.tsx` | Add a new `handleSaveAllFields` function that takes `tempValues` directly and builds the full update object (all 5 fields) in one Supabase `.update()` call. Pass it to `ProfileTabs`. |
-| `src/components/settings/ProfileTabs.tsx` | Update `handleSaveAll` to call the new bulk-save function with all `tempValues` instead of looping through `setEditingField`. |
-| `src/components/settings/ProfileCompletionCard.tsx` | Change dismiss logic: store a timestamp in localStorage instead of `'true'`. Re-show the card if 7+ days have passed and profile is still incomplete. |
+| `src/components/events/UnifiedEventForm.tsx` | Wrap field groups in step containers, add step state + progress dots + step navigation, add framer-motion page transitions, restyle FieldRow for card-based layout, sticky bottom CTA with safe-area padding |
+| `src/components/events/CreateEventDialog.tsx` | Update dialog container classes for the new wizard layout (remove overflow constraints that conflict) |
+| `src/components/events/EventTypeSelector.tsx` | Restyle to pill/segment control that fits inside a card (rounded-2xl, larger tap targets) |
 
-### Implementation Detail
+### Visual Design Details
 
-**Settings.tsx** — new function:
-```typescript
-const handleSaveAllFields = async (values: Record<string, string>) => {
-  if (!profile) return;
-  const { error } = await supabase.from('profiles').update({
-    full_name: values.fullName || null,
-    display_name: values.displayName || null,
-    primary_sport: values.primarySport || null,
-    team_name: values.teamName || null,
-    bio: values.bio || null,
-  }).eq('user_id', profile.user_id);
-  if (error) { toast.error("Failed to update profile"); return; }
-  toast.success("Profile updated");
-  fetchProfile();
-};
-```
+- **Progress indicator**: Fixed at top — small dots with active/completed states, step label below
+- **Cards**: `rounded-2xl bg-card/80 backdrop-blur border border-border/50 shadow-sm` — one card per step
+- **Transitions**: `framer-motion` AnimatePresence with `x` slide + opacity fade (already imported)
+- **Bottom CTA**: Sticky container with `pb-safe` (safe area), 16px gap from last field, full-width button with 48px height
+- **Inputs**: Keep existing ghost inputs but add subtle bottom borders for visual grounding inside cards
+- **Tap targets**: All buttons/toggles get `min-h-[48px]` for mobile compliance
+- **Step 2 conditional**: If no sport/team/opponent fields are visible (e.g., meetup without category), auto-skip to step 3
+- **Dark mode**: Uses existing theme tokens — `bg-background`, `text-foreground`, `border-border` — already dark-mode-first
 
-**ProfileCompletionCard.tsx** — dismiss with timestamp:
-```typescript
-const [dismissed, setDismissed] = useState(() => {
-  const ts = localStorage.getItem('profile-completion-dismissed');
-  if (!ts) return false;
-  const daysSince = (Date.now() - parseInt(ts)) / 86400000;
-  return daysSince < 7; // re-show after 7 days
-});
-
-const handleDismiss = () => {
-  setDismissed(true);
-  localStorage.setItem('profile-completion-dismissed', Date.now().toString());
-};
-```
-
-No database changes needed.
+### What Does NOT Change
+- No field additions, removals, or renames
+- No schema/validation changes
+- No state management changes
+- No data flow or submit logic changes
+- No hook changes
+- `handleSubmit`, all `useEffect`s, all state variables remain identical
 
