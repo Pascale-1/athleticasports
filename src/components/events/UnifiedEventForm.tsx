@@ -587,8 +587,8 @@ export const UnifiedEventForm = ({
       {showOpponentSection && (
         <FieldRow icon={Swords} separator={false} iconAlign="center">
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              {opponentInputMode === 'manual' ? (
+            {opponentInputMode === 'manual' ? (
+              <div className="space-y-1">
                 <FormField
                   control={form.control}
                   name="opponentName"
@@ -597,52 +597,32 @@ export const UnifiedEventForm = ({
                       <FormControl>
                         <input
                           {...field}
-                         placeholder={t('form.game.opponentPlaceholder')}
+                          placeholder={t('form.game.opponentPlaceholder')}
                           className="w-full bg-transparent border-b border-border/40 focus:border-primary outline-none text-sm placeholder:text-muted-foreground/50 text-foreground min-h-[28px] pb-1 transition-colors"
                         />
                       </FormControl>
                     </FormItem>
                   )}
                 />
-              ) : (
-                <div className="flex-1 min-w-0">
-                  <TeamSelector
-                    selectedTeamId={opponentTeamId || undefined}
-                    onSelect={handleOpponentSelect}
-                    excludeTeamId={selectedTeamId || undefined}
-                    sportFilter={selectedSport || undefined}
-                    placeholder={t('form.game.opponentPlaceholder')}
-                  />
-                </div>
-              )}
-              <div className="flex items-center gap-0.5 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setOpponentInputMode('manual')}
-                  className={cn(
-                    "h-7 px-2 rounded text-[10px] font-medium transition-all min-h-[28px]",
-                    opponentInputMode === 'manual'
-                      ? "bg-primary/15 text-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {lang === 'fr' ? 'Saisir' : 'Type'}
-                </button>
-                <span className="text-muted-foreground/40 text-[9px]">·</span>
                 <button
                   type="button"
                   onClick={() => setOpponentInputMode('select')}
-                  className={cn(
-                    "h-7 px-2 rounded text-[10px] font-medium transition-all min-h-[28px]",
-                    opponentInputMode === 'select'
-                      ? "bg-primary/15 text-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
+                  className="text-xs text-primary hover:underline"
                 >
-                  {lang === 'fr' ? 'Choisir' : 'Pick'}
+                  {lang === 'fr' ? 'Choisir dans la liste' : 'Pick from list'}
                 </button>
               </div>
-            </div>
+            ) : (
+              <TeamSelector
+                selectedTeamId={opponentTeamId || undefined}
+                selectedTeamName={form.getValues('opponentName') || undefined}
+                onSelect={handleOpponentSelect}
+                excludeTeamId={selectedTeamId || undefined}
+                sportFilter={selectedSport || undefined}
+                placeholder={t('form.game.opponentPlaceholder')}
+                onSwitchToManual={() => setOpponentInputMode('manual')}
+              />
+            )}
 
             {showHomeAwayToggle && (
               <div className="flex gap-1">
