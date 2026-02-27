@@ -240,7 +240,7 @@ export const EventCard = memo(({
               {venueName && (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <MapPin className="h-3 w-3 shrink-0" />
-                  <span className="truncate">{venueName}</span>
+                  <span className="line-clamp-2 break-words">{venueName}</span>
                 </div>
               )}
 
