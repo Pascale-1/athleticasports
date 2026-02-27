@@ -31,6 +31,7 @@ const Auth = () => {
   const returnUrl = searchParams.get("returnUrl");
 
   const emailSchema = z.object({
+    fullName: isSignUp ? z.string().min(1, t('fullNameRequired')).max(100) : z.string().optional(),
     email: z.string().email(t('invalidEmail')).max(255),
     password: z.string().min(6, t('passwordMin')).max(72),
   });
@@ -124,6 +125,9 @@ const Auth = () => {
           password: data.password,
           options: {
             emailRedirectTo: `${getAppBaseUrl()}/`,
+            data: {
+              full_name: data.fullName,
+            },
           },
         });
 
@@ -218,6 +222,22 @@ const Auth = () => {
             onSubmit={emailForm.handleSubmit(handleEmailAuth)}
             className="space-y-4"
           >
+            {isSignUp && (
+              <div className="space-y-2">
+                <Label htmlFor="fullName">{t('fullName')}</Label>
+                <Input
+                  id="fullName"
+                  type="text"
+                  placeholder={t('fullNamePlaceholder')}
+                  {...emailForm.register("fullName")}
+                />
+                {emailForm.formState.errors.fullName && (
+                  <p className="text-sm text-destructive">
+                    {emailForm.formState.errors.fullName.message}
+                  </p>
+                )}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">{t('email')}</Label>
               <Input
