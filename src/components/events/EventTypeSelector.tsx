@@ -18,7 +18,7 @@ export const EventTypeSelector = ({ value, onChange }: EventTypeSelectorProps) =
   const { t } = useTranslation('events');
 
   return (
-    <div className="flex border-b border-border">
+    <div className="flex gap-1.5 p-1 rounded-2xl bg-muted/50">
       {EVENT_TYPE_OPTIONS.map(({ type, icon: Icon }) => {
         const isSelected = value === type;
         return (
@@ -28,13 +28,13 @@ export const EventTypeSelector = ({ value, onChange }: EventTypeSelectorProps) =
             onClick={() => onChange(type)}
             aria-pressed={isSelected}
             className={cn(
-              "flex items-center gap-2 px-4 py-3 text-sm border-b-2 transition-all duration-200 -mb-px",
+              "flex-1 flex items-center justify-center gap-2 min-h-[44px] rounded-xl text-sm font-medium transition-all duration-200",
               isSelected
-                ? "border-primary text-foreground font-semibold"
-                : "border-transparent text-muted-foreground font-medium hover:text-foreground hover:border-border"
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
             )}
           >
-            <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-primary" : "text-muted-foreground")} />
+            <Icon className="h-4 w-4" />
             {t(`types.${type === 'match' ? 'game' : type}`)}
           </button>
         );
