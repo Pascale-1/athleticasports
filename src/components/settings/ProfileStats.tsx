@@ -78,21 +78,22 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
   }
 
   return (
-    <div className="flex justify-center gap-8 py-4 mt-4 border-t border-border">
-      {statItems.map(({ icon: Icon, value, label, onClick }) => (
+    <div className="flex justify-center gap-0 py-4 mt-4 border-t border-border">
+      {statItems.map(({ icon: Icon, value, label, onClick }, index) => (
         <button
           key={label}
           onClick={onClick}
           className={cn(
-            "flex flex-col items-center gap-1.5 min-h-[72px] min-w-[80px] px-4 py-3 rounded-xl transition-all duration-200",
-            "hover:bg-muted/80 active:scale-95 cursor-pointer"
+            "flex flex-col items-center gap-1.5 min-h-[72px] flex-1 px-4 py-3 rounded-xl transition-all duration-200",
+            "hover:bg-muted/50 active:scale-95 cursor-pointer",
+            index > 0 && "border-l border-muted"
           )}
         >
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
             <Icon className="h-5 w-5 text-primary" />
           </div>
-          <span className="font-bold text-lg tabular-nums">{value}</span>
-          <span className="text-xs text-muted-foreground leading-tight">{label}</span>
+          <span className="font-bold text-[28px] tabular-nums leading-tight">{value}</span>
+          <span className="text-[10px] text-muted-foreground leading-tight uppercase tracking-[0.08em]">{label}</span>
         </button>
       ))}
     </div>
