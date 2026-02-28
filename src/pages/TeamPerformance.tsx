@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { PageContainer } from "@/components/mobile/PageContainer";
@@ -9,6 +10,7 @@ import { useTeamMembers } from "@/hooks/useTeamMembers";
 const TeamPerformance = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation("common");
   const { team, canManage } = useTeam(teamId || null);
   const { members, loading: membersLoading } = useTeamMembers(teamId || null);
 
@@ -32,7 +34,7 @@ const TeamPerformance = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-heading-2 font-bold">Performance Levels</h1>
+            <h1 className="text-heading-2 font-bold">{t("performance.title")}</h1>
             <p className="text-caption text-muted-foreground">{team?.name}</p>
           </div>
         </div>

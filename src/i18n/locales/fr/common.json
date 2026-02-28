@@ -404,12 +404,76 @@
     "searchPlaceholder": "Rechercher par nom ou email...",
     "noUsersFound": "Aucune utilisatrice trouvée pour « {{query}} »",
     "inviteByEmail": "Inviter {{email}} par email",
-    "inviteButton": "Inviter des membres"
+    "inviteButton": "Inviter des membres",
+    "role": "Rôle"
   },
   "backToTeams": "Retour aux équipes",
   "users": {
     "title": "Annuaire",
     "subtitle": "Parcourir les utilisatrices inscrites",
-    "noUsers": "Aucune utilisatrice trouvée"
-  }
+    "noUsers": "Aucune utilisatrice trouvée",
+    "searchPlaceholder": "Rechercher...",
+    "member": "Membre",
+    "active": "Active",
+    "joined": "Inscrite le {{date}}"
+  },
+  "joinTeam": {
+    "title": "Invitation d'équipe",
+    "invalidLink": "Lien d'invitation invalide",
+    "invalidCode": "Code invalide ou équipe introuvable",
+    "notAccepting": "Cette équipe n'accepte pas de nouveaux membres via lien",
+    "loadError": "Impossible de charger les informations de l'équipe",
+    "teamNotFound": "Équipe introuvable",
+    "browseTeams": "Parcourir les équipes",
+    "memberCount": "{{count}} membre",
+    "memberCount_other": "{{count}} membres",
+    "privateTeam": "Équipe privée",
+    "joining": "Inscription...",
+    "joinTeam": "Rejoindre {{name}}",
+    "signInToJoin": "Se connecter pour rejoindre {{name}}",
+    "redirectToSignIn": "Vous serez redirigée pour vous connecter ou créer un compte",
+    "agreeToRules": "En rejoignant, vous acceptez les règles de l'équipe"
+  },
+  "acceptInvitation": {
+    "title": "Invitation d'équipe",
+    "processing": "Traitement de votre invitation...",
+    "problem": "Un problème est survenu avec votre invitation",
+    "success": "Succès !",
+    "accepting": "Acceptation de l'invitation...",
+    "invalidLink": "Lien d'invitation invalide. Veuillez vérifier l'URL et réessayer.",
+    "invalidResponse": "Réponse invalide du serveur",
+    "invitationExpired": "Invitation expirée",
+    "invitationExpiredDesc": "Ce lien d'invitation n'est plus valide. Contactez l'administratrice de l'équipe pour en recevoir un nouveau.",
+    "emailMismatch": "Email différent",
+    "invitedEmail": "Email invité :",
+    "yourEmail": "Votre email actuel :",
+    "emailMismatchDesc": "Pour accepter cette invitation, connectez-vous avec l'adresse email qui l'a reçue.",
+    "signInDifferent": "Se connecter avec un autre email",
+    "redirecting": "Redirection vers votre équipe...",
+    "needHelp": "Besoin d'aide avec les invitations ?",
+    "goToTeams": "Aller aux équipes"
+  },
+  "practiceTeams": {
+    "title": "Équipes d'entraînement",
+    "balanced": "{{count}} équipes équilibrées générées",
+    "none": "Aucune équipe générée",
+    "noTeams": "Aucune équipe générée",
+    "noTeamsDesc": "Générez des équipes d'entraînement équilibrées selon les niveaux de performance",
+    "generateTeams": "Générer les équipes",
+    "regenerate": "Régénérer",
+    "loadingTeams": "Chargement des équipes..."
+  },
+  "profileToasts": {
+    "updated": "Profil mis à jour",
+    "updateError": "Échec de la mise à jour du profil",
+    "loadError": "Impossible de charger le profil",
+    "avatarUpdated": "Avatar mis à jour",
+    "avatarError": "Échec de l'envoi de l'avatar",
+    "imageOnly": "Seuls les fichiers image sont autorisés",
+    "fileTooLarge": "Fichier trop volumineux (max 5 Mo)",
+    "invalidType": "Type de fichier invalide. Autorisés : jpg, jpeg, png, webp, gif",
+    "linkCopied": "Lien du profil copié"
+  },
+  "matchFound": "Match trouvé",
+  "until": "Jusqu'au {{date}}"
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Calendar, Clock, MapPin, Users, Shuffle } from "lucide-react";
 import { TrainingSession } from "@/hooks/useTrainingSessions";
@@ -23,6 +23,7 @@ export const TrainingSessionDetail = ({
   totalMembers,
   currentUserId,
 }: TrainingSessionDetailProps) => {
+  const { t } = useTranslation("common");
   const { teams, loading, generating, generateTeams, deleteTeams } = useTeamGeneration(session.id);
   const [showGenerateDialog, setShowGenerateDialog] = useState(false);
 
@@ -39,7 +40,6 @@ export const TrainingSessionDetail = ({
 
   return (
     <div className="space-y-6">
-      {/* Attendance Section */}
       <SessionAttendance
         sessionId={session.id}
         totalMembers={totalMembers}
@@ -48,7 +48,6 @@ export const TrainingSessionDetail = ({
         isPastSession={isPastSession}
       />
 
-      {/* Session Info */}
       <Card>
         <CardHeader>
           <CardTitle>{session.title}</CardTitle>
@@ -79,19 +78,18 @@ export const TrainingSessionDetail = ({
         </CardContent>
       </Card>
 
-      {/* Practice Teams */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Practice Teams
+                {t("practiceTeams.title")}
               </CardTitle>
               <CardDescription>
                 {teams.length > 0
-                  ? `${teams.length} balanced teams generated`
-                  : "No teams generated yet"}
+                  ? t("practiceTeams.balanced", { count: teams.length })
+                  : t("practiceTeams.none")}
               </CardDescription>
             </div>
             {canManage && (
@@ -104,7 +102,7 @@ export const TrainingSessionDetail = ({
                     disabled={generating}
                   >
                     <Shuffle className="h-4 w-4 mr-2" />
-                    Regenerate
+                    {t("practiceTeams.regenerate")}
                   </Button>
                 )}
                 {teams.length === 0 && (
@@ -114,7 +112,7 @@ export const TrainingSessionDetail = ({
                     disabled={generating}
                   >
                     <Shuffle className="h-4 w-4 mr-2" />
-                    Generate Teams
+                    {t("practiceTeams.generateTeams")}
                   </Button>
                 )}
               </div>
@@ -123,18 +121,18 @@ export const TrainingSessionDetail = ({
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-muted-foreground">Loading teams...</p>
+            <p className="text-muted-foreground">{t("practiceTeams.loadingTeams")}</p>
           ) : teams.length === 0 ? (
             <div className="text-center py-12">
               <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-lg font-medium mb-2">No teams generated</p>
+              <p className="text-lg font-medium mb-2">{t("practiceTeams.noTeams")}</p>
               <p className="text-sm text-muted-foreground mb-4">
-                Generate balanced practice teams based on player performance levels
+                {t("practiceTeams.noTeamsDesc")}
               </p>
               {canManage && (
                 <Button onClick={() => setShowGenerateDialog(true)}>
                   <Shuffle className="h-4 w-4 mr-2" />
-                  Generate Teams
+                  {t("practiceTeams.generateTeams")}
                 </Button>
               )}
             </div>

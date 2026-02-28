@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { PageContainer } from "@/components/mobile/PageContainer";
@@ -12,6 +13,7 @@ import { useTeamInvitations } from "@/hooks/useTeamInvitations";
 const TeamMembers = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation("teams");
   const { team, userRole, canManage } = useTeam(teamId || null);
   const { members, loading: membersLoading, removeMember, updateMemberRole } = useTeamMembers(teamId || null);
   const { invitations, sendInvitation, cancelInvitation, resendInvitation } = useTeamInvitations(teamId || null);
@@ -37,7 +39,7 @@ const TeamMembers = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-heading-2 font-bold">Members</h1>
+            <h1 className="text-heading-2 font-bold">{t("members")}</h1>
             <p className="text-caption text-muted-foreground">{team?.name}</p>
           </div>
         </div>

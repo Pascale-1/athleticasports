@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +34,8 @@ interface InviteMemberDialogProps {
 }
 
 export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canManage }: InviteMemberDialogProps) => {
+  const { t } = useTranslation("common");
+  const { t: tTeams } = useTranslation("teams");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState("member");
   const [users, setUsers] = useState<SearchedUser[]>([]);
@@ -47,7 +50,6 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canMa
     const searchUsers = async () => {
       setLoading(true);
       try {
-        // Get current team members to exclude them
         const { data: teamMembers } = await supabase
           .from("team_members")
           .select("user_id")
@@ -56,10 +58,8 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canMa
 
         const excludedUserIds = teamMembers?.map(m => m.user_id) || [];
 
-        // Sanitize query to prevent SQL injection
         const sanitizedQuery = searchQuery.replace(/[%_]/g, '\\$&');
         
-        // Search for users by username, display name, or email
         const { data, error } = await supabase
           .from("profiles")
           .select("user_id, username, display_name, avatar_url")
@@ -68,7 +68,6 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canMa
 
         if (error) throw error;
 
-        // Filter out existing team members
         const filteredUsers = data?.filter(
           user => !excludedUserIds.includes(user.user_id)
         ) || [];
@@ -117,19 +116,19 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canMa
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="mx-3 sm:mx-auto max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-lg sm:text-xl">Invite Team Member</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">{t("inviteMembers.title")}</DialogTitle>
           <DialogDescription className="text-xs sm:text-sm">
-            Search for users by username or display name, or invite by email.
+            {t("inviteMembers.description")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="search">Search Users</Label>
+            <Label htmlFor="search">{t("inviteMembers.searchLabel")}</Label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="search"
-                placeholder="Search by username or email..."
+                placeholder={t("inviteMembers.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
@@ -138,17 +137,17 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canMa
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
+            <Label htmlFor="role">{t("inviteMembers.role")}</Label>
             <Select value={selectedRole} onValueChange={setSelectedRole}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="member">Member</SelectItem>
+                <SelectItem value="member">{tTeams("roles.member")}</SelectItem>
                 {canManage && (
                   <>
-                    <SelectItem value="coach">Coach</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="coach">{tTeams("roles.coach")}</SelectItem>
+                    <SelectItem value="admin">{tTeams("roles.admin")}</SelectItem>
                   </>
                 )}
               </SelectContent>
@@ -186,7 +185,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canMa
                         )}
                       </div>
                       <Badge variant={getRoleBadgeVariant(selectedRole)}>
-                        {selectedRole}
+                        {tTeams(`roles.${selectedRole}`)}
                       </Badge>
                     </button>
                   ))}
@@ -194,7 +193,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canMa
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
                   <p className="text-sm text-muted-foreground mb-3">
-                    No users found matching "{searchQuery}"
+                    {t("inviteMembers.noUsersFound", { query: searchQuery })}
                   </p>
                   {searchQuery.includes("@") && (
                     <Button
@@ -202,7 +201,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canMa
                       onClick={handleInviteByEmail}
                       className="min-h-9"
                     >
-                      Invite {searchQuery} by email
+                      {t("inviteMembers.inviteByEmail", { email: searchQuery })}
                     </Button>
                   )}
                 </div>
@@ -212,7 +211,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canMa
         </div>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="min-h-11">
-            Cancel
+            {t("actions.cancel")}
           </Button>
         </DialogFooter>
       </DialogContent>
