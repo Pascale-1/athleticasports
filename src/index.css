@@ -2,95 +2,95 @@
 @tailwind components;
 @tailwind utilities;
 
-/* IGNITE Palette — Deep Navy + Electric Orange
-   Bold, powerful, welcoming. Built for serious women athletes. All colors MUST be HSL. */
+/* MOMENTUM Palette — Deep Plum + Electric Citrus
+   Bold, ownable, built for the future of women's sports. All colors MUST be HSL. */
 
 @layer base {
   :root {
-    /* IGNITE Palette — Light First */
-    --background: 220 20% 97%;        /* #F8F9FB */
-    --foreground: 216 43% 11%;        /* #0F1B2D */
+    /* MOMENTUM Palette — Deep Plum + Electric Citrus */
+    --background: 30 14% 96%;         /* #F7F5F2 — warm cream */
+    --foreground: 270 30% 8%;         /* #120D1A */
 
     /* Text Color Scale */
-    --text-primary: 216 43% 11%;      /* #0F1B2D */
+    --text-primary: 270 30% 8%;       /* #120D1A */
     --text-secondary: 220 9% 26%;     /* #374151 */
     --text-muted: 220 5% 46%;         /* #6B7280 */
     --text-hint: 220 5% 63%;          /* #9CA3AF */
-    --text-link: 217 53% 21%;         /* #1B2D4F */
+    --text-link: 268 60% 27%;         /* #3D1A6E */
 
     /* Card / Surface */
     --card: 0 0% 100%;                /* #FFFFFF */
-    --card-foreground: 216 43% 11%;
+    --card-foreground: 270 30% 8%;
 
     /* Popover */
-    --popover: 220 16% 96%;           /* #F1F3F7 */
-    --popover-foreground: 216 43% 11%;
+    --popover: 280 6% 94%;            /* #F0EEF0 */
+    --popover-foreground: 270 30% 8%;
 
-    /* Primary — Deep Navy */
-    --primary: 217 53% 21%;           /* #1B2D4F */
-    --primary-light: 217 53% 25%;
-    --primary-dark: 217 53% 17%;      /* #152340 */
-    --primary-foreground: 0 0% 100%;  /* white on navy */
+    /* Primary — Deep Plum */
+    --primary: 268 60% 27%;           /* #3D1A6E */
+    --primary-light: 268 60% 32%;
+    --primary-dark: 268 60% 20%;      /* #2E1254 */
+    --primary-foreground: 0 0% 100%;  /* white on plum */
 
     /* Primary Subtle (tinted bg) */
-    --primary-subtle: 218 56% 95%;    /* #EBF0F8 */
+    --primary-subtle: 268 44% 94%;    /* #EDE8F7 */
 
-    /* Accent — Electric Orange */
-    --accent: 22 100% 49%;            /* #F95C00 */
-    --accent-foreground: 0 0% 100%;
+    /* Accent — Electric Citrus */
+    --accent: 72 100% 47%;            /* #C8F000 */
+    --accent-foreground: 268 60% 27%; /* #3D1A6E — plum text ON citrus */
 
     /* Accent Subtle */
-    --accent-subtle: 28 97% 95%;      /* #FEF0E6 */
+    --accent-subtle: 72 91% 92%;      /* #F5FDD6 */
 
     /* Muted */
-    --muted: 220 16% 96%;             /* #F1F3F7 */
+    --muted: 280 6% 94%;              /* #F0EEF0 */
     --muted-foreground: 220 5% 46%;   /* #6B7280 */
 
     /* Destructive */
-    --destructive: 0 84% 60%;         /* #EF4444 */
+    --destructive: 0 72% 51%;         /* #DC2626 */
     --destructive-foreground: 0 0% 100%;
 
     /* Success */
     --success: 142 64% 37%;           /* #16A34A */
     --success-foreground: 0 0% 100%;
 
-    /* Warning — same as accent */
-    --warning: 22 100% 49%;           /* #F95C00 */
-    --warning-foreground: 0 0% 100%;
+    /* Warning — same as accent for Momentum */
+    --warning: 72 100% 47%;
+    --warning-foreground: 268 60% 27%;
 
     /* Info — same as primary */
-    --info: 217 53% 21%;
+    --info: 268 60% 27%;
     --info-foreground: 0 0% 100%;
 
     /* Match */
-    --match: 22 100% 49%;
-    --match-foreground: 0 0% 100%;
+    --match: 72 100% 47%;
+    --match-foreground: 268 60% 27%;
 
     /* Border & Input */
-    --border: 220 13% 91%;            /* #E5E7EB */
-    --input: 220 16% 96%;             /* #F1F3F7 — surface-elevated */
-    --ring: 217 53% 21%;              /* navy focus ring */
+    --border: 270 10% 92%;            /* #E9E5EE */
+    --input: 280 6% 94%;              /* #F0EEF0 — surface-elevated */
+    --ring: 268 60% 27%;              /* plum focus ring */
 
-    /* Neutrals Scale */
-    --neutral-50: 220 20% 97%;
-    --neutral-100: 220 16% 96%;
-    --neutral-200: 220 13% 91%;
-    --neutral-300: 220 11% 85%;
+    /* Neutrals Scale — plum-tinted */
+    --neutral-50: 30 14% 96%;
+    --neutral-100: 280 6% 94%;
+    --neutral-200: 270 10% 92%;
+    --neutral-300: 270 8% 85%;
     --neutral-400: 220 5% 63%;
     --neutral-500: 220 5% 46%;
     --neutral-600: 220 9% 26%;
-    --neutral-700: 216 43% 11%;
-    --neutral-800: 216 43% 7%;
-    --neutral-900: 216 43% 4%;
+    --neutral-700: 270 30% 8%;
+    --neutral-800: 270 30% 5%;
+    --neutral-900: 270 30% 3%;
 
-    /* Shadows — navy-tinted */
-    --shadow-sm: 0 1px 2px 0 rgb(27 45 79 / 0.04);
-    --shadow-md: 0 1px 4px rgba(27, 45, 79, 0.08);
-    --shadow-lg: 0 4px 8px -2px rgb(27 45 79 / 0.08);
-    --shadow-xl: 0 8px 16px -4px rgb(27 45 79 / 0.1);
-    --shadow-2xl: 0 16px 32px -8px rgb(27 45 79 / 0.12);
-    --shadow-colored: 0 4px 12px rgba(249, 92, 0, 0.12);
-    --shadow-colored-lg: 0 6px 16px rgba(249, 92, 0, 0.2);
+    /* Shadows — plum-tinted */
+    --shadow-sm: 0 1px 2px 0 rgb(61 26 110 / 0.04);
+    --shadow-md: 0 1px 4px rgba(61, 26, 110, 0.08);
+    --shadow-lg: 0 4px 8px -2px rgb(61 26 110 / 0.08);
+    --shadow-xl: 0 8px 16px -4px rgb(61 26 110 / 0.1);
+    --shadow-2xl: 0 16px 32px -8px rgb(61 26 110 / 0.12);
+    --shadow-colored: 0 4px 12px rgba(200, 240, 0, 0.15);
+    --shadow-colored-lg: 0 6px 16px rgba(200, 240, 0, 0.25);
 
     /* Spacing System */
     --spacing-xs: 0.25rem;
@@ -119,85 +119,85 @@
     /* Sidebar */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 220 5% 46%;
-    --sidebar-primary: 217 53% 21%;
+    --sidebar-primary: 268 60% 27%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 16% 96%;
-    --sidebar-accent-foreground: 216 43% 11%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217 53% 21%;
+    --sidebar-accent: 280 6% 94%;
+    --sidebar-accent-foreground: 270 30% 8%;
+    --sidebar-border: 270 10% 92%;
+    --sidebar-ring: 268 60% 27%;
 
     /* Sport-specific tints */
-    --sport-football: 142 76% 90%;    /* #DCFCE7 */
+    --sport-football: 130 40% 93%;    /* #EAF5E9 */
     --sport-basketball: 48 96% 89%;   /* #FEF3C7 */
-    --sport-volleyball: 218 56% 95%;  /* #EBF0F8 */
-    --sport-running: 28 97% 95%;      /* #FEF0E6 */
+    --sport-volleyball: 268 44% 94%;  /* #EDE8F7 */
+    --sport-running: 72 91% 92%;      /* #F5FDD6 */
   }
 
   /* Light-first system — dark mirrors root */
   .dark {
-    --background: 220 20% 97%;
-    --foreground: 216 43% 11%;
-    --text-primary: 216 43% 11%;
+    --background: 30 14% 96%;
+    --foreground: 270 30% 8%;
+    --text-primary: 270 30% 8%;
     --text-secondary: 220 9% 26%;
     --text-muted: 220 5% 46%;
     --text-hint: 220 5% 63%;
-    --text-link: 217 53% 21%;
+    --text-link: 268 60% 27%;
     --card: 0 0% 100%;
-    --card-foreground: 216 43% 11%;
-    --popover: 220 16% 96%;
-    --popover-foreground: 216 43% 11%;
-    --primary: 217 53% 21%;
-    --primary-light: 217 53% 25%;
-    --primary-dark: 217 53% 17%;
+    --card-foreground: 270 30% 8%;
+    --popover: 280 6% 94%;
+    --popover-foreground: 270 30% 8%;
+    --primary: 268 60% 27%;
+    --primary-light: 268 60% 32%;
+    --primary-dark: 268 60% 20%;
     --primary-foreground: 0 0% 100%;
-    --primary-subtle: 218 56% 95%;
-    --accent: 22 100% 49%;
-    --accent-foreground: 0 0% 100%;
-    --accent-subtle: 28 97% 95%;
-    --muted: 220 16% 96%;
+    --primary-subtle: 268 44% 94%;
+    --accent: 72 100% 47%;
+    --accent-foreground: 268 60% 27%;
+    --accent-subtle: 72 91% 92%;
+    --muted: 280 6% 94%;
     --muted-foreground: 220 5% 46%;
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     --success: 142 64% 37%;
     --success-foreground: 0 0% 100%;
-    --warning: 22 100% 49%;
-    --warning-foreground: 0 0% 100%;
-    --info: 217 53% 21%;
+    --warning: 72 100% 47%;
+    --warning-foreground: 268 60% 27%;
+    --info: 268 60% 27%;
     --info-foreground: 0 0% 100%;
-    --match: 22 100% 49%;
-    --match-foreground: 0 0% 100%;
-    --border: 220 13% 91%;
-    --input: 220 16% 96%;
-    --ring: 217 53% 21%;
-    --neutral-50: 220 20% 97%;
-    --neutral-100: 220 16% 96%;
-    --neutral-200: 220 13% 91%;
-    --neutral-300: 220 11% 85%;
+    --match: 72 100% 47%;
+    --match-foreground: 268 60% 27%;
+    --border: 270 10% 92%;
+    --input: 280 6% 94%;
+    --ring: 268 60% 27%;
+    --neutral-50: 30 14% 96%;
+    --neutral-100: 280 6% 94%;
+    --neutral-200: 270 10% 92%;
+    --neutral-300: 270 8% 85%;
     --neutral-400: 220 5% 63%;
     --neutral-500: 220 5% 46%;
     --neutral-600: 220 9% 26%;
-    --neutral-700: 216 43% 11%;
-    --neutral-800: 216 43% 7%;
-    --neutral-900: 216 43% 4%;
-    --shadow-sm: 0 1px 2px 0 rgb(27 45 79 / 0.04);
-    --shadow-md: 0 1px 4px rgba(27, 45, 79, 0.08);
-    --shadow-lg: 0 4px 8px -2px rgb(27 45 79 / 0.08);
-    --shadow-xl: 0 8px 16px -4px rgb(27 45 79 / 0.1);
-    --shadow-2xl: 0 16px 32px -8px rgb(27 45 79 / 0.12);
-    --shadow-colored: 0 4px 12px rgba(249, 92, 0, 0.12);
-    --shadow-colored-lg: 0 6px 16px rgba(249, 92, 0, 0.2);
+    --neutral-700: 270 30% 8%;
+    --neutral-800: 270 30% 5%;
+    --neutral-900: 270 30% 3%;
+    --shadow-sm: 0 1px 2px 0 rgb(61 26 110 / 0.04);
+    --shadow-md: 0 1px 4px rgba(61, 26, 110, 0.08);
+    --shadow-lg: 0 4px 8px -2px rgb(61 26 110 / 0.08);
+    --shadow-xl: 0 8px 16px -4px rgb(61 26 110 / 0.1);
+    --shadow-2xl: 0 16px 32px -8px rgb(61 26 110 / 0.12);
+    --shadow-colored: 0 4px 12px rgba(200, 240, 0, 0.15);
+    --shadow-colored-lg: 0 6px 16px rgba(200, 240, 0, 0.25);
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 220 5% 46%;
-    --sidebar-primary: 217 53% 21%;
+    --sidebar-primary: 268 60% 27%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 16% 96%;
-    --sidebar-accent-foreground: 216 43% 11%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217 53% 21%;
-    --sport-football: 142 76% 90%;
+    --sidebar-accent: 280 6% 94%;
+    --sidebar-accent-foreground: 270 30% 8%;
+    --sidebar-border: 270 10% 92%;
+    --sidebar-ring: 268 60% 27%;
+    --sport-football: 130 40% 93%;
     --sport-basketball: 48 96% 89%;
-    --sport-volleyball: 218 56% 95%;
-    --sport-running: 28 97% 95%;
+    --sport-volleyball: 268 44% 94%;
+    --sport-running: 72 91% 92%;
   }
 }
 
@@ -259,13 +259,13 @@
     @apply text-primary font-bold;
   }
 
-  /* Shadow Utilities — orange-tinted for IGNITE */
+  /* Shadow Utilities — citrus-tinted for MOMENTUM */
   .shadow-colored {
-    box-shadow: 0 4px 12px rgba(249, 92, 0, 0.12);
+    box-shadow: 0 4px 12px rgba(200, 240, 0, 0.15);
   }
 
   .shadow-colored-lg {
-    box-shadow: 0 6px 16px rgba(249, 92, 0, 0.2);
+    box-shadow: 0 6px 16px rgba(200, 240, 0, 0.25);
   }
 
   .transition-smooth {
@@ -366,12 +366,12 @@
     background-color: hsl(var(--primary));
   }
 
-  /* Sport accent utility classes — warm tints for IGNITE */
+  /* Sport accent utility classes — plum-tinted for MOMENTUM */
   .sport-accent-football { border-left-color: hsl(var(--sport-football)); background-color: hsl(var(--sport-football)); }
   .sport-accent-basketball { border-left-color: hsl(var(--sport-basketball)); background-color: hsl(var(--sport-basketball)); }
   .sport-accent-volleyball { border-left-color: hsl(var(--sport-volleyball)); background-color: hsl(var(--sport-volleyball)); }
-  .sport-accent-tennis { border-left-color: hsl(22 100% 49% / 0.15); }
-  .sport-accent-badminton { border-left-color: hsl(22 100% 49% / 0.15); }
+  .sport-accent-tennis { border-left-color: hsl(268 60% 27% / 0.15); }
+  .sport-accent-badminton { border-left-color: hsl(268 60% 27% / 0.15); }
 
   @media (max-width: 374px) {
     .text-page-title { font-size: 1.125rem !important; line-height: 1.5rem !important; }
