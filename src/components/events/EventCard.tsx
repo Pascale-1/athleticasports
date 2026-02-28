@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,13 +9,19 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from "@/components/ui/drawer";
 import { 
   MoreVertical,
   Pencil,
   Trash2,
   Repeat,
   Check,
-  HelpCircle,
   X,
   Globe,
   Lock,
@@ -96,145 +102,179 @@ export const EventCard = memo(({
     };
   }, [event.start_time, event.location, event.sport, lang, locale]);
 
-  const handleRSVP = (status: 'attending' | 'maybe' | 'not_attending', e: React.MouseEvent) => {
+  const [rsvpSheetOpen, setRsvpSheetOpen] = useState(false);
+
+  const handleRSVPOpen = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onRSVPChange?.(status);
+    setRsvpSheetOpen(true);
   };
 
-  return (
-    <Link to={`/events/${event.id}`} className="block">
-      <Card 
+  const handleRSVPSelect = (status: 'attending' | 'maybe' | 'not_attending') => {
+    onRSVPChange?.(status);
+    setRsvpSheetOpen(false);
+  };
+
+  const rsvpPill = onRSVPChange ? (
+    userStatus ? (
+      <button
+        onClick={handleRSVPOpen}
         className={cn(
-          "border-l-[2px] overflow-hidden transition-all active:scale-[0.98]",
-          accentClass,
-          isPast && "opacity-60"
+          "rounded-full h-[26px] px-2.5 text-[11px] font-medium inline-flex items-center gap-1 shrink-0 transition-colors",
+          userStatus === 'attending' && "bg-success/10 text-success",
+          userStatus === 'maybe' && "bg-primary/10 text-primary",
+          userStatus === 'not_attending' && "bg-destructive/10 text-destructive",
         )}
       >
-        <CardContent className="p-0">
-          <div className="py-2.5 px-3.5 flex flex-col">
-            {/* ROW 1: Date + Title/Meta + Right info */}
-            <div className="flex items-center gap-2">
-              {/* Date badge 40x40 */}
-              <div className="w-10 h-10 rounded-lg bg-muted flex flex-col items-center justify-center shrink-0">
-                <span className="text-[14px] font-bold leading-tight text-primary">{day}</span>
-                <span className="text-[9px] uppercase leading-none text-muted-foreground font-medium">{month}</span>
-              </div>
+        {userStatus === 'attending' && <><Check className="h-3 w-3" />{t('rsvp.going')}</>}
+        {userStatus === 'maybe' && <><span>?</span>{t('rsvp.maybe')}</>}
+        {userStatus === 'not_attending' && <><X className="h-3 w-3" />{t('rsvp.notGoing')}</>}
+      </button>
+    ) : (
+      <button
+        onClick={handleRSVPOpen}
+        className="border border-primary text-primary rounded-full h-[26px] px-2.5 text-[11px] font-medium shrink-0"
+      >
+        RSVP →
+      </button>
+    )
+  ) : null;
 
-              {/* Center: title + meta */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <h3 className={cn(
-                    "text-[13px] font-semibold leading-tight truncate",
-                    isPast ? "text-muted-foreground" : "text-foreground"
-                  )}>
-                    {event.title}
-                  </h3>
-                  {(isRecurringParent || isPartOfSeries) && (
-                    <Repeat className="h-3 w-3 text-muted-foreground shrink-0" />
-                  )}
+  const rsvpOptions: Array<{ status: 'attending' | 'maybe' | 'not_attending'; icon: React.ReactNode; label: string; activeClass: string }> = [
+    { status: 'attending', icon: <Check className="h-4 w-4" />, label: t('rsvp.going'), activeClass: 'bg-success/10 text-success' },
+    { status: 'maybe', icon: <span className="text-sm">?</span>, label: t('rsvp.maybe'), activeClass: 'bg-primary/10 text-primary' },
+    { status: 'not_attending', icon: <X className="h-4 w-4" />, label: t('rsvp.notGoing'), activeClass: 'bg-destructive/10 text-destructive' },
+  ];
+
+  return (
+    <>
+      <Link to={`/events/${event.id}`} className="block">
+        <Card 
+          className={cn(
+            "border-l-[2px] overflow-hidden transition-all active:scale-[0.98]",
+            accentClass,
+            isPast && "opacity-60"
+          )}
+        >
+          <CardContent className="p-0">
+            <div className="py-2.5 px-3.5 flex flex-col">
+              {/* ROW 1: Date + Title/Meta + Right info */}
+              <div className="flex items-center gap-2">
+                {/* Date badge 40x40 */}
+                <div className="w-10 h-10 rounded-lg bg-muted flex flex-col items-center justify-center shrink-0">
+                  <span className="text-[14px] font-bold leading-tight text-primary">{day}</span>
+                  <span className="text-[9px] uppercase leading-none text-muted-foreground font-medium">{month}</span>
                 </div>
-                <p className="text-[11px] text-muted-foreground leading-tight mt-0.5 truncate">
-                  {sportEmoji && <span className="mr-1">{sportEmoji}</span>}
-                  {timeStr}
-                  {venueName && <><span className="mx-1 opacity-40">·</span>{venueName}</>}
-                </p>
-              </div>
 
-              {/* Right: visibility + count + organizer menu */}
-              <div className="shrink-0 flex items-center gap-1.5">
-                <div className="flex flex-col items-end gap-0.5">
-                  <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
-                    {event.is_public 
-                      ? <><Globe className="h-2.5 w-2.5" />Public</>
-                      : <><Lock className="h-2.5 w-2.5" />{t('status.private')}</>
-                    }
-                  </span>
-                  {attendeeCount > 0 && (
-                    <span className="text-[10px] text-muted-foreground">
-                      {attendeeCount} {t('rsvp.going')}
+                {/* Center: title + meta */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <h3 className={cn(
+                      "text-[13px] font-semibold leading-tight truncate",
+                      isPast ? "text-muted-foreground" : "text-foreground"
+                    )}>
+                      {event.title}
+                    </h3>
+                    {(isRecurringParent || isPartOfSeries) && (
+                      <Repeat className="h-3 w-3 text-muted-foreground shrink-0" />
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-tight mt-0.5 truncate">
+                    {sportEmoji && <span className="mr-1">{sportEmoji}</span>}
+                    {timeStr}
+                    {venueName && <><span className="mx-1 opacity-40">·</span>{venueName}</>}
+                  </p>
+                </div>
+
+                {/* Right: visibility + count + organizer menu */}
+                <div className="shrink-0 flex items-center gap-1.5">
+                  <div className="flex flex-col items-end gap-0.5">
+                    <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                      {event.is_public 
+                        ? <><Globe className="h-2.5 w-2.5" />Public</>
+                        : <><Lock className="h-2.5 w-2.5" />{t('status.private')}</>
+                      }
                     </span>
+                    {attendeeCount > 0 && (
+                      <span className="text-[10px] text-muted-foreground">
+                        {attendeeCount} {t('rsvp.going')}
+                      </span>
+                    )}
+                  </div>
+
+                  {hasOrganizerActions && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
+                        <Button variant="ghost" size="icon" className="h-6 w-6">
+                          <MoreVertical className="h-3.5 w-3.5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-36 bg-popover">
+                        {onEdit && (
+                          <DropdownMenuItem
+                            onClick={(e) => { e.preventDefault(); onEdit(e as unknown as React.MouseEvent); }}
+                            className="gap-2"
+                          >
+                            <Pencil className="h-4 w-4" />
+                            {t('edit.title')}
+                          </DropdownMenuItem>
+                        )}
+                        {onEdit && onDelete && <DropdownMenuSeparator />}
+                        {onDelete && (
+                          <DropdownMenuItem
+                            onClick={(e) => { e.preventDefault(); onDelete(e as unknown as React.MouseEvent); }}
+                            className="gap-2 text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            {t('details.deleteEvent')}
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
                 </div>
-
-                {hasOrganizerActions && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
-                      <Button variant="ghost" size="icon" className="h-6 w-6">
-                        <MoreVertical className="h-3.5 w-3.5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-36 bg-popover">
-                      {onEdit && (
-                        <DropdownMenuItem
-                          onClick={(e) => { e.preventDefault(); onEdit(e as unknown as React.MouseEvent); }}
-                          className="gap-2"
-                        >
-                          <Pencil className="h-4 w-4" />
-                          {t('edit.title')}
-                        </DropdownMenuItem>
-                      )}
-                      {onEdit && onDelete && <DropdownMenuSeparator />}
-                      {onDelete && (
-                        <DropdownMenuItem
-                          onClick={(e) => { e.preventDefault(); onDelete(e as unknown as React.MouseEvent); }}
-                          className="gap-2 text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          {t('details.deleteEvent')}
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
               </div>
+
+              {/* ROW 2: RSVP pill/button — right-aligned */}
+              {rsvpPill && (
+                <div className="flex justify-end mt-1.5">
+                  {rsvpPill}
+                </div>
+              )}
             </div>
+          </CardContent>
+        </Card>
+      </Link>
 
-            {/* ROW 2: Inline RSVP toggle */}
-            {onRSVPChange && (
-              <div className="flex gap-1.5 mt-1.5">
+      {/* RSVP Bottom Sheet */}
+      {onRSVPChange && (
+        <Drawer open={rsvpSheetOpen} onOpenChange={setRsvpSheetOpen}>
+          <DrawerContent onClick={(e) => e.stopPropagation()}>
+            <DrawerHeader className="text-left">
+              <DrawerTitle className="text-[14px] font-semibold">{event.title}</DrawerTitle>
+              <DrawerDescription className="text-[12px] text-muted-foreground">
+                {timeStr} {venueName && `· ${venueName}`}
+              </DrawerDescription>
+            </DrawerHeader>
+            <div className="px-4 pb-6 flex flex-col gap-2">
+              {rsvpOptions.map((opt) => (
                 <button
-                  onClick={(e) => handleRSVP('attending', e)}
+                  key={opt.status}
+                  onClick={() => handleRSVPSelect(opt.status)}
                   className={cn(
-                    "flex-1 h-[26px] rounded-full text-[11px] font-medium flex items-center justify-center gap-1 transition-colors",
-                    userStatus === 'attending'
-                      ? "bg-success text-success-foreground"
-                      : "bg-muted text-muted-foreground"
+                    "h-12 w-full rounded-xl text-[14px] font-medium flex items-center gap-3 px-4 transition-colors",
+                    userStatus === opt.status ? opt.activeClass : "bg-muted text-foreground"
                   )}
                 >
-                  <Check className="h-3 w-3" />
-                  {t('rsvp.going')}
+                  {opt.icon}
+                  {opt.label}
                 </button>
-                <button
-                  onClick={(e) => handleRSVP('maybe', e)}
-                  className={cn(
-                    "flex-1 h-[26px] rounded-full text-[11px] font-medium flex items-center justify-center gap-1 transition-colors",
-                    userStatus === 'maybe'
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-muted-foreground"
-                  )}
-                >
-                  <HelpCircle className="h-3 w-3" />
-                  {t('rsvp.maybe')}
-                </button>
-                <button
-                  onClick={(e) => handleRSVP('not_attending', e)}
-                  className={cn(
-                    "flex-1 h-[26px] rounded-full text-[11px] font-medium flex items-center justify-center gap-1 transition-colors",
-                    userStatus === 'not_attending'
-                      ? "bg-destructive/10 text-destructive"
-                      : "bg-muted text-muted-foreground"
-                  )}
-                >
-                  <X className="h-3 w-3" />
-                  {t('rsvp.notGoing')}
-                </button>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
+              ))}
+            </div>
+          </DrawerContent>
+        </Drawer>
+      )}
+    </>
   );
 });
 
