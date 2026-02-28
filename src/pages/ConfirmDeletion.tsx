@@ -105,10 +105,10 @@ export default function ConfirmDeletion() {
         {status === "success" && (
           <>
             <CardHeader className="text-center">
-              <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
+              <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-success/10 flex items-center justify-center">
+                <CheckCircle className="h-8 w-8 text-success" />
               </div>
-              <CardTitle className="text-green-600 dark:text-green-400">
+              <CardTitle className="text-success">
                 {t("accountDeletion.successTitle")}
               </CardTitle>
               <CardDescription>
@@ -129,10 +129,10 @@ export default function ConfirmDeletion() {
         {status === "expired" && (
           <>
             <CardHeader className="text-center">
-              <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center justify-center">
-                <AlertTriangle className="h-8 w-8 text-amber-600 dark:text-amber-400" />
+              <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-warning/10 flex items-center justify-center">
+                <AlertTriangle className="h-8 w-8 text-warning" />
               </div>
-              <CardTitle className="text-amber-600 dark:text-amber-400">
+              <CardTitle className="text-warning">
                 {t("accountDeletion.expiredTitle")}
               </CardTitle>
               <CardDescription>

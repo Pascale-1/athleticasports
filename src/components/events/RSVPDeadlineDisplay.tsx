@@ -48,26 +48,26 @@ export const RSVPDeadlineDisplay = ({
       className={cn(
         "flex items-center gap-2 p-3 rounded-lg border",
         isUrgent
-          ? "bg-amber-500/10 border-amber-500/30"
+          ? "bg-warning/10 border-warning/30"
           : "bg-muted/30 border-border",
         className
       )}
     >
       {isUrgent ? (
-        <AlertCircle className="h-4 w-4 text-amber-600 shrink-0" />
+        <AlertCircle className="h-4 w-4 text-warning shrink-0" />
       ) : (
         <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
       )}
       <div className="flex-1 min-w-0">
-        <p className={cn("text-sm font-medium", isUrgent && "text-amber-700")}>
+        <p className={cn("text-sm font-medium", isUrgent && "text-warning")}>
           {t("rsvpDeadline.respondBy")}
         </p>
-        <p className={cn("text-xs", isUrgent ? "text-amber-600/80" : "text-muted-foreground")}>
+        <p className={cn("text-xs", isUrgent ? "text-warning/80" : "text-muted-foreground")}>
           {formatDistanceToNow(deadlineDate, { addSuffix: true, locale })}
         </p>
       </div>
       {isUrgent && (
-        <Badge variant="outline" className="bg-amber-500/20 text-amber-700 border-amber-500/30 text-xs">
+        <Badge variant="outline" className="bg-warning/20 text-warning border-warning/30 text-xs">
           {t("rsvpDeadline.urgent")}
         </Badge>
       )}

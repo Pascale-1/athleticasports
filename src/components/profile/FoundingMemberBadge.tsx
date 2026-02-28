@@ -29,9 +29,9 @@ export const FoundingMemberBadge = ({ className, size = 'md' }: FoundingMemberBa
     <div
       className={cn(
         "inline-flex items-center rounded-full",
-        "bg-gradient-to-r from-amber-500/20 to-orange-500/20",
-        "border border-amber-500/40",
-        "text-amber-600 dark:text-amber-400 font-medium",
+        "bg-gradient-to-r from-primary/20 to-primary/30",
+        "border border-primary/40",
+        "text-primary font-medium",
         sizeClasses[size],
         className
       )}

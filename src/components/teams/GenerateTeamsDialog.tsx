@@ -82,7 +82,7 @@ export const GenerateTeamsDialog = ({
 
           {/* Preview */}
           <div className="flex items-start gap-3 p-4 rounded-lg border bg-card">
-            <TrendingUp className="h-5 w-5 text-green-600 mt-0.5" />
+            <TrendingUp className="h-5 w-5 text-success mt-0.5" />
             <div className="flex-1">
               <p className="font-medium text-sm">{t('generateTeams.smartBalancing')}</p>
               <p className="text-sm text-muted-foreground mt-1">

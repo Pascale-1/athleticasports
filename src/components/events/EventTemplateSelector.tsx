@@ -25,9 +25,9 @@ const TYPE_ICONS: Record<EventType, React.ReactNode> = {
 };
 
 const TYPE_COLORS: Record<EventType, string> = {
-  training: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-  match: "bg-amber-500/10 text-amber-600 border-amber-500/20",
-  meetup: "bg-green-500/10 text-green-600 border-green-500/20",
+  training: "bg-primary/10 text-primary border-primary/20",
+  match: "bg-warning/10 text-warning border-warning/20",
+  meetup: "bg-success/10 text-success border-success/20",
 };
 
 export const EventTemplateSelector = ({

@@ -70,11 +70,11 @@ const EventPreviewCard = ({ event, canRSVP }: { event: Event; canRSVP: boolean }
   const getEventTypeColor = (type: string) => {
     switch (type) {
       case 'training':
-        return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
+        return 'bg-primary/10 text-primary border-primary/20';
       case 'match':
-        return 'bg-red-500/10 text-red-600 border-red-500/20';
+        return 'bg-warning/10 text-warning border-warning/20';
       case 'meetup':
-        return 'bg-green-500/10 text-green-600 border-green-500/20';
+        return 'bg-success/10 text-success border-success/20';
       default:
         return 'bg-muted text-muted-foreground';
     }
@@ -89,7 +89,7 @@ const EventPreviewCard = ({ event, canRSVP }: { event: Event; canRSVP: boolean }
               {t(`types.${event.type}`)}
             </Badge>
             {event.is_recurring && (
-              <Flame className="h-3 w-3 text-orange-500" />
+              <Flame className="h-3 w-3 text-warning" />
             )}
           </div>
           <Link to={`/events/${event.id}`}>

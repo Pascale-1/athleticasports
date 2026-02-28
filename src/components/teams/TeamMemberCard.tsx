@@ -20,9 +20,9 @@ interface TeamMemberCardProps {
 }
 
 const roleColors: Record<string, string> = {
-  owner: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900 dark:text-amber-200",
-  admin: "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900 dark:text-blue-200",
-  coach: "bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-200",
+  owner: "bg-primary/20 text-primary border-primary/30",
+  admin: "bg-accent text-foreground border-border",
+  coach: "bg-success/20 text-success border-success/30",
   member: "bg-muted text-muted-foreground border-border",
 };
 
