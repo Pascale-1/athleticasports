@@ -276,7 +276,7 @@ export const EventCard = memo(({
                     {venueName}
                   </span>
                 )}
-                {(attendeeCount > 0 || event.max_participants) && (
+                {(attendeeCount >= 0) && (
                   <span className="flex items-center gap-0.5">
                     <Users className="h-2.5 w-2.5" />
                     {attendeeCount}{event.max_participants ? ` / ${event.max_participants}` : ''}
