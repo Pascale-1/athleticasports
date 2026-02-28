@@ -405,7 +405,7 @@ const EventDetail = () => {
                       <MapPin className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+                      <p className="text-sm font-medium break-words line-clamp-2 group-hover:text-primary transition-colors">
                         {event.location}
                       </p>
                       <p className="text-xs text-muted-foreground">
@@ -509,7 +509,7 @@ const EventDetail = () => {
                   <Badge variant="outline" className="bg-muted text-muted-foreground">
                     {event.home_away === 'home' && <Home className="h-3 w-3 mr-1" />}
                     {event.home_away === 'away' && <Plane className="h-3 w-3 mr-1" />}
-                    {t(`game.terrain.${event.home_away}`, `Terrain : ${event.home_away}`)}
+                    Terrain : {t(`game.${event.home_away}`)}
                   </Badge>
                 )}
                 {event.match_format && (

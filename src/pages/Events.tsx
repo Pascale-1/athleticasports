@@ -203,7 +203,7 @@ const Events = () => {
   return (
     <PageContainer>
       <PullToRefresh onRefresh={handleRefresh}>
-        <div className="space-y-3 animate-fade-in">
+        <div className="space-y-3 pb-24 animate-fade-in">
         <PageHeader
           title={t('title')}
           subtitle={getTabSubtitle()}

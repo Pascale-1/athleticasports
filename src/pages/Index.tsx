@@ -192,7 +192,7 @@ const Index = () => {
     <PageContainer bottomPadding={false}>
       <PullToRefresh onRefresh={handleRefresh}>
         <motion.div 
-          className="space-y-4 pb-16"
+          className="space-y-4 pb-24"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
@@ -290,7 +290,7 @@ const Index = () => {
               <div className="flex gap-2">
                 <Button 
                   variant="default"
-                  className="flex-1 flex items-center justify-center gap-2 h-14 rounded-xl active:scale-[0.98]"
+                  className="flex-1 flex items-center justify-center gap-2 h-[52px] rounded-xl active:scale-[0.98]"
                   onClick={() => setFindMatchSheetOpen(true)}
                 >
                   <Search className="h-5 w-5" />
@@ -299,7 +299,7 @@ const Index = () => {
                 
                 <Button 
                   variant="outline"
-                  className="flex-1 flex items-center justify-center gap-2 h-14 rounded-xl border-primary/50 active:scale-[0.98]"
+                  className="flex-1 flex items-center justify-center gap-2 h-[52px] rounded-xl border-primary/50 active:scale-[0.98]"
                   onClick={() => setCreateEventDialogOpen(true)}
                 >
                   <Plus className="h-5 w-5" />
@@ -326,23 +326,23 @@ const Index = () => {
             <div data-walkthrough="games" className="space-y-3">
               {/* Games to Join */}
               {!gamesLoading && topAvailableGames.length > 0 && (
-                <Card className="p-3 bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200/50 dark:border-emerald-800/30">
+                <Card className="p-3 bg-success/5 border-success/20">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/50">
-                        <UserPlus className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                      <div className="p-1.5 rounded-lg bg-success/10">
+                        <UserPlus className="h-4 w-4 text-success" />
                       </div>
-                      <h2 className="text-section font-semibold text-emerald-700 dark:text-emerald-300">
+                      <h2 className="text-section font-semibold text-success">
                         {t('matching:gamesToJoin')}
                       </h2>
-                      <Badge className="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-[10px] border-0">
+                      <Badge className="bg-success/10 text-success text-[10px] border-0">
                         {topAvailableGames.length}
                       </Badge>
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 px-2 text-[11px] text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:bg-emerald-100/50"
+                      className="h-8 px-2 text-[11px] text-success hover:text-success hover:bg-success/10"
                       onClick={() => navigate("/events?tab=open")}
                     >
                       {t('actions.viewAll')}
