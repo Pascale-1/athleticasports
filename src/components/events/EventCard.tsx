@@ -36,9 +36,9 @@ import { format } from "date-fns";
 import { getLocale } from "@/lib/dateUtils";
 
 const TYPE_ACCENT: Record<string, string> = {
-  match: 'border-l-accent',
-  training: 'border-l-accent',
-  meetup: 'border-l-accent',
+  match: 'border-l-primary',
+  training: 'border-l-[#CBD5E1]',
+  meetup: 'border-l-[#A78BFA]',
 };
 
 interface EventCardProps {

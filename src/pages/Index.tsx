@@ -251,27 +251,29 @@ const Index = () => {
 
           {/* Stats Grid — standalone section */}
           <AnimatedCard delay={0.15}>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="flex items-stretch justify-center">
               <button 
                 onClick={() => navigate("/teams?filter=my-teams")}
-                className="flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[52px]"
+                className="flex-1 flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[52px]"
               >
-                <span className="text-[20px] font-bold text-foreground leading-none">{stats.teams}</span>
-                <span className="text-xs text-muted-foreground">{t('home.teams')}</span>
+                <span className="text-[28px] font-bold text-foreground leading-none tabular-nums">{stats.teams}</span>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-[0.08em]">{t('home.teams')}</span>
               </button>
+              <div className="w-px bg-muted self-stretch my-2" />
               <button
                 onClick={() => navigate("/events?type=match")}
-                className="flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[52px]"
+                className="flex-1 flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[52px]"
               >
-                <span className="text-[20px] font-bold text-foreground leading-none">{stats.upcomingMatches}</span>
-                <span className="text-xs text-muted-foreground">{t('home.games')}</span>
+                <span className="text-[28px] font-bold text-foreground leading-none tabular-nums">{stats.upcomingMatches}</span>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-[0.08em]">{t('home.games')}</span>
               </button>
+              <div className="w-px bg-muted self-stretch my-2" />
               <button
                 onClick={() => navigate("/events?tab=my")}
-                className="flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[52px]"
+                className="flex-1 flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[52px]"
               >
-                <span className="text-[20px] font-bold text-foreground leading-none">{stats.eventsAttended}</span>
-                <span className="text-xs text-muted-foreground">{t('home.eventsAttended')}</span>
+                <span className="text-[28px] font-bold text-foreground leading-none tabular-nums">{stats.eventsAttended}</span>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-[0.08em]">{t('home.eventsAttended')}</span>
               </button>
             </div>
           </AnimatedCard>
@@ -437,8 +439,8 @@ const Index = () => {
                                   variant="secondary" 
                                   className={`text-[9px] px-1.5 py-0 shrink-0 ${
                                     isToday(matchDate) 
-                                      ? 'bg-warning/15 text-warning' 
-                                      : 'bg-info/15 text-info'
+                                   ? 'bg-primary/15 text-primary' 
+                                      : 'bg-primary/15 text-primary'
                                   }`}
                                 >
                                   {dateLabel.toUpperCase()}

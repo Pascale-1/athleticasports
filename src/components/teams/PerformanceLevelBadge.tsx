@@ -26,7 +26,7 @@ export const PerformanceLevelBadge = ({ level, size = "md" }: PerformanceLevelBa
     1: {
       icon: Star,
       label: "Débutante",
-      className: "bg-warning/20 text-warning border-warning/30",
+      className: "bg-primary/20 text-primary border-primary/30",
     },
     2: {
       icon: Check,

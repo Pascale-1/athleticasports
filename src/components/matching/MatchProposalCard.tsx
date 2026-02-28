@@ -142,7 +142,7 @@ export const MatchProposalCard = ({ proposal, onAccept, onDecline }: MatchPropos
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-warning" />
+              <AlertTriangle className="h-5 w-5 text-destructive" />
               Commitment Required
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-4">
@@ -151,8 +151,8 @@ export const MatchProposalCard = ({ proposal, onAccept, onDecline }: MatchPropos
                 This is a binding commitment to ensure fair play for all participants.
               </p>
               
-              <div className="p-3 rounded-lg bg-warning/10 border border-warning/20">
-                <p className="text-sm font-medium text-warning">
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                <p className="text-sm font-medium text-destructive">
                   ⚠️ Cancellations are not allowed after accepting
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">

@@ -86,7 +86,7 @@ export const AvailableGameCard = ({
     const config: Record<string, { className: string; text: string }> = {
       perfect: { className: 'bg-success text-success-foreground', text: t('matching:labels.perfect') },
       great: { className: 'bg-primary text-primary-foreground', text: t('matching:labels.great') },
-      good: { className: 'bg-info text-info-foreground', text: t('matching:labels.good') },
+      good: { className: 'bg-primary/50 text-primary-foreground', text: t('matching:labels.good') },
       fair: { className: 'bg-muted text-muted-foreground', text: t('matching:labels.fair') },
     };
     const c = config[label];

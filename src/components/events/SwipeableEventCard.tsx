@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useSwipe } from "@/hooks/useSwipe";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { getEventTypeKey, EventType } from "@/lib/eventConfig";
 
 interface SwipeableEventCardProps {
   event: Event;
@@ -64,7 +65,7 @@ export const SwipeableEventCard = ({
     
     const variants = {
       attending: { label: t('rsvp.going'), className: 'bg-success/10 text-success' },
-      maybe: { label: t('rsvp.maybe'), className: 'bg-warning/10 text-warning' },
+      maybe: { label: t('rsvp.maybe'), className: 'bg-primary/10 text-primary' },
       not_attending: { label: t('rsvp.notGoing'), className: 'bg-destructive/10 text-destructive' },
     };
 
@@ -132,7 +133,7 @@ export const SwipeableEventCard = ({
                 <div>
                   <h3 className="font-semibold text-base line-clamp-2">{event.title}</h3>
                   <Badge variant="outline" className="mt-1">
-                    {t(`types.${event.type}`)}
+                    {t(`types.${getEventTypeKey(event.type as EventType)}`)}
                   </Badge>
                 </div>
                 {getStatusBadge()}

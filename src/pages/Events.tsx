@@ -38,8 +38,8 @@ import {
 import { toast } from "@/hooks/use-toast";
 
 const EVENT_TYPE_LEGEND = [
-  { type: 'training', labelKey: 'types.training', icon: Dumbbell, color: 'text-info' },
-  { type: 'match', labelKey: 'types.game', icon: Swords, color: 'text-warning' },
+  { type: 'training', labelKey: 'types.training', icon: Dumbbell, color: 'text-primary' },
+  { type: 'match', labelKey: 'types.game', icon: Swords, color: 'text-primary' },
   { type: 'meetup', labelKey: 'types.meetup', icon: Users, color: 'text-success' },
 ] as const;
 

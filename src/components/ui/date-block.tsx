@@ -28,7 +28,7 @@ export const DateBlock = ({ date, size = "sm", className, showWeekday = false }:
         className={cn(
           "inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium shrink-0",
           isEventToday && "bg-primary text-primary-foreground",
-          isEventTomorrow && "bg-warning/15 text-warning",
+          isEventTomorrow && "bg-primary/15 text-primary",
           isEventPast && "bg-muted/50 text-muted-foreground",
           !isEventToday && !isEventTomorrow && !isEventPast && "bg-primary/10 text-primary",
           className
@@ -62,7 +62,7 @@ export const DateBlock = ({ date, size = "sm", className, showWeekday = false }:
         "flex flex-col items-center justify-center rounded-lg shrink-0 py-2 px-1",
         sizeClasses[size],
         isEventToday && "bg-primary/15 text-primary",
-        isEventTomorrow && "bg-warning/15 text-warning",
+        isEventTomorrow && "bg-primary/15 text-primary",
         isEventPast && "bg-muted/50 text-muted-foreground",
         !isEventToday && !isEventTomorrow && !isEventPast && "bg-primary/10 text-primary",
         className
