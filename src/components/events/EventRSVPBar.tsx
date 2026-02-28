@@ -84,42 +84,45 @@ export const EventRSVPBar = ({
   return (
     <div className="fixed bottom-16 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t p-3 lg:bottom-0 lg:relative lg:border lg:rounded-lg lg:bg-card">
       <div className="max-w-lg mx-auto space-y-2">
-        <div className="flex gap-1 bg-muted/50 rounded-lg p-1">
+        <div className="flex gap-2">
           <Button
-            variant="ghost"
+            variant={userStatus === 'attending' ? "default" : "outline"}
             size="sm"
             className={cn(
-              "flex-1 h-10 gap-1.5 transition-all",
-              userStatus === 'attending' && "bg-success text-success-foreground hover:bg-success/90 shadow-sm"
+              "flex-1 h-[52px] gap-1.5 transition-all",
+              userStatus === 'attending' && "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
+              userStatus !== 'attending' && "bg-card border border-border"
             )}
             onClick={() => handleClick('attending')}
           >
             <CheckCircle2 className="h-4 w-4" />
-            <span className="hidden xs:inline">{t('rsvp.going')}</span>
+            {t('rsvp.going')}
           </Button>
           <Button
-            variant="ghost"
+            variant={userStatus === 'maybe' ? "default" : "outline"}
             size="sm"
             className={cn(
-              "flex-1 h-10 gap-1.5 transition-all",
-              userStatus === 'maybe' && "bg-warning text-warning-foreground hover:bg-warning/90 shadow-sm"
+              "flex-1 h-[52px] gap-1.5 transition-all",
+              userStatus === 'maybe' && "bg-warning text-warning-foreground hover:bg-warning/90 shadow-sm",
+              userStatus !== 'maybe' && "bg-card border border-border"
             )}
             onClick={() => handleClick('maybe')}
           >
             <HelpCircle className="h-4 w-4" />
-            <span className="hidden xs:inline">{t('rsvp.maybe')}</span>
+            {t('rsvp.maybe')}
           </Button>
           <Button
-            variant="ghost"
+            variant={userStatus === 'not_attending' ? "default" : "outline"}
             size="sm"
             className={cn(
-              "flex-1 h-10 gap-1.5 transition-all",
-              userStatus === 'not_attending' && "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm"
+              "flex-1 h-[52px] gap-1.5 transition-all",
+              userStatus === 'not_attending' && "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+              userStatus !== 'not_attending' && "bg-card border border-border"
             )}
             onClick={() => handleClick('not_attending')}
           >
             <XCircle className="h-4 w-4" />
-            <span className="hidden xs:inline">{t('rsvp.notGoing')}</span>
+            {t('rsvp.notGoing')}
           </Button>
         </div>
         
@@ -128,7 +131,7 @@ export const EventRSVPBar = ({
             variant="ghost"
             size="sm"
             onClick={onRemoveAttendance}
-            className="w-full text-xs text-muted-foreground hover:text-destructive"
+            className="w-full text-sm text-primary hover:text-primary/80 mt-3"
           >
             {t('rsvp.cancelAttendance')}
           </Button>

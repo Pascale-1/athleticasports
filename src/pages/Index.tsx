@@ -216,9 +216,9 @@ const Index = () => {
             <Card data-walkthrough="profile" className="p-4 space-y-3">
               {/* Top Row: Avatar + Greeting */}
               <div className="flex items-start gap-3">
-                {/* Avatar with camera overlay */}
+                {/* Avatar with accent ring */}
                 <div className="relative group">
-                  <Avatar className="h-14 w-14 border-2 border-primary/20">
+                  <Avatar className="h-14 w-14 ring-2 ring-primary ring-offset-2 ring-offset-background">
                     <AvatarImage src={profile.avatar_url || undefined} />
                     <AvatarFallback className="text-lg bg-primary/10 text-primary font-bold">
                       {profile.username.substring(0, 2).toUpperCase()}
@@ -237,50 +237,42 @@ const Index = () => {
                   <h1 className="text-section font-heading font-bold line-clamp-2">
                     {t('home.welcome', { name: profile.display_name || profile.username })}
                   </h1>
-                  <p className="text-caption text-muted-foreground">{t('home.readyToPlay')}</p>
+                  <p className="text-caption text-muted-foreground">
+                    {profile.primary_sport 
+                      ? t('home.readyToPlaySport', { sport: profile.primary_sport, defaultValue: `Prête pour ta prochaine partie de ${profile.primary_sport} ?` })
+                      : t('home.readyToPlay')
+                    }
+                  </p>
                 </div>
               </div>
-
-              {/* Stats Row - Larger touch targets */}
-              <div className="flex items-center justify-around border-t border-border/50 pt-3 -mx-1">
-                <button 
-                  onClick={() => navigate("/teams?filter=my-teams")}
-                  className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[56px]"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <Users className="h-4 w-4 text-primary" />
-                    <span className="text-base font-bold">{stats.teams}</span>
-                  </div>
-                  <span className="text-[11px] text-muted-foreground">{t('home.teams')}</span>
-                </button>
-                
-                <div className="w-px h-8 bg-border/50" />
-                
-                <button
-                  onClick={() => navigate("/events?type=match")}
-                  className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[56px]"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <Swords className="h-4 w-4 text-primary" />
-                    <span className="text-base font-bold">{stats.upcomingMatches}</span>
-                  </div>
-                  <span className="text-[11px] text-muted-foreground">{t('home.games')}</span>
-                </button>
-                
-                <div className="w-px h-8 bg-border/50" />
-                
-                <button
-                  onClick={() => navigate("/events?tab=my")}
-                  className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[56px]"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <CalendarCheck className="h-4 w-4 text-primary" />
-                    <span className="text-base font-bold">{stats.eventsAttended}</span>
-                  </div>
-                  <span className="text-[11px] text-muted-foreground">{t('home.eventsAttended')}</span>
-                </button>
-              </div>
             </Card>
+          </AnimatedCard>
+
+          {/* Stats Grid — standalone section */}
+          <AnimatedCard delay={0.15}>
+            <div className="grid grid-cols-3 gap-4">
+              <button 
+                onClick={() => navigate("/teams?filter=my-teams")}
+                className="flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[64px]"
+              >
+                <span className="text-[28px] font-bold text-foreground leading-none">{stats.teams}</span>
+                <span className="text-xs text-muted-foreground">{t('home.teams')}</span>
+              </button>
+              <button
+                onClick={() => navigate("/events?type=match")}
+                className="flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[64px]"
+              >
+                <span className="text-[28px] font-bold text-foreground leading-none">{stats.upcomingMatches}</span>
+                <span className="text-xs text-muted-foreground">{t('home.games')}</span>
+              </button>
+              <button
+                onClick={() => navigate("/events?tab=my")}
+                className="flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[64px]"
+              >
+                <span className="text-[28px] font-bold text-foreground leading-none">{stats.eventsAttended}</span>
+                <span className="text-xs text-muted-foreground">{t('home.eventsAttended')}</span>
+              </button>
+            </div>
           </AnimatedCard>
 
           {/* Welcome Hint */}
@@ -295,36 +287,37 @@ const Index = () => {
           {/* Quick Actions - 2x2 Grid Primary + Secondary */}
           <AnimatedCard delay={0.2}>
             <div data-walkthrough="quick-actions" className="space-y-2">
-              <div className="grid grid-cols-2 gap-2">
+              <div className="flex gap-2">
                 <Button 
                   variant="default"
-                  className="flex flex-col items-center justify-center gap-1 h-20 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98]"
+                  className="flex-1 flex items-center justify-center gap-2 h-14 rounded-xl active:scale-[0.98]"
                   onClick={() => setFindMatchSheetOpen(true)}
                 >
                   <Search className="h-5 w-5" />
-                  <span className="text-xs font-medium leading-tight text-center">{t('home.findGame')}</span>
-                  <span className="text-[10px] opacity-80 leading-tight text-center">{t('home.findGameSubtitle')}</span>
+                  <span className="text-sm font-medium">{t('home.findGame')}</span>
                 </Button>
                 
                 <Button 
-                  variant="default"
-                  className="flex flex-col items-center justify-center gap-1 h-20 active:scale-[0.98]"
+                  variant="outline"
+                  className="flex-1 flex items-center justify-center gap-2 h-14 rounded-xl border-primary/50 active:scale-[0.98]"
                   onClick={() => setCreateEventDialogOpen(true)}
                 >
                   <Plus className="h-5 w-5" />
-                  <span className="text-xs font-medium leading-tight text-center">{t('home.organizeEvent')}</span>
-                  <span className="text-[10px] opacity-80 leading-tight text-center">{t('home.organizeEventSubtitle')}</span>
+                  <span className="text-sm font-medium">{t('home.organizeEvent')}</span>
                 </Button>
               </div>
               
-              <Button 
-                variant="outline"
-                className="w-full h-10 text-xs active:scale-[0.98]"
+              {/* Team+ card treatment */}
+              <div 
                 onClick={() => navigate("/teams/create")}
+                className="rounded-xl bg-card border border-border p-3 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform"
               >
-                <Users className="h-4 w-4 mr-2" />
-                {t('home.createTeam')}
-              </Button>
+                <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <Users className="h-[18px] w-[18px] text-primary" />
+                </div>
+                <span className="flex-1 text-sm font-medium">{t('home.createTeam')}</span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </div>
             </div>
           </AnimatedCard>
 

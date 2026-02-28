@@ -716,8 +716,13 @@ export const UnifiedEventForm = ({
           </PopoverContent>
         </Popover>
 
-        {watchedDate && (
-          <div className="flex items-center gap-2 mt-1.5">
+        <FormField control={form.control} name="date" render={() => <FormMessage className="text-xs mt-1" />} />
+      </FieldRow>
+
+      {/* Time + Duration */}
+      {watchedDate && (
+        <FieldRow icon={Clock} separator={true} iconAlign="center">
+          <div className="flex items-center gap-2">
             <FormField
               control={form.control}
               name="startTime"
@@ -733,12 +738,10 @@ export const UnifiedEventForm = ({
                 </FormItem>
               )}
             />
-            <span className="text-muted-foreground text-xs">·</span>
             <DurationPicker value={duration} onChange={setDuration} />
           </div>
-        )}
-        <FormField control={form.control} name="date" render={() => <FormMessage className="text-xs mt-1" />} />
-      </FieldRow>
+        </FieldRow>
+      )}
 
       {/* Where */}
       <FieldRow icon={MapPin} separator={false}>
@@ -785,6 +788,7 @@ export const UnifiedEventForm = ({
                 {fieldState.error && (
                   <FormMessage className="text-xs">{t('form.locationRequired')}</FormMessage>
                 )}
+                <p className="text-xs text-muted-foreground mt-1">Ex: Stade Charléty, Paris</p>
               </FormItem>
             )}
           />

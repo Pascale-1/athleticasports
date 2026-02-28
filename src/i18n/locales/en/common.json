@@ -82,7 +82,8 @@
     "maybe": "Maybe",
     "declined": "Pass",
     "full": "Full",
-    "available": "Open"
+    "available": "Open",
+    "spotsLeft": "spots left"
   },
   "errors": {
     "generic": "An error occurred",
