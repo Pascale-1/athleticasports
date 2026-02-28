@@ -304,23 +304,25 @@ const EventDetail = () => {
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <Badge 
                 variant="secondary"
-                className="text-sm font-medium"
+                className="text-xs rounded-full px-2.5 py-0.5"
                 style={{ backgroundColor: eventConfig.bgColor, color: eventConfig.color }}
               >
-                <EventIcon className="h-3.5 w-3.5 mr-1" />
+                <EventIcon className="h-3 w-3 mr-1" />
                 {t(`types.${getEventTypeKey(event.type)}`)}
               </Badge>
+              <Badge variant="outline" className="text-xs rounded-full px-2.5 py-0.5">
+                {event.is_public ? t('status.public') : t('status.private', 'Privé')}
+              </Badge>
               {teamName && (
-                <Badge variant="outline" className="bg-background/80">
+                <Badge variant="outline" className="text-xs rounded-full px-2.5 py-0.5 bg-background/80">
                   {teamName}
                 </Badge>
               )}
-              {isPastEvent && <Badge variant="secondary">{t('status.past')}</Badge>}
-              {isOngoing && <Badge className="bg-success text-success-foreground animate-pulse">{t('status.liveNow')}</Badge>}
-              {event.is_public && <Badge variant="outline" className="bg-background/80">{t('status.public')}</Badge>}
+              {isPastEvent && <Badge variant="secondary" className="text-xs rounded-full px-2.5 py-0.5">{t('status.past')}</Badge>}
+              {isOngoing && <Badge className="text-xs rounded-full px-2.5 py-0.5 bg-success text-success-foreground animate-pulse">{t('status.liveNow')}</Badge>}
             </div>
 
-            <h1 className="text-2xl font-heading font-bold tracking-tight mb-4">{event.title}</h1>
+            <h1 className="text-[26px] font-heading font-bold tracking-tight mb-4">{event.title}</h1>
 
             <div className="flex items-center gap-2">
               <AddToCalendarButton event={event} variant="ghost" />
@@ -405,10 +407,10 @@ const EventDetail = () => {
                       <MapPin className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium break-words line-clamp-2 group-hover:text-primary transition-colors">
+                      <p className="text-sm font-medium break-words group-hover:text-primary transition-colors">
                         {event.location}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-primary underline">
                         {t('details.tapToOpenMaps')}
                       </p>
                     </div>
@@ -506,7 +508,7 @@ const EventDetail = () => {
               
                 <div className="flex flex-wrap gap-2">
                 {event.home_away && (
-                  <Badge variant="outline" className="bg-muted text-muted-foreground">
+                  <Badge variant="outline" className="bg-muted rounded-full text-[13px] text-muted-foreground px-3 py-1">
                     {event.home_away === 'home' && <Home className="h-3 w-3 mr-1" />}
                     {event.home_away === 'away' && <Plane className="h-3 w-3 mr-1" />}
                     Terrain : {t(`game.${event.home_away}`)}

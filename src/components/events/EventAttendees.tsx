@@ -200,9 +200,8 @@ export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps
               </div>
             )}
           </div>
-          <span className="text-sm text-muted-foreground">
-            {previewNames.join(', ')}
-            {othersCount > 0 && ` ${t('attendees.andOthers', { count: othersCount })}`}
+          <span className="text-[13px] text-muted-foreground">
+            {grouped.attending.length} {labels.going.toLowerCase()} · {grouped.maybe.length} {labels.maybe.toLowerCase()}
           </span>
         </div>
       )}
