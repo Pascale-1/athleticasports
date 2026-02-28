@@ -1,8 +1,8 @@
 
 
-# Global Typography System Overhaul
+# Strava-inspired Typography & Density Overhaul
 
-Update the design token layer (tailwind config + CSS variables) and key shared components to enforce a consistent typography scale. Most components already use the semantic tokens (`text-page-title`, `text-card-title`, `text-body`, `text-caption`, `text-micro`) so updating the token definitions will cascade automatically.
+Aggressive reduction of all font sizes, spacing, and padding to achieve a compact, data-dense mobile UI. Changes cascade through theme tokens where possible, with targeted component edits for hardcoded values.
 
 ---
 
@@ -10,99 +10,201 @@ Update the design token layer (tailwind config + CSS variables) and key shared c
 
 | File | Changes |
 |------|---------|
-| `tailwind.config.ts` | Redefine fontSize scale to match new spec |
-| `src/index.css` | Add CSS custom properties for text colors; update semantic utility classes |
-| `src/components/ui/button.tsx` | Base text to `text-[13px] font-semibold` |
-| `src/components/ui/badge.tsx` | Base text to `text-[10px] font-medium` |
-| `src/components/ui/card.tsx` | CardTitle to use `text-[14px]`, CardDescription to `text-[13px]` |
-| `src/components/ui/input.tsx` | Text size to `text-[13px]` |
-| `src/components/ui/textarea.tsx` | Text size to `text-[13px]` |
-| `src/components/mobile/BottomNavigation.tsx` | Labels to `text-[10px]` |
-| `src/components/mobile/PageHeader.tsx` | Title to `text-[20px]`, subtitle to `text-[12px]` |
-| `src/pages/EventDetail.tsx` | Title to `text-[18px]`, section headers to `text-[12px] uppercase tracking-[0.6px]`, metadata to `text-[13px]` |
-| `src/components/events/EventCard.tsx` | Already `text-[15px]` title → change to `text-[14px]`, metadata `text-[13px]` already correct |
-| `src/components/teams/TeamCard.tsx` | Title to `text-[14px]`, sport ribbon to `text-[12px]` |
+| `tailwind.config.ts` | Redefine fontSize scale, spacing scale, borderRadius, shadows |
+| `src/index.css` | Update CSS variables, utility classes |
+| `src/components/ui/card.tsx` | Card padding to 10px/14px, border-radius 10px |
+| `src/components/ui/badge.tsx` | Height 20px, px 6px, text 9px |
+| `src/components/ui/button.tsx` | Base text 12px medium, reduce heights |
+| `src/components/ui/input.tsx` | Text 12px, height reduce |
+| `src/components/ui/textarea.tsx` | Text 12px |
+| `src/components/mobile/BottomNavigation.tsx` | 50px height, 20px icons, 9px labels, active pill |
+| `src/components/mobile/PageHeader.tsx` | Title 18px, subtitle 11px |
+| `src/components/mobile/PageContainer.tsx` | Default padding to 14px horizontal |
+| `src/components/mobile/FAB.tsx` | 44px size, adjust bottom position |
+| `src/components/events/EventCard.tsx` | Title 13px, metadata 12px, tighter padding |
+| `src/components/events/EventsList.tsx` | Gap 1 (4px) |
+| `src/components/events/EventAttendees.tsx` | Avatar sizes reduced |
+| `src/components/teams/TeamCard.tsx` | Title 13px, metadata 12px, avatar 32px |
+| `src/components/ui/avatar-stack.tsx` | Reduce all sizes |
+| `src/pages/EventDetail.tsx` | Section headers 11px, spacing space-y-2, tighter hero |
+| `src/pages/Events.tsx` | Gap 1, padding adjustments |
+| `src/pages/Teams.tsx` | Gap 1, space-y-3 sections |
 
 ---
 
-## 1. tailwind.config.ts — Redefine fontSize tokens
+## 1. tailwind.config.ts — New Strava-scale tokens
 
 ```
-"page-title": ["1.25rem", { lineHeight: "1.625rem", fontWeight: "700" }],      // 20px — main screens
-"screen-title": ["1.125rem", { lineHeight: "1.5rem", fontWeight: "700" }],     // 18px — inner pages
-"card-title": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "600" }],      // 14px — card titles
-"section": ["0.75rem", { lineHeight: "1rem", fontWeight: "600" }],             // 12px — section headers
-"body": ["0.8125rem", { lineHeight: "1.25rem" }],                              // 13px — body text
-"body-sm": ["0.75rem", { lineHeight: "1.0625rem" }],                          // 12px
-"caption": ["0.75rem", { lineHeight: "1rem" }],                               // 12px
-"micro": ["0.625rem", { lineHeight: "0.875rem" }],                            // 10px — badges, pills
-// Legacy aliases updated to match
-"display"/"h1": 20px, "h2": 14px, "h3": 13px, "h4": 12px, "body-lg": 13px
+fontSize:
+  "page-title": ["1.125rem", { lineHeight: "1.375rem", fontWeight: "700" }]    // 18px
+  "screen-title": ["1rem", { lineHeight: "1.25rem", fontWeight: "700" }]       // 16px
+  "card-title": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }]   // 13px
+  "section": ["0.6875rem", { lineHeight: "0.875rem", fontWeight: "600" }]      // 11px
+  "body": ["0.75rem", { lineHeight: "1.0625rem" }]                             // 12px
+  "body-sm": ["0.6875rem", { lineHeight: "0.9375rem" }]                        // 11px
+  "caption": ["0.6875rem", { lineHeight: "0.875rem" }]                         // 11px
+  "micro": ["0.5625rem", { lineHeight: "0.75rem" }]                            // 9px
+  + update all legacy aliases (display/h1=18px, h2=13px, h3=12px, h4=11px)
+
+borderRadius:
+  sm: "0.375rem"    // 6px
+  md: "0.5rem"      // 8px  
+  lg: "0.625rem"    // 10px
+  xl: "1rem"        // 16px
+
+boxShadow:
+  "card-soft": "0 1px 4px rgba(0, 0, 0, 0.06)"  // lighter for denser layout
 ```
 
-## 2. src/index.css — Text color CSS variables + utility classes
+## 2. src/index.css — CSS variables
 
-Add to `:root`:
-```css
---text-primary: 220 13% 9%;      /* #111827 */
---text-secondary: 220 9% 26%;    /* #374151 */
---text-muted: 220 5% 46%;        /* #6B7280 */
---text-hint: 220 5% 63%;         /* #9CA3AF */
---text-link: 217 91% 60%;        /* #3B82F6 */
-```
+No changes needed — text color tokens already match spec.
 
-Update `--foreground` to match `#111827` (220 13% 9%).
-Update `--muted-foreground` to match `#6B7280` (220 5% 46%).
+## 3. card.tsx — Compact padding + radius
 
-Add dark mode equivalents that invert appropriately.
+- All variants: `rounded-[10px]` instead of `rounded-2xl`
+- CardHeader: `p-2.5 px-3.5` (10px/14px)
+- CardContent: `p-2.5 px-3.5 pt-0`
+- CardFooter: `p-2.5 px-3.5 pt-0`
+- CardTitle: `text-[13px]`
+- CardDescription: `text-[12px]`
 
-Update utility classes:
-- `.text-subtle` → `color: hsl(var(--text-muted))`
-- Add `.text-hint` → `color: hsl(var(--text-hint))`
-- Add `.text-link` → `color: hsl(var(--text-link))`
+## 4. badge.tsx — 20px height, 9px text
 
-## 3. button.tsx — Base size 13px, font-semibold
+- Base: `text-[9px] font-medium`
+- Size `sm`: `px-1.5 py-0 text-[9px] h-[20px]`
+- Size `xs`: `px-1 py-0 text-[8px] h-3.5`
+- Size `md`: `px-2 py-0.5 text-[10px]`
 
-Change base cva string: `text-sm font-medium` → `text-[13px] font-semibold`
-- `sm` size: keep `text-xs` (matches 12px for small buttons)
-- `lg` size: `text-[13px]` (not text-base)
+## 5. button.tsx — 12px medium labels
 
-## 4. badge.tsx — 10px font-medium
+- Base cva: `text-[12px] font-medium` (was 13px semibold)
+- Size `default`: `h-9 px-3.5 py-2 min-h-[36px]`
+- Size `sm`: `h-8 px-3 py-1.5 text-[11px] min-h-[32px]`
+- Size `lg`: `h-10 px-5 py-2 text-[12px] min-h-[40px]`
+- Size `icon`: `h-9 w-9 min-h-[36px] min-w-[36px]`
 
-Update base cva: `text-[11px] font-semibold` → `text-[10px] font-medium`
+## 6. input.tsx — 12px text, compact height
 
-## 5. card.tsx — CardTitle 14px, CardDescription 13px
+- `h-10` (was h-12), `text-[12px]`, `px-3 py-2`
 
-- CardTitle: `text-[14px] font-semibold`
-- CardDescription: `text-[13px] text-muted-foreground`
+## 7. textarea.tsx — 12px text
 
-## 6. input.tsx + textarea.tsx
+- `text-[12px]`
 
-Change `text-body` → `text-[13px]`
+## 8. BottomNavigation.tsx — 50px, 20px icons, 9px labels
 
-## 7. BottomNavigation.tsx
+- Nav height: `h-[calc(50px+env(safe-area-inset-bottom))]`
+- Icon: `h-5 w-5` (20px)
+- Label: `text-[9px]`
+- Active pill: keep existing `bg-primary/10` approach
+- Tighter gap: `gap-0`
 
-Labels: `text-[11px]` → `text-[10px]`
+## 9. PageHeader.tsx — 18px title, 11px subtitle
 
-## 8. PageHeader.tsx
+- Title: `text-[18px]` (was text-page-title which was 20px)
+- Subtitle: `text-[11px]`
+- Reduce `pb-3` → `pb-2`, `space-y-1` → `space-y-0.5`
+- Back button: `text-[10px]`, `h-6`
 
-Title: `text-page-title` (will now be 20px from token update)
-Subtitle: `text-[12px]` with `text-muted-foreground`
+## 10. PageContainer.tsx — 14px horizontal padding
 
-## 9. EventDetail.tsx
+- `compact`: `px-3.5 py-2`
+- `default`: `px-3.5 py-2`
+- `spacious`: `px-4 py-3`
 
-- Title h1: `text-[22px]` → `text-[18px]`
-- Section headers (3 occurrences at lines 493, 531, 543): `text-[13px]` → `text-[12px] uppercase tracking-[0.6px]`
-- Badge text already uses `text-xs` which maps to 12px — fine
+## 11. FAB.tsx — 44px
 
-## 10. EventCard.tsx
+- `h-11 w-11` (44px, was h-14 w-14)
+- `bottom-16 right-3.5`
 
-- Title: `text-[15px]` → `text-[14px]`
+## 12. EventCard.tsx — Ultra-compact
 
-## 11. TeamCard.tsx
+- Title: `text-[13px]` (was 14px)
+- Time/location metadata: `text-[12px]`
+- DateBlock area: `px-2.5 py-2.5`
+- Content area: `px-2.5 py-2`
+- Gap between rows: `gap-1` (was gap-1.5)
+- Attendance text: `text-[10px]`
+- Public/Private labels: `text-[9px]`
+- Icon sizes in metadata: `h-2.5 w-2.5`
 
-- Title: `text-[15px]` → `text-[14px]`
-- Sport ribbon: `text-[14px]` → `text-[12px]`
-- Description: `text-caption` → already 12px, fine
-- Member count: `text-[13px]` stays
+## 13. EventsList.tsx — 4px gap
+
+- `space-y-1` (was space-y-3)
+
+## 14. EventAttendees.tsx — Smaller avatars
+
+- Main avatar size: `h-6 w-6` (24px for member rows)
+- Reduce from current h-7 w-7
+
+## 15. TeamCard.tsx — Compact
+
+- Title: `text-[13px]`
+- Avatar: `h-8 w-8` (32px, was h-12 w-12)
+- AvatarFallback text: `text-sm` (was text-lg)
+- Sport ribbon: `text-[11px]`, `px-2.5 py-0.5 mt-1 mb-0.5`
+- Description: `text-[11px]`
+- Members row: `text-[12px]`
+- Content padding: `p-2.5`
+- Member row icons: `h-2.5 w-2.5`
+
+## 16. avatar-stack.tsx — Smaller
+
+- `xs`: `h-4 w-4 text-[7px]`
+- `sm`: `h-5 w-5 text-[8px]`
+- `md`: `h-6 w-6 text-[9px]`
+
+## 17. EventDetail.tsx — Tight detail page
+
+- Main container: `space-y-2` (was space-y-3)
+- Section headers: `text-[11px] uppercase tracking-[0.8px]` with `text-hint` color
+- Card content padding: `p-3` (was p-4)
+- Hero `pb-3` → `pb-2`, `pt-3` → `pt-2`
+- Title: `text-[16px]` (was text-screen-title = 18px)
+- Badge text: `text-[10px]` with `px-2 py-0.5`
+- Back button: `h-8` (was h-9)
+- Reduce `mb-3` after badges → `mb-2`
+- Reduce `mb-4` after section headers → `mb-2`
+
+## 18. Events.tsx — Tight list
+
+- Main `space-y-3` → `space-y-2`
+- Tab bar: `h-10` (was h-12), tab text `text-[12px]`
+- Filter chips: `h-7 px-2.5 text-[10px]`
+- Section time group headers: already use `text-section` which will now be 11px
+- Skeleton/loading gaps: `space-y-1`
+
+## 19. Teams.tsx — Tight list
+
+- Main `space-y-6` → `space-y-3`
+- Grid gap: `gap-1` (4px, was gap-2)
+- View toggle pills: `h-8 text-[11px]`
+- Loading skeleton gaps: `gap-1`
+
+---
+
+## Summary
+
+| Token | Before | After |
+|-------|--------|-------|
+| page-title | 20px | 18px |
+| screen-title | 18px | 16px |
+| card-title | 14px | 13px |
+| section | 12px | 11px |
+| body | 13px | 12px |
+| micro | 10px | 9px |
+| Card radius | 16px | 10px |
+| Card gap in lists | 12px | 4px |
+| Card padding | 12-16px | 10-14px |
+| Bottom nav | 52px | 50px |
+| Nav icons | 22px | 20px |
+| Nav labels | 10px | 9px |
+| FAB size | 56px | 44px |
+| Badge height | 22px | 20px |
+| Button height | 40px | 36px |
+| Input height | 48px | 40px |
+| Screen h-padding | 16px | 14px |
+| Team avatar | 48px | 32px |
+| Avatar stack xs | 20px | 16px |
 
