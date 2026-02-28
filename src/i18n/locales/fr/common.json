@@ -54,7 +54,11 @@
     "invite": "Inviter",
     "accept": "Accepter",
     "decline": "Refuser",
-    "viewDetails": "Voir les détails"
+    "viewDetails": "Voir les détails",
+    "post": "Publier",
+    "goHome": "Aller à l'accueil",
+    "tryAgain": "Réessayer",
+    "retrying": "Nouvelle tentative..."
   },
   "time": {
     "today": "Aujourd'hui",
@@ -90,12 +94,15 @@
     "notFound": "Non trouvé",
     "unauthorized": "Non autorisé",
     "networkError": "Erreur de connexion",
-    "tryAgain": "Veuillez réessayer"
+    "tryAgain": "Veuillez réessayer",
+    "somethingWrong": "Un problème est survenu",
+    "somethingWrongDesc": "Nous avons rencontré une erreur inattendue. Veuillez réessayer.",
+    "profileNotFound": "Profil introuvable"
   },
   "home": {
     "welcome": "Bienvenue, {{name}} !",
     "readyToPlay": "Prête à trouver ta prochaine partie ?",
-    "greetingSubtitle": "Prêt·e pour ta prochaine session ?",
+    "greetingSubtitle": "Prête pour ta prochaine session ?",
     "completeProfile": "Complétez votre profil",
     "completeProfileDesc": "Configurez votre profil d'athlète pour commencer et rejoindre la communauté.",
     "createProfile": "Créer un profil",
@@ -142,7 +149,20 @@
     "cancelDescription": "Êtes-vous sûre de vouloir annuler cette invitation ? Cette action est irréversible.",
     "cancelButton": "Annuler l'invitation",
     "invited": "Invitée",
-    "resending": "Renvoi..."
+    "resending": "Renvoi...",
+    "acceptingInvitation": "Acceptation de l'invitation...",
+    "processingInvitation": "Traitement de votre invitation...",
+    "invitationProblem": "Un problème est survenu avec votre invitation",
+    "invitationExpired": "Invitation expirée",
+    "invitationExpiredDesc": "Ce lien d'invitation n'est plus valide. Contactez l'administratrice de l'équipe pour en recevoir un nouveau.",
+    "emailMismatch": "Email différent",
+    "invitedEmail": "Email invité :",
+    "yourEmail": "Votre email actuel :",
+    "emailMismatchDesc": "Pour accepter cette invitation, connectez-vous avec l'adresse email qui l'a reçue.",
+    "signInDifferent": "Se connecter avec un autre email",
+    "redirectingToTeam": "Redirection vers votre équipe...",
+    "needHelp": "Besoin d'aide avec les invitations ?",
+    "loadingTeam": "Chargement des informations de l'équipe..."
   },
   "profile": {
     "title": "Profil",
@@ -162,7 +182,7 @@
     "username": "Nom d'utilisateur",
     "email": "Email",
     "phone": "Téléphone",
-    "followers": "Abonnés",
+    "followers": "Abonnées",
     "following": "Abonnements",
     "teamsLabel": "Équipes",
     "eventsLabel": "Matchs",
@@ -228,7 +248,7 @@
     },
     "teamMembers": {
       "title": "Agrandis ton équipe",
-      "description": "Invite tes amis avec le lien de partage dans les paramètres."
+      "description": "Invite tes amies avec le lien de partage dans les paramètres."
     },
     "gotIt": "Compris !",
     "showMe": "Montre-moi"
@@ -280,5 +300,116 @@
     "title": "Prochain événement",
     "noEvents": "Aucun événement à venir — trouve une partie ou crée-en une !",
     "browseEvents": "Parcourir les événements"
+  },
+  "install": {
+    "title": "Installer Athletica",
+    "subtitle": "Profitez de l'expérience complète",
+    "offline": "Fonctionne hors ligne",
+    "faster": "Chargement plus rapide",
+    "homeScreen": "Ajouter à l'écran d'accueil",
+    "button": "Installer l'app"
+  },
+  "performance": {
+    "title": "Niveaux de performance",
+    "levels": {
+      "beginner": "Débutante",
+      "intermediate": "Intermédiaire",
+      "advanced": "Avancée",
+      "expert": "Experte"
+    },
+    "allLevels": "Tous les niveaux",
+    "unassigned": "Non assigné",
+    "noMembers": "Aucune membre trouvée",
+    "ofTeam": "de l'équipe",
+    "assign": "Attribuer",
+    "assignLevel": "Attribuer un niveau",
+    "assignLevelDesc": "Définir le niveau de performance de cette joueuse",
+    "levelLabel": "Niveau de performance",
+    "notesOptional": "Notes (optionnel)",
+    "notesPlaceholder": "Ajouter des notes sur cette évaluation...",
+    "saving": "Enregistrement...",
+    "manageLevels": "Attribuer et gérer les niveaux de performance des membres",
+    "viewLevels": "Voir les niveaux de performance des membres",
+    "levelDescriptions": {
+      "1": "Performances exceptionnelles",
+      "2": "Compétences solides et constantes",
+      "3": "En progression",
+      "4": "Apprentissage des fondamentaux"
+    }
+  },
+  "attendance": {
+    "title": "Présence",
+    "attending": "Présente",
+    "maybe": "Peut-être",
+    "notAttending": "Absente",
+    "noResponse": "Non répondu",
+    "noOneAttending": "Personne n'est inscrite pour le moment",
+    "noOneMaybe": "Personne n'a répondu peut-être",
+    "everyoneAttending": "Tout le monde est inscrit"
+  },
+  "chat": {
+    "noMessages": "Aucun message. Lancez la conversation !",
+    "loadEarlier": "Charger les messages précédents",
+    "placeholder": "Écrire un message...",
+    "deleteConfirm": "Supprimer ce message ?",
+    "deleteConfirmDesc": "Cette action est irréversible."
+  },
+  "announcement": {
+    "placeholder": "Partager une annonce avec votre équipe...",
+    "textareaPlaceholder": "Qu'avez-vous en tête ?"
+  },
+  "matching": {
+    "matchStatus": "Statut des matchs",
+    "lookingForMatches": "Recherche de matchs",
+    "matchesFound": "{{count}} match trouvé !",
+    "matchesFound_other": "{{count}} matchs trouvés !",
+    "findMatch": "Trouver un match",
+    "commitmentRequired": "Engagement requis",
+    "commitmentDesc": "En acceptant ce match, vous vous engagez à y participer. C'est un engagement ferme pour garantir le fair-play.",
+    "noCancellations": "Les annulations ne sont pas autorisées après acceptation",
+    "onlyAcceptIfCertain": "N'acceptez que si vous êtes certaine de pouvoir y participer.",
+    "acknowledgeCommitment": "Je comprends et m'engage à participer à ce match",
+    "confirmAccept": "Accepter et m'engager"
+  },
+  "teamGeneration": {
+    "noTeams": "Aucune équipe générée",
+    "noTeamsDesc": "Générez des équipes d'entraînement équilibrées selon les niveaux",
+    "generateTeams": "Générer les équipes",
+    "loadingTeams": "Chargement des équipes...",
+    "regenerate": "Régénérer"
+  },
+  "teamAbout": {
+    "addDescription": "Ajouter une description pour présenter ton équipe 💬",
+    "about": "À propos",
+    "showLess": "Voir moins",
+    "readMore": "Lire la suite"
+  },
+  "teamEvents": {
+    "title": "Événements de l'équipe",
+    "subtitle": "Voir et répondre aux événements à venir",
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain",
+    "thisWeek": "Cette semaine",
+    "comingUp": "Prochainement",
+    "noUpcoming": "Aucun événement à venir",
+    "noUpcomingDesc": "Revenez plus tard pour de nouveaux événements",
+    "list": "Liste",
+    "calendar": "Calendrier",
+    "discover": "Découvrir"
+  },
+  "inviteMembers": {
+    "title": "Inviter un membre",
+    "description": "Recherchez par nom d'utilisateur ou invitez par email.",
+    "searchLabel": "Rechercher",
+    "searchPlaceholder": "Rechercher par nom ou email...",
+    "noUsersFound": "Aucune utilisatrice trouvée pour « {{query}} »",
+    "inviteByEmail": "Inviter {{email}} par email",
+    "inviteButton": "Inviter des membres"
+  },
+  "backToTeams": "Retour aux équipes",
+  "users": {
+    "title": "Annuaire",
+    "subtitle": "Parcourir les utilisatrices inscrites",
+    "noUsers": "Aucune utilisatrice trouvée"
   }
 }

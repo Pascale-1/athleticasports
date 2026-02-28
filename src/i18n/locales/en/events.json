@@ -7,7 +7,11 @@
     "selectTypeDesc": "Select the type of event you want to create",
     "trainingDesc": "Practice, run, or work out together",
     "meetupDesc": "Watch parties, dinners, team bonding",
-    "gameDesc": "Pickup or competitive games"
+    "gameDesc": "Pickup or competitive games",
+    "successTitle": "Event created!",
+    "successDesc": "Your event is ready",
+    "close": "Close",
+    "createAnother": "Create another"
   },
   "upcoming": "Upcoming",
   "past": "Past",

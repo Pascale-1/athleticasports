@@ -7,7 +7,11 @@
     "selectTypeDesc": "Sélectionnez le type d'événement à créer",
     "trainingDesc": "Sport ou entraînement",
     "meetupDesc": "Sorties et social",
-    "gameDesc": "Contre un adversaire"
+    "gameDesc": "Contre un adversaire",
+    "successTitle": "Évènement créé !",
+    "successDesc": "Ton événement est prêt",
+    "close": "Fermer",
+    "createAnother": "Créer un autre"
   },
   "upcoming": "À venir",
   "past": "Passés",
@@ -72,7 +76,7 @@
     "showLess": "Voir moins",
     "readMore": "Lire la suite",
     "confirmDelete": "Supprimer cet événement ?",
-    "deleteWarning": "Cette action est irréversible. Tous les participants seront notifiés.",
+    "deleteWarning": "Cette action est irréversible. Toutes les participantes seront notifiées.",
     "deleteEvent": "Supprimer",
     "deleteSuccess": "Événement supprimé",
     "eventDeleted": "L'événement a été définitivement supprimé"
@@ -80,7 +84,7 @@
   "detail": {
     "notFound": {
       "title": "Événement introuvable",
-      "description": "Cet événement a peut-être été annulé ou supprimé par l'organisateur.",
+      "description": "Cet événement a peut-être été annulé ou supprimé par l'organisatrice.",
       "backToEvents": "Parcourir les événements"
     }
   },
@@ -95,7 +99,7 @@
     "notGoing": "Je ne peux pas",
     "maybe": "Peut-être",
     "respond": "Répondre",
-    "attending": "Participants",
+    "attending": "Participantes",
     "notAttending": "Ne participent pas",
     "pass": "Passe",
     "committed": "Engagée",
@@ -167,9 +171,9 @@
     "maxParticipants": "Nombre max de participants",
     "participants": "Participants",
     "isPublic": "Événement public",
-    "isPublicDesc": "Visible par tous les utilisateurs",
+    "isPublicDesc": "Visible par toutes les utilisatrices",
     "isPrivate": "Événement privé",
-    "isPrivateDesc": "Seuls les membres invités peuvent voir",
+    "isPrivateDesc": "Seules les membres invitées peuvent voir",
     "moreOptions": "Plus d'options",
     "sport": "Sport",
     "selectSport": "Sélectionner un sport",
@@ -209,14 +213,14 @@
       "intensity_intense": "Intense"
     },
     "meetup": {
-      "title": "Titre du meetup",
+      "title": "Titre de la sortie",
       "titlePlaceholder": "ex: Dîner et soirée équipe",
       "descPlaceholder": "Quel est le programme ?",
       "category": "Catégorie",
       "selectCategory": "Sélectionner une catégorie",
       "physicalLocation": "Lieu physique (optionnel)",
       "virtualLink": "Lien virtuel (optionnel)",
-      "create": "Créer le meetup"
+      "create": "Créer la sortie"
     },
     "game": {
       "title": "Titre de la partie",
@@ -271,8 +275,8 @@
       "neutral": "Neutre"
     },
     "format": "Format de la partie",
-    "lookingForPlayers": "Recherche de participants",
-    "playersNeeded": "Participants recherchés",
+    "lookingForPlayers": "Recherche de participantes",
+    "playersNeeded": "Participantes recherchées",
     "needPlayers": "Besoin de {{count}}"
   },
   "filters": {
@@ -297,7 +301,7 @@
     "clearFilters": "Effacer les filtres"
   },
   "invite": {
-    "title": "Inviter des participants",
+    "title": "Inviter des participantes",
     "shareEvent": "Partager l'événement",
     "shareLink": "Partager le lien",
     "linkCopied": "Lien copié dans le presse-papier",
@@ -318,6 +322,19 @@
     "successDesc": "Vos modifications ont été enregistrées",
     "error": "Échec de la mise à jour"
   },
+  "views": {
+    "list": "Liste",
+    "calendar": "Calendrier"
+  },
+  "categories": {
+    "watchParty": "Visionnage",
+    "postGame": "Apéro",
+    "teamDinner": "Repas",
+    "social": "Social",
+    "fitness": "Fitness",
+    "activity": "Activité",
+    "other": "Autre"
+  },
   "calendar": {
     "hasEvents": "Contient des événements",
     "selectDate": "Sélectionnez une date",
@@ -330,16 +347,16 @@
     "downloadICS": "Télécharger fichier .ics"
   },
   "lookingForPlayers": {
-    "title": "Recherche de participants",
-    "description": "Trouvez des personnes pour votre événement",
+    "title": "Recherche de participantes",
+    "description": "Trouvez des joueuses pour votre événement",
     "spotsLeft": "{{count}} place restante",
     "spotsLeft_other": "{{count}} places restantes",
     "joined": "inscrites",
     "includingYou": "(vous incluse)",
-    "toggle": "Besoin de plus de participants ?",
-    "playersNeeded": "Combien de participants ?",
-    "player": "participant",
-    "players": "participants"
+    "toggle": "Besoin de plus de participantes ?",
+    "playersNeeded": "Combien de participantes ?",
+    "player": "participante",
+    "players": "participantes"
   },
   "rsvpDeadline": {
     "title": "Date limite de réponse",
@@ -366,7 +383,7 @@
     "rejected": "Refusée",
     "alreadyRequested": "En attente",
     "requestSent": "Demande envoyée !",
-    "requestSentDesc": "L'organisateur examinera votre demande",
+    "requestSentDesc": "L'organisatrice examinera votre demande",
     "noRequests": "Aucune demande"
   },
   "conflicts": {
@@ -376,15 +393,6 @@
   },
   "smartDefaults": {
     "usingTeamVenue": "Utilisation du lieu par défaut de l'équipe"
-  },
-  "categories": {
-    "watchParty": "Visionnage",
-    "postGame": "Apéro",
-    "teamDinner": "Repas",
-    "social": "Social",
-    "fitness": "Fitness",
-    "activity": "Activité",
-    "other": "Autre"
   },
   "cost": {
     "label": "Tarif",

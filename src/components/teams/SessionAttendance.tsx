@@ -1,5 +1,6 @@
 import { Check, X, HelpCircle, Users, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +25,7 @@ export const SessionAttendance = ({
   currentUserId,
   isPastSession = false,
 }: SessionAttendanceProps) => {
+  const { t } = useTranslation("common");
   const { attendance, stats, userStatus, loading, setAttendance } = useSessionAttendance(
     sessionId,
     totalMembers
@@ -34,7 +36,7 @@ export const SessionAttendance = ({
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Attendance</CardTitle>
+          <CardTitle>{t("attendance.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-20 w-full" />
@@ -56,54 +58,48 @@ export const SessionAttendance = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Users className="h-5 w-5" />
-          Attendance
+          {t("attendance.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Quick Stats */}
         <div className="flex flex-wrap gap-2">
           <Badge variant="default" className="bg-success hover:bg-success/90">
             <Check className="h-3 w-3 mr-1" />
-            {stats.attending} Attending
+            {stats.attending} {t("attendance.attending")}
           </Badge>
           <Badge variant="secondary" className="bg-primary hover:bg-primary/90 text-primary-foreground">
             <HelpCircle className="h-3 w-3 mr-1" />
-            {stats.maybe} Maybe
+            {stats.maybe} {t("attendance.maybe")}
           </Badge>
           <Badge variant="destructive">
             <X className="h-3 w-3 mr-1" />
-            {stats.not_attending} Not Attending
+            {stats.not_attending} {t("attendance.notAttending")}
           </Badge>
           <Badge variant="outline">
             <Users className="h-3 w-3 mr-1" />
-            {stats.not_responded} No Response
+            {stats.not_responded} {t("attendance.noResponse")}
           </Badge>
         </div>
 
-        {/* User Response Buttons */}
         {!isPastSession && (
           <div className="flex gap-2">
             <Button
               variant={userStatus === "attending" ? "default" : "outline"}
               size="sm"
               onClick={() => setAttendance("attending")}
-              className={cn(
-                userStatus === "attending" && "bg-success hover:bg-success/90"
-              )}
+              className={cn(userStatus === "attending" && "bg-success hover:bg-success/90")}
             >
               <Check className="h-4 w-4 mr-1" />
-              Attending
+              {t("attendance.attending")}
             </Button>
             <Button
               variant={userStatus === "maybe" ? "default" : "outline"}
               size="sm"
               onClick={() => setAttendance("maybe")}
-              className={cn(
-                userStatus === "maybe" && "bg-primary hover:bg-primary/90"
-              )}
+              className={cn(userStatus === "maybe" && "bg-primary hover:bg-primary/90")}
             >
               <HelpCircle className="h-4 w-4 mr-1" />
-              Maybe
+              {t("attendance.maybe")}
             </Button>
             <Button
               variant={userStatus === "not_attending" ? "destructive" : "outline"}
@@ -111,119 +107,76 @@ export const SessionAttendance = ({
               onClick={() => setAttendance("not_attending")}
             >
               <X className="h-4 w-4 mr-1" />
-              Not Attending
+              {t("attendance.notAttending")}
             </Button>
           </div>
         )}
 
-        {/* Detailed Lists for Coaches/Admins */}
         {canViewDetails && (
           <div className="space-y-2 pt-4 border-t">
-            {/* Attending List */}
-            <Collapsible
-              open={expandedSection === "attending"}
-              onOpenChange={() => toggleSection("attending")}
-            >
+            <Collapsible open={expandedSection === "attending"} onOpenChange={() => toggleSection("attending")}>
               <CollapsibleTrigger className="flex items-center justify-between w-full p-2 rounded-md hover:bg-muted">
                 <div className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-success" />
-                  <span className="font-medium">Attending ({stats.attending})</span>
+                  <span className="font-medium">{t("attendance.attending")} ({stats.attending})</span>
                 </div>
-                {expandedSection === "attending" ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
+                {expandedSection === "attending" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </CollapsibleTrigger>
               <CollapsibleContent className="pt-2 space-y-2">
                 {getAttendanceByStatus("attending").map((item) => (
                   <div key={item.id} className="flex items-center gap-2 p-2 rounded-md bg-muted/50">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={item.profile?.avatar_url || undefined} />
-                      <AvatarFallback>
-                        {(item.profile?.display_name || item.profile?.username || "U")[0].toUpperCase()}
-                      </AvatarFallback>
+                      <AvatarFallback>{(item.profile?.display_name || item.profile?.username || "U")[0].toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <span className="text-sm">
-                      {item.profile?.display_name || item.profile?.username}
-                    </span>
+                    <span className="text-sm">{item.profile?.display_name || item.profile?.username}</span>
                   </div>
                 ))}
-                {stats.attending === 0 && (
-                  <p className="text-sm text-muted-foreground">No one attending yet</p>
-                )}
+                {stats.attending === 0 && <p className="text-sm text-muted-foreground">{t("attendance.noOneAttending")}</p>}
               </CollapsibleContent>
             </Collapsible>
 
-            {/* Maybe List */}
-            <Collapsible
-              open={expandedSection === "maybe"}
-              onOpenChange={() => toggleSection("maybe")}
-            >
+            <Collapsible open={expandedSection === "maybe"} onOpenChange={() => toggleSection("maybe")}>
               <CollapsibleTrigger className="flex items-center justify-between w-full p-2 rounded-md hover:bg-muted">
                 <div className="flex items-center gap-2">
                   <HelpCircle className="h-4 w-4 text-primary" />
-                  <span className="font-medium">Maybe ({stats.maybe})</span>
+                  <span className="font-medium">{t("attendance.maybe")} ({stats.maybe})</span>
                 </div>
-                {expandedSection === "maybe" ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
+                {expandedSection === "maybe" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </CollapsibleTrigger>
               <CollapsibleContent className="pt-2 space-y-2">
                 {getAttendanceByStatus("maybe").map((item) => (
                   <div key={item.id} className="flex items-center gap-2 p-2 rounded-md bg-muted/50">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={item.profile?.avatar_url || undefined} />
-                      <AvatarFallback>
-                        {(item.profile?.display_name || item.profile?.username || "U")[0].toUpperCase()}
-                      </AvatarFallback>
+                      <AvatarFallback>{(item.profile?.display_name || item.profile?.username || "U")[0].toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <span className="text-sm">
-                      {item.profile?.display_name || item.profile?.username}
-                    </span>
+                    <span className="text-sm">{item.profile?.display_name || item.profile?.username}</span>
                   </div>
                 ))}
-                {stats.maybe === 0 && (
-                  <p className="text-sm text-muted-foreground">No one marked as maybe</p>
-                )}
+                {stats.maybe === 0 && <p className="text-sm text-muted-foreground">{t("attendance.noOneMaybe")}</p>}
               </CollapsibleContent>
             </Collapsible>
 
-            {/* Not Attending List */}
-            <Collapsible
-              open={expandedSection === "not_attending"}
-              onOpenChange={() => toggleSection("not_attending")}
-            >
+            <Collapsible open={expandedSection === "not_attending"} onOpenChange={() => toggleSection("not_attending")}>
               <CollapsibleTrigger className="flex items-center justify-between w-full p-2 rounded-md hover:bg-muted">
                 <div className="flex items-center gap-2">
                   <X className="h-4 w-4 text-destructive" />
-                  <span className="font-medium">Not Attending ({stats.not_attending})</span>
+                  <span className="font-medium">{t("attendance.notAttending")} ({stats.not_attending})</span>
                 </div>
-                {expandedSection === "not_attending" ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
+                {expandedSection === "not_attending" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </CollapsibleTrigger>
               <CollapsibleContent className="pt-2 space-y-2">
                 {getAttendanceByStatus("not_attending").map((item) => (
                   <div key={item.id} className="flex items-center gap-2 p-2 rounded-md bg-muted/50">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={item.profile?.avatar_url || undefined} />
-                      <AvatarFallback>
-                        {(item.profile?.display_name || item.profile?.username || "U")[0].toUpperCase()}
-                      </AvatarFallback>
+                      <AvatarFallback>{(item.profile?.display_name || item.profile?.username || "U")[0].toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <span className="text-sm">
-                      {item.profile?.display_name || item.profile?.username}
-                    </span>
+                    <span className="text-sm">{item.profile?.display_name || item.profile?.username}</span>
                   </div>
                 ))}
-                {stats.not_attending === 0 && (
-                  <p className="text-sm text-muted-foreground">Everyone is attending</p>
-                )}
+                {stats.not_attending === 0 && <p className="text-sm text-muted-foreground">{t("attendance.everyoneAttending")}</p>}
               </CollapsibleContent>
             </Collapsible>
           </div>

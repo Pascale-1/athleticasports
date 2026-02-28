@@ -84,17 +84,17 @@ export const CreateEventDialog = ({
           <div className="flex flex-col items-center justify-center py-12 px-6 text-center animate-scale-in">
             <span className="text-5xl mb-4">{sportEmoji}</span>
             <h2 className="text-[24px] font-bold mb-2">
-              {t('create.successTitle', { defaultValue: i18n.language?.startsWith('fr') ? 'Évènement créé !' : 'Event created!' })} 🎉
+              {t('create.successTitle')} 🎉
             </h2>
             <p className="text-sm text-muted-foreground mb-6">
-              {t('create.successDesc', { defaultValue: i18n.language?.startsWith('fr') ? 'Ton événement est prêt' : 'Your event is ready' })}
+              {t('create.successDesc')}
             </p>
             <div className="flex flex-col gap-2 w-full">
               <Button onClick={handleClose}>
-                {t('create.close', { defaultValue: i18n.language?.startsWith('fr') ? 'Fermer' : 'Close' })}
+                {t('create.close')}
               </Button>
               <Button variant="ghost" onClick={handleCreateAnother}>
-                {t('create.createAnother', { defaultValue: i18n.language?.startsWith('fr') ? 'Créer un autre' : 'Create another' })}
+                {t('create.createAnother')}
               </Button>
             </div>
           </div>
