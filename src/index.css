@@ -131,6 +131,16 @@
     --sport-basketball: 36 100% 5%;   /* #1A1000 — deep amber */
     --sport-volleyball: 260 33% 7%;   /* #0F0A1A — deep indigo */
     --sport-running: 30 100% 5%;      /* #1A0F00 — deep orange */
+
+    /* Event type colors — dark */
+    --event-match-bg: 43 30% 9%;
+    --event-match-border: 43 50% 54%;
+    --event-training-bg: 140 30% 6%;
+    --event-training-border: 140 30% 38%;
+    --event-social-bg: 0 20% 9%;
+    --event-social-border: 0 20% 58%;
+    --event-other-bg: 228 20% 8%;
+    --event-other-border: 218 18% 53%;
   }
 
   /* Dark-first system — dark mirrors root */
@@ -198,6 +208,89 @@
     --sport-basketball: 36 100% 5%;
     --sport-volleyball: 260 33% 7%;
     --sport-running: 30 100% 5%;
+    --event-match-bg: 43 30% 9%;
+    --event-match-border: 43 50% 54%;
+    --event-training-bg: 140 30% 6%;
+    --event-training-border: 140 30% 38%;
+    --event-social-bg: 0 20% 9%;
+    --event-social-border: 0 20% 58%;
+    --event-other-bg: 228 20% 8%;
+    --event-other-border: 218 18% 53%;
+  }
+
+  /* Light mode — Championship Gold on Warm Parchment */
+  .light {
+    --background: 36 23% 96%;           /* #F8F6F1 */
+    --foreground: 24 18% 8%;            /* #1A1410 */
+    --text-primary: 24 18% 8%;
+    --text-secondary: 18 10% 22%;       /* #3D3530 */
+    --text-muted: 24 10% 44%;           /* #7A6F65 */
+    --text-hint: 24 7% 62%;             /* #A89F95 */
+    --text-link: 36 55% 40%;            /* #9A7230 */
+    --card: 0 0% 100%;
+    --card-foreground: 24 18% 8%;
+    --popover: 36 15% 92%;              /* #F0EDE6 */
+    --popover-foreground: 24 18% 8%;
+    --primary: 36 55% 40%;              /* #9A7230 */
+    --primary-light: 36 55% 45%;
+    --primary-dark: 36 55% 32%;         /* #7D5C27 */
+    --primary-foreground: 0 0% 100%;    /* white on gold */
+    --primary-subtle: 42 85% 93%;       /* #FDF3DC */
+    --accent: 43 50% 54%;               /* #C9A84C */
+    --accent-foreground: 36 55% 32%;    /* #7D5C27 */
+    --accent-subtle: 44 85% 96%;        /* #FDF8EC */
+    --muted: 36 15% 92%;
+    --muted-foreground: 24 10% 44%;
+    --destructive: 0 72% 51%;           /* #DC2626 */
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 64% 37%;             /* #16A34A */
+    --success-foreground: 0 0% 100%;
+    --warning: 43 50% 54%;
+    --warning-foreground: 36 55% 32%;
+    --info: 36 55% 40%;
+    --info-foreground: 0 0% 100%;
+    --match: 43 50% 54%;
+    --match-foreground: 36 55% 32%;
+    --border: 33 18% 87%;               /* #E5E0D5 */
+    --input: 36 15% 92%;
+    --ring: 36 55% 40%;
+    --neutral-50: 0 0% 98%;
+    --neutral-100: 0 0% 96%;
+    --neutral-200: 36 15% 92%;
+    --neutral-300: 33 18% 87%;
+    --neutral-400: 24 7% 62%;
+    --neutral-500: 24 10% 44%;
+    --neutral-600: 18 10% 22%;
+    --neutral-700: 24 18% 14%;
+    --neutral-800: 24 18% 10%;
+    --neutral-900: 24 18% 8%;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 4px 12px -2px rgb(0 0 0 / 0.08);
+    --shadow-xl: 0 8px 16px -4px rgb(0 0 0 / 0.1);
+    --shadow-2xl: 0 16px 32px -8px rgb(0 0 0 / 0.12);
+    --shadow-colored: 0 4px 12px rgba(154, 114, 48, 0.1);
+    --shadow-colored-lg: 0 6px 16px rgba(154, 114, 48, 0.15);
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 24 10% 44%;
+    --sidebar-primary: 36 55% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 36 15% 92%;
+    --sidebar-accent-foreground: 24 18% 8%;
+    --sidebar-border: 33 18% 87%;
+    --sidebar-ring: 36 55% 40%;
+    --sport-football: 120 30% 94%;      /* #EBF5EB */
+    --sport-basketball: 40 90% 94%;     /* #FEF6E4 */
+    --sport-volleyball: 260 100% 97%;   /* #F3F0FF */
+    --sport-running: 28 90% 95%;        /* #FEF0E6 */
+    --event-match-bg: 44 85% 96%;
+    --event-match-border: 43 50% 54%;
+    --event-training-bg: 130 30% 94%;
+    --event-training-border: 140 30% 38%;
+    --event-social-bg: 0 50% 97%;
+    --event-social-border: 0 20% 58%;
+    --event-other-bg: 225 30% 95%;
+    --event-other-border: 218 18% 53%;
   }
 }
 
