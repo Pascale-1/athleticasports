@@ -14,7 +14,7 @@ import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { EditEventDialog } from "@/components/events/EditEventDialog";
 import { EventsList } from "@/components/events/EventsList";
 import { EventCalendar } from "@/components/events/EventCalendar";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EventCardSkeleton } from "@/components/events/EventCardSkeleton";
 import { Input } from "@/components/ui/input";
 import { isToday, isTomorrow, isThisWeek, isFuture } from "date-fns";
 import type { Event } from "@/lib/events";
@@ -308,7 +308,7 @@ const Events = () => {
             {discoverLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-28 w-full rounded-xl" />
+                  <EventCardSkeleton key={i} />
                 ))}
               </div>
             ) : discoverEvents.length > 0 ? (
@@ -333,7 +333,7 @@ const Events = () => {
             {createdEventsLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-28 w-full rounded-xl" />
+                  <EventCardSkeleton key={i} />
                 ))}
               </div>
             ) : filteredCreatedEvents.length > 0 ? (
@@ -365,7 +365,7 @@ const Events = () => {
             {attendingLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-28 w-full rounded-xl" />
+                  <EventCardSkeleton key={i} />
                 ))}
               </div>
             ) : viewMode === 'calendar' ? (

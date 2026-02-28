@@ -1,9 +1,25 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { UnifiedEventForm } from "./UnifiedEventForm";
 import { CreateEventData, useEvents } from "@/hooks/useEvents";
 import { EventType } from "@/lib/eventConfig";
+
+const SPORT_EMOJIS: Record<string, string> = {
+  football: "⚽",
+  basketball: "🏀",
+  tennis: "🎾",
+  volleyball: "🏐",
+  rugby: "🏉",
+  handball: "🤾",
+  badminton: "🏸",
+  padel: "🎾",
+  running: "🏃",
+  cycling: "🚴",
+  swimming: "🏊",
+};
 
 interface CreateEventDialogProps {
   open: boolean;
@@ -24,9 +40,13 @@ export const CreateEventDialog = ({
   createEvent: parentCreateEvent,
   onCreated
 }: CreateEventDialogProps) => {
+  const { t } = useTranslation('events');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [activeType, setActiveType] = useState<EventType>(defaultType);
+  const [lastSport, setLastSport] = useState<string | undefined>(sport);
   const { createEvent: internalCreateEvent } = useEvents(teamId);
+
   const handleSubmit = async (data: CreateEventData) => {
     setIsSubmitting(true);
     const createFn = parentCreateEvent ?? internalCreateEvent;
@@ -34,8 +54,9 @@ export const CreateEventDialog = ({
     setIsSubmitting(false);
     
     if (success) {
+      setLastSport(data.sport || sport);
       onCreated?.();
-      onOpenChange(false);
+      setShowSuccess(true);
     }
     
     return success;
@@ -45,18 +66,47 @@ export const CreateEventDialog = ({
     onOpenChange(false);
   };
 
+  const handleClose = () => {
+    setShowSuccess(false);
+    onOpenChange(false);
+  };
+
+  const handleCreateAnother = () => {
+    setShowSuccess(false);
+  };
+
+  const sportEmoji = SPORT_EMOJIS[lastSport || sport || ''] || '🎉';
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); else onOpenChange(o); }}>
       <DialogContent aria-describedby={undefined} className="max-w-md w-[calc(100%-2rem)] mx-auto max-h-[90vh] flex flex-col overflow-hidden pb-0 pt-0 px-0 rounded-2xl border-border/50 bg-background">
-        <UnifiedEventForm
-          teamId={teamId}
-          sport={sport}
-          defaultType={defaultType}
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-          isSubmitting={isSubmitting}
-          onTypeChange={setActiveType}
-        />
+        {showSuccess ? (
+          <div className="flex flex-col items-center justify-center py-12 px-6 text-center animate-scale-in">
+            <span className="text-5xl mb-4">{sportEmoji}</span>
+            <h2 className="text-[24px] font-bold mb-2">Événement créé ! 🎉</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              {t('create.successDesc', { defaultValue: 'Ton événement est prêt' })}
+            </p>
+            <div className="flex flex-col gap-2 w-full">
+              <Button onClick={handleClose}>
+                {t('create.close', { defaultValue: 'Fermer' })}
+              </Button>
+              <Button variant="ghost" onClick={handleCreateAnother}>
+                {t('create.createAnother', { defaultValue: 'Créer un autre' })}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <UnifiedEventForm
+            teamId={teamId}
+            sport={sport}
+            defaultType={defaultType}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            isSubmitting={isSubmitting}
+            onTypeChange={setActiveType}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

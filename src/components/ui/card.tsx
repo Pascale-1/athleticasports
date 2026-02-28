@@ -10,8 +10,8 @@ const Card = React.forwardRef<
   }
 >(({ className, variant = "default", accent, ...props }, ref) => {
   const variantStyles = {
-    default: "rounded-2xl border bg-card text-card-foreground transition-all duration-200",
-    elevated: "rounded-2xl bg-card text-card-foreground border transition-all duration-200",
+    default: "rounded-2xl border bg-card text-card-foreground transition-all duration-200 active:scale-[0.99]",
+    elevated: "rounded-2xl bg-card text-card-foreground border transition-all duration-200 active:scale-[0.99]",
     bordered: "rounded-2xl border-2 border-border bg-card text-card-foreground transition-all duration-200 hover:border-primary/30",
     "gradient-border": "rounded-2xl bg-primary p-[2px] transition-all duration-200",
     glass: "rounded-2xl bg-background/80 backdrop-blur-md border border-border/50 text-card-foreground transition-all duration-200",

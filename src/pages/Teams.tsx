@@ -4,13 +4,14 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2, Users, Search as SearchIcon } from "lucide-react";
+import { Plus, Users, Search as SearchIcon } from "lucide-react";
 import { Team } from "@/lib/teams";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
 import { TeamSearchBar } from "@/components/teams/TeamSearchBar";
 import { TeamCard } from "@/components/teams/TeamCard";
 import { TeamCardSkeleton } from "@/components/teams/TeamCardSkeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { FAB } from "@/components/mobile/FAB";
 import { EmptyState } from "@/components/EmptyState";
 import { useTeamFilters } from "@/hooks/useTeamFilters";
@@ -150,8 +151,18 @@ const Teams = () => {
 
   if (loading) {
     return (
-      <PageContainer className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <PageContainer>
+        <div className="space-y-6 pt-4">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-40" />
+            <Skeleton className="h-4 w-56" />
+          </div>
+          <div className="grid grid-cols-1 gap-3">
+            {[1, 2, 3].map((i) => (
+              <TeamCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
       </PageContainer>
     );
   }
