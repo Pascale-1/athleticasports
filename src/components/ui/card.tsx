@@ -10,14 +10,14 @@ const Card = React.forwardRef<
   }
 >(({ className, variant = "default", accent, ...props }, ref) => {
   const variantStyles = {
-    default: "rounded-[14px] shadow-[0_2px_12px_rgba(124,58,237,0.15)] bg-card text-card-foreground transition-all duration-200 active:scale-[0.99]",
-    elevated: "rounded-[14px] shadow-[0_2px_12px_rgba(124,58,237,0.15)] bg-card text-card-foreground transition-all duration-200 active:scale-[0.99]",
+    default: "rounded-[14px] shadow-[0_2px_12px_rgba(56,189,248,0.10)] bg-card text-card-foreground transition-all duration-200 active:scale-[0.99]",
+    elevated: "rounded-[14px] shadow-[0_2px_12px_rgba(56,189,248,0.10)] bg-card text-card-foreground transition-all duration-200 active:scale-[0.99]",
     bordered: "rounded-[14px] border-2 border-border bg-card text-card-foreground transition-all duration-200 hover:border-primary/30",
     "gradient-border": "rounded-[14px] bg-primary p-[2px] transition-all duration-200",
     glass: "rounded-[14px] bg-background/80 backdrop-blur-md border border-border/50 text-card-foreground transition-all duration-200",
-    highlighted: "rounded-[14px] shadow-[0_2px_12px_rgba(124,58,237,0.15)] bg-primary/5 ring-2 ring-primary/20 text-card-foreground transition-all duration-200",
+    highlighted: "rounded-[14px] shadow-[0_2px_12px_rgba(56,189,248,0.10)] bg-primary/5 ring-2 ring-primary/20 text-card-foreground transition-all duration-200",
     muted: "rounded-[14px] border border-muted bg-muted/30 text-card-foreground transition-all duration-200",
-    interactive: "rounded-[14px] shadow-[0_2px_12px_rgba(124,58,237,0.15)] bg-card text-card-foreground transition-all duration-150 cursor-pointer active:scale-[0.98] hover:shadow-md",
+    interactive: "rounded-[14px] shadow-[0_2px_12px_rgba(56,189,248,0.10)] bg-card text-card-foreground transition-all duration-150 cursor-pointer active:scale-[0.98] hover:shadow-md",
   };
 
   const accentStyles = {
