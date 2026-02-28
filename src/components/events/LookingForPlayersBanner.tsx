@@ -21,12 +21,16 @@ export const LookingForPlayersBanner = ({
 }: LookingForPlayersBannerProps) => {
   const { t } = useTranslation("events");
 
-  // Dynamic spots calculation - updates as people join/leave
-  const totalSpots = maxParticipants || playersNeeded;
-  const spotsRemaining = Math.max(0, totalSpots - currentAttending);
-  const fillPercentage = Math.min(100, Math.round((currentAttending / totalSpots) * 100));
+  // Calculate spots remaining based on players_needed fulfillment
+  // If maxParticipants is set, also cap by remaining capacity
+  const capacityRemaining = maxParticipants ? Math.max(0, maxParticipants - currentAttending) : Infinity;
+  const spotsRemaining = Math.max(0, Math.min(playersNeeded, capacityRemaining));
+  
+  // Progress tracks how many of the needed players have joined
+  const filled = Math.max(0, playersNeeded - spotsRemaining);
+  const fillPercentage = playersNeeded > 0 ? Math.min(100, Math.round((filled / playersNeeded) * 100)) : 0;
 
-  // Hide banner when full
+  // Hide banner when all needed players have joined
   if (spotsRemaining <= 0) {
     return null;
   }
@@ -59,7 +63,7 @@ export const LookingForPlayersBanner = ({
         />
         
         <p className="text-xs text-muted-foreground mt-1">
-          {currentAttending}/{totalSpots} {t("lookingForPlayers.joined", "players joined")}
+          {filled}/{playersNeeded} {t("lookingForPlayers.joined", "players joined")}
           {isUserAttending && (
             <span className="text-primary"> {t("lookingForPlayers.includingYou", "(including you)")}</span>
           )}

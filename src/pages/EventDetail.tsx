@@ -477,9 +477,9 @@ const EventDetail = () => {
                   <span className="text-[20px] font-bold text-foreground">
                     {stats.attending} / {event.max_participants}
                   </span>
-                  {event.looking_for_players && event.max_participants > stats.attending && (
+              {event.looking_for_players && (event.max_participants ?? Infinity) > stats.attending && (
                     <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold bg-[rgba(167,139,250,0.10)] text-[#A78BFA]">
-                      🔍 {event.max_participants - stats.attending} {t('details.maxParticipants')}
+                      🔍 {(event.max_participants ?? event.players_needed ?? 0) - stats.attending} {t('details.maxParticipants')}
                     </span>
                   )}
                   {event.max_participants <= stats.attending && (
