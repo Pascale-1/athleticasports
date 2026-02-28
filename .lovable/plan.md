@@ -1,129 +1,163 @@
 
 
-# Fix 10 Issues Across Athletica App
+# Modernize Athletica App UI
 
-## Files to modify
-
-| # | Issue | File(s) |
-|---|-------|---------|
-| 1 | Raw i18n key "types.match" in badge | `src/components/events/EventCard.tsx` — no code change needed, translation works. Investigate `EventTypeSelector` and any other badge usage |
-| 2 | Markdown in announcements | `src/components/teams/AnnouncementCard.tsx` |
-| 3 | System announcement author | `src/components/teams/AnnouncementCard.tsx` |
-| 4 | Duplicate attendance count | `src/components/events/EventRSVPBar.tsx` |
-| 5 | Simplify RSVP bar (toggle, remove cancel) | `src/components/events/EventRSVPBar.tsx` — already a toggle, just remove cancel button |
-| 6 | FAB overlapping last item | `src/pages/Teams.tsx`, `src/pages/Events.tsx` |
-| 7 | Team sport category headers | `src/components/teams/TeamCard.tsx` — sport ribbon font size |
-| 8 | Empty/placeholder About text | `src/components/teams/TeamAboutSection.tsx`, `src/pages/EventDetail.tsx` |
-| 9 | Performance level labels | `src/components/teams/PerformanceLevelBadge.tsx`, `src/components/teams/PerformanceLevelsTab.tsx` |
-| 10 | Event detail vertical spacing | `src/pages/EventDetail.tsx` |
+This is a large visual overhaul touching typography, spacing, shadows, navigation, and several component refinements across ~15 files. No logic or data changes.
 
 ---
 
-## 1. Fix raw i18n key in event type badge
+## Files to modify
 
-The translation files have `types.game: "Match"` (FR) and `types.game: "Game"` (EN). The code uses `getEventTypeKey()` which maps `match` → `game`. This should work. Need to check if `t()` is being called without the namespace. In `EventDetail.tsx` line 311: `t(\`types.${getEventTypeKey(event.type)}\`)` — this uses the `events` namespace, which has `types.game`. This is correct.
+| File | Changes |
+|------|---------|
+| `tailwind.config.ts` | Update semantic font size scale, add `card-soft` shadow |
+| `src/index.css` | Add sport-accent utility classes |
+| `src/components/ui/card.tsx` | Replace border with soft shadow on default/interactive variants |
+| `src/components/ui/badge.tsx` | Update default size to h-[22px] px-2, 11px medium |
+| `src/components/mobile/BottomNavigation.tsx` | Reduce to 52px, 22px icons, 11px labels, add active pill bg |
+| `src/components/mobile/PageHeader.tsx` | Title to 22px bold |
+| `src/components/events/EventCard.tsx` | Title 15px, metadata 13px #6B7280, truncate address to city |
+| `src/components/events/EventAttendees.tsx` | Avatars 28px, auto-expand if ≤5 attendees |
+| `src/components/events/EventRSVPBar.tsx` | Already good — no changes needed |
+| `src/components/teams/TeamCard.tsx` | Title 15px, sport ribbon as slim separator (6px top/4px bottom), add sport accent left border, metadata 13px |
+| `src/components/teams/TeamMemberCard.tsx` | Unify owner/admin badge: gold pill for owner, blue pill for admin with icon |
+| `src/pages/EventDetail.tsx` | Section headers 14px semibold uppercase tracking-wider, reduce spacing to 12px, tighten header area |
+| `src/pages/Events.tsx` | Card gap to 8px, horizontal padding 16px |
+| `src/pages/Teams.tsx` | Card gap to 8px, horizontal padding 16px |
+| `src/pages/Index.tsx` | Horizontal padding 16px |
+| `src/components/EmptyState.tsx` | Already supports emoji — update default messaging |
 
-**Action**: Check if the issue is in a specific component. The `EventCard.tsx` also uses `t('rsvp.going')` etc. The type badge in EventCard doesn't exist as a separate badge — it uses the left accent bar. The issue may be in the `EventTypeSelector` or another place. Will search for raw `types.match` rendering and verify the translation loading is correct. If translations just haven't loaded yet, add a fallback.
+---
 
-**Fix**: In `EventDetail.tsx` line 311, add fallback: `t(\`types.${getEventTypeKey(event.type)}\`, event.type)` — this ensures if the key isn't found, the raw type name shows instead of the key path.
+## 1. tailwind.config.ts — Typography scale update
 
-## 2. Render markdown in announcements
+Update semantic font sizes:
+- `page-title`: `1.375rem` (22px), lineHeight `1.75rem`, fontWeight `700`
+- `card-title`: `0.9375rem` (15px), lineHeight `1.25rem`, fontWeight `600`
+- `section`: `0.875rem` (14px), lineHeight `1.125rem`, fontWeight `600`
+- `body`: keep 14px
+- `caption`: keep 12px
+- Also update legacy `h1`/`display` to match 22px
 
-In `AnnouncementCard.tsx` line 43, the content is rendered as plain text. Replace with a simple markdown renderer that handles `**bold**` and `_italic_` patterns using regex replacement to `<strong>` and `<em>` tags.
+Add box-shadow:
+- `card-soft`: `0 2px 8px rgba(0,0,0,0.07)`
 
-**Implementation**: Create a small inline function or component that parses basic markdown (bold, italic) and renders via `dangerouslySetInnerHTML` or React elements. No external dependency needed for just bold/italic.
+## 2. src/components/ui/card.tsx — Soft shadow, remove heavy borders
 
-```tsx
-const renderSimpleMarkdown = (text: string) => {
-  return text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/_(.*?)_/g, '<em>$1</em>');
-};
+Update `default` variant: remove `border`, add `shadow-card-soft`
+Update `interactive` variant: same shadow treatment
+Update `elevated` variant: same shadow treatment
+Keep `border` only on `bordered` variant
 
-// In JSX:
-<p className="text-xs sm:text-sm whitespace-pre-wrap break-words"
-   dangerouslySetInnerHTML={{ __html: renderSimpleMarkdown(announcement.content) }} />
+```
+default: "rounded-2xl shadow-card-soft bg-card text-card-foreground transition-all duration-200 active:scale-[0.99]",
+interactive: "rounded-2xl shadow-card-soft bg-card text-card-foreground transition-all duration-150 cursor-pointer active:scale-[0.98] hover:shadow-md",
 ```
 
-## 3. Fix system announcement author
+## 3. src/components/mobile/BottomNavigation.tsx — Compact + active pill
 
-In `AnnouncementCard.tsx`, detect if the username starts with `user_` (UUID-style). If so, show "Athletica" as display name with a bot icon instead of the raw username.
+- Nav height: `h-[calc(52px+env(safe-area-inset-bottom))]`
+- Icon size: `h-[22px] w-[22px]`
+- Label: `text-[11px]`
+- Active state: add `bg-primary/10 rounded-full px-2 py-0.5` pill behind icon+label group
+- Remove the top indicator line, use the pill bg instead
 
-```tsx
-const isSystemUser = announcement.profile?.username?.startsWith('user_');
-const displayName = isSystemUser ? 'Athletica' : `@${announcement.profile?.username}`;
-// For avatar, show a Bot icon instead of initials
-```
+## 4. src/components/mobile/PageHeader.tsx — 22px title
 
-## 4. Remove duplicate attendance count
+Change `text-page-title` (which will now be 22px from tailwind config update).
 
-In `EventRSVPBar.tsx` lines 140-142, remove the `<p>` element that shows `t('rsvp.stats', ...)`. This duplicates what's already in the `EventAttendees` component inside the "Who's Coming" card.
+## 5. src/components/events/EventCard.tsx — Tighter card
 
-Also remove the same stats line from the committed state (line 60-62) and deadline-passed state (line 76-78).
-
-## 5. Simplify RSVP bar — remove cancel button
-
-The RSVP buttons already toggle (line 32-37 in `EventRSVPBar.tsx` — clicking same status calls `onRemoveAttendance`). Simply remove the "Cancel my attendance" button block (lines 87-96).
-
-## 6. Fix FAB overlapping last list item
-
-Add `pb-24` to the content wrapper in both screens to ensure the last item isn't hidden behind the FAB.
-
-- `src/pages/Events.tsx`: Add `pb-24` to the main content area
-- `src/pages/Teams.tsx`: Add `pb-24` to the `PullToRefresh` or its inner `motion.div`
-
-## 7. Improve team sport category headers
-
-In `TeamCard.tsx` lines 33-38, the sport ribbon uses `text-caption font-medium`. Change to `text-sm font-semibold uppercase tracking-wider` to make it a proper section header.
-
-## 8. Replace empty/placeholder About text
-
-In `TeamAboutSection.tsx`, when description is null/empty or looks like test data (e.g. "test", "asdf"), show a styled placeholder: "Ajouter une description pour présenter ton équipe 💬".
-
-In `EventDetail.tsx`, the description card already only renders if `event.description` exists (line 540). No change needed there.
+- Title: `text-[15px]` (was 17px)
+- Metadata (time, location): `text-[13px] text-[#6B7280]`
+- Address truncation for list cards: extract city name from address (last segment after comma, or full if no comma)
 
 ```tsx
-// TeamAboutSection.tsx
-const isPlaceholder = !description || description.trim().length < 5 || /^(test|asdf|xxx)/i.test(description.trim());
-if (isPlaceholder) {
-  return (
-    <Card>
-      <CardContent className="p-4 text-center text-muted-foreground">
-        <p className="text-sm">Ajouter une description pour présenter ton équipe 💬</p>
-      </CardContent>
-    </Card>
-  );
-}
+const cityName = venueName?.includes(',') 
+  ? venueName.split(',').pop()?.trim() 
+  : venueName;
 ```
 
-## 9. Rename Performance Levels to skill labels
+Show `cityName` in list card, full address stays on detail page.
 
-In `PerformanceLevelBadge.tsx`, replace "Level 1/2/3/4" with:
-- 1 → "Débutante"
-- 2 → "Intermédiaire"  
-- 3 → "Avancée"
-- 4 → "Experte"
+## 6. src/components/events/EventAttendees.tsx — Smaller avatars + auto-expand
 
-In `PerformanceLevelsTab.tsx`, update `statsCards` labels and the Select filter items to match.
+- Avatar size: `h-7 w-7` (28px) instead of `h-9 w-9` (36px)
+- If total attendees ≤ 5: remove the expand/collapse button, show all sections inline directly
+- Overflow avatar: also `h-7 w-7`
 
-## 10. Reduce vertical spacing on event detail
+## 7. src/components/teams/TeamCard.tsx — Sport accent + tighter layout
 
-In `EventDetail.tsx` line 258, the main container uses `space-y-5`. Reduce to `space-y-4` (16px). Also reduce `mb-4` on the title (line 325) to `mb-2`, and `mb-4` on the badges row (line 304) is fine since it uses `mb-3`.
+- Title: `text-[15px]` (was card-title / 17px)
+- Sport ribbon: reduce padding to `px-3 py-1` with `mt-1.5 mb-1` — slim inline separator
+- Add sport-specific left border color:
+  ```tsx
+  const sportAccent: Record<string, string> = {
+    football: 'border-l-green-500',
+    basketball: 'border-l-orange-500',
+    volleyball: 'border-l-yellow-500',
+  };
+  ```
+  Apply as `border-l-[4px]` on the Card
+- Metadata (member count): `text-[13px] text-[#6B7280]`
+
+## 8. src/components/teams/TeamMemberCard.tsx — Unified role badges
+
+Update `roleColors`:
+```tsx
+owner: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900 dark:text-amber-200",
+admin: "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900 dark:text-blue-200",
+```
+Add icons: Crown for owner, Shield for admin. Both use pill style with icon + text.
+
+## 9. src/pages/EventDetail.tsx — Tighter spacing + section headers
+
+- Main container: `space-y-3` (was space-y-4, = 12px)
+- Section headers: `text-[14px] font-semibold uppercase tracking-[0.5px]` (was 13px lowercase)
+- Hero header: reduce `pb-5` to `pb-3`, reduce `mb-4` (back button row) to `mb-2`, reduce title `mb-2` to `mb-1`
+- Remove gap between calendar button and first card
+
+## 10. src/pages/Events.tsx + Teams.tsx — Card gap + padding
+
+- Card list `gap-3` → `gap-2` (8px)
+- Ensure `px-4` (16px) horizontal padding on PageContainer content
+
+## 11. src/components/ui/badge.tsx — Consistent sizing
+
+Update default size variant:
+- `sm`: `px-2 py-0 text-[11px] h-[22px]` (was px-1.5 h-4)
+- This makes all badges consistent 22px height with 8px horizontal padding
+
+## 12. src/index.css — Sport accent utilities
+
+Add utility classes for sport-specific accent colors:
+```css
+.sport-accent-football { border-left-color: #22c55e; }
+.sport-accent-basketball { border-left-color: #f97316; }
+.sport-accent-volleyball { border-left-color: #eab308; }
+```
+
+## 13. Empty states — Illustrated French messages
+
+Already supported via `EmptyState` component with `emoji` prop. Update specific usages:
+- Teams (no teams): emoji `🏃‍♀️`, message "Aucune équipe près de toi pour l'instant", description with CTA
+- Events (empty tab): already handled
+- These are in translation files — no code change needed beyond what's already done
 
 ---
 
 ## Summary
 
-| # | Fix | Complexity |
-|---|-----|-----------|
-| 1 | Add fallback to `t()` call for event type badge | Trivial |
-| 2 | Parse basic markdown in announcement content | Small |
-| 3 | Detect system user, show "Athletica" + bot icon | Small |
-| 4 | Remove duplicate stats `<p>` from RSVP bar | Trivial |
-| 5 | Remove cancel button from RSVP bar | Trivial |
-| 6 | Add `pb-24` to Events + Teams page content | Trivial |
-| 7 | Increase sport ribbon font size/weight | Trivial |
-| 8 | Show placeholder for empty/test descriptions | Small |
-| 9 | Rename level labels to French skill names | Small |
-| 10 | Reduce spacing from `space-y-5` to `space-y-4`, reduce title margin | Trivial |
+| Change | Impact |
+|--------|--------|
+| Font sizes reduced globally | page-title 22px, card-title 15px, section 14px uppercase |
+| Card shadows replace borders | `0 2px 8px rgba(0,0,0,0.07)` soft shadow |
+| Bottom nav compacted | 52px height, 22px icons, active pill bg |
+| Card gaps tightened | 8px between list cards |
+| Section spacing reduced | 12px throughout event detail |
+| Sport accent colors | Left border on team cards by sport |
+| Attendee avatars smaller | 28px, auto-expand ≤5 |
+| Role badges unified | Gold owner pill, blue admin pill with icons |
+| Address truncated in list | City only in cards, full on detail |
+| Badge sizing standardized | 22px height, 11px text |
 
