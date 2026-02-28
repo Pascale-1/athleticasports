@@ -6,11 +6,13 @@ interface EmptyStateProps {
   title: string;
   description: string;
   action?: React.ReactNode;
+  emoji?: string;
 }
 
-export const EmptyState = ({ icon: Icon, title, description, action }: EmptyStateProps) => {
+export const EmptyState = ({ icon: Icon, title, description, action, emoji }: EmptyStateProps) => {
   return (
     <div className="flex flex-col items-center justify-center py-8 px-3 text-center">
+      {emoji && <span className="text-4xl mb-2">{emoji}</span>}
       <div className="rounded-full bg-muted p-5 mb-3">
         <Icon className="h-7 w-7 text-muted-foreground" />
       </div>

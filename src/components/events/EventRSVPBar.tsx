@@ -101,7 +101,7 @@ export const EventRSVPBar = ({
             size="sm"
             className={cn(
               "flex-1 h-[52px] gap-1.5 text-sm font-semibold transition-all",
-              userStatus === 'attending' && "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
+              userStatus === 'attending' && "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm animate-rsvp-pop",
               userStatus !== 'attending' && "bg-card border border-border text-muted-foreground"
             )}
             onClick={() => handleClick('attending')}
@@ -114,7 +114,7 @@ export const EventRSVPBar = ({
             size="sm"
             className={cn(
               "flex-1 h-[52px] gap-1.5 text-sm font-semibold transition-all",
-              userStatus === 'maybe' && "bg-warning text-warning-foreground hover:bg-warning/90 shadow-sm",
+              userStatus === 'maybe' && "bg-warning text-warning-foreground hover:bg-warning/90 shadow-sm animate-rsvp-pop",
               userStatus !== 'maybe' && "bg-card border border-border text-muted-foreground"
             )}
             onClick={() => handleClick('maybe')}
@@ -127,7 +127,7 @@ export const EventRSVPBar = ({
             size="sm"
             className={cn(
               "flex-1 h-[52px] gap-1.5 text-sm font-semibold transition-all",
-              userStatus === 'not_attending' && "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+              userStatus === 'not_attending' && "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm animate-rsvp-pop",
               userStatus !== 'not_attending' && "bg-card border border-border text-muted-foreground"
             )}
             onClick={() => handleClick('not_attending')}

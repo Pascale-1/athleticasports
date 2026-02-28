@@ -429,10 +429,16 @@ const Index = () => {
                 </Card>
               ) : !gamesLoading && topAvailableGames.length === 0 && !availability ? (
                 <Card className="p-6 text-center">
+                  <span className="text-4xl mb-2 block">📅</span>
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-muted flex items-center justify-center">
                     <CalendarCheck className="h-6 w-6 text-muted-foreground" />
                   </div>
-                  <p className="text-muted-foreground text-sm">{t('home.noUpcomingGames')}</p>
+                  <p className="text-base font-semibold mb-1">{t('home.noUpcomingGames')}</p>
+                  <p className="text-xs text-muted-foreground mb-3">{t('home.noUpcomingGamesDesc', { defaultValue: 'Trouve un match ou crée le tien' })}</p>
+                  <Button onClick={() => setCreateEventDialogOpen(true)} size="sm">
+                    <Plus className="h-4 w-4 mr-1" />
+                    {t('home.organizeEvent')}
+                  </Button>
                 </Card>
               ) : null}
             </div>
