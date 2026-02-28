@@ -79,12 +79,12 @@ export const EventRSVPBar = ({
     <div className="fixed bottom-16 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t p-3 lg:bottom-0 lg:relative lg:border lg:rounded-lg lg:bg-card">
       <div className="max-w-lg mx-auto">
         <div className="flex gap-2">
-          <Button
+            <Button
             variant={userStatus === 'attending' ? "default" : "outline"}
             size="sm"
             className={cn(
-              "flex-1 h-[52px] gap-1.5 text-sm font-semibold transition-all",
-              userStatus === 'attending' && "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm animate-rsvp-pop",
+              "flex-1 h-9 gap-1.5 text-sm font-semibold transition-all",
+              userStatus === 'attending' && "bg-success text-success-foreground hover:bg-success/90 shadow-sm animate-rsvp-pop",
               userStatus !== 'attending' && "bg-card border border-border text-muted-foreground"
             )}
             onClick={() => handleClick('attending')}
@@ -96,8 +96,8 @@ export const EventRSVPBar = ({
             variant={userStatus === 'maybe' ? "default" : "outline"}
             size="sm"
             className={cn(
-              "flex-1 h-[52px] gap-1.5 text-sm font-semibold transition-all",
-              userStatus === 'maybe' && "bg-warning text-warning-foreground hover:bg-warning/90 shadow-sm animate-rsvp-pop",
+              "flex-1 h-9 gap-1.5 text-sm font-semibold transition-all",
+              userStatus === 'maybe' && "bg-muted text-foreground hover:bg-muted/80 shadow-sm animate-rsvp-pop",
               userStatus !== 'maybe' && "bg-card border border-border text-muted-foreground"
             )}
             onClick={() => handleClick('maybe')}
@@ -109,8 +109,8 @@ export const EventRSVPBar = ({
             variant={userStatus === 'not_attending' ? "default" : "outline"}
             size="sm"
             className={cn(
-              "flex-1 h-[52px] gap-1.5 text-sm font-semibold transition-all",
-              userStatus === 'not_attending' && "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm animate-rsvp-pop",
+              "flex-1 h-9 gap-1.5 text-sm font-semibold transition-all",
+              userStatus === 'not_attending' && "bg-destructive/10 text-destructive hover:bg-destructive/20 shadow-sm animate-rsvp-pop",
               userStatus !== 'not_attending' && "bg-card border border-border text-muted-foreground"
             )}
             onClick={() => handleClick('not_attending')}

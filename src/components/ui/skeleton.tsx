@@ -17,7 +17,7 @@ function Skeleton({
   return (
     <div
       className={cn(
-        "bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 dark:from-neutral-800 dark:via-neutral-700 dark:to-neutral-800",
+        "bg-gradient-to-r from-muted via-muted/60 to-muted",
         "bg-[length:200%_100%] animate-shimmer",
         variantStyles[variant],
         className

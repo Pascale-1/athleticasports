@@ -26,8 +26,8 @@ export const EVENT_CONFIG: Record<EventType, EventTypeConfig> = {
   },
   meetup: {
     icon: Users,
-    color: 'hsl(var(--accent))',
-    bgColor: 'hsl(var(--accent) / 0.1)',
+    color: 'hsl(var(--success))',
+    bgColor: 'hsl(var(--success) / 0.1)',
     translationKey: 'meetup',
     features: ['attendance', 'public', 'maxParticipants', 'categories'],
     permissions: ['all'],
@@ -42,8 +42,8 @@ export const EVENT_CONFIG: Record<EventType, EventTypeConfig> = {
   },
   match: {
     icon: Trophy,
-    color: 'hsl(var(--match))',
-    bgColor: 'hsl(var(--match) / 0.1)',
+    color: 'hsl(var(--accent))',
+    bgColor: 'hsl(var(--accent) / 0.1)',
     translationKey: 'game',
     features: ['opponent', 'attendance', 'teamOnly', 'homeAway'],
     permissions: ['coach', 'admin', 'owner'],

@@ -72,7 +72,7 @@ const EventPreviewCard = ({ event, canRSVP }: { event: Event; canRSVP: boolean }
       case 'training':
         return 'bg-primary/10 text-primary border-primary/20';
       case 'match':
-        return 'bg-warning/10 text-warning border-warning/20';
+        return 'bg-accent/10 text-accent border-accent/20';
       case 'meetup':
         return 'bg-success/10 text-success border-success/20';
       default:
