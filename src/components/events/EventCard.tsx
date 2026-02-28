@@ -36,16 +36,10 @@ import { format, isWithinInterval } from "date-fns";
 import { getLocale } from "@/lib/dateUtils";
 import { getEventTypeKey, EventType } from "@/lib/eventConfig";
 
-const TYPE_ACCENT: Record<string, string> = {
-  match: 'border-l-primary',
-  training: 'border-l-[#CBD5E1]',
-  meetup: 'border-l-[#A78BFA]',
-};
-
-const TYPE_CHIP_STYLE: Record<string, { emoji: string; className: string }> = {
-  match: { emoji: '⚽', className: 'bg-[rgba(56,189,248,0.10)] text-primary' },
-  training: { emoji: '🏃', className: 'bg-[rgba(203,213,225,0.10)] text-[#CBD5E1]' },
-  meetup: { emoji: '🤝', className: 'bg-[rgba(167,139,250,0.10)] text-[#A78BFA]' },
+const TYPE_COLORS: Record<string, { border: string; text: string; chipBg: string; chipText: string; emoji: string }> = {
+  match: { border: 'border-l-primary', text: 'text-primary', chipBg: 'bg-[rgba(56,189,248,0.10)]', chipText: 'text-primary', emoji: '⚽' },
+  training: { border: 'border-l-[#CBD5E1]', text: 'text-[#CBD5E1]', chipBg: 'bg-[rgba(203,213,225,0.10)]', chipText: 'text-[#CBD5E1]', emoji: '🏃' },
+  meetup: { border: 'border-l-[#A78BFA]', text: 'text-[#A78BFA]', chipBg: 'bg-[rgba(167,139,250,0.10)]', chipText: 'text-[#A78BFA]', emoji: '🤝' },
 };
 
 interface EventCardProps {
@@ -83,14 +77,15 @@ export const EventCard = memo(({
   const lang = i18n.language?.startsWith('fr') ? 'fr-FR' : 'en-US';
   const locale = getLocale();
 
-  const accentClass = TYPE_ACCENT[event.type] || 'border-l-primary';
+  const typeColors = TYPE_COLORS[event.type] || TYPE_COLORS.match;
+  const accentClass = typeColors.border;
   const isPartOfSeries = !!event.parent_event_id;
   const isRecurringParent = event.is_recurring && !event.parent_event_id;
   const hasOrganizerActions = isOrganizerView && (onEdit || onDelete);
   const isPast = isPastEvent(event);
   const isLive = isWithinInterval(new Date(), { start: new Date(event.start_time), end: new Date(event.end_time) });
 
-  const { statusChip, heroText, venueName, sportEmoji, timeStr, typeChip } = useMemo(() => {
+  const { statusChip, dateBlock, venueName, sportEmoji, timeStr, typeChip } = useMemo(() => {
     const startTime = new Date(event.start_time);
     const minutes = startTime.getMinutes();
     const time = startTime.toLocaleTimeString(lang, { 
@@ -115,16 +110,16 @@ export const EventCard = memo(({
     }
 
     // Type chip
-    const typeStyle = TYPE_CHIP_STYLE[event.type] || TYPE_CHIP_STYLE.match;
+    const tc = TYPE_COLORS[event.type] || TYPE_COLORS.match;
     const typeLabel = t(`types.${getEventTypeKey(event.type as EventType)}`, event.type);
-    const tChip = { ...typeStyle, label: `${typeStyle.emoji} ${typeLabel}` };
+    const tChip = { emoji: tc.emoji, className: `${tc.chipBg} ${tc.chipText}`, label: `${tc.emoji} ${typeLabel}` };
 
-    // Hero text: large date/time for upcoming, title for past
-    const hero = isPast ? event.title : format(startTime, "EEEE d MMM", { locale });
+    // Date block text: abbreviated day + date for the corner
+    const dateBlock = format(startTime, "EEE d MMM", { locale }).toUpperCase();
 
     return {
       statusChip: chip,
-      heroText: hero,
+      dateBlock,
       venueName: venue,
       sportEmoji: event.sport ? getSportEmoji(event.sport) : null,
       timeStr: time,
@@ -252,45 +247,47 @@ export const EventCard = memo(({
                 )}
               </div>
 
-              {/* ROW 2: Hero — large title/date (2× size of metadata) */}
-              <div>
-                <h3 className={cn(
-                  "text-[15px] font-bold leading-tight",
-                  isPast ? "text-muted-foreground" : "text-foreground"
-                )}>
-                  {event.title}
-                </h3>
-                {!isPast && (
-                  <p className="text-[17px] font-semibold leading-tight text-primary mt-0.5">
-                    {heroText}
-                  </p>
-                )}
-              </div>
+              {/* ROW 2: Event name */}
+              <h3 className={cn(
+                "text-[15px] font-bold leading-tight",
+                isPast ? "text-muted-foreground" : "text-foreground"
+              )}>
+                {event.title}
+              </h3>
 
-              {/* ROW 3: Muted metadata — sport, location, attendees */}
+              {/* ROW 3: Date in event type color */}
+              <p className={cn("text-[11px] font-semibold uppercase", typeColors.text)}>
+                {dateBlock} · {timeStr}
+              </p>
+
+              {/* ROW 4: RSVP chip — left-aligned, below date */}
+              {rsvpPill && (
+                <div className="flex justify-start mt-0.5">
+                  {rsvpPill}
+                </div>
+              )}
+
+              {/* ROW 5: Location + participant count */}
               <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
                 {sportEmoji && <span>{sportEmoji}</span>}
-                {isPast && <span>{timeStr}</span>}
                 {venueName && (
                   <span className="flex items-center gap-0.5 truncate">
                     <MapPin className="h-2.5 w-2.5 shrink-0" />
                     {venueName}
                   </span>
                 )}
-                {attendeeCount > 0 && (
+                {(attendeeCount > 0 || event.max_participants) && (
                   <span className="flex items-center gap-0.5">
                     <Users className="h-2.5 w-2.5" />
-                    {attendeeCount} {t('rsvp.going')}
+                    {attendeeCount}{event.max_participants ? ` / ${event.max_participants}` : ''}
+                  </span>
+                )}
+                {event.looking_for_players && event.players_needed && event.players_needed > attendeeCount && (
+                  <span className="text-[12px] text-[#A78BFA]">
+                    · 🔍 {event.players_needed - attendeeCount}
                   </span>
                 )}
               </div>
-
-              {/* ROW 4: RSVP pill — right-aligned */}
-              {rsvpPill && (
-                <div className="flex justify-end mt-0.5">
-                  {rsvpPill}
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>

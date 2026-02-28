@@ -981,7 +981,7 @@ export const UnifiedEventForm = ({
                   min="2"
                   max="100"
                   placeholder="--"
-                  className="w-20 h-9 text-xs text-right"
+                  className="w-20 h-9 text-xs text-right bg-[#1A1E26] border-[1.5px] border-muted rounded-[14px] px-4"
                 />
               </FormControl>
             </div>
@@ -1148,18 +1148,19 @@ export const UnifiedEventForm = ({
 
             {/* Looking for Players */}
             {showLookingForPlayersSection && (
-              <FieldRow icon={UserPlus} separator={true} iconAlign="center">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between min-h-[32px]">
-                    <Label className="text-sm text-foreground">
-                      {t('lookingForPlayers.title')}
-                    </Label>
-                    <Switch checked={lookingForPlayers} onCheckedChange={setLookingForPlayers} />
-                  </div>
+              <div className="border-t border-muted border-b py-4">
+                <div className="flex items-center justify-between w-full">
+                  <Label className="text-sm text-foreground flex items-center gap-2">
+                    <UserPlus className="h-4 w-4 text-primary" />
+                    {t('lookingForPlayers.title')}
+                  </Label>
+                  <Switch checked={lookingForPlayers} onCheckedChange={setLookingForPlayers} />
+                </div>
 
-                  {lookingForPlayers && (
+                {lookingForPlayers && (
+                  <div className="mt-3">
                     <Select value={playersNeeded} onValueChange={setPlayersNeeded}>
-                      <SelectTrigger className="h-8 text-xs">
+                      <SelectTrigger className="h-9 text-xs bg-[#1A1E26] border-[1.5px] border-muted rounded-[14px] px-4">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-popover border border-border shadow-lg z-50">
@@ -1170,9 +1171,9 @@ export const UnifiedEventForm = ({
                         ))}
                       </SelectContent>
                     </Select>
-                  )}
-                </div>
-              </FieldRow>
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Training intensity */}
