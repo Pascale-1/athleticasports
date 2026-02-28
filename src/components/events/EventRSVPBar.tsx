@@ -84,14 +84,25 @@ export const EventRSVPBar = ({
   return (
     <div className="fixed bottom-16 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t p-3 lg:bottom-0 lg:relative lg:border lg:rounded-lg lg:bg-card">
       <div className="max-w-lg mx-auto space-y-2">
+        {userStatus && !isCommitted && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRemoveAttendance}
+            className="w-full text-sm font-semibold text-primary hover:text-primary/80 min-h-[44px] flex items-center justify-center"
+          >
+            {t('rsvp.cancelAttendance')}
+          </Button>
+        )}
+
         <div className="flex gap-2">
           <Button
             variant={userStatus === 'attending' ? "default" : "outline"}
             size="sm"
             className={cn(
-              "flex-1 h-[52px] gap-1.5 transition-all",
+              "flex-1 h-[52px] gap-1.5 text-sm font-semibold transition-all",
               userStatus === 'attending' && "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
-              userStatus !== 'attending' && "bg-card border border-border"
+              userStatus !== 'attending' && "bg-card border border-border text-muted-foreground"
             )}
             onClick={() => handleClick('attending')}
           >
@@ -102,9 +113,9 @@ export const EventRSVPBar = ({
             variant={userStatus === 'maybe' ? "default" : "outline"}
             size="sm"
             className={cn(
-              "flex-1 h-[52px] gap-1.5 transition-all",
+              "flex-1 h-[52px] gap-1.5 text-sm font-semibold transition-all",
               userStatus === 'maybe' && "bg-warning text-warning-foreground hover:bg-warning/90 shadow-sm",
-              userStatus !== 'maybe' && "bg-card border border-border"
+              userStatus !== 'maybe' && "bg-card border border-border text-muted-foreground"
             )}
             onClick={() => handleClick('maybe')}
           >
@@ -115,9 +126,9 @@ export const EventRSVPBar = ({
             variant={userStatus === 'not_attending' ? "default" : "outline"}
             size="sm"
             className={cn(
-              "flex-1 h-[52px] gap-1.5 transition-all",
+              "flex-1 h-[52px] gap-1.5 text-sm font-semibold transition-all",
               userStatus === 'not_attending' && "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
-              userStatus !== 'not_attending' && "bg-card border border-border"
+              userStatus !== 'not_attending' && "bg-card border border-border text-muted-foreground"
             )}
             onClick={() => handleClick('not_attending')}
           >
@@ -125,17 +136,6 @@ export const EventRSVPBar = ({
             {t('rsvp.notGoing')}
           </Button>
         </div>
-        
-        {userStatus && !isCommitted && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onRemoveAttendance}
-            className="w-full text-[14px] text-primary hover:text-primary/80 mt-4 min-h-[44px] flex items-center justify-center"
-          >
-            {t('rsvp.cancelAttendance')}
-          </Button>
-        )}
         
         <p className="text-xs text-center text-muted-foreground">
           {t('rsvp.stats', { going: stats.attending, maybe: stats.maybe })}
