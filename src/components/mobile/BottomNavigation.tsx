@@ -79,7 +79,7 @@ export const BottomNavigation = () => {
       }
     }
 
-    setTodayEvents(unansweredCount);
+    setTodayEvents(location.pathname.startsWith('/events') ? 0 : unansweredCount);
   }, []);
 
   useEffect(() => {
