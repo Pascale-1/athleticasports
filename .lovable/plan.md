@@ -1,89 +1,160 @@
 
 
-# UI Modernization — Align Components to Ignite Design Spec
+# Momentum Palette — Complete Color System Replacement
 
-Most tokens and spacing are already applied from previous work. This pass fixes the remaining mismatches: nav behavior, RSVP bar sizing, accent colors, empty states, and Home screen density.
+Replace Ignite (Deep Navy + Electric Orange) with Momentum (Deep Plum + Electric Citrus on Warm Cream). Update all CSS variables and shadow tints. Fix the `accent-foreground` token mapping (was white, now plum). Update tailwind shadow tokens.
 
----
-
-## Files to modify (~14 files)
-
-### 1. `src/components/mobile/BottomNavigation.tsx`
-- Nav background: `bg-card` (surface) instead of `bg-background/95`
-- Badge: `bg-accent text-accent-foreground` instead of `bg-destructive`
-- Inactive tabs: hide label text (show only for active tab)
-- Active pill: `bg-primary/10` with `rounded-lg` (8px radius, 28px height)
-
-### 2. `src/components/events/EventCard.tsx`
-- Left accent border mapping: `training → border-l-primary`, `match → border-l-accent`, `meetup → border-l-success` (currently uses `info`/`warning`)
-- Update `TYPE_ACCENT` map and tinted backgrounds accordingly
-
-### 3. `src/components/events/EventRSVPBar.tsx`
-- Reduce button height from `h-[52px]` to `h-9` (36px)
-- Going active: `bg-success text-white` 
-- Maybe active: `bg-muted text-foreground` (surface-elevated)
-- Can't Go active: `bg-destructive/10 text-destructive` (danger-subtle)
-- Remove separate "Cancel" link — re-tap toggles off (already implemented)
-
-### 4. `src/components/notifications/NotificationBell.tsx`
-- Badge: `bg-accent text-accent-foreground` instead of `bg-destructive`
-
-### 5. `src/components/EmptyState.tsx`
-- Icon circle: `bg-accent/10` instead of `bg-muted`
-- Icon color: `text-accent` instead of `text-muted-foreground`
-
-### 6. `src/pages/Index.tsx`
-- Greeting: reduce from `text-[22px]` to `text-[18px]` (spec max)
-- Subtitle: reduce from `text-[14px]` to `text-[12px]`
-- Stats numbers: reduce from `text-[28px]` to `text-[20px]`
-- Main spacing: `space-y-6` → `space-y-3`
-- Quick action buttons: reduce height from `h-[52px]` to `h-11` (44px)
-- Team row: reduce height from `h-14` to `h-11`
-
-### 7. `src/pages/EventDetail.tsx`
-- Section header color: ensure `text-hint` utility class is used (maps to `#9CA3AF`)
-- Where & When card date box: keep current sizing, reduce `h-12 w-12` to `h-10 w-10`
-
-### 8. `src/components/events/EventCardSkeleton.tsx`
-- Add shimmer animation class (`animate-shimmer`) to skeleton elements for proper loading state
-
-### 9. `src/components/ui/sonner.tsx`
-- Verify toast has `border-l-[3px] border-l-accent` and bottom positioning
-
-### 10. `src/components/events/EventTemplateSelector.tsx`
-- Update type colors: training → `primary`, match → `accent`, meetup → `success`
-
-### 11. `src/components/teams/EventsPreview.tsx`
-- Same type color update as EventTemplateSelector
-
-### 12. `src/lib/eventConfig.ts`
-- Update event type config colors to use CSS variable references matching new token mapping (training=navy, match=orange, meetup=green)
-
-### 13. `src/components/ui/skeleton.tsx`
-- Ensure skeleton uses `bg-muted animate-shimmer` for proper shimmer effect on loading states
-
-### 14. `src/components/feed/FeedSkeleton.tsx`
-- Ensure shimmer animation is applied
+Also fix French typo: "Rechercher des équipes..." is actually already correct in the JSON. Will verify if there's a different display issue.
 
 ---
 
-## Summary of changes
+## Files to modify (3 files)
 
-| Element | Before | After |
-|---------|--------|-------|
-| Nav badge | `bg-destructive` (red) | `bg-accent` (orange) |
-| Nav inactive | Shows label | Icon only, no label |
-| Nav background | `bg-background` | `bg-card` (white surface) |
-| RSVP buttons | 52px tall | 36px tall |
-| Going button | `bg-primary` (navy) | `bg-success` (green) |
-| Maybe button | `bg-warning` (orange) | `bg-muted` (surface) |
-| Can't Go | `bg-destructive` (red) | `bg-destructive/10 text-destructive` |
-| Event accent: training | `border-l-info` | `border-l-primary` (navy) |
-| Event accent: match | `border-l-warning` | Custom accent class |
-| Notification badge | `bg-destructive` | `bg-accent` (orange) |
-| Empty state icon | `bg-muted` gray | `bg-accent/10` orange tint |
-| Home greeting | 22px | 18px |
-| Home stats | 28px | 20px |
-| Home spacing | space-y-6 | space-y-3 |
-| Skeleton loading | Static pulse | Shimmer animation |
+### 1. `src/index.css` — Replace `:root` + `.dark` with Momentum palette
+
+```css
+:root {
+  /* MOMENTUM Palette — Deep Plum + Electric Citrus */
+  --background: 30 14% 96%;         /* #F7F5F2 — warm cream */
+  --foreground: 270 30% 8%;         /* #120D1A */
+
+  --text-primary: 270 30% 8%;       /* #120D1A */
+  --text-secondary: 220 9% 26%;     /* #374151 */
+  --text-muted: 220 5% 46%;         /* #6B7280 */
+  --text-hint: 220 5% 63%;          /* #9CA3AF */
+  --text-link: 268 60% 27%;         /* #3D1A6E */
+
+  --card: 0 0% 100%;                /* #FFFFFF */
+  --card-foreground: 270 30% 8%;
+
+  --popover: 280 6% 94%;            /* #F0EEF0 */
+  --popover-foreground: 270 30% 8%;
+
+  --primary: 268 60% 27%;           /* #3D1A6E — deep plum */
+  --primary-light: 268 60% 32%;
+  --primary-dark: 268 60% 20%;      /* #2E1254 */
+  --primary-foreground: 0 0% 100%;  /* white on plum */
+
+  --primary-subtle: 268 44% 94%;    /* #EDE8F7 */
+
+  --accent: 72 100% 47%;            /* #C8F000 — electric citrus */
+  --accent-foreground: 268 60% 27%; /* #3D1A6E — plum text ON citrus */
+
+  --accent-subtle: 72 91% 92%;      /* #F5FDD6 */
+
+  --muted: 280 6% 94%;              /* #F0EEF0 */
+  --muted-foreground: 220 5% 46%;   /* #6B7280 */
+
+  --destructive: 0 72% 51%;         /* #DC2626 */
+  --destructive-foreground: 0 0% 100%;
+
+  --success: 142 64% 37%;           /* #16A34A */
+  --success-foreground: 0 0% 100%;
+
+  --warning: 72 100% 47%;           /* same as accent for Momentum */
+  --warning-foreground: 268 60% 27%;
+
+  --info: 268 60% 27%;              /* same as primary */
+  --info-foreground: 0 0% 100%;
+
+  --match: 72 100% 47%;
+  --match-foreground: 268 60% 27%;
+
+  --border: 270 10% 92%;            /* #E9E5EE */
+  --input: 280 6% 94%;              /* #F0EEF0 */
+  --ring: 268 60% 27%;              /* plum focus ring */
+
+  /* Neutrals — plum-tinted */
+  --neutral-50: 30 14% 96%;
+  --neutral-100: 280 6% 94%;
+  --neutral-200: 270 10% 92%;
+  --neutral-300: 270 8% 85%;
+  --neutral-400: 220 5% 63%;
+  --neutral-500: 220 5% 46%;
+  --neutral-600: 220 9% 26%;
+  --neutral-700: 270 30% 8%;
+  --neutral-800: 270 30% 5%;
+  --neutral-900: 270 30% 3%;
+
+  /* Shadows — plum-tinted */
+  --shadow-sm: 0 1px 2px 0 rgb(61 26 110 / 0.04);
+  --shadow-md: 0 1px 4px rgba(61, 26, 110, 0.08);
+  --shadow-lg: 0 4px 8px -2px rgb(61 26 110 / 0.08);
+  --shadow-xl: 0 8px 16px -4px rgb(61 26 110 / 0.1);
+  --shadow-2xl: 0 16px 32px -8px rgb(61 26 110 / 0.12);
+  --shadow-colored: 0 4px 12px rgba(200, 240, 0, 0.15);
+  --shadow-colored-lg: 0 6px 16px rgba(200, 240, 0, 0.25);
+
+  /* Sidebar */
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 220 5% 46%;
+  --sidebar-primary: 268 60% 27%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 280 6% 94%;
+  --sidebar-accent-foreground: 270 30% 8%;
+  --sidebar-border: 270 10% 92%;
+  --sidebar-ring: 268 60% 27%;
+
+  /* Sport tints */
+  --sport-football: 130 40% 93%;    /* #EAF5E9 */
+  --sport-basketball: 48 96% 89%;   /* #FEF3C7 */
+  --sport-volleyball: 268 44% 94%;  /* #EDE8F7 */
+  --sport-running: 72 91% 92%;      /* #F5FDD6 */
+}
+```
+
+`.dark` block: identical to `:root`.
+
+Update sport accent utilities:
+```css
+.sport-accent-tennis { border-left-color: hsl(268 60% 27% / 0.15); }
+.sport-accent-badminton { border-left-color: hsl(268 60% 27% / 0.15); }
+```
+
+Update shadow utilities:
+```css
+.shadow-colored { box-shadow: 0 4px 12px rgba(200, 240, 0, 0.15); }
+.shadow-colored-lg { box-shadow: 0 6px 16px rgba(200, 240, 0, 0.25); }
+```
+
+Comment header: change "IGNITE Palette — Deep Navy + Electric Orange" → "MOMENTUM Palette — Deep Plum + Electric Citrus"
+
+### 2. `tailwind.config.ts` — Shadow tokens
+
+```
+"card-soft": "0 1px 4px rgba(61, 26, 110, 0.08)"
+colored: "0 4px 12px rgba(200, 240, 0, 0.15)"
+"colored-lg": "0 6px 16px rgba(200, 240, 0, 0.25)"
+```
+
+### 3. French typo fix — `src/i18n/locales/fr/teams.json`
+
+The search placeholder "Rechercher des équipes..." is already correct (has the 's'). No change needed there. But checking for other potential issues — the file looks clean.
+
+---
+
+## What changes automatically (no file edits needed)
+
+Since all components use design tokens, the following update automatically:
+- Primary buttons: plum background, white text
+- Active nav tab: plum icon + label + plum-subtle pill
+- Accent badges (notification, event counts): citrus background, plum text
+- Progress bars using `accent`: now citrus
+- Links using `text-link`: now plum
+- Card shadows: plum-tinted
+- Focus rings: plum
+- All `bg-primary/10`, `text-primary`, `bg-accent`, `text-accent-foreground` references
+
+## Summary
+
+| Token | Ignite (before) | Momentum (after) |
+|-------|-----------------|-------------------|
+| `--background` | `#F8F9FB` cool gray | `#F7F5F2` warm cream |
+| `--primary` | `#1B2D4F` navy | `#3D1A6E` deep plum |
+| `--accent` | `#F95C00` orange | `#C8F000` electric citrus |
+| `--accent-foreground` | `#FFFFFF` white | `#3D1A6E` plum |
+| `--border` | `#E5E7EB` gray | `#E9E5EE` plum-tinted |
+| `--shadow` tint | navy `rgb(27,45,79)` | plum `rgb(61,26,110)` |
+| Sport volleyball | blue tint | plum tint |
+| Sport running | orange tint | citrus tint |
 
