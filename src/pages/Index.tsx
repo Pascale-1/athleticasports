@@ -221,6 +221,30 @@ const Index = () => {
             </div>
           </AnimatedCard>
 
+          {/* Next Match Hero Card */}
+          {!eventsLoading && upcomingEvents.length > 0 && (
+            <AnimatedCard delay={0.12}>
+              <Link to={`/events/${upcomingEvents[0].id}`}>
+                <Card className="p-4 bg-primary/5 border border-primary/20 active:scale-[0.98] transition-transform">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-primary mb-1">
+                    {t('home.nextMatch', { defaultValue: 'Prochain événement' })}
+                  </p>
+                  <h2 className="text-[20px] font-bold leading-tight text-foreground">
+                    {upcomingEvents[0].title}
+                  </h2>
+                  <p className="text-[16px] font-semibold text-primary mt-1">
+                    {formatDateTimeShort(upcomingEvents[0].start_time)}
+                  </p>
+                  {upcomingEvents[0].location && (
+                    <p className="text-[11px] text-muted-foreground mt-1 truncate">
+                      📍 {upcomingEvents[0].location}
+                    </p>
+                  )}
+                </Card>
+              </Link>
+            </AnimatedCard>
+          )}
+
           {/* Stats Grid — standalone section */}
           <AnimatedCard delay={0.15}>
             <div className="grid grid-cols-3 gap-4">

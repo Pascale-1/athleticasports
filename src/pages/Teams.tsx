@@ -307,6 +307,7 @@ const Teams = () => {
                   icon={Users}
                   title={t('noTeams')}
                   description={t('noTeamsDesc')}
+                  emoji="👥"
                   action={
                     <Button onClick={() => navigate("/teams/create")}>
                       <Plus className="h-4 w-4 mr-2" />
@@ -349,6 +350,7 @@ const Teams = () => {
                   icon={searchQuery ? SearchIcon : Users}
                   title={searchQuery ? t('common:empty.title') : activeSport !== "All" ? `${t('noTeams')} - ${activeSport}` : t('noTeams')}
                   description={searchQuery ? t('common:empty.description') : t('noTeamsDesc')}
+                  emoji={searchQuery ? "🔍" : "👥"}
                   action={
                     searchQuery ? (
                       <Button onClick={() => setSearchQuery("")} variant="outline">

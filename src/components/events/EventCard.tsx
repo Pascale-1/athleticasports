@@ -25,6 +25,8 @@ import {
   X,
   Globe,
   Lock,
+  MapPin,
+  Users,
 } from "lucide-react";
 import { Event, isPastEvent } from "@/lib/events";
 import { Link } from "react-router-dom";
@@ -80,7 +82,7 @@ export const EventCard = memo(({
   const hasOrganizerActions = isOrganizerView && (onEdit || onDelete);
   const isPast = isPastEvent(event);
 
-  const { day, month, timeStr, venueName, sportEmoji } = useMemo(() => {
+  const { statusChip, heroText, venueName, sportEmoji, timeStr } = useMemo(() => {
     const startTime = new Date(event.start_time);
     const minutes = startTime.getMinutes();
     const time = startTime.toLocaleTimeString(lang, { 
@@ -93,14 +95,26 @@ export const EventCard = memo(({
       ? fullLocation.split(',').pop()?.trim() 
       : fullLocation;
 
+    // Status chip logic
+    let chip: { emoji: string; label: string; className: string };
+    if (isPast) {
+      chip = { emoji: '🏁', label: 'Final', className: 'bg-muted text-muted-foreground' };
+    } else {
+      const dateStr = format(startTime, "MMM d", { locale });
+      chip = { emoji: '📅', label: `${dateStr} · ${time}`, className: 'bg-primary/10 text-primary' };
+    }
+
+    // Hero text: large date/time for upcoming, title for past
+    const hero = isPast ? event.title : format(startTime, "EEEE d MMM", { locale });
+
     return {
-      day: format(startTime, "d", { locale }),
-      month: format(startTime, "MMM", { locale }),
-      timeStr: time,
+      statusChip: chip,
+      heroText: hero,
       venueName: venue,
       sportEmoji: event.sport ? getSportEmoji(event.sport) : null,
+      timeStr: time,
     };
-  }, [event.start_time, event.location, event.sport, lang, locale]);
+  }, [event.start_time, event.location, event.sport, event.title, lang, locale, isPast]);
 
   const [rsvpSheetOpen, setRsvpSheetOpen] = useState(false);
 
@@ -157,87 +171,96 @@ export const EventCard = memo(({
           )}
         >
           <CardContent className="p-0">
-            <div className="py-2.5 px-3.5 flex flex-col">
-              {/* ROW 1: Date + Title/Meta + Right info */}
-              <div className="flex items-center gap-2">
-                {/* Date badge 40x40 */}
-                <div className="w-10 h-10 rounded-lg bg-muted flex flex-col items-center justify-center shrink-0">
-                  <span className="text-[14px] font-bold leading-tight text-primary">{day}</span>
-                  <span className="text-[9px] uppercase leading-none text-muted-foreground font-medium">{month}</span>
-                </div>
-
-                {/* Center: title + meta */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <h3 className={cn(
-                      "text-[13px] font-semibold leading-tight truncate",
-                      isPast ? "text-muted-foreground" : "text-foreground"
-                    )}>
-                      {event.title}
-                    </h3>
-                    {(isRecurringParent || isPartOfSeries) && (
-                      <Repeat className="h-3 w-3 text-muted-foreground shrink-0" />
-                    )}
-                  </div>
-                  <p className="text-[11px] text-muted-foreground leading-tight mt-0.5 truncate">
-                    {sportEmoji && <span className="mr-1">{sportEmoji}</span>}
-                    {timeStr}
-                    {venueName && <><span className="mx-1 opacity-40">·</span>{venueName}</>}
-                  </p>
-                </div>
-
-                {/* Right: visibility + count + organizer menu */}
-                <div className="shrink-0 flex items-center gap-1.5">
-                  <div className="flex flex-col items-end gap-0.5">
-                    <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
-                      {event.is_public 
-                        ? <><Globe className="h-2.5 w-2.5" />Public</>
-                        : <><Lock className="h-2.5 w-2.5" />{t('status.private')}</>
-                      }
-                    </span>
-                    {attendeeCount > 0 && (
-                      <span className="text-[10px] text-muted-foreground">
-                        {attendeeCount} {t('rsvp.going')}
-                      </span>
-                    )}
-                  </div>
-
-                  {hasOrganizerActions && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
-                        <Button variant="ghost" size="icon" className="h-6 w-6">
-                          <MoreVertical className="h-3.5 w-3.5" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-36 bg-popover">
-                        {onEdit && (
-                          <DropdownMenuItem
-                            onClick={(e) => { e.preventDefault(); onEdit(e as unknown as React.MouseEvent); }}
-                            className="gap-2"
-                          >
-                            <Pencil className="h-4 w-4" />
-                            {t('edit.title')}
-                          </DropdownMenuItem>
-                        )}
-                        {onEdit && onDelete && <DropdownMenuSeparator />}
-                        {onDelete && (
-                          <DropdownMenuItem
-                            onClick={(e) => { e.preventDefault(); onDelete(e as unknown as React.MouseEvent); }}
-                            className="gap-2 text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            {t('details.deleteEvent')}
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+            <div className="py-3 px-3.5 flex flex-col gap-1.5">
+              {/* ROW 1: Status chip + organizer menu */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className={cn(
+                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                    statusChip.className
+                  )}>
+                    <span>{statusChip.emoji}</span>
+                    {statusChip.label}
+                  </span>
+                  {(isRecurringParent || isPartOfSeries) && (
+                    <Repeat className="h-3 w-3 text-muted-foreground" />
                   )}
+                  <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                    {event.is_public 
+                      ? <><Globe className="h-2.5 w-2.5" /></>
+                      : <><Lock className="h-2.5 w-2.5" /></>
+                    }
+                  </span>
                 </div>
+
+                {hasOrganizerActions && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
+                      <Button variant="ghost" size="icon" className="h-6 w-6">
+                        <MoreVertical className="h-3.5 w-3.5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-36 bg-popover">
+                      {onEdit && (
+                        <DropdownMenuItem
+                          onClick={(e) => { e.preventDefault(); onEdit(e as unknown as React.MouseEvent); }}
+                          className="gap-2"
+                        >
+                          <Pencil className="h-4 w-4" />
+                          {t('edit.title')}
+                        </DropdownMenuItem>
+                      )}
+                      {onEdit && onDelete && <DropdownMenuSeparator />}
+                      {onDelete && (
+                        <DropdownMenuItem
+                          onClick={(e) => { e.preventDefault(); onDelete(e as unknown as React.MouseEvent); }}
+                          className="gap-2 text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          {t('details.deleteEvent')}
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
 
-              {/* ROW 2: RSVP pill/button — right-aligned */}
+              {/* ROW 2: Hero — large title/date (2× size of metadata) */}
+              <div>
+                <h3 className={cn(
+                  "text-[15px] font-bold leading-tight",
+                  isPast ? "text-muted-foreground" : "text-foreground"
+                )}>
+                  {event.title}
+                </h3>
+                {!isPast && (
+                  <p className="text-[22px] font-bold leading-tight text-primary mt-0.5">
+                    {heroText}
+                  </p>
+                )}
+              </div>
+
+              {/* ROW 3: Muted metadata — sport, location, attendees */}
+              <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                {sportEmoji && <span>{sportEmoji}</span>}
+                {isPast && <span>{timeStr}</span>}
+                {venueName && (
+                  <span className="flex items-center gap-0.5 truncate">
+                    <MapPin className="h-2.5 w-2.5 shrink-0" />
+                    {venueName}
+                  </span>
+                )}
+                {attendeeCount > 0 && (
+                  <span className="flex items-center gap-0.5">
+                    <Users className="h-2.5 w-2.5" />
+                    {attendeeCount} {t('rsvp.going')}
+                  </span>
+                )}
+              </div>
+
+              {/* ROW 4: RSVP pill — right-aligned */}
               {rsvpPill && (
-                <div className="flex justify-end mt-1.5">
+                <div className="flex justify-end mt-0.5">
                   {rsvpPill}
                 </div>
               )}

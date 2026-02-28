@@ -37,6 +37,7 @@ export const EventsList = ({
         icon={Calendar}
         title={emptyTitle}
         description={emptyDescription}
+        emoji="📅"
       />
     );
   }

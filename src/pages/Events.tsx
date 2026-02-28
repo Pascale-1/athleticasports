@@ -344,6 +344,7 @@ const Events = () => {
                 icon={Compass}
                 title={t('discover.empty')}
                 description={t('discover.emptyDesc')}
+                emoji="🔍"
                 action={
                   <Button onClick={() => setCreateDialogOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -375,6 +376,7 @@ const Events = () => {
                 icon={ClipboardList}
                 title={t('organized.empty')}
                 description={t('organized.emptyDesc')}
+                emoji="📋"
                 action={
                   <Button onClick={() => setCreateDialogOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -463,6 +465,7 @@ const Events = () => {
                   <EmptyState
                     icon={CalendarIcon}
                     title={t('empty.noUpcoming')}
+                    emoji="📅"
                     description={
                       filters.searchQuery
                         ? t('empty.tryAdjusting')
