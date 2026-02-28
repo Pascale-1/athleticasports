@@ -1,115 +1,149 @@
 
 
-# Event Detail Screen Redesign
+# Micro-Interactions & Feedback States
 
-## Files to modify (3 files)
+## Files to modify (7 files) + 1 new file
 
 | File | Changes |
 |------|---------|
-| `src/pages/EventDetail.tsx` | Header badges, title size, calendar button label, section headers to Title Case, location link style, home_away pill, RSVP bar layout |
-| `src/components/events/EventRSVPBar.tsx` | 3 equal flex-1 buttons at 52px, 14px semibold labels, cancel button above bar with 8px margin |
-| `src/components/events/EventAttendees.tsx` | Avatar overlap max 5, summary line "X confirmés · X peut-être" in 13px muted |
+| `tailwind.config.ts` | Add `rsvp-pop` keyframe (scale 1→1.05→1, 150ms) |
+| `src/components/ui/button.tsx` | Add `active:opacity-90 active:scale-95` to base styles (already has `active:scale-95` on most variants) |
+| `src/components/ui/card.tsx` | Add `active:scale-[0.99]` to `default` and `elevated` variants |
+| `src/components/events/EventRSVPBar.tsx` | Add `animate-rsvp-pop` class on active RSVP button for scale feedback |
+| `src/components/events/EventCardSkeleton.tsx` | **NEW** — skeleton matching EventCard shape (date block + 2 text lines + CTA placeholder) |
+| `src/pages/Events.tsx` | Replace generic `Skeleton` blocks with `EventCardSkeleton`, update empty states with emoji + styled messages |
+| `src/pages/Teams.tsx` | Replace `Loader2` spinner with `TeamCardSkeleton` list, update empty state messages |
+| `src/pages/Index.tsx` | Update empty state for no events with emoji + CTA text |
+| `src/components/events/CreateEventDialog.tsx` | Add success state after creation: sport emoji, "Événement créé ! 🎉", summary, two CTAs |
+| `src/components/EmptyState.tsx` | Support optional emoji prop for centered emoji display |
 
 ---
 
-## 1. EventDetail.tsx — Header (lines 304-328)
+## 1. tailwind.config.ts — Add rsvp-pop keyframe
 
-**Badges**: Sport type + visibility on one line, 12px pill style:
-```tsx
-<div className="flex items-center gap-2 mb-3">
-  <Badge variant="secondary" className="text-xs rounded-full px-2.5 py-0.5"
-    style={{ backgroundColor: eventConfig.bgColor, color: eventConfig.color }}>
-    <EventIcon className="h-3 w-3 mr-1" />
-    {t(`types.${getEventTypeKey(event.type)}`)}
-  </Badge>
-  <Badge variant="outline" className="text-xs rounded-full px-2.5 py-0.5">
-    {event.is_public ? t('status.public') : t('status.private', 'Privé')}
-  </Badge>
-  {/* team/past/ongoing badges follow */}
-</div>
+Add to `keyframes`:
+```typescript
+"rsvp-pop": {
+  "0%": { transform: "scale(1)" },
+  "50%": { transform: "scale(1.05)" },
+  "100%": { transform: "scale(1)" },
+},
+```
+Add to `animation`:
+```typescript
+"rsvp-pop": "rsvp-pop 150ms ease-out",
 ```
 
-**Title**: Change `text-2xl` to `text-[26px]`, keep `font-bold`.
+## 2. button.tsx — Ensure active press state
 
-**Calendar button**: Already using `AddToCalendarButton` with `variant="ghost"` — this is correct per spec. No change needed.
+The base cva string already has `active:scale-95` on most variants. Verify and add `active:opacity-90` to the base string (before variant definitions).
 
-## 2. EventDetail.tsx — Section headers (lines 373, 491, 529, 541)
+## 3. card.tsx — Tappable press feedback
 
-All already use `text-[13px] text-muted-foreground font-semibold` — they're Title Case in the translation file. Verify translations match:
-- `details.whereAndWhen` → "Quand et où" ✓
-- `details.matchInfo` → "Infos du match" ✓  
-- `details.whoComing` → "Qui vient ?" ✓
-- `details.about` → "À propos" ✓
+Add `active:scale-[0.99]` to `default` and `interactive` variant strings so all cards feel tappable.
 
-No changes needed — translations already Title Case.
+## 4. EventRSVPBar.tsx — RSVP tap animation
 
-## 3. EventDetail.tsx — Home/away pill (lines 508-514)
+When a button is active (matches `userStatus`), apply `animate-rsvp-pop` class. This gives the brief scale-up on selection.
 
-Change from `Badge variant="outline"` to pill style with `bg-muted rounded-full text-[13px]`:
+## 5. EventCardSkeleton.tsx — NEW component
+
+Matches EventCard layout:
 ```tsx
-<Badge variant="outline" className="bg-muted rounded-full text-[13px] text-muted-foreground">
-  {event.home_away === 'home' && <Home className="h-3 w-3 mr-1" />}
-  {event.home_away === 'away' && <Plane className="h-3 w-3 mr-1" />}
-  Terrain : {t(`game.${event.home_away}`)}
-</Badge>
-```
-
-## 4. EventDetail.tsx — Location link (lines 396-441)
-
-Replace the dropdown trigger's "Ouvrir dans Plans" subtitle with an accent-colored underlined link style:
-```tsx
-<p className="text-xs text-primary underline">
-  {t('details.tapToOpenMaps')}
-</p>
-```
-Remove `line-clamp-2` from address to show full display.
-
-## 5. EventRSVPBar.tsx — RSVP buttons redesign (lines 88-137)
-
-- All 3 buttons: `flex-1 h-[52px]`, `text-sm font-semibold` (14px)
-- Active attending: `bg-primary text-primary-foreground`
-- Active maybe: `bg-warning text-warning-foreground`  
-- Active not_attending: `bg-destructive text-destructive-foreground`
-- Inactive: `bg-card border border-border text-muted-foreground`
-- Move "Annuler ma participation" button ABOVE the RSVP button row, 14px accent color, min-h-[44px], mb-2
-
-Restructure the layout:
-```tsx
-<div className="max-w-lg mx-auto space-y-2">
-  {/* Cancel button above */}
-  {userStatus && !isCommitted && (
-    <Button variant="ghost" size="sm" onClick={onRemoveAttendance}
-      className="w-full text-sm font-semibold text-primary min-h-[44px]">
-      {t('rsvp.cancelAttendance')}
-    </Button>
-  )}
-  {/* 3 equal buttons */}
-  <div className="flex gap-2">
-    {/* attending/maybe/not_attending buttons with h-[52px] flex-1 */}
+<Card className="border-l-[5px] border-l-muted overflow-hidden">
+  <div className="flex gap-0 p-0">
+    {/* Date block placeholder */}
+    <div className="flex flex-col items-center justify-center px-3 py-3 shrink-0">
+      <Skeleton className="h-10 w-10 rounded-lg" />
+    </div>
+    <div className="w-px bg-border shrink-0" />
+    {/* Content */}
+    <div className="flex-1 px-3 py-2.5 space-y-2">
+      <Skeleton className="h-4 w-3/4" />
+      <Skeleton className="h-3 w-1/2" />
+      <div className="flex items-center justify-between pt-1">
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-7 w-16 rounded-full" />
+      </div>
+    </div>
   </div>
-  <p className="text-xs text-center text-muted-foreground">...</p>
-</div>
+</Card>
 ```
 
-## 6. EventAttendees.tsx — Participant summary
+## 6. Events.tsx — Skeleton + empty states
 
-The component already shows overlapping avatars (max 5) and names. Update the summary line below avatars to use 13px muted format "X confirmés · X peut-être":
+Replace 3× `<Skeleton className="h-28 w-full rounded-xl" />` blocks (lines 310-312, 335-337, 367-369) with `<EventCardSkeleton />` components.
+
+Empty state messages (already using EmptyState component — keep as-is, the translations handle text).
+
+## 7. Teams.tsx — Loading skeleton
+
+Replace the `Loader2` spinner (lines 151-157) with a list of `TeamCardSkeleton` components:
 ```tsx
-<p className="text-[13px] text-muted-foreground">
-  {grouped.attending.length} {t('attendees.going').toLowerCase()} · {grouped.maybe.length} {t('attendees.maybe').toLowerCase()}
-</p>
+if (loading) {
+  return (
+    <PageContainer>
+      <div className="space-y-6 pt-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 gap-3">
+          {[1,2,3].map(i => <TeamCardSkeleton key={i} />)}
+        </div>
+      </div>
+    </PageContainer>
+  );
+}
+```
+
+## 8. CreateEventDialog.tsx — Success screen
+
+After `onSubmit` succeeds, show a success state instead of immediately closing:
+- Full dialog content replaced with centered layout
+- Sport emoji large (48px)
+- "Événement créé ! 🎉" in 24px bold
+- "Voir l'événement" primary CTA → navigates to event
+- "Créer un autre" ghost CTA → resets form
+
+This requires storing the created event ID from the `createEvent` return. Currently `createEvent` returns `boolean`. The success screen will show for 2 seconds or until user taps a CTA.
+
+**Simplified approach**: Show success state with auto-close after animation, without needing event ID:
+```tsx
+const [showSuccess, setShowSuccess] = useState(false);
+
+// After successful submit:
+setShowSuccess(true);
+setTimeout(() => { onOpenChange(false); setShowSuccess(false); }, 2500);
+```
+
+Success UI:
+```tsx
+{showSuccess && (
+  <div className="flex flex-col items-center justify-center py-12 px-6 text-center animate-scale-in">
+    <span className="text-5xl mb-4">⚽</span>
+    <h2 className="text-[24px] font-bold mb-2">Événement créé ! 🎉</h2>
+    <p className="text-sm text-muted-foreground mb-6">Ton événement est prêt</p>
+    <Button variant="ghost" onClick={() => { setShowSuccess(false); onOpenChange(false); }}>
+      Fermer
+    </Button>
+  </div>
+)}
+```
+
+## 9. EmptyState.tsx — Add emoji support
+
+Add optional `emoji` prop. When provided, show it above the icon:
+```tsx
+{emoji && <span className="text-4xl mb-2">{emoji}</span>}
 ```
 
 ## Summary
 
-| Element | Change |
-|---------|--------|
-| Header badges | 12px pill, sport + visibility on one line |
-| Title | 26px bold |
-| Section headers | Already Title Case — no change |
-| Home/away | Pill: `bg-muted rounded-full text-[13px]` with "Terrain :" prefix |
-| Location | Full address, accent underlined link |
-| RSVP buttons | 3 × flex-1, 52px, 14px semibold |
-| Cancel button | Moved above RSVP row, 14px accent, 44px tap target |
-| Attendees summary | "X confirmés · X peut-être" in 13px muted |
+| Feature | Implementation |
+|---------|---------------|
+| Skeleton loaders | New `EventCardSkeleton`, reuse `TeamCardSkeleton`, replace spinners |
+| RSVP feedback | `animate-rsvp-pop` keyframe on active button |
+| Button press | `active:opacity-90 active:scale-95` globally |
+| Card press | `active:scale-[0.99]` on default card variant |
+| Form transitions | Already implemented via framer-motion `slideVariants` in UnifiedEventForm |
+| Success screen | Post-creation celebration in CreateEventDialog |
+| Empty states | Emoji + styled messages via EmptyState component |
 
