@@ -2,95 +2,95 @@
 @tailwind components;
 @tailwind utilities;
 
-/* CHAMPIONSHIP Palette — Champagne Gold on Matte Black
+/* Electric Orange on Deep Black
    Dark-first system. All colors MUST be HSL. */
 
 @layer base {
   :root {
-    /* CHAMPIONSHIP Palette — Champagne Gold on Matte Black */
-    --background: 0 0% 4%;            /* #0A0A0A — matte black */
-    --foreground: 0 0% 96%;           /* #F5F5F5 */
+    /* Electric Orange — Deep Blue-Black */
+    --background: 240 20% 4%;          /* #0D0D14 */
+    --foreground: 0 0% 94%;            /* #EFEFEF */
 
     /* Text Color Scale */
-    --text-primary: 0 0% 96%;         /* #F5F5F5 */
-    --text-secondary: 0 0% 83%;       /* #D4D4D4 */
-    --text-muted: 0 0% 64%;           /* #A3A3A3 */
-    --text-hint: 0 0% 32%;            /* #525252 */
-    --text-link: 43 50% 54%;          /* #C9A84C — gold */
+    --text-primary: 0 0% 94%;          /* #EFEFEF */
+    --text-secondary: 240 5% 55%;      /* #8A8A9A */
+    --text-muted: 240 5% 55%;          /* #8A8A9A */
+    --text-hint: 240 5% 35%;           /* #525260 */
+    --text-link: 22 95% 54%;           /* #FF6B1A — orange */
 
     /* Card / Surface */
-    --card: 0 0% 8%;                  /* #141414 — surface */
-    --card-foreground: 0 0% 96%;
+    --card: 240 15% 9%;                /* #161620 */
+    --card-foreground: 0 0% 94%;
 
     /* Popover */
-    --popover: 0 0% 12%;              /* #1F1F1F — surface-elevated */
-    --popover-foreground: 0 0% 96%;
+    --popover: 240 15% 12%;            /* #1E1E2A */
+    --popover-foreground: 0 0% 94%;
 
-    /* Primary — Champagne Gold */
-    --primary: 43 50% 54%;            /* #C9A84C */
-    --primary-light: 43 50% 60%;
-    --primary-dark: 43 50% 47%;       /* #B8963E — hover */
-    --primary-foreground: 0 0% 4%;    /* black on gold */
+    /* Primary — Electric Orange */
+    --primary: 22 95% 54%;             /* #FF6B1A */
+    --primary-light: 22 95% 60%;
+    --primary-dark: 22 95% 47%;
+    --primary-foreground: 0 0% 100%;   /* white on orange */
 
     /* Primary Subtle (tinted bg) */
-    --primary-subtle: 43 30% 9%;      /* #1E1A0F */
+    --primary-subtle: 22 40% 10%;
 
-    /* Accent — Lighter Gold */
-    --accent: 43 72% 66%;             /* #E8C46A */
-    --accent-foreground: 0 0% 4%;     /* black on gold */
+    /* Accent — Same Orange */
+    --accent: 22 95% 54%;              /* #FF6B1A */
+    --accent-foreground: 0 0% 100%;
 
     /* Accent Subtle */
-    --accent-subtle: 43 30% 7%;       /* #1A1608 */
+    --accent-subtle: 22 30% 8%;
 
     /* Muted */
-    --muted: 0 0% 12%;               /* #1F1F1F */
-    --muted-foreground: 0 0% 64%;    /* #A3A3A3 */
+    --muted: 240 15% 12%;
+    --muted-foreground: 240 5% 55%;
 
     /* Destructive */
-    --destructive: 0 84% 60%;         /* #EF4444 */
+    --destructive: 0 84% 60%;          /* #EF4444 */
     --destructive-foreground: 0 0% 96%;
 
     /* Success */
-    --success: 142 71% 45%;           /* #22C55E */
+    --success: 142 71% 45%;            /* #22C55E */
     --success-foreground: 0 0% 100%;
 
-    /* Warning — lighter gold */
-    --warning: 43 72% 66%;            /* #E8C46A */
-    --warning-foreground: 0 0% 4%;
+    /* Warning */
+    --warning: 38 92% 50%;             /* #F59E0B */
+    --warning-foreground: 0 0% 100%;
 
-    /* Info — same as primary */
-    --info: 43 50% 54%;
-    --info-foreground: 0 0% 4%;
+    /* Info */
+    --info: 22 95% 54%;
+    --info-foreground: 0 0% 100%;
 
     /* Match */
-    --match: 43 50% 54%;
-    --match-foreground: 0 0% 4%;
+    --match: 22 95% 54%;
+    --match-foreground: 0 0% 100%;
 
     /* Border & Input */
-    --border: 0 0% 16%;              /* #2A2A2A */
-    --input: 0 0% 12%;               /* #1F1F1F — surface-elevated */
-    --ring: 43 50% 54%;              /* gold focus ring */
+    --border: 240 10% 18%;
+    --input: 240 15% 12%;
+    --ring: 22 95% 54%;
 
     /* Neutrals Scale — dark */
-    --neutral-50: 0 0% 4%;
-    --neutral-100: 0 0% 8%;
-    --neutral-200: 0 0% 12%;
-    --neutral-300: 0 0% 16%;
-    --neutral-400: 0 0% 32%;
-    --neutral-500: 0 0% 64%;
-    --neutral-600: 0 0% 83%;
-    --neutral-700: 0 0% 90%;
-    --neutral-800: 0 0% 94%;
-    --neutral-900: 0 0% 96%;
+    --neutral-50: 240 20% 4%;
+    --neutral-100: 240 15% 9%;
+    --neutral-200: 240 15% 12%;
+    --neutral-300: 240 10% 18%;
+    --neutral-400: 240 5% 35%;
+    --neutral-500: 240 5% 55%;
+    --neutral-600: 0 0% 75%;
+    --neutral-700: 0 0% 85%;
+    --neutral-800: 0 0% 90%;
+    --neutral-900: 0 0% 94%;
 
-    /* Shadows — pure black */
+    /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 4px 12px -2px rgb(0 0 0 / 0.5);
     --shadow-xl: 0 8px 16px -4px rgb(0 0 0 / 0.6);
     --shadow-2xl: 0 16px 32px -8px rgb(0 0 0 / 0.7);
-    --shadow-colored: 0 4px 12px rgba(201, 168, 76, 0.15);
-    --shadow-colored-lg: 0 6px 16px rgba(201, 168, 76, 0.25);
+    --shadow-colored: 0 4px 12px rgba(255, 107, 26, 0.15);
+    --shadow-colored-lg: 0 6px 16px rgba(255, 107, 26, 0.25);
 
     /* Spacing System */
     --spacing-xs: 0.25rem;
@@ -117,24 +117,24 @@
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Sidebar */
-    --sidebar-background: 0 0% 8%;
-    --sidebar-foreground: 0 0% 64%;
-    --sidebar-primary: 43 50% 54%;
-    --sidebar-primary-foreground: 0 0% 4%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 96%;
-    --sidebar-border: 0 0% 16%;
-    --sidebar-ring: 43 50% 54%;
+    --sidebar-background: 240 15% 9%;
+    --sidebar-foreground: 240 5% 55%;
+    --sidebar-primary: 22 95% 54%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 15% 12%;
+    --sidebar-accent-foreground: 0 0% 94%;
+    --sidebar-border: 240 10% 18%;
+    --sidebar-ring: 22 95% 54%;
 
-    /* Sport-specific tints — dark versions */
-    --sport-football: 120 100% 3%;    /* #0A1A0A — deep green */
-    --sport-basketball: 36 100% 5%;   /* #1A1000 — deep amber */
-    --sport-volleyball: 260 33% 7%;   /* #0F0A1A — deep indigo */
-    --sport-running: 30 100% 5%;      /* #1A0F00 — deep orange */
+    /* Sport-specific tints */
+    --sport-football: 120 100% 3%;
+    --sport-basketball: 36 100% 5%;
+    --sport-volleyball: 260 33% 7%;
+    --sport-running: 30 100% 5%;
 
-    /* Event type colors — dark */
-    --event-match-bg: 43 30% 9%;
-    --event-match-border: 43 50% 54%;
+    /* Event type colors */
+    --event-match-bg: 22 30% 9%;
+    --event-match-border: 22 95% 54%;
     --event-training-bg: 140 30% 6%;
     --event-training-border: 140 30% 38%;
     --event-social-bg: 0 20% 9%;
@@ -145,71 +145,71 @@
 
   /* Dark-first system — dark mirrors root */
   .dark {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 96%;
-    --text-primary: 0 0% 96%;
-    --text-secondary: 0 0% 83%;
-    --text-muted: 0 0% 64%;
-    --text-hint: 0 0% 32%;
-    --text-link: 43 50% 54%;
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 96%;
-    --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 96%;
-    --primary: 43 50% 54%;
-    --primary-light: 43 50% 60%;
-    --primary-dark: 43 50% 47%;
-    --primary-foreground: 0 0% 4%;
-    --primary-subtle: 43 30% 9%;
-    --accent: 43 72% 66%;
-    --accent-foreground: 0 0% 4%;
-    --accent-subtle: 43 30% 7%;
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 64%;
+    --background: 240 20% 4%;
+    --foreground: 0 0% 94%;
+    --text-primary: 0 0% 94%;
+    --text-secondary: 240 5% 55%;
+    --text-muted: 240 5% 55%;
+    --text-hint: 240 5% 35%;
+    --text-link: 22 95% 54%;
+    --card: 240 15% 9%;
+    --card-foreground: 0 0% 94%;
+    --popover: 240 15% 12%;
+    --popover-foreground: 0 0% 94%;
+    --primary: 22 95% 54%;
+    --primary-light: 22 95% 60%;
+    --primary-dark: 22 95% 47%;
+    --primary-foreground: 0 0% 100%;
+    --primary-subtle: 22 40% 10%;
+    --accent: 22 95% 54%;
+    --accent-foreground: 0 0% 100%;
+    --accent-subtle: 22 30% 8%;
+    --muted: 240 15% 12%;
+    --muted-foreground: 240 5% 55%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 96%;
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
-    --warning: 43 72% 66%;
-    --warning-foreground: 0 0% 4%;
-    --info: 43 50% 54%;
-    --info-foreground: 0 0% 4%;
-    --match: 43 50% 54%;
-    --match-foreground: 0 0% 4%;
-    --border: 0 0% 16%;
-    --input: 0 0% 12%;
-    --ring: 43 50% 54%;
-    --neutral-50: 0 0% 4%;
-    --neutral-100: 0 0% 8%;
-    --neutral-200: 0 0% 12%;
-    --neutral-300: 0 0% 16%;
-    --neutral-400: 0 0% 32%;
-    --neutral-500: 0 0% 64%;
-    --neutral-600: 0 0% 83%;
-    --neutral-700: 0 0% 90%;
-    --neutral-800: 0 0% 94%;
-    --neutral-900: 0 0% 96%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 22 95% 54%;
+    --info-foreground: 0 0% 100%;
+    --match: 22 95% 54%;
+    --match-foreground: 0 0% 100%;
+    --border: 240 10% 18%;
+    --input: 240 15% 12%;
+    --ring: 22 95% 54%;
+    --neutral-50: 240 20% 4%;
+    --neutral-100: 240 15% 9%;
+    --neutral-200: 240 15% 12%;
+    --neutral-300: 240 10% 18%;
+    --neutral-400: 240 5% 35%;
+    --neutral-500: 240 5% 55%;
+    --neutral-600: 0 0% 75%;
+    --neutral-700: 0 0% 85%;
+    --neutral-800: 0 0% 90%;
+    --neutral-900: 0 0% 94%;
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 4px 12px -2px rgb(0 0 0 / 0.5);
     --shadow-xl: 0 8px 16px -4px rgb(0 0 0 / 0.6);
     --shadow-2xl: 0 16px 32px -8px rgb(0 0 0 / 0.7);
-    --shadow-colored: 0 4px 12px rgba(201, 168, 76, 0.15);
-    --shadow-colored-lg: 0 6px 16px rgba(201, 168, 76, 0.25);
-    --sidebar-background: 0 0% 8%;
-    --sidebar-foreground: 0 0% 64%;
-    --sidebar-primary: 43 50% 54%;
-    --sidebar-primary-foreground: 0 0% 4%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 96%;
-    --sidebar-border: 0 0% 16%;
-    --sidebar-ring: 43 50% 54%;
+    --shadow-colored: 0 4px 12px rgba(255, 107, 26, 0.15);
+    --shadow-colored-lg: 0 6px 16px rgba(255, 107, 26, 0.25);
+    --sidebar-background: 240 15% 9%;
+    --sidebar-foreground: 240 5% 55%;
+    --sidebar-primary: 22 95% 54%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 15% 12%;
+    --sidebar-accent-foreground: 0 0% 94%;
+    --sidebar-border: 240 10% 18%;
+    --sidebar-ring: 22 95% 54%;
     --sport-football: 120 100% 3%;
     --sport-basketball: 36 100% 5%;
     --sport-volleyball: 260 33% 7%;
     --sport-running: 30 100% 5%;
-    --event-match-bg: 43 30% 9%;
-    --event-match-border: 43 50% 54%;
+    --event-match-bg: 22 30% 9%;
+    --event-match-border: 22 95% 54%;
     --event-training-bg: 140 30% 6%;
     --event-training-border: 140 30% 38%;
     --event-social-bg: 0 20% 9%;
@@ -220,71 +220,71 @@
 
   /* Light mode — Championship Gold on Warm Parchment */
   .light {
-    --background: 36 23% 96%;           /* #F8F6F1 */
-    --foreground: 24 18% 8%;            /* #1A1410 */
-    --text-primary: 24 18% 8%;
-    --text-secondary: 18 10% 22%;       /* #3D3530 */
-    --text-muted: 24 10% 44%;           /* #7A6F65 */
-    --text-hint: 24 7% 62%;             /* #A89F95 */
-    --text-link: 36 55% 40%;            /* #9A7230 */
+    --background: 0 0% 98%;              /* #FAFAFA */
+    --foreground: 0 0% 9%;               /* #171717 */
+    --text-primary: 0 0% 9%;
+    --text-secondary: 0 0% 35%;
+    --text-muted: 0 0% 45%;
+    --text-hint: 0 0% 62%;
+    --text-link: 22 95% 48%;
     --card: 0 0% 100%;
-    --card-foreground: 24 18% 8%;
-    --popover: 36 15% 92%;              /* #F0EDE6 */
-    --popover-foreground: 24 18% 8%;
-    --primary: 36 55% 40%;              /* #9A7230 */
-    --primary-light: 36 55% 45%;
-    --primary-dark: 36 55% 32%;         /* #7D5C27 */
-    --primary-foreground: 0 0% 100%;    /* white on gold */
-    --primary-subtle: 42 85% 93%;       /* #FDF3DC */
-    --accent: 43 50% 54%;               /* #C9A84C */
-    --accent-foreground: 36 55% 32%;    /* #7D5C27 */
-    --accent-subtle: 44 85% 96%;        /* #FDF8EC */
-    --muted: 36 15% 92%;
-    --muted-foreground: 24 10% 44%;
-    --destructive: 0 72% 51%;           /* #DC2626 */
+    --card-foreground: 0 0% 9%;
+    --popover: 0 0% 96%;
+    --popover-foreground: 0 0% 9%;
+    --primary: 22 95% 48%;               /* slightly darker orange for light bg */
+    --primary-light: 22 95% 54%;
+    --primary-dark: 22 95% 40%;
+    --primary-foreground: 0 0% 100%;
+    --primary-subtle: 22 85% 95%;
+    --accent: 22 95% 54%;
+    --accent-foreground: 22 95% 40%;
+    --accent-subtle: 22 85% 97%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --success: 142 64% 37%;             /* #16A34A */
+    --success: 142 64% 37%;
     --success-foreground: 0 0% 100%;
-    --warning: 43 50% 54%;
-    --warning-foreground: 36 55% 32%;
-    --info: 36 55% 40%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 22 95% 48%;
     --info-foreground: 0 0% 100%;
-    --match: 43 50% 54%;
-    --match-foreground: 36 55% 32%;
-    --border: 33 18% 87%;               /* #E5E0D5 */
-    --input: 36 15% 92%;
-    --ring: 36 55% 40%;
+    --match: 22 95% 48%;
+    --match-foreground: 0 0% 100%;
+    --border: 0 0% 90%;
+    --input: 0 0% 96%;
+    --ring: 22 95% 48%;
     --neutral-50: 0 0% 98%;
     --neutral-100: 0 0% 96%;
-    --neutral-200: 36 15% 92%;
-    --neutral-300: 33 18% 87%;
-    --neutral-400: 24 7% 62%;
-    --neutral-500: 24 10% 44%;
-    --neutral-600: 18 10% 22%;
-    --neutral-700: 24 18% 14%;
-    --neutral-800: 24 18% 10%;
-    --neutral-900: 24 18% 8%;
+    --neutral-200: 0 0% 93%;
+    --neutral-300: 0 0% 88%;
+    --neutral-400: 0 0% 62%;
+    --neutral-500: 0 0% 45%;
+    --neutral-600: 0 0% 35%;
+    --neutral-700: 0 0% 20%;
+    --neutral-800: 0 0% 12%;
+    --neutral-900: 0 0% 9%;
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
     --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
     --shadow-lg: 0 4px 12px -2px rgb(0 0 0 / 0.08);
     --shadow-xl: 0 8px 16px -4px rgb(0 0 0 / 0.1);
     --shadow-2xl: 0 16px 32px -8px rgb(0 0 0 / 0.12);
-    --shadow-colored: 0 4px 12px rgba(154, 114, 48, 0.1);
-    --shadow-colored-lg: 0 6px 16px rgba(154, 114, 48, 0.15);
+    --shadow-colored: 0 4px 12px rgba(255, 107, 26, 0.1);
+    --shadow-colored-lg: 0 6px 16px rgba(255, 107, 26, 0.15);
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 24 10% 44%;
-    --sidebar-primary: 36 55% 40%;
+    --sidebar-foreground: 0 0% 45%;
+    --sidebar-primary: 22 95% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 36 15% 92%;
-    --sidebar-accent-foreground: 24 18% 8%;
-    --sidebar-border: 33 18% 87%;
-    --sidebar-ring: 36 55% 40%;
-    --sport-football: 120 30% 94%;      /* #EBF5EB */
-    --sport-basketball: 40 90% 94%;     /* #FEF6E4 */
-    --sport-volleyball: 260 100% 97%;   /* #F3F0FF */
-    --sport-running: 28 90% 95%;        /* #FEF0E6 */
-    --event-match-bg: 44 85% 96%;
-    --event-match-border: 43 50% 54%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 22 95% 48%;
+    --sport-football: 120 30% 94%;
+    --sport-basketball: 40 90% 94%;
+    --sport-volleyball: 260 100% 97%;
+    --sport-running: 28 90% 95%;
+    --event-match-bg: 22 85% 96%;
+    --event-match-border: 22 95% 54%;
     --event-training-bg: 130 30% 94%;
     --event-training-border: 140 30% 38%;
     --event-social-bg: 0 50% 97%;
@@ -352,13 +352,13 @@
     @apply text-primary font-bold;
   }
 
-  /* Shadow Utilities — gold-tinted for CHAMPIONSHIP */
+  /* Shadow Utilities — orange-tinted */
   .shadow-colored {
-    box-shadow: 0 4px 12px rgba(201, 168, 76, 0.15);
+    box-shadow: 0 4px 12px rgba(255, 107, 26, 0.15);
   }
 
   .shadow-colored-lg {
-    box-shadow: 0 6px 16px rgba(201, 168, 76, 0.25);
+    box-shadow: 0 6px 16px rgba(255, 107, 26, 0.25);
   }
 
   .transition-smooth {
@@ -459,12 +459,12 @@
     background-color: hsl(var(--primary));
   }
 
-  /* Sport accent utility classes — gold-tinted for CHAMPIONSHIP */
+  /* Sport accent utility classes */
   .sport-accent-football { border-left-color: hsl(var(--sport-football)); background-color: hsl(var(--sport-football)); }
   .sport-accent-basketball { border-left-color: hsl(var(--sport-basketball)); background-color: hsl(var(--sport-basketball)); }
   .sport-accent-volleyball { border-left-color: hsl(var(--sport-volleyball)); background-color: hsl(var(--sport-volleyball)); }
-  .sport-accent-tennis { border-left-color: hsl(43 50% 54% / 0.15); }
-  .sport-accent-badminton { border-left-color: hsl(43 50% 54% / 0.15); }
+  .sport-accent-tennis { border-left-color: hsl(22 95% 54% / 0.15); }
+  .sport-accent-badminton { border-left-color: hsl(22 95% 54% / 0.15); }
 
   @media (max-width: 374px) {
     .text-page-title { font-size: 1.125rem !important; line-height: 1.5rem !important; }
