@@ -134,15 +134,18 @@ const Index = () => {
           .select('*', { count: 'exact', head: true })
           .eq('user_id', userId),
         supabase
-          .from('events')
-          .select('*', { count: 'exact', head: true })
-          .eq('type', 'match')
-          .gte('start_time', new Date().toISOString()),
+          .from('event_attendance')
+          .select('event_id, events!inner(type, start_time)', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('status', 'attending')
+          .eq('events.type', 'match')
+          .gte('events.start_time', new Date().toISOString()),
         supabase
           .from('event_attendance')
-          .select('*', { count: 'exact', head: true })
+          .select('event_id, events!inner(start_time)', { count: 'exact', head: true })
           .eq('user_id', userId)
-          .eq('status', 'attending'),
+          .eq('status', 'attending')
+          .gte('events.start_time', new Date().toISOString()),
       ]);
 
       setStats({
