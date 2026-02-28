@@ -38,7 +38,7 @@ const Avatar = React.forwardRef<
 
   const statusColors = {
     none: "",
-    online: "bg-green-500",
+    online: "bg-success",
     offline: "bg-neutral-400",
     busy: "bg-destructive",
   };

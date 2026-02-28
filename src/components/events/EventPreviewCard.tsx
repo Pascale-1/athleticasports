@@ -17,9 +17,9 @@ interface EventPreviewCardProps {
 }
 
 const TYPE_CONFIG: Record<EventType, { icon: typeof Trophy; bgClass: string; colorClass: string }> = {
-  match: { icon: Trophy, bgClass: 'bg-amber-500/10', colorClass: 'text-amber-500' },
+  match: { icon: Trophy, bgClass: 'bg-warning/10', colorClass: 'text-warning' },
   training: { icon: Dumbbell, bgClass: 'bg-primary/10', colorClass: 'text-primary' },
-  meetup: { icon: Users, bgClass: 'bg-green-500/10', colorClass: 'text-green-500' },
+  meetup: { icon: Users, bgClass: 'bg-success/10', colorClass: 'text-success' },
 };
 
 export const EventPreviewCard = ({

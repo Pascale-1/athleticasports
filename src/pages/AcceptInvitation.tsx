@@ -223,7 +223,7 @@ const AcceptInvitation = () => {
           
           {!loading && !error && teamId && (
             <>
-              <CheckCircle className="h-12 w-12 text-green-500" />
+              <CheckCircle className="h-12 w-12 text-success" />
               <p className="text-sm text-center">Redirecting to your team...</p>
             </>
           )}

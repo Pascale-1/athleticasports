@@ -81,8 +81,8 @@ export const InlineInvitationCards = ({ invitations, onRemove, onRefresh }: Inli
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2 px-1">
-        <Users className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-        <span className="text-sm font-medium text-amber-800 dark:text-amber-200">
+        <Users className="h-4 w-4 text-warning" />
+        <span className="text-sm font-medium text-foreground">
           {t("pendingInvites", { count: invitations.length })}
         </span>
       </div>
@@ -96,14 +96,14 @@ export const InlineInvitationCards = ({ invitations, onRemove, onRefresh }: Inli
             exit={{ opacity: 0, scale: 0.95, height: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <Card className="p-3 border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
+            <Card className="p-3 border-warning/20 bg-warning/5">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <div className="h-9 w-9 rounded-lg bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center shrink-0">
+                  <div className="h-9 w-9 rounded-lg bg-warning/10 flex items-center justify-center shrink-0">
                     {inv.team_avatar_url ? (
                       <img src={inv.team_avatar_url} alt="" className="h-9 w-9 rounded-lg object-cover" />
                     ) : (
-                      <Users className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                      <Users className="h-4 w-4 text-warning" />
                     )}
                   </div>
                   <div className="min-w-0">
