@@ -11,15 +11,20 @@ interface ProfileCompletionCardProps {
     display_name?: string | null;
     bio?: string | null;
     primary_sport?: string | null;
+    username?: string | null;
   };
   onGoToAbout: () => void;
 }
+
+const isSystemUsername = (username?: string | null) =>
+  !username || /^user_[0-9a-f]+$/i.test(username);
 
 const COMPLETION_FIELDS = [
   { key: 'avatar_url', labelKey: 'profileCompletion.addPhoto' },
   { key: 'display_name', labelKey: 'profileCompletion.addDisplayName' },
   { key: 'bio', labelKey: 'profileCompletion.addBio' },
   { key: 'primary_sport', labelKey: 'profileCompletion.addSport' },
+  { key: 'username', labelKey: 'profileCompletion.setUsername', checkFn: (v: string | null | undefined) => !isSystemUsername(v) },
 ] as const;
 
 export const ProfileCompletionCard = ({ profile, onGoToAbout }: ProfileCompletionCardProps) => {
@@ -33,9 +38,10 @@ export const ProfileCompletionCard = ({ profile, onGoToAbout }: ProfileCompletio
     } catch { return false; }
   });
 
-  const completedFields = COMPLETION_FIELDS.filter(
-    f => !!profile[f.key as keyof typeof profile]
-  );
+  const completedFields = COMPLETION_FIELDS.filter(f => {
+    const val = profile[f.key as keyof typeof profile];
+    return 'checkFn' in f ? (f as any).checkFn(val) : !!val;
+  });
   const percentage = Math.round((completedFields.length / COMPLETION_FIELDS.length) * 100);
   const missingFields = COMPLETION_FIELDS.filter(
     f => !profile[f.key as keyof typeof profile]
@@ -66,7 +72,8 @@ export const ProfileCompletionCard = ({ profile, onGoToAbout }: ProfileCompletio
 
         <div className="space-y-1.5">
           {COMPLETION_FIELDS.map(field => {
-            const done = !!profile[field.key as keyof typeof profile];
+            const val = profile[field.key as keyof typeof profile];
+            const done = 'checkFn' in field ? (field as any).checkFn(val) : !!val;
             return (
               <div key={field.key} className="flex items-center gap-2 text-xs">
                 {done ? (

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trophy, Users, User, Mail, Calendar, Globe, MessageSquare, PlayCircle, Pencil, Settings, Activity, KeyRound, Sun } from "lucide-react";
+import { Trophy, Users, User, Mail, Calendar, Globe, MessageSquare, PlayCircle, Pencil, Settings, Activity, KeyRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,8 @@ import { ProfileActivityTab } from "./ProfileActivityTab";
 import { ChangePasswordSection } from "./ChangePasswordSection";
 import { ProfileCompletionCard } from "./ProfileCompletionCard";
 import { NextEventCard } from "./NextEventCard";
-import { ThemeToggle } from "./ThemeToggle";
+// Light mode token system to be implemented in next sprint
+import { LogoutButton } from "./LogoutButton";
 
 interface ProfileTabsProps {
   profile: any;
@@ -129,9 +130,8 @@ export const ProfileTabs = ({
 
               <div className="flex items-center gap-3">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">{t('time.ago')}:</span>
                 <span className="text-sm">
-                  {formatMonthYear(profile?.created_at)}
+                  {t('profile.memberSince', { date: formatMonthYear(profile?.created_at) })}
                 </span>
               </div>
             </div>
@@ -278,13 +278,6 @@ export const ProfileTabs = ({
           <CardContent className="pt-6 space-y-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
-                <Sun className="h-4 w-4" />
-                {t('settings.theme', 'Theme')}
-              </Label>
-              <ThemeToggle />
-            </div>
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
                 <Globe className="h-4 w-4" />
                 {t('profile.language')}
               </Label>
@@ -317,6 +310,9 @@ export const ProfileTabs = ({
 
         {/* Change Password Section */}
         <ChangePasswordSection email={email} />
+
+        {/* Logout */}
+        <LogoutButton variant="settings" />
 
         <FeedbackForm open={feedbackOpen} onOpenChange={setFeedbackOpen} />
       </TabsContent>
