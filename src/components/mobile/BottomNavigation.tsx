@@ -92,7 +92,7 @@ export const BottomNavigation = () => {
   ];
 
   return (
-    <nav data-walkthrough="navigation" className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-lg h-[calc(3.5rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)]">
+    <nav data-walkthrough="navigation" className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border/50 bg-background/95 backdrop-blur-lg h-[calc(52px+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)]">
       <div className="flex h-full items-center justify-around px-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.url || 
@@ -105,21 +105,16 @@ export const BottomNavigation = () => {
               to={item.url}
               onClick={handleNavPress}
               className={cn(
-                "relative flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-lg transition-all duration-150 active:scale-[0.92] min-w-[64px] min-h-[44px]",
+                "relative flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-all duration-150 active:scale-[0.92] min-w-[60px] min-h-[40px]",
                 isActive
-                  ? "text-primary"
+                  ? "text-primary bg-primary/10"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              {/* Active indicator line */}
-              {isActive && (
-                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-primary rounded-full" />
-              )}
-              
               <div className="relative">
                 <Icon 
                   className={cn(
-                    "h-6 w-6 transition-all duration-150",
+                    "h-[22px] w-[22px] transition-all duration-150",
                     isActive && "fill-primary/20"
                   )} 
                 />
@@ -132,7 +127,7 @@ export const BottomNavigation = () => {
               </div>
               
               <span className={cn(
-                "text-[10px] font-medium transition-all duration-150 max-w-[80px]",
+                "text-[11px] font-medium transition-all duration-150 max-w-[80px]",
                 isActive && "font-semibold"
               )}>
                 {t(item.titleKey)}

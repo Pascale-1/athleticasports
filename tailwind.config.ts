@@ -26,18 +26,18 @@ export default {
       },
       fontSize: {
         // Semantic Typography Scale
-        "page-title": ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }],         // 24px
-        "section": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],     // 13px
-        "card-title": ["1.0625rem", { lineHeight: "1.375rem", fontWeight: "600" }],  // 17px
+        "page-title": ["1.375rem", { lineHeight: "1.75rem", fontWeight: "700" }],    // 22px
+        "section": ["0.875rem", { lineHeight: "1.125rem", fontWeight: "600" }],      // 14px
+        "card-title": ["0.9375rem", { lineHeight: "1.25rem", fontWeight: "600" }],   // 15px
         "body": ["0.875rem", { lineHeight: "1.25rem" }],                             // 14px
         "body-sm": ["0.75rem", { lineHeight: "1.0625rem" }],                         // 12px
         "caption": ["0.75rem", { lineHeight: "1rem" }],                              // 12px
         "micro": ["0.625rem", { lineHeight: "0.875rem" }],                           // 10px
         // Legacy
         "xxs": ["0.5rem", { lineHeight: "1.4" }],                                   // 8px
-        "display": ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }],            // 24px
-        "h1": ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }],                 // 24px
-        "h2": ["1.0625rem", { lineHeight: "1.375rem", fontWeight: "600" }],          // 17px
+        "display": ["1.375rem", { lineHeight: "1.75rem", fontWeight: "700" }],       // 22px
+        "h1": ["1.375rem", { lineHeight: "1.75rem", fontWeight: "700" }],            // 22px
+        "h2": ["0.9375rem", { lineHeight: "1.25rem", fontWeight: "600" }],           // 15px
         "h3": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "600" }],            // 14px
         "h4": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],          // 13px
         "body-lg": ["0.875rem", { lineHeight: "1.25rem" }],                          // 14px
@@ -133,6 +133,7 @@ export default {
         lg: "0 4px 6px -2px rgb(0 0 0 / 0.08)",
         xl: "0 8px 12px -3px rgb(0 0 0 / 0.1)",
         "2xl": "0 12px 24px -6px rgb(0 0 0 / 0.15)",
+        "card-soft": "0 2px 8px rgba(0, 0, 0, 0.07)",
         colored: "0 4px 12px rgba(0, 102, 255, 0.12)",
         "colored-lg": "0 6px 16px rgba(0, 102, 255, 0.18)",
       },

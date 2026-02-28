@@ -255,7 +255,7 @@ const EventDetail = () => {
   return (
     <PageContainer className="pb-48 lg:pb-8">
       <motion.div 
-        className="space-y-4"
+        className="space-y-3"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -267,8 +267,8 @@ const EventDetail = () => {
             style={{ backgroundColor: eventConfig.bgColor }}
           />
           
-          <div className="px-4 pt-4 pb-5 bg-gradient-to-b from-muted/40 to-transparent">
-            <div className="flex items-center justify-between mb-4">
+          <div className="px-4 pt-3 pb-3 bg-gradient-to-b from-muted/40 to-transparent">
+            <div className="flex items-center justify-between mb-2">
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -322,7 +322,7 @@ const EventDetail = () => {
               {isOngoing && <Badge className="text-xs rounded-full px-2.5 py-0.5 bg-success text-success-foreground animate-pulse">{t('status.liveNow')}</Badge>}
             </div>
 
-            <h1 className="text-[26px] font-heading font-bold tracking-tight mb-2">{event.title}</h1>
+            <h1 className="text-[22px] font-heading font-bold tracking-tight mb-1">{event.title}</h1>
 
             <div className="flex items-center gap-2">
               <AddToCalendarButton event={event} variant="ghost" />
@@ -372,7 +372,7 @@ const EventDetail = () => {
         {/* When & Where Card */}
         <Card className="overflow-hidden">
           <CardContent className="p-4 space-y-4">
-            <h3 className="font-semibold text-[13px] text-muted-foreground">
+             <h3 className="font-semibold text-[14px] uppercase tracking-[0.5px] text-muted-foreground">
               {t('details.whereAndWhen')}
             </h3>
             

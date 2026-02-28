@@ -382,11 +382,18 @@ All colors MUST be HSL.
     background-color: hsl(var(--primary));
   }
 
+  /* Sport accent utility classes */
+  .sport-accent-football { border-left-color: hsl(142 71% 45%); }
+  .sport-accent-basketball { border-left-color: hsl(25 95% 53%); }
+  .sport-accent-volleyball { border-left-color: hsl(48 96% 53%); }
+  .sport-accent-tennis { border-left-color: hsl(142 71% 45%); }
+  .sport-accent-badminton { border-left-color: hsl(207 90% 54%); }
+
   /* Compact mobile typography overrides for extra-small screens */
   @media (max-width: 374px) {
-    .text-page-title { font-size: 1rem !important; line-height: 1.375rem !important; }
+    .text-page-title { font-size: 1.125rem !important; line-height: 1.5rem !important; }
     .text-section { font-size: 0.75rem !important; }
-    .text-card-title { font-size: 0.6875rem !important; }
+    .text-card-title { font-size: 0.8125rem !important; }
   }
 
   /* Safe text overflow */
