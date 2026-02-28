@@ -134,9 +134,9 @@ export default {
         lg: "0 4px 6px -2px rgb(0 0 0 / 0.08)",
         xl: "0 8px 12px -3px rgb(0 0 0 / 0.1)",
         "2xl": "0 12px 24px -6px rgb(0 0 0 / 0.15)",
-        "card-soft": "0 2px 8px rgba(0, 0, 0, 0.4)",
-        colored: "0 4px 12px rgba(204, 255, 0, 0.15)",
-        "colored-lg": "0 6px 16px rgba(204, 255, 0, 0.25)",
+        "card-soft": "0 1px 4px rgba(27, 45, 79, 0.08)",
+        colored: "0 4px 12px rgba(249, 92, 0, 0.12)",
+        "colored-lg": "0 6px 16px rgba(249, 92, 0, 0.2)",
       },
       transitionDuration: {
         fast: "150ms",

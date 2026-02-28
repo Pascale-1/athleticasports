@@ -32,9 +32,9 @@ interface FeedbackFormProps {
 
 const categories = [
   { value: 'bug', icon: Bug, color: 'text-destructive' },
-  { value: 'suggestion', icon: Lightbulb, color: 'text-yellow-500' },
-  { value: 'question', icon: HelpCircle, color: 'text-blue-500' },
-  { value: 'praise', icon: Star, color: 'text-green-500' },
+  { value: 'suggestion', icon: Lightbulb, color: 'text-warning' },
+  { value: 'question', icon: HelpCircle, color: 'text-primary' },
+  { value: 'praise', icon: Star, color: 'text-success' },
 ] as const;
 
 export function FeedbackForm({ open, onOpenChange }: FeedbackFormProps) {

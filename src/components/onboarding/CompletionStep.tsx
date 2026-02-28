@@ -25,8 +25,8 @@ export const CompletionStep = ({ goals, onComplete }: CompletionStepProps) => {
         transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
         className="mb-6"
       >
-        <div className="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center">
-          <CheckCircle2 className="w-12 h-12 text-green-500" />
+        <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center">
+          <CheckCircle2 className="w-12 h-12 text-success" />
         </div>
       </motion.div>
 
@@ -54,14 +54,14 @@ export const CompletionStep = ({ goals, onComplete }: CompletionStepProps) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl p-6 mb-8 max-w-sm"
+        className="bg-accent/10 border border-accent/30 rounded-xl p-6 mb-8 max-w-sm"
       >
         <div className="flex items-center justify-center gap-2 mb-3">
-          <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
-          <span className="font-semibold text-amber-600 dark:text-amber-400">
+          <Star className="w-5 h-5 text-accent fill-accent" />
+          <span className="font-semibold text-accent">
             {t("completion.foundingMember")}
           </span>
-          <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
+          <Star className="w-5 h-5 text-accent fill-accent" />
         </div>
         <p className="text-sm text-muted-foreground">
           {t("completion.foundingMemberDescription")}

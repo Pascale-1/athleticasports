@@ -10,14 +10,14 @@ const Card = React.forwardRef<
   }
 >(({ className, variant = "default", accent, ...props }, ref) => {
   const variantStyles = {
-    default: "rounded-[10px] shadow-card-soft bg-card text-card-foreground transition-all duration-200 active:scale-[0.99]",
-    elevated: "rounded-[10px] shadow-card-soft bg-card text-card-foreground transition-all duration-200 active:scale-[0.99]",
-    bordered: "rounded-[10px] border-2 border-border bg-card text-card-foreground transition-all duration-200 hover:border-primary/30",
-    "gradient-border": "rounded-[10px] bg-primary p-[2px] transition-all duration-200",
-    glass: "rounded-[10px] bg-background/80 backdrop-blur-md border border-border/50 text-card-foreground transition-all duration-200",
-    highlighted: "rounded-[10px] shadow-card-soft bg-primary/5 ring-2 ring-primary/20 text-card-foreground transition-all duration-200",
-    muted: "rounded-[10px] border border-muted bg-muted/30 text-card-foreground transition-all duration-200",
-    interactive: "rounded-[10px] shadow-card-soft bg-card text-card-foreground transition-all duration-150 cursor-pointer active:scale-[0.98] hover:shadow-md",
+    default: "rounded-[12px] shadow-card-soft bg-card text-card-foreground transition-all duration-200 active:scale-[0.99]",
+    elevated: "rounded-[12px] shadow-card-soft bg-card text-card-foreground transition-all duration-200 active:scale-[0.99]",
+    bordered: "rounded-[12px] border-2 border-border bg-card text-card-foreground transition-all duration-200 hover:border-primary/30",
+    "gradient-border": "rounded-[12px] bg-primary p-[2px] transition-all duration-200",
+    glass: "rounded-[12px] bg-background/80 backdrop-blur-md border border-border/50 text-card-foreground transition-all duration-200",
+    highlighted: "rounded-[12px] shadow-card-soft bg-primary/5 ring-2 ring-primary/20 text-card-foreground transition-all duration-200",
+    muted: "rounded-[12px] border border-muted bg-muted/30 text-card-foreground transition-all duration-200",
+    interactive: "rounded-[12px] shadow-card-soft bg-card text-card-foreground transition-all duration-150 cursor-pointer active:scale-[0.98] hover:shadow-md",
   };
 
   const accentStyles = {
@@ -28,7 +28,7 @@ const Card = React.forwardRef<
   };
 
   const content = variant === "gradient-border" ? (
-    <div className="h-full w-full rounded-[8px] bg-card p-3.5">
+    <div className="h-full w-full rounded-[10px] bg-card p-3.5">
       {props.children}
     </div>
   ) : null;

@@ -93,16 +93,16 @@ export function AccountDangerZone() {
 
   if (emailSent) {
     return (
-      <div className="mt-8 p-4 rounded-lg border border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-900">
+      <div className="mt-8 p-4 rounded-lg border border-success/20 bg-success/5">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+          <div className="h-10 w-10 rounded-full bg-success/10 flex items-center justify-center">
             <span className="text-lg">📧</span>
           </div>
           <div>
-            <h3 className="font-semibold text-green-800 dark:text-green-200">
+            <h3 className="font-semibold text-success">
               {t("accountDeletion.emailSent")}
             </h3>
-            <p className="text-sm text-green-600 dark:text-green-400">
+            <p className="text-sm text-success/80">
               {t("accountDeletion.emailSentDesc")}
             </p>
           </div>
