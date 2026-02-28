@@ -1,50 +1,72 @@
 
 
-# Fix RSVP Deadline and Looking for Participants
+# Fix 6 Critical Issues
 
-## Issues Found
+## 1. Language mixing on home screen
+**File: `src/pages/Index.tsx`**
+- Line 216: Hardcoded `"Bonjour"` → use `t('home.greeting', { name: ... })` 
+- Line 233: `home.nextMatch` has French `defaultValue` → remove defaultValue, add proper key
+- Line 467: `home.noUpcomingGamesDesc` has French `defaultValue` → remove defaultValue, add proper key
 
-### Looking for Participants
-1. **`LookingForPlayersBanner` has wrong calculation**: Uses `maxParticipants || playersNeeded` for `totalSpots`, conflating max event capacity with how many additional players are needed. If `maxParticipants = 10` and `playersNeeded = 4`, it shows "7 spots left" instead of "4 players needed"
-2. **EventDetail line 480**: `event.max_participants > stats.attending` fails silently when `max_participants` is null (comparison `null > number` → always `false`), hiding the "looking for" badge
-3. **`LookingForPlayersBanner` hides when `spotsRemaining <= 0`** based on max capacity, not based on players_needed fulfillment
+**File: `src/i18n/locales/en/common.json`** — add keys:
+- `home.greeting`: `"Hello {{name}} 👋"`
+- `home.nextEvent`: `"NEXT EVENT"`
+- `home.noUpcomingGamesDesc`: `"Find a game or create your own"`
 
-### RSVP Deadline
-4. **No validation that calculated deadline is in the future**: Setting "24h before" on an event 2 hours away creates a deadline 22 hours in the past → RSVP appears immediately closed
-5. **`EditEventDialog` doesn't include RSVP deadline or looking_for_players fields**, so these can't be modified after event creation
+**File: `src/i18n/locales/fr/common.json`** — add keys:
+- `home.greeting`: `"Bonjour {{name}} 👋"`
+- `home.nextEvent`: `"PROCHAIN ÉVÉNEMENT"`
+- `home.noUpcomingGamesDesc`: `"Trouve un match ou crée le tien"`
 
-## Plan
+## 2. Raw system ID as username
+**File: `src/pages/Settings.tsx`** — line 267
+- Change `@{profile.username}` → use helper: if username matches `user_[hex]` pattern, display `@` + first name + last initial derived from `display_name` or `full_name`, else display `@{username}`
 
-### 1. Fix `LookingForPlayersBanner` calculation
-**File: `src/components/events/LookingForPlayersBanner.tsx`**
-- Change `totalSpots` logic: use `playersNeeded` as the number of additional players wanted
-- Track how many non-creator attendees have joined
-- Show `spotsRemaining = max(0, playersNeeded - currentAttending)` when no `maxParticipants`
-- Show `spotsRemaining = max(0, min(playersNeeded, maxParticipants - currentAttending))` when `maxParticipants` is set
-- Progress bar should track `playersNeeded` fulfillment, not capacity fill
+**File: `src/components/settings/ProfileCompletionCard.tsx`**
+- Add `username` field to `COMPLETION_FIELDS` with key `profileCompletion.setUsername`
 
-### 2. Fix EventDetail "looking for" badge null check
-**File: `src/pages/EventDetail.tsx`** (line ~480)
-- Change `event.max_participants > stats.attending` → `(event.max_participants ?? Infinity) > stats.attending`
-- This ensures the badge shows even when `max_participants` is null
+**Files: `en/common.json` + `fr/common.json`**
+- Add `profileCompletion.setUsername`: EN `"Set a username"` / FR `"Définir un nom d'utilisateur"`
 
-### 3. Add RSVP deadline validation in creation form
-**File: `src/components/events/UnifiedEventForm.tsx`**
-- In `calculateRsvpDeadline`, after computing the deadline, check if it's in the future
-- If the calculated deadline is in the past, show a warning and prevent submission with that deadline
-- Add a small warning text below the preset buttons when the computed deadline would be in the past
+## 3. Broken "ago:" label string
+**File: `src/components/settings/ProfileTabs.tsx`** — line 132
+- Change `{t('time.ago')}:` + `{formatMonthYear(...)}` → use `t('profile.memberSince', { date: formatMonthYear(...) })`
 
-### 4. Add RSVP deadline + looking for players to EditEventDialog
-**File: `src/components/events/EditEventDialog.tsx`**
-- Add state for `rsvpDeadline` (date string), `lookingForPlayers` (boolean), `playersNeeded` (string)
-- Initialize from `event.rsvp_deadline`, `event.looking_for_players`, `event.players_needed`
-- Add a Switch row for "RSVP Deadline" with a datetime input when enabled
-- Add a Switch row for "Looking for Players" with a number selector when enabled (only for match/training)
-- Include these fields in the update payload
+**Files: `en/common.json` + `fr/common.json`**
+- Add `profile.memberSince`: EN `"Member since {{date}}"` / FR `"Membre depuis {{date}}"`
 
-### Files changed
-1. `src/components/events/LookingForPlayersBanner.tsx` — fix spots calculation
-2. `src/pages/EventDetail.tsx` — fix null check on max_participants
-3. `src/components/events/UnifiedEventForm.tsx` — add deadline-in-past validation
-4. `src/components/events/EditEventDialog.tsx` — add RSVP deadline + looking for players fields
+## 4. Light mode — Option A (disable toggle, force dark)
+**File: `src/components/settings/ProfileTabs.tsx`**
+- Remove the ThemeToggle import and the theme label + `<ThemeToggle />` block from the settings tab
+- Add comment in the file: `// Light mode token system to be implemented in next sprint`
+
+**File: `src/App.tsx`** — line 225
+- Change `defaultTheme="dark"` and add `forcedTheme="dark"` to `<ThemeProvider>`, or simply remove `enableSystem`
+- Actually: set `forcedTheme="dark"` to prevent any theme switching
+
+## 5. Placeholder content cleanup
+This is database content, not code. The strings "Test", "XXX", "xttt" are user-entered data in the database, not hardcoded in the app. No code changes needed — this requires manual data cleanup in the database. Will note this.
+
+## 6. Log out placement
+**File: `src/pages/Settings.tsx`** — line 231
+- Remove `rightAction={<LogoutButton variant="header" />}` from `<PageHeader>`
+
+**File: `src/components/settings/ProfileTabs.tsx`**
+- Add `LogoutButton` import
+- Add a logout row at the bottom of the settings tab, styled as a standard list item in `text-[#64748B]` (not red)
+
+**File: `src/components/settings/LogoutButton.tsx`**
+- Add a third variant `"settings"` that renders as a non-destructive styled row item
+
+## Files Modified
+1. `src/i18n/locales/en/common.json` — add 5 keys
+2. `src/i18n/locales/fr/common.json` — add 5 keys  
+3. `src/pages/Index.tsx` — fix 3 hardcoded/defaultValue strings
+4. `src/pages/Settings.tsx` — remove logout from header
+5. `src/components/settings/ProfileTabs.tsx` — fix "ago:" string, remove ThemeToggle, add logout to settings tab
+6. `src/components/settings/LogoutButton.tsx` — add "settings" variant
+7. `src/components/settings/ProfileCompletionCard.tsx` — add username to checklist
+8. `src/App.tsx` — force dark theme
+
+Note on issue 5: Placeholder content like "Test", "XXX", "xttt" is user-entered data stored in the database. Cleaning it requires database updates, not code changes. Will flag this separately.
 
