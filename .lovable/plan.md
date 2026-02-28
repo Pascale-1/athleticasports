@@ -1,122 +1,134 @@
 
 
-# Full-App UX/UI Revamp — Single Pass
+# Unified Design System — Global Revamp
 
-## Files to modify (11 files)
+## Scope
+Apply a consistent design system across the entire app: typography scale, card styles, spacing, icons, colors, and bottom navigation. No logic, data, or navigation changes.
 
-| File | Scope |
+## Files to modify (12 files)
+
+| File | Changes |
 |------|-------|
-| `src/components/events/EventCard.tsx` | Fix i18n keys, show full location, RSVP pill styling |
-| `src/i18n/locales/fr/common.json` | Add missing top-level keys for EventCard i18n |
-| `src/i18n/locales/en/common.json` | Add matching top-level keys |
-| `src/i18n/locales/fr/events.json` | Add `game.terrain.*` keys |
-| `src/pages/Events.tsx` | Add `pb-24` to scroll container for FAB overlap fix |
-| `src/pages/EventDetail.tsx` | Fix location truncation, home_away chip, section headers already Title Case (verify) |
-| `src/components/events/EventRSVPBar.tsx` | Cancel link: 14px, centered, min tap target |
-| `src/components/mobile/FAB.tsx` | Raise z-index, adjust bottom position |
-| `src/pages/Index.tsx` | Fix hardcoded emerald colors, CTA height to 52px, pb-24 |
-| `src/components/matching/AvailableGameCard.tsx` | Verify full address display |
-| `src/components/teams/TeamSelector.tsx` | French "Équipe introuvable" string already present — verify |
+| `tailwind.config.ts` | Update fontSize scale to match spec (24/17/14/13/12px) |
+| `src/index.css` | Remove shadow-card references from Card variants, update shadow vars |
+| `src/components/ui/card.tsx` | Standardize all variants to rounded-2xl, bg-card, border, no shadow |
+| `src/components/mobile/BottomNavigation.tsx` | Icons to 24px, underline indicator, border-t to full opacity |
+| `src/components/mobile/PageHeader.tsx` | Title to 24px bold tracking-tight |
+| `src/components/events/EventCard.tsx` | Remove hardcoded colors, use token-only; card rounded-2xl |
+| `src/components/teams/TeamCard.tsx` | Sport ribbon: remove hardcoded uppercase tracking; card consistency |
+| `src/pages/Index.tsx` | Replace remaining hardcoded success-green section colors; enforce spacing mb-6; card padding px-4 py-3 |
+| `src/pages/Events.tsx` | Enforce section gap mb-6, card gap gap-3, tab bar consistency |
+| `src/pages/Teams.tsx` | Enforce spacing rhythm, card gap gap-3 |
+| `src/pages/Settings.tsx` | Enforce spacing rhythm |
+| `src/components/mobile/FAB.tsx` | Remove shadow-lg, keep shadow-sm only |
 
 ---
 
-## 1. CRITICAL: Fix i18n key mismatch (EventCard shows English fallbacks)
+## 1. Typography Scale (`tailwind.config.ts`)
 
-**Root cause**: `EventCard.tsx` calls `t('common:going')` which resolves to top-level key `going` in common namespace. But FR `common.json` has `status.going = "Inscrite"`, not a top-level `going`.
+Current fontSize values are ultra-compressed (page-title: 16px, section: 11px, card-title: 11px, body: 11px). The spec requires:
+- page-title: 24px bold tracking-tight
+- section: 13px semibold muted
+- card-title: 17px semibold  
+- body: 14px normal
+- caption: 12px muted
 
-**Fix in `EventCard.tsx`**: Change all `t('common:going', ...)` to `t('common:status.going', ...)`, etc:
-- `t('common:going', 'Going')` → `t('common:status.going')`  
-- `t('common:maybe', 'Maybe')` → `t('common:status.maybe')`
-- `t('common:declined', "Can't")` → `t('common:status.declined')`
-- `t('common:join', 'Join')` → `t('common:actions.join')`
-- `t('common:past', 'Past')` → `t('common:status.past', 'Passé')`  (wait, FR has `time.past = "Passé"`)
-- `t('common:full', 'Full')` → `t('common:status.full')`
-
-Also in the RSVP dropdown:
-- Line 304: `t('common:going', 'Going')` → `t('rsvp.going')` (use events namespace since we're already in it)
-- Line 311: `t('common:maybe', 'Maybe')` → `t('rsvp.maybe')`
-- Line 319: `t('common:declined', "Can't Go")` → `t('rsvp.notGoing')`
-
-Line 257 count display: `t('common:going', 'going')` → `t('rsvp.going')` or use `t('common:status.going')`
-
-## 2. CRITICAL: FAB overlap fix
-
-**`src/pages/Events.tsx`**: The scroll container `<div className="space-y-3 animate-fade-in">` at line 206 needs `pb-24` to ensure last card isn't hidden behind FAB.
-
-**`src/components/mobile/FAB.tsx`**: Change `bottom-16` to `bottom-20` so the FAB sits above the bottom navigation with more clearance.
-
-## 3. CRITICAL: Event location — show full address
-
-**`EventCard.tsx` line 97-99**: Currently splits on comma and shows only venue name. Change to show full location:
-```tsx
-const venueName = event.location || null;
+Update the semantic fontSize entries in tailwind.config.ts lines 28-44:
+```
+"page-title": ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }],         // 24px
+"section": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],     // 13px
+"card-title": ["1.0625rem", { lineHeight: "1.375rem", fontWeight: "600" }],  // 17px
+"body": ["0.875rem", { lineHeight: "1.25rem" }],                             // 14px
+"body-sm": ["0.75rem", { lineHeight: "1.0625rem" }],                        // 12px
+"caption": ["0.75rem", { lineHeight: "1rem" }],                              // 12px
+"micro": ["0.625rem", { lineHeight: "0.875rem" }],                           // 10px
+```
+Also update legacy sizes:
+```
+"display": ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }],            // 24px
+"h1": ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }],                 // 24px
+"h2": ["1.0625rem", { lineHeight: "1.375rem", fontWeight: "600" }],          // 17px
+"h3": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "600" }],            // 14px
+"h4": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],          // 13px
+"body-lg": ["0.875rem", { lineHeight: "1.25rem" }],                          // 14px
+"small": ["0.75rem", { lineHeight: "1rem" }],                                // 12px
 ```
 
-Keep `line-clamp-2 break-words` on the display span (already there).
+## 2. Card Component (`src/components/ui/card.tsx`)
 
-## 4. CRITICAL: EventDetail location truncation
+Standardize ALL card variants to use `rounded-2xl` instead of `rounded-xl`, remove `shadow-card` and `shadow-card-hover` and `shadow-strong`, keep only `border` for visual separation:
 
-**`EventDetail.tsx` line 408**: Has `truncate` class on location text. Change to `break-words line-clamp-2`.
+- `default`: `"rounded-2xl border bg-card text-card-foreground transition-all duration-200"`
+- `elevated`: `"rounded-2xl bg-card text-card-foreground border transition-all duration-200"`
+- `bordered`: `"rounded-2xl border-2 border-border bg-card text-card-foreground transition-all duration-200 hover:border-primary/30"`
+- `gradient-border`: keep rounded logic but use `rounded-2xl`
+- `glass`: `"rounded-2xl bg-background/80 backdrop-blur-md border border-border/50 text-card-foreground transition-all duration-200"`
+- `highlighted`: `"rounded-2xl border bg-primary/5 ring-2 ring-primary/20 text-card-foreground transition-all duration-200"`
+- `muted`: `"rounded-2xl border border-muted bg-muted/30 text-card-foreground transition-all duration-200"`
+- `interactive`: `"rounded-2xl border bg-card text-card-foreground transition-all duration-150 cursor-pointer active:scale-[0.98] hover:border-border/80"`
 
-## 5. Home screen — fix hardcoded colors
+Inner div for gradient-border: change `rounded-[14px]` to `rounded-[14px]` (keep as-is, it's inner).
 
-**`Index.tsx` line 329**: `bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200/50 dark:border-emerald-800/30` — replace with token-based: `bg-success/5 border-success/20`
+## 3. Bottom Navigation (`src/components/mobile/BottomNavigation.tsx`)
 
-Lines 332-333, 335, 338, 345-346: Replace all `emerald-*` with `success` token equivalents.
+- Nav container: change `border-t border-border/50` to `border-t border-border` (full opacity separator), remove `shadow-lg`
+- Icon size: change `h-5 w-5` to `h-6 w-6` (24px)
+- Active indicator: change `w-6 h-0.5` to `w-5 h-0.5` (subtle underline, 2px, rounded) — keep as-is but ensure it's accent colored (already `bg-primary`)
+- Inactive icons: already `text-muted-foreground` — correct
 
-CTA buttons at line 293: height is `h-14` (56px). Change to `h-[52px]` per spec.
+## 4. Page Header (`src/components/mobile/PageHeader.tsx`)
 
-Add `pb-24` to main content container (line 195: `space-y-4 pb-16` → `space-y-4 pb-24`).
+The title uses `text-page-title` which after the tailwind scale update will be 24px bold. Already has `font-heading font-bold`. Add `tracking-tight` to the h1 className.
 
-## 6. EventDetail — home_away chip
+## 5. EventCard — Remove hardcoded colors
 
-**Line 512**: Currently `t('game.terrain.${event.home_away}')` — but FR events.json doesn't have `game.terrain.*`, it has `game.home`, `game.away`, `game.neutral`.
+Line 177: `"Public"` text — already uses `text-muted-foreground`, OK.
+Lines 41-43 in `Events.tsx`: `EVENT_TYPE_LEGEND` uses `text-blue-500`, `text-amber-500`, `text-emerald-500` — replace with `text-info`, `text-warning`, `text-success`.
 
-Fix: Change to `t('game.${event.home_away}')` and add prefix "Terrain : " in the JSX.
+## 6. Index.tsx — Hardcoded colors & spacing
 
-Also add `game.terrain` keys to FR events.json as alias, OR fix the reference.
+- Line 329: `bg-success/5 border-success/20` — already tokenized, good.
+- Lines 332-346: Still uses `text-success`, `bg-success/10`, `hover:bg-success/10` — these are semantic sport indicators, keep.
+- Spacing: change `space-y-4` (line 195) to `space-y-6` for mb-6 rhythm between sections.
 
-## 7. EventRSVPBar — cancel link tap target
+## 7. Teams.tsx — Spacing
 
-**Line 131-137**: Already has `text-sm text-primary mt-3`. Change to `text-[14px] text-primary hover:text-primary/80 mt-4 min-h-[44px] flex items-center justify-center`.
+- Line 163: `space-y-3` → `space-y-6` for section rhythm
+- Line 283: card grid `gap-2` → `gap-3`
+- Line 325: card grid `gap-2` → `gap-3`
 
-## 8. Globe icon on EventCard
+## 8. Events.tsx — Spacing & hardcoded colors
 
-**Line 178-180**: Already shows "Public" label next to globe. Keep as-is. The `Lock` icon for private has no label — add "Privé" text.
+- Line 41-43: Replace `text-blue-500`/`text-amber-500`/`text-emerald-500` with `text-info`/`text-warning`/`text-success`
+- Line 206: `space-y-3` is OK for within-section, but add `space-y-4` or keep as compact
 
-## 9. EventCard RSVP pill — "Going" to filled success
+## 9. FAB — Remove heavy shadow
 
-**Line 288**: `bg-success text-white` is already applied. Verify the `Check` icon is included — yes, `StatusIcon` renders `Check` when attending. Correct.
+Line 29: `shadow-lg` → remove (or use `shadow-sm` for subtle depth). The FAB already has `bg-primary` so it stands out.
 
-## 10. Translation additions
+## 10. Settings.tsx — Spacing
 
-**`fr/common.json`** — add top-level convenience keys (even though proper path exists):
-No, better to fix the code to use correct paths. Already covered in step 1.
+Line 226: `space-y-4` → `space-y-6` for section rhythm.
 
-**`fr/events.json`** — add terrain keys:
-```json
-"game": {
-  ...existing...,
-  "terrain": {
-    "home": "Domicile",
-    "away": "Extérieur", 
-    "neutral": "Neutre"
-  }
-}
-```
+## 11. Remaining hardcoded colors (targeted fixes)
 
-## Summary of all changes
+- `src/components/events/SwipeableEventCard.tsx` lines 66-68: `bg-green-500/10 text-green-700` → `bg-success/10 text-success`, similar for yellow → warning, red → destructive
+- `src/components/events/ConflictWarning.tsx` lines 22-40: `amber-500/30` → `warning/30`, `amber-600` → `warning`, `amber-700` → `warning`
+- `src/components/teams/TrainingSessionCard.tsx` line 67: `bg-green-500` → `bg-success`
+- `src/components/teams/SessionAttendance.tsx` lines 65, 91, 129: `green-500`/`green-600` → `success`
+- `src/pages/NotFound.tsx` lines 15-17: `text-gray-600` → `text-muted-foreground`, `text-blue-500` → `text-primary`
+- `src/components/teams/PerformanceLevelsTab.tsx` lines 39-42: `text-amber-600` → `text-warning`, `text-green-600` → `text-success`, `text-blue-600` → `text-info`, `text-gray-600` → `text-muted-foreground`
+- `src/pages/InvitationHelp.tsx` lines 170-190: `text-green-500` → `text-success`
 
-| Issue | File | Fix |
-|-------|------|-----|
-| English fallbacks in EventCard | `EventCard.tsx` | Fix 10+ `t()` calls to use correct key paths |
-| FAB overlaps last card | `Events.tsx`, `FAB.tsx` | Add `pb-24`, raise FAB position |
-| Location truncated to first comma | `EventCard.tsx` | Show full `event.location` |
-| Location truncated in detail | `EventDetail.tsx` | `truncate` → `break-words` |
-| Hardcoded emerald colors | `Index.tsx` | Replace with `success` tokens |
-| CTA height inconsistency | `Index.tsx` | `h-14` → `h-[52px]` |
-| home_away key missing | `EventDetail.tsx`, `fr/events.json` | Fix key path + add translations |
-| Cancel link too small | `EventRSVPBar.tsx` | Increase size + min tap target |
-| Private icon has no label | `EventCard.tsx` | Add "Privé" label |
-| Insufficient bottom padding | `Index.tsx` | `pb-16` → `pb-24` |
+## Summary
+
+| Category | Change |
+|----------|--------|
+| Typography | Increase all semantic sizes: page-title 24px, card-title 17px, body 14px, caption 12px |
+| Cards | All variants → rounded-2xl, no shadows, border only |
+| Bottom nav | Icons 24px, border-t full opacity, no shadow |
+| Spacing | Section gaps → space-y-6, card gaps → gap-3, card padding px-4 py-3 |
+| Colors | Replace ~30 hardcoded color instances across 8 files with token equivalents |
+| FAB | Remove shadow-lg |
+| Icons | Already Lucide throughout — just ensure 20px standard (h-5 w-5) on content icons |
 
