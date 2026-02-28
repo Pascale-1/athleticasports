@@ -211,41 +211,16 @@ const Index = () => {
             <LanguageToggle />
           </div>
 
-          {/* Hero Section - Clean & Compact */}
+          {/* Greeting Section - Clean typographic */}
           <AnimatedCard delay={0.1}>
-            <Card data-walkthrough="profile" className="p-4 space-y-3">
-              {/* Top Row: Avatar + Greeting */}
-              <div className="flex items-start gap-3">
-                {/* Avatar with accent ring */}
-                <div className="relative group">
-                  <Avatar className="h-14 w-14 ring-2 ring-primary ring-offset-2 ring-offset-background">
-                    <AvatarImage src={profile.avatar_url || undefined} />
-                    <AvatarFallback className="text-lg bg-primary/10 text-primary font-bold">
-                      {profile.username.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <button 
-                    onClick={() => navigate("/settings")}
-                    className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Camera className="h-4 w-4 text-white" />
-                  </button>
-                </div>
-                
-                {/* Greeting */}
-                <div className="flex-1 min-w-0 pt-1">
-                  <h1 className="text-section font-heading font-bold line-clamp-2">
-                    {t('home.welcome', { name: profile.display_name || profile.username })}
-                  </h1>
-                  <p className="text-caption text-muted-foreground">
-                    {profile.primary_sport 
-                      ? t('home.readyToPlaySport', { sport: profile.primary_sport, defaultValue: `Prête pour ta prochaine partie de ${profile.primary_sport} ?` })
-                      : t('home.readyToPlay')
-                    }
-                  </p>
-                </div>
-              </div>
-            </Card>
+            <div data-walkthrough="profile" className="space-y-0.5">
+              <h1 className="text-[22px] font-bold tracking-tight">
+                Bonjour {profile.display_name || profile.username} 👋
+              </h1>
+              <p className="text-[14px] text-muted-foreground">
+                {t('home.greetingSubtitle')}
+              </p>
+            </div>
           </AnimatedCard>
 
           {/* Stats Grid — standalone section */}
@@ -289,33 +264,39 @@ const Index = () => {
             <div data-walkthrough="quick-actions" className="space-y-2">
               <div className="flex gap-2">
                 <Button 
-                  variant="default"
-                  className="flex-1 flex items-center justify-center gap-2 h-[52px] rounded-xl active:scale-[0.98]"
+                  variant="outline"
+                  className="flex-1 flex items-center gap-2 h-[52px] rounded-xl bg-card border-border active:scale-[0.98]"
                   onClick={() => setFindMatchSheetOpen(true)}
                 >
-                  <Search className="h-5 w-5" />
-                  <span className="text-sm font-medium">{t('home.findGame')}</span>
+                  <Search className="h-5 w-5 shrink-0" />
+                  <div className="text-left">
+                    <span className="text-sm font-medium block">{t('home.findGame')}</span>
+                    <span className="text-[11px] text-muted-foreground block">{t('home.findGameSubtitle')}</span>
+                  </div>
                 </Button>
                 
                 <Button 
-                  variant="outline"
-                  className="flex-1 flex items-center justify-center gap-2 h-[52px] rounded-xl border-primary/50 active:scale-[0.98]"
+                  variant="default"
+                  className="flex-1 flex items-center gap-2 h-[52px] rounded-xl active:scale-[0.98]"
                   onClick={() => setCreateEventDialogOpen(true)}
                 >
-                  <Plus className="h-5 w-5" />
-                  <span className="text-sm font-medium">{t('home.organizeEvent')}</span>
+                  <Plus className="h-5 w-5 shrink-0" />
+                  <div className="text-left">
+                    <span className="text-sm font-medium block">{t('home.organizeEvent')}</span>
+                    <span className="text-[11px] text-primary-foreground/70 block">{t('home.organizeEventSubtitle')}</span>
+                  </div>
                 </Button>
               </div>
               
-              {/* Team+ card treatment */}
+              {/* Team row */}
               <div 
-                onClick={() => navigate("/teams/create")}
-                className="rounded-xl bg-card border border-border p-3 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform"
+                onClick={() => navigate("/teams")}
+                className="rounded-xl bg-card border border-border h-14 px-4 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform"
               >
                 <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <Users className="h-[18px] w-[18px] text-primary" />
+                  <Users className="h-5 w-5 text-primary" />
                 </div>
-                <span className="flex-1 text-sm font-medium">{t('home.createTeam')}</span>
+                <span className="flex-1 text-sm font-medium">{t('home.joinTeam')}</span>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </div>
             </div>
@@ -326,23 +307,23 @@ const Index = () => {
             <div data-walkthrough="games" className="space-y-3">
               {/* Games to Join */}
               {!gamesLoading && topAvailableGames.length > 0 && (
-                <Card className="p-3 bg-success/5 border-success/20">
+                <Card className="p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded-lg bg-success/10">
-                        <UserPlus className="h-4 w-4 text-success" />
+                      <div className="p-1.5 rounded-lg bg-muted">
+                        <UserPlus className="h-4 w-4 text-muted-foreground" />
                       </div>
-                      <h2 className="text-section font-semibold text-success">
+                      <h2 className="text-[13px] font-semibold text-muted-foreground">
                         {t('matching:gamesToJoin')}
                       </h2>
-                      <Badge className="bg-success/10 text-success text-[10px] border-0">
+                      <Badge variant="secondary" className="text-[10px] border-0">
                         {topAvailableGames.length}
                       </Badge>
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 px-2 text-[11px] text-success hover:text-success hover:bg-success/10"
+                      className="h-8 px-2 text-[11px] text-muted-foreground"
                       onClick={() => navigate("/events?tab=open")}
                     >
                       {t('actions.viewAll')}
@@ -430,8 +411,8 @@ const Index = () => {
                                   variant="secondary" 
                                   className={`text-[9px] px-1.5 py-0 shrink-0 ${
                                     isToday(matchDate) 
-                                      ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300' 
-                                      : 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300'
+                                      ? 'bg-warning/15 text-warning' 
+                                      : 'bg-info/15 text-info'
                                   }`}
                                 >
                                   {dateLabel.toUpperCase()}

@@ -95,6 +95,7 @@
   "home": {
     "welcome": "Welcome back, {{name}}!",
     "readyToPlay": "Ready to find your next game?",
+    "greetingSubtitle": "Ready for your next session?",
     "completeProfile": "Complete Your Profile",
     "completeProfileDesc": "Set up your athlete profile to get started and connect with the community.",
     "createProfile": "Create Profile",
@@ -104,6 +105,7 @@
     "findGame": "Find a Game",
     "findGameSubtitle": "Set your availability",
     "createTeam": "Create Team",
+    "joinTeam": "Join a team",
     "organizeEvent": "Create Event",
     "organizeEventSubtitle": "Game, training, social",
     "noUpcomingGames": "No upcoming games",
