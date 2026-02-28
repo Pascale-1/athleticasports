@@ -167,25 +167,25 @@ const InvitationHelp = () => {
           <CardContent>
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="h-5 w-5 text-success mt-0.5 flex-shrink-0" />
                 <span className="text-sm">
                   Always use the same email address that received the invitation
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="h-5 w-5 text-success mt-0.5 flex-shrink-0" />
                 <span className="text-sm">
                   Accept invitations within 7 days before they expire
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="h-5 w-5 text-success mt-0.5 flex-shrink-0" />
                 <span className="text-sm">
                   If using Google Sign-in, verify you're selecting the correct Google account
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="h-5 w-5 text-success mt-0.5 flex-shrink-0" />
                 <span className="text-sm">
                   Check your spam folder if you don't see the invitation email
                 </span>

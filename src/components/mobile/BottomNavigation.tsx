@@ -92,7 +92,7 @@ export const BottomNavigation = () => {
   ];
 
   return (
-    <nav data-walkthrough="navigation" className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border/50 bg-background/95 backdrop-blur-lg shadow-lg h-[calc(3.5rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)]">
+    <nav data-walkthrough="navigation" className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-lg h-[calc(3.5rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)]">
       <div className="flex h-full items-center justify-around px-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.url || 
@@ -119,7 +119,7 @@ export const BottomNavigation = () => {
               <div className="relative">
                 <Icon 
                   className={cn(
-                    "h-5 w-5 transition-all duration-150",
+                    "h-6 w-6 transition-all duration-150",
                     isActive && "fill-primary/20"
                   )} 
                 />

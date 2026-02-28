@@ -25,23 +25,23 @@ export default {
         body: ["Inter", "system-ui", "sans-serif"],
       },
       fontSize: {
-        // Semantic Typography Scale - Reduced ~22% total for ultra-compact modern design
-        "page-title": ["1rem", { lineHeight: "1.375rem", fontWeight: "700" }],      // 16px (was 18px)
-        "section": ["0.6875rem", { lineHeight: "1rem", fontWeight: "600" }],        // 11px (was 13px)
-        "card-title": ["0.6875rem", { lineHeight: "0.9375rem", fontWeight: "600" }], // 11px (was 12px)
-        "body": ["0.6875rem", { lineHeight: "1rem" }],                              // 11px (was 12px)
-        "body-sm": ["0.625rem", { lineHeight: "0.875rem" }],                        // 10px (was 11px)
-        "caption": ["0.5625rem", { lineHeight: "0.8125rem" }],                      // 9px (was 10px)
-        "micro": ["0.5rem", { lineHeight: "0.6875rem" }],                           // 8px (was 9px)
-        // Legacy - reduced proportionally
+        // Semantic Typography Scale
+        "page-title": ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }],         // 24px
+        "section": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],     // 13px
+        "card-title": ["1.0625rem", { lineHeight: "1.375rem", fontWeight: "600" }],  // 17px
+        "body": ["0.875rem", { lineHeight: "1.25rem" }],                             // 14px
+        "body-sm": ["0.75rem", { lineHeight: "1.0625rem" }],                         // 12px
+        "caption": ["0.75rem", { lineHeight: "1rem" }],                              // 12px
+        "micro": ["0.625rem", { lineHeight: "0.875rem" }],                           // 10px
+        // Legacy
         "xxs": ["0.5rem", { lineHeight: "1.4" }],                                   // 8px
-        "display": ["1.3125rem", { lineHeight: "1.75rem", fontWeight: "700" }],     // 21px (was 24px)
-        "h1": ["1rem", { lineHeight: "1.375rem", fontWeight: "700" }],              // 16px (was 18px)
-        "h2": ["0.875rem", { lineHeight: "1.1875rem", fontWeight: "600" }],         // 14px (was 16px)
-        "h3": ["0.75rem", { lineHeight: "1.0625rem", fontWeight: "600" }],          // 12px (was 14px)
-        "h4": ["0.6875rem", { lineHeight: "1rem", fontWeight: "600" }],             // 11px (was 13px)
-        "body-lg": ["0.75rem", { lineHeight: "1.0625rem" }],                        // 12px (was 14px)
-        "small": ["0.6875rem", { lineHeight: "1rem" }],                             // 11px (was 12px)
+        "display": ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }],            // 24px
+        "h1": ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }],                 // 24px
+        "h2": ["1.0625rem", { lineHeight: "1.375rem", fontWeight: "600" }],          // 17px
+        "h3": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "600" }],            // 14px
+        "h4": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],          // 13px
+        "body-lg": ["0.875rem", { lineHeight: "1.25rem" }],                          // 14px
+        "small": ["0.75rem", { lineHeight: "1rem" }],                                // 12px
       },
       colors: {
         border: "hsl(var(--border))",

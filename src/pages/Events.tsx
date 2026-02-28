@@ -38,9 +38,9 @@ import {
 import { toast } from "@/hooks/use-toast";
 
 const EVENT_TYPE_LEGEND = [
-  { type: 'training', labelKey: 'types.training', icon: Dumbbell, color: 'text-blue-500' },
-  { type: 'match', labelKey: 'types.game', icon: Swords, color: 'text-amber-500' },
-  { type: 'meetup', labelKey: 'types.meetup', icon: Users, color: 'text-emerald-500' },
+  { type: 'training', labelKey: 'types.training', icon: Dumbbell, color: 'text-info' },
+  { type: 'match', labelKey: 'types.game', icon: Swords, color: 'text-warning' },
+  { type: 'meetup', labelKey: 'types.meetup', icon: Users, color: 'text-success' },
 ] as const;
 
 const TAB_CONFIG = [
