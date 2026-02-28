@@ -1,135 +1,122 @@
 
 
-# UX/UI Upgrade Across 4 Screens
+# Full-App UX/UI Revamp — Single Pass
 
-## Files to modify
+## Files to modify (11 files)
 
-| File | Changes |
-|------|---------|
-| `src/pages/Index.tsx` | Home screen: CTA group, stats grid, team+ card, available game cards |
-| `src/components/events/EventCard.tsx` | Event list cards: thicker accent border, tint bg, date badge, Going pill, globe label |
-| `src/pages/Events.tsx` | Events list: merge tabs + filters into single 48px row |
-| `src/pages/EventDetail.tsx` | Section headers to Title Case, RSVP bar props, calendar button, home_away chip |
-| `src/components/events/EventRSVPBar.tsx` | Equal-width 52px buttons, cancel link styling |
-| `src/components/events/AddToCalendarButton.tsx` | Show full label always, ghost variant |
-| `src/components/events/UnifiedEventForm.tsx` | Date/time/duration restructure, address helper text, icon alignment |
-| `src/components/matching/AvailableGameCard.tsx` | Full address display, French "places restantes" |
-| `src/components/ui/date-block.tsx` | Smaller compact size (48x52 max), lighter bg |
-| `src/i18n/locales/fr/common.json` | Add `spotsLeft` key in French |
-| `src/i18n/locales/en/common.json` | Ensure `spotsLeft` key exists |
-
----
-
-## 1. HOME SCREEN (`src/pages/Index.tsx`)
-
-### CTA buttons — merge into visual group
-- Lines 298-328: Replace grid + separate "Équipe +" button with a single row of 2 equal-width buttons:
-  - "Trouver un match": `bg-primary text-primary-foreground` (primary fill)
-  - "Créer un event": `variant="outline"` with `border-primary/50` (outlined, same border token)
-  - Both: `h-14 rounded-xl flex-1`, same row via `flex gap-2`
-- Remove the emerald-600/700 hardcoded colors from "Trouver un match"
-
-### "Équipe +" card treatment
-- Replace the plain `Button variant="outline"` with a `Card` component:
-  - `rounded-xl bg-card border border-border p-3 flex items-center gap-3 cursor-pointer active:scale-[0.98]`
-  - Left: `Users` icon in a `h-9 w-9 rounded-full bg-primary/10` circle
-  - Center: team name label
-  - Right: `ChevronRight` icon
-
-### Stats row — extract from welcome card
-- Remove the stats section (lines 245-282) from inside the hero Card
-- Place it below the hero card as its own section: a 3-column grid
-  - Each cell: number in `text-[28px] font-bold text-foreground` + label in `text-xs text-muted-foreground` below
-  - No dividers, `gap-4` between columns
-  - Each cell tappable with same navigation targets
-
-### Welcome card upgrade
-- Keep avatar but add `ring-2 ring-primary ring-offset-2 ring-offset-background`
-- Add sport-relevant subtitle using `profile.primary_sport` if available (e.g. "Prête pour ta prochaine partie de ⚽")
-
-### Available game cards — full address + French strings
-- In `AvailableGameCard.tsx` line 79: remove the `substring(0, 25) + '...'` truncation — show full location with `break-words`
-- Line 128: replace `t('common:spotsLeft', 'spots left')` — add proper French key `spotsLeft` to fr/common.json as `"places restantes"`
+| File | Scope |
+|------|-------|
+| `src/components/events/EventCard.tsx` | Fix i18n keys, show full location, RSVP pill styling |
+| `src/i18n/locales/fr/common.json` | Add missing top-level keys for EventCard i18n |
+| `src/i18n/locales/en/common.json` | Add matching top-level keys |
+| `src/i18n/locales/fr/events.json` | Add `game.terrain.*` keys |
+| `src/pages/Events.tsx` | Add `pb-24` to scroll container for FAB overlap fix |
+| `src/pages/EventDetail.tsx` | Fix location truncation, home_away chip, section headers already Title Case (verify) |
+| `src/components/events/EventRSVPBar.tsx` | Cancel link: 14px, centered, min tap target |
+| `src/components/mobile/FAB.tsx` | Raise z-index, adjust bottom position |
+| `src/pages/Index.tsx` | Fix hardcoded emerald colors, CTA height to 52px, pb-24 |
+| `src/components/matching/AvailableGameCard.tsx` | Verify full address display |
+| `src/components/teams/TeamSelector.tsx` | French "Équipe introuvable" string already present — verify |
 
 ---
 
-## 2. EVENTS LIST SCREEN (`src/pages/Events.tsx`)
+## 1. CRITICAL: Fix i18n key mismatch (EventCard shows English fallbacks)
 
-### Merge tabs + filters into one 48px row
-- Replace the current tab bar (lines ~170-195) and separate filter bar with a single `h-12` row:
-  - Left side: 3 text tabs ("Participations", "Organisés", "Découvrir") with underline indicator on active tab (no pill background)
-  - Right side: filter icon dropdown + view toggle (list/calendar) + search icon — same as current but in the same row
-- Remove the separate filter chips row from "My Events" tab — type filter moves into the tab row or a dropdown
+**Root cause**: `EventCard.tsx` calls `t('common:going')` which resolves to top-level key `going` in common namespace. But FR `common.json` has `status.going = "Inscrite"`, not a top-level `going`.
 
-### Event cards — thicker accent + tint
-- `EventCard.tsx` line 134: change `border-l-4` to `border-l-[5px]`
-- Add a faint background tint on the left edge: wrap CardContent with a div that has a `bg-gradient-to-r from-{type-color}/5 to-transparent` using existing sport color tokens
+**Fix in `EventCard.tsx`**: Change all `t('common:going', ...)` to `t('common:status.going', ...)`, etc:
+- `t('common:going', 'Going')` → `t('common:status.going')`  
+- `t('common:maybe', 'Maybe')` → `t('common:status.maybe')`
+- `t('common:declined', "Can't")` → `t('common:status.declined')`
+- `t('common:join', 'Join')` → `t('common:actions.join')`
+- `t('common:past', 'Past')` → `t('common:status.past', 'Passé')`  (wait, FR has `time.past = "Passé"`)
+- `t('common:full', 'Full')` → `t('common:status.full')`
 
-### Date badge — smaller, lighter
-- `DateBlock` compact size: change `w-12` to `w-[48px]` (already close), add `max-h-[52px]`
-- Change default bg from `bg-primary/10` to `bg-primary/8` equivalent — use `bg-primary/10` (already there, keep)
-- Actually the main issue is the "solid blue" for today events — change `bg-primary` to `bg-primary/15 text-primary` for a lighter look
+Also in the RSVP dropdown:
+- Line 304: `t('common:going', 'Going')` → `t('rsvp.going')` (use events namespace since we're already in it)
+- Line 311: `t('common:maybe', 'Maybe')` → `t('rsvp.maybe')`
+- Line 319: `t('common:declined', "Can't Go")` → `t('rsvp.notGoing')`
 
-### "Going" pill — filled success chip
-- `EventCard.tsx` line 288: change `bg-success/15 text-success` to `bg-success text-white` (filled chip) and add `<Check className="h-3 w-3" />` icon
+Line 257 count display: `t('common:going', 'going')` → `t('rsvp.going')` or use `t('common:status.going')`
 
-### Globe icon — add "Public" label
-- Line 179: after the Globe icon, add a `<span className="text-[10px] text-muted-foreground">Public</span>` label
+## 2. CRITICAL: FAB overlap fix
 
----
+**`src/pages/Events.tsx`**: The scroll container `<div className="space-y-3 animate-fade-in">` at line 206 needs `pb-24` to ensure last card isn't hidden behind FAB.
 
-## 3. EVENT DETAIL SCREEN (`src/pages/EventDetail.tsx`)
+**`src/components/mobile/FAB.tsx`**: Change `bottom-16` to `bottom-20` so the FAB sits above the bottom navigation with more clearance.
 
-### Section headers — Title Case instead of ALL CAPS
-- Lines 373, 491, 529, 541: remove `uppercase` class from all section `<h3>` elements
-- Change from `text-xs` to `text-[13px] font-semibold text-muted-foreground` — no `tracking-wide`
+## 3. CRITICAL: Event location — show full address
 
-### Calendar button — full label, ghost style
-- `AddToCalendarButton.tsx` line 80: remove `hidden sm:inline` from the label span — always show "Ajouter au calendrier"
-- Change default variant to `"ghost"` in the component call at EventDetail line 326
+**`EventCard.tsx` line 97-99**: Currently splits on comma and shows only venue name. Change to show full location:
+```tsx
+const venueName = event.location || null;
+```
 
-### RSVP bar — equal-width 52px buttons
-- `EventRSVPBar.tsx` lines 87-123: change `h-10` to `h-[52px]` on all 3 buttons
-- Change container from `bg-muted/50 rounded-lg p-1` to `p-0 gap-2` — each button gets its own styling:
-  - Active: `bg-primary text-primary-foreground` (for Going), keep warning/destructive for others
-  - Inactive: `bg-card border border-border`
-- Always show labels (remove `hidden xs:inline`)
+Keep `line-clamp-2 break-words` on the display span (already there).
 
-### Cancel attendance link
-- Line 131: change to `text-sm text-primary hover:text-primary/80 mt-3` — larger, accent colored, centered
+## 4. CRITICAL: EventDetail location truncation
 
-### Home/Away chip — add context label
-- Line 509: change from just `{event.home_away}` to `Terrain : {t('game.' + event.home_away)}`
-- Style as muted chip: `bg-muted text-muted-foreground`
+**`EventDetail.tsx` line 408**: Has `truncate` class on location text. Change to `break-words line-clamp-2`.
 
----
+## 5. Home screen — fix hardcoded colors
 
-## 4. EVENT CREATION — QUAND & OÙ (`UnifiedEventForm.tsx`)
+**`Index.tsx` line 329**: `bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200/50 dark:border-emerald-800/30` — replace with token-based: `bg-success/5 border-success/20`
 
-### Date/time/duration restructure (renderStep2, lines 682-741)
-- **Row 1**: Calendar icon + full date label in one tappable row — currently works but format needs adjustment to show "Sam. 28 Fév · 19:00" format
-- **Row 2**: Clock icon + time input + duration chips on same baseline — move the time/duration section into its own `FieldRow` with `Clock` icon instead of nesting inside the CalendarIcon FieldRow
-- Remove orphaned `·` dot between time and duration (line 736)
+Lines 332-333, 335, 338, 345-346: Replace all `emerald-*` with `success` token equivalents.
 
-### Address field — add pin icon + helper text
-- Already has MapPin icon via FieldRow (line 744) — confirmed aligned
-- Add helper text below the DistrictSelector: `<p className="text-xs text-muted-foreground mt-1">Ex: Stade Charléty, Paris</p>`
+CTA buttons at line 293: height is `h-14` (56px). Change to `h-[52px]` per spec.
 
-### Icon alignment
-- All FieldRows already use the same `FieldRow` component with consistent `h-9 w-9` icon containers — alignment is inherently consistent. Verify no manual overrides.
+Add `pb-24` to main content container (line 195: `space-y-4 pb-16` → `space-y-4 pb-24`).
 
----
+## 6. EventDetail — home_away chip
 
-## 5. TRANSLATION FIXES
+**Line 512**: Currently `t('game.terrain.${event.home_away}')` — but FR events.json doesn't have `game.terrain.*`, it has `game.home`, `game.away`, `game.neutral`.
 
-### `src/i18n/locales/fr/common.json`
-- Add: `"spotsLeft": "places restantes"` (already partially exists in events.json under lookingForPlayers)
-- Verify `"going"` in status is "Inscrite" (already correct)
+Fix: Change to `t('game.${event.home_away}')` and add prefix "Terrain : " in the JSX.
 
-### `src/i18n/locales/en/common.json`
-- `"spotsLeft"` already has fallback "spots left" in code — add explicit key
+Also add `game.terrain` keys to FR events.json as alias, OR fix the reference.
 
-### Hardcoded English in EventCard
-- Line 106: `t('common:going', 'Going')` — the fallback "Going" only shows if key missing. FR key exists as "Inscrite". OK.
-- Line 257: `t('common:going', 'going')` — used for count display. Needs to use different key for "inscrites" vs "going" in context.
+## 7. EventRSVPBar — cancel link tap target
+
+**Line 131-137**: Already has `text-sm text-primary mt-3`. Change to `text-[14px] text-primary hover:text-primary/80 mt-4 min-h-[44px] flex items-center justify-center`.
+
+## 8. Globe icon on EventCard
+
+**Line 178-180**: Already shows "Public" label next to globe. Keep as-is. The `Lock` icon for private has no label — add "Privé" text.
+
+## 9. EventCard RSVP pill — "Going" to filled success
+
+**Line 288**: `bg-success text-white` is already applied. Verify the `Check` icon is included — yes, `StatusIcon` renders `Check` when attending. Correct.
+
+## 10. Translation additions
+
+**`fr/common.json`** — add top-level convenience keys (even though proper path exists):
+No, better to fix the code to use correct paths. Already covered in step 1.
+
+**`fr/events.json`** — add terrain keys:
+```json
+"game": {
+  ...existing...,
+  "terrain": {
+    "home": "Domicile",
+    "away": "Extérieur", 
+    "neutral": "Neutre"
+  }
+}
+```
+
+## Summary of all changes
+
+| Issue | File | Fix |
+|-------|------|-----|
+| English fallbacks in EventCard | `EventCard.tsx` | Fix 10+ `t()` calls to use correct key paths |
+| FAB overlaps last card | `Events.tsx`, `FAB.tsx` | Add `pb-24`, raise FAB position |
+| Location truncated to first comma | `EventCard.tsx` | Show full `event.location` |
+| Location truncated in detail | `EventDetail.tsx` | `truncate` → `break-words` |
+| Hardcoded emerald colors | `Index.tsx` | Replace with `success` tokens |
+| CTA height inconsistency | `Index.tsx` | `h-14` → `h-[52px]` |
+| home_away key missing | `EventDetail.tsx`, `fr/events.json` | Fix key path + add translations |
+| Cancel link too small | `EventRSVPBar.tsx` | Increase size + min tap target |
+| Private icon has no label | `EventCard.tsx` | Add "Privé" label |
+| Insufficient bottom padding | `Index.tsx` | `pb-16` → `pb-24` |
 
