@@ -1,24 +1,40 @@
 
 
-# Fix: Always Show Attendee Count on Event Cards
+# Make Max Participants Required (Default: 10) + Always Show Attendee Count
 
-## Problem
-Line 279 of `EventCard.tsx` conditionally renders the participant count only when `attendeeCount > 0` OR `max_participants` is set. Events with 0 attendees and no max show nothing.
+## Combined Plan (merges previous plan)
 
-## Solution
-One small change in `EventCard.tsx` — always show the attendee count regardless of whether max_participants is set.
+### 1. `src/components/events/UnifiedEventForm.tsx` — 3 line changes
 
-### Change in `src/components/events/EventCard.tsx` (line 279)
-Replace:
+**Line 78 — Schema:** Make field required
 ```tsx
-{(attendeeCount > 0 || event.max_participants) && (
-```
-With:
-```tsx
-{(attendeeCount >= 0) && (
+// FROM
+maxParticipants: z.string().optional(),
+// TO
+maxParticipants: z.string().min(1, "Required"),
 ```
 
-This ensures every event card always displays the `👥 0`, `👥 3`, or `👥 3 / 10` count. The `/max` part still only appears when `max_participants` is set — keeping it optional as designed.
+**Line 252 — Default value:** Pre-fill with 10
+```tsx
+// FROM
+maxParticipants: '',
+// TO
+maxParticipants: '10',
+```
 
-No database, form, or logic changes needed. `max_participants` remains optional.
+**Line 443 — Submission mapping:** Always parse (no fallback to undefined)
+```tsx
+// FROM
+max_participants: values.maxParticipants ? parseInt(values.maxParticipants, 10) : undefined,
+// TO
+max_participants: parseInt(values.maxParticipants, 10),
+```
+
+### 2. `src/components/events/EventCard.tsx` — already applied
+The attendee count condition was already changed from `attendeeCount > 0 || event.max_participants` to `attendeeCount >= 0` in the last edit. No further change needed.
+
+### Summary
+- Every new event will have `max_participants` set (default 10, user can change)
+- Every event card always shows the attendee count
+- Existing events without `max_participants` still render fine (they just show `👥 N` without `/ max`)
 
