@@ -171,7 +171,7 @@ const Teams = () => {
     <PageContainer>
       <PullToRefresh onRefresh={handleRefresh}>
         <motion.div 
-          className="space-y-6 pb-24"
+          className="space-y-3 pb-24"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
@@ -291,7 +291,7 @@ const Teams = () => {
               transition={{ delay: 0.2 }}
             >
               {filteredMyTeams.length > 0 ? (
-                <div className="grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-1 gap-1">
                   {filteredMyTeams.map((team, index) => (
                     <AnimatedCard key={team.id} delay={0.25 + index * 0.05} hover={false}>
                       <TeamCard
@@ -327,13 +327,13 @@ const Teams = () => {
               transition={{ delay: 0.2 }}
             >
               {loading ? (
-                <div className="grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-1 gap-1">
                   {[...Array(6)].map((_, i) => (
                     <TeamCardSkeleton key={i} />
                   ))}
                 </div>
               ) : filteredPublicTeams.length > 0 ? (
-                <div className="grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-1 gap-1">
                   {filteredPublicTeams.map((team, index) => (
                     <AnimatedCard key={team.id} delay={0.25 + index * 0.05} hover={false}>
                       <TeamCard

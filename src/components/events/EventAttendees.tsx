@@ -40,7 +40,7 @@ const AttendeeRow = ({
   
   return (
     <div className="flex items-center gap-3 py-2">
-      <Avatar className="h-8 w-8">
+      <Avatar className="h-6 w-6">
         <AvatarImage src={attendee.profiles?.avatar_url || ''} />
         <AvatarFallback className="text-xs bg-muted">
           {displayName[0]?.toUpperCase() || '?'}
@@ -188,7 +188,7 @@ export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps
         <div className="flex items-center gap-3">
           <div className="flex -space-x-2">
             {previewAttendees.map((attendee) => (
-              <Avatar key={attendee.user_id} className="h-7 w-7 border-2 border-background ring-1 ring-border/50">
+              <Avatar key={attendee.user_id} className="h-6 w-6 border-2 border-background ring-1 ring-border/50">
                 <AvatarImage src={attendee.profiles?.avatar_url || ''} />
                 <AvatarFallback className="text-[10px] bg-muted">
                   {(attendee.profiles?.display_name?.[0] || attendee.profiles?.username?.[0] || '?').toUpperCase()}
@@ -196,7 +196,7 @@ export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps
               </Avatar>
             ))}
             {totalResponses > 5 && (
-              <div className="h-7 w-7 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium ring-1 ring-border/50">
+              <div className="h-6 w-6 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[9px] font-medium ring-1 ring-border/50">
                 +{totalResponses - 5}
               </div>
             )}

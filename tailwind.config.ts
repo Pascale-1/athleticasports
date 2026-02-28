@@ -25,24 +25,24 @@ export default {
         body: ["Inter", "system-ui", "sans-serif"],
       },
       fontSize: {
-        // Semantic Typography Scale (Global)
-        "page-title": ["1.25rem", { lineHeight: "1.625rem", fontWeight: "700" }],     // 20px — main screen titles
-        "screen-title": ["1.125rem", { lineHeight: "1.5rem", fontWeight: "700" }],    // 18px — inner page titles
-        "section": ["0.75rem", { lineHeight: "1rem", fontWeight: "600" }],            // 12px — section headers (uppercase)
-        "card-title": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "600" }],     // 14px — card titles
-        "body": ["0.8125rem", { lineHeight: "1.25rem" }],                             // 13px — body text
-        "body-sm": ["0.75rem", { lineHeight: "1.0625rem" }],                          // 12px — captions, metadata
-        "caption": ["0.75rem", { lineHeight: "1rem" }],                               // 12px
-        "micro": ["0.625rem", { lineHeight: "0.875rem" }],                            // 10px — badges, pills, tab labels
-        // Legacy aliases (mapped to new scale)
+        // Strava-inspired Typography Scale (Global)
+        "page-title": ["1.125rem", { lineHeight: "1.375rem", fontWeight: "700" }],    // 18px — main screen titles
+        "screen-title": ["1rem", { lineHeight: "1.25rem", fontWeight: "700" }],       // 16px — inner page titles
+        "card-title": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],   // 13px — card titles
+        "section": ["0.6875rem", { lineHeight: "0.875rem", fontWeight: "600" }],      // 11px — section headers (uppercase)
+        "body": ["0.75rem", { lineHeight: "1.0625rem" }],                             // 12px — body text
+        "body-sm": ["0.6875rem", { lineHeight: "0.9375rem" }],                        // 11px — captions, metadata
+        "caption": ["0.6875rem", { lineHeight: "0.875rem" }],                         // 11px
+        "micro": ["0.5625rem", { lineHeight: "0.75rem" }],                            // 9px — badges, pills, tab labels
+        // Legacy aliases (mapped to Strava scale)
         "xxs": ["0.5rem", { lineHeight: "1.4" }],                                    // 8px
-        "display": ["1.25rem", { lineHeight: "1.625rem", fontWeight: "700" }],        // 20px
-        "h1": ["1.25rem", { lineHeight: "1.625rem", fontWeight: "700" }],             // 20px
-        "h2": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "600" }],             // 14px
-        "h3": ["0.8125rem", { lineHeight: "1.25rem", fontWeight: "600" }],            // 13px
-        "h4": ["0.75rem", { lineHeight: "1rem", fontWeight: "600" }],                 // 12px
-        "body-lg": ["0.8125rem", { lineHeight: "1.25rem" }],                          // 13px
-        "small": ["0.75rem", { lineHeight: "1rem" }],                                 // 12px
+        "display": ["1.125rem", { lineHeight: "1.375rem", fontWeight: "700" }],       // 18px
+        "h1": ["1.125rem", { lineHeight: "1.375rem", fontWeight: "700" }],            // 18px
+        "h2": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],           // 13px
+        "h3": ["0.75rem", { lineHeight: "1.0625rem", fontWeight: "600" }],            // 12px
+        "h4": ["0.6875rem", { lineHeight: "0.875rem", fontWeight: "600" }],           // 11px
+        "body-lg": ["0.75rem", { lineHeight: "1.0625rem" }],                          // 12px
+        "small": ["0.6875rem", { lineHeight: "0.875rem" }],                           // 11px
       },
       colors: {
         border: "hsl(var(--border))",
@@ -121,11 +121,11 @@ export default {
         "3xl": "4rem",      /* 64px - 8 units */
       },
       borderRadius: {
-        sm: "0.5rem",      /* 8px */
-        md: "0.75rem",     /* 12px */
-        lg: "1rem",        /* 16px */
-        xl: "1.5rem",      /* 24px */
-        "2xl": "2rem",     /* 32px */
+        sm: "0.375rem",    /* 6px */
+        md: "0.5rem",      /* 8px */
+        lg: "0.625rem",    /* 10px */
+        xl: "1rem",        /* 16px */
+        "2xl": "1.5rem",   /* 24px */
         full: "9999px",
       },
       boxShadow: {
@@ -134,7 +134,7 @@ export default {
         lg: "0 4px 6px -2px rgb(0 0 0 / 0.08)",
         xl: "0 8px 12px -3px rgb(0 0 0 / 0.1)",
         "2xl": "0 12px 24px -6px rgb(0 0 0 / 0.15)",
-        "card-soft": "0 2px 8px rgba(0, 0, 0, 0.07)",
+        "card-soft": "0 1px 4px rgba(0, 0, 0, 0.06)",
         colored: "0 4px 12px rgba(0, 102, 255, 0.12)",
         "colored-lg": "0 6px 16px rgba(0, 102, 255, 0.18)",
       },

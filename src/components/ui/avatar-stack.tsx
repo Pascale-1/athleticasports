@@ -28,9 +28,9 @@ export const AvatarStack = ({
   const remainingCount = users.length - max;
   
   const sizeClasses = {
-    xs: "h-5 w-5 text-[8px]",
-    sm: "h-6 w-6 text-[9px]",
-    md: "h-8 w-8 text-[10px]",
+    xs: "h-4 w-4 text-[7px]",
+    sm: "h-5 w-5 text-[8px]",
+    md: "h-6 w-6 text-[9px]",
   };
   
   const overlapClasses = {
