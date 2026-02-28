@@ -1,134 +1,98 @@
 
 
-# Unified Design System — Global Revamp
+# Home Screen Redesign
 
-## Scope
-Apply a consistent design system across the entire app: typography scale, card styles, spacing, icons, colors, and bottom navigation. No logic, data, or navigation changes.
-
-## Files to modify (12 files)
+## Files to modify
 
 | File | Changes |
 |------|-------|
-| `tailwind.config.ts` | Update fontSize scale to match spec (24/17/14/13/12px) |
-| `src/index.css` | Remove shadow-card references from Card variants, update shadow vars |
-| `src/components/ui/card.tsx` | Standardize all variants to rounded-2xl, bg-card, border, no shadow |
-| `src/components/mobile/BottomNavigation.tsx` | Icons to 24px, underline indicator, border-t to full opacity |
-| `src/components/mobile/PageHeader.tsx` | Title to 24px bold tracking-tight |
-| `src/components/events/EventCard.tsx` | Remove hardcoded colors, use token-only; card rounded-2xl |
-| `src/components/teams/TeamCard.tsx` | Sport ribbon: remove hardcoded uppercase tracking; card consistency |
-| `src/pages/Index.tsx` | Replace remaining hardcoded success-green section colors; enforce spacing mb-6; card padding px-4 py-3 |
-| `src/pages/Events.tsx` | Enforce section gap mb-6, card gap gap-3, tab bar consistency |
-| `src/pages/Teams.tsx` | Enforce spacing rhythm, card gap gap-3 |
-| `src/pages/Settings.tsx` | Enforce spacing rhythm |
-| `src/components/mobile/FAB.tsx` | Remove shadow-lg, keep shadow-sm only |
+| `src/pages/Index.tsx` | Full layout restructure: greeting section, stats grid, CTA row, team card, games feed |
+| `src/i18n/locales/fr/common.json` | Add `home.greeting`, `home.greetingSubtitle`, `home.joinTeam` keys |
 
----
+## Changes
 
-## 1. Typography Scale (`tailwind.config.ts`)
+### 1. Index.tsx — Greeting section (replace hero card)
 
-Current fontSize values are ultra-compressed (page-title: 16px, section: 11px, card-title: 11px, body: 11px). The spec requires:
-- page-title: 24px bold tracking-tight
-- section: 13px semibold muted
-- card-title: 17px semibold  
-- body: 14px normal
-- caption: 12px muted
+Remove the current hero Card (lines 215-249) with avatar/welcome. Replace with a simple text-only greeting below the utility row:
 
-Update the semantic fontSize entries in tailwind.config.ts lines 28-44:
-```
-"page-title": ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }],         // 24px
-"section": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],     // 13px
-"card-title": ["1.0625rem", { lineHeight: "1.375rem", fontWeight: "600" }],  // 17px
-"body": ["0.875rem", { lineHeight: "1.25rem" }],                             // 14px
-"body-sm": ["0.75rem", { lineHeight: "1.0625rem" }],                        // 12px
-"caption": ["0.75rem", { lineHeight: "1rem" }],                              // 12px
-"micro": ["0.625rem", { lineHeight: "0.875rem" }],                           // 10px
-```
-Also update legacy sizes:
-```
-"display": ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }],            // 24px
-"h1": ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }],                 // 24px
-"h2": ["1.0625rem", { lineHeight: "1.375rem", fontWeight: "600" }],          // 17px
-"h3": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "600" }],            // 14px
-"h4": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],          // 13px
-"body-lg": ["0.875rem", { lineHeight: "1.25rem" }],                          // 14px
-"small": ["0.75rem", { lineHeight: "1rem" }],                                // 12px
+```tsx
+<div className="space-y-0.5">
+  <h1 className="text-[22px] font-bold tracking-tight">
+    Bonjour {profile.display_name || profile.username} 👋
+  </h1>
+  <p className="text-[14px] text-muted-foreground">
+    {t('home.greetingSubtitle')}
+  </p>
+</div>
 ```
 
-## 2. Card Component (`src/components/ui/card.tsx`)
+No avatar, no Card wrapper — clean typographic greeting.
 
-Standardize ALL card variants to use `rounded-2xl` instead of `rounded-xl`, remove `shadow-card` and `shadow-card-hover` and `shadow-strong`, keep only `border` for visual separation:
+### 2. Stats grid — keep as-is (already standalone 3-col, 28px bold)
 
-- `default`: `"rounded-2xl border bg-card text-card-foreground transition-all duration-200"`
-- `elevated`: `"rounded-2xl bg-card text-card-foreground border transition-all duration-200"`
-- `bordered`: `"rounded-2xl border-2 border-border bg-card text-card-foreground transition-all duration-200 hover:border-primary/30"`
-- `gradient-border`: keep rounded logic but use `rounded-2xl`
-- `glass`: `"rounded-2xl bg-background/80 backdrop-blur-md border border-border/50 text-card-foreground transition-all duration-200"`
-- `highlighted`: `"rounded-2xl border bg-primary/5 ring-2 ring-primary/20 text-card-foreground transition-all duration-200"`
-- `muted`: `"rounded-2xl border border-muted bg-muted/30 text-card-foreground transition-all duration-200"`
-- `interactive`: `"rounded-2xl border bg-card text-card-foreground transition-all duration-150 cursor-pointer active:scale-[0.98] hover:border-border/80"`
+Already matches spec. Numbers use `text-[28px] font-bold`, labels `text-xs text-muted-foreground`. No change needed.
 
-Inner div for gradient-border: change `rounded-[14px]` to `rounded-[14px]` (keep as-is, it's inner).
+### 3. CTA row — swap primary/secondary
 
-## 3. Bottom Navigation (`src/components/mobile/BottomNavigation.tsx`)
+Current: "Trouver un match" = primary (filled), "Créer un événement" = outlined.  
+Spec: "Trouver un match" = outlined secondary, "Créer un événement" = filled primary.
 
-- Nav container: change `border-t border-border/50` to `border-t border-border` (full opacity separator), remove `shadow-lg`
-- Icon size: change `h-5 w-5` to `h-6 w-6` (24px)
-- Active indicator: change `w-6 h-0.5` to `w-5 h-0.5` (subtle underline, 2px, rounded) — keep as-is but ensure it's accent colored (already `bg-primary`)
-- Inactive icons: already `text-muted-foreground` — correct
+- Swap variants: Find → `variant="outline" className="bg-card border-border"`, Create → `variant="default"`
+- Add subtitles inside each button: small muted line below the label
+- Both keep `h-[52px] flex-1 rounded-xl`, icon 20px left
 
-## 4. Page Header (`src/components/mobile/PageHeader.tsx`)
+```tsx
+<div className="flex gap-2">
+  <Button variant="outline" className="flex-1 h-[52px] rounded-xl bg-card ..." onClick={...}>
+    <Search className="h-5 w-5 shrink-0" />
+    <div className="text-left">
+      <span className="text-sm font-medium">{t('home.findGame')}</span>
+      <span className="text-[11px] text-muted-foreground block">{t('home.findGameSubtitle')}</span>
+    </div>
+  </Button>
+  <Button variant="default" className="flex-1 h-[52px] rounded-xl ..." onClick={...}>
+    <Plus className="h-5 w-5 shrink-0" />
+    <div className="text-left">
+      <span className="text-sm font-medium">{t('home.organizeEvent')}</span>
+      <span className="text-[11px] text-primary-foreground/70 block">{t('home.organizeEventSubtitle')}</span>
+    </div>
+  </Button>
+</div>
+```
 
-The title uses `text-page-title` which after the tailwind scale update will be 24px bold. Already has `font-heading font-bold`. Add `tracking-tight` to the h1 className.
+### 4. Team row — update label + height
 
-## 5. EventCard — Remove hardcoded colors
+Change label from `t('home.createTeam')` ("Équipe +") to `t('home.joinTeam')` ("Rejoindre une équipe"). Change height to `h-14` (56px). Keep existing card styling (rounded-xl, bg-card, border, icon left, chevron right).
 
-Line 177: `"Public"` text — already uses `text-muted-foreground`, OK.
-Lines 41-43 in `Events.tsx`: `EVENT_TYPE_LEGEND` uses `text-blue-500`, `text-amber-500`, `text-emerald-500` — replace with `text-info`, `text-warning`, `text-success`.
+### 5. "Matchs à rejoindre" section — redesign header
 
-## 6. Index.tsx — Hardcoded colors & spacing
+- Remove bg-success tint from the wrapping Card — use plain `Card className="p-3"`
+- Section header: icon + "Matchs à rejoindre" + count Badge + right-aligned "Voir tout →"
+- Use `text-[13px] font-semibold text-muted-foreground` for the section title (not green)
+- Replace the green-tinted icon/text with standard muted styling
 
-- Line 329: `bg-success/5 border-success/20` — already tokenized, good.
-- Lines 332-346: Still uses `text-success`, `bg-success/10`, `hover:bg-success/10` — these are semantic sport indicators, keep.
-- Spacing: change `space-y-4` (line 195) to `space-y-6` for mb-6 rhythm between sections.
+### 6. AvailableGameCard compact — add "Rejoindre" pill
 
-## 7. Teams.tsx — Spacing
+Already shows a "Rejoindre" button via `showJoinBadge` prop with `bg-primary` fill. This matches the spec. The `ArrowRight` icon should be removed and replaced with just the text label. Change line 137 in AvailableGameCard:
+```tsx
+<Button size="sm" className="h-7 px-3 text-[11px]">{t('matching:actions.join')}</Button>
+```
 
-- Line 163: `space-y-3` → `space-y-6` for section rhythm
-- Line 283: card grid `gap-2` → `gap-3`
-- Line 325: card grid `gap-2` → `gap-3`
+### 7. Hardcoded color cleanup in upcoming events
 
-## 8. Events.tsx — Spacing & hardcoded colors
+Lines 431-435: Replace `bg-amber-100 dark:bg-amber-900/50 text-amber-700` with `bg-warning/15 text-warning` and `bg-blue-100 dark:bg-blue-900/50 text-blue-700` with `bg-info/15 text-info`.
 
-- Line 41-43: Replace `text-blue-500`/`text-amber-500`/`text-emerald-500` with `text-info`/`text-warning`/`text-success`
-- Line 206: `space-y-3` is OK for within-section, but add `space-y-4` or keep as compact
+### 8. Translation keys
 
-## 9. FAB — Remove heavy shadow
+Add to `fr/common.json`:
+```json
+"home.greetingSubtitle": "Prêt·e pour ta prochaine session ?",
+"home.joinTeam": "Rejoindre une équipe"
+```
 
-Line 29: `shadow-lg` → remove (or use `shadow-sm` for subtle depth). The FAB already has `bg-primary` so it stands out.
-
-## 10. Settings.tsx — Spacing
-
-Line 226: `space-y-4` → `space-y-6` for section rhythm.
-
-## 11. Remaining hardcoded colors (targeted fixes)
-
-- `src/components/events/SwipeableEventCard.tsx` lines 66-68: `bg-green-500/10 text-green-700` → `bg-success/10 text-success`, similar for yellow → warning, red → destructive
-- `src/components/events/ConflictWarning.tsx` lines 22-40: `amber-500/30` → `warning/30`, `amber-600` → `warning`, `amber-700` → `warning`
-- `src/components/teams/TrainingSessionCard.tsx` line 67: `bg-green-500` → `bg-success`
-- `src/components/teams/SessionAttendance.tsx` lines 65, 91, 129: `green-500`/`green-600` → `success`
-- `src/pages/NotFound.tsx` lines 15-17: `text-gray-600` → `text-muted-foreground`, `text-blue-500` → `text-primary`
-- `src/components/teams/PerformanceLevelsTab.tsx` lines 39-42: `text-amber-600` → `text-warning`, `text-green-600` → `text-success`, `text-blue-600` → `text-info`, `text-gray-600` → `text-muted-foreground`
-- `src/pages/InvitationHelp.tsx` lines 170-190: `text-green-500` → `text-success`
-
-## Summary
-
-| Category | Change |
-|----------|--------|
-| Typography | Increase all semantic sizes: page-title 24px, card-title 17px, body 14px, caption 12px |
-| Cards | All variants → rounded-2xl, no shadows, border only |
-| Bottom nav | Icons 24px, border-t full opacity, no shadow |
-| Spacing | Section gaps → space-y-6, card gaps → gap-3, card padding px-4 py-3 |
-| Colors | Replace ~30 hardcoded color instances across 8 files with token equivalents |
-| FAB | Remove shadow-lg |
-| Icons | Already Lucide throughout — just ensure 20px standard (h-5 w-5) on content icons |
+Add to `en/common.json`:
+```json
+"home.greetingSubtitle": "Ready for your next session?",
+"home.joinTeam": "Join a team"
+```
 
