@@ -25,24 +25,24 @@ export default {
         body: ["Inter", "system-ui", "sans-serif"],
       },
       fontSize: {
-        // Strava-inspired Typography Scale (Global)
-        "page-title": ["1.125rem", { lineHeight: "1.375rem", fontWeight: "700" }],    // 18px — main screen titles
-        "screen-title": ["1rem", { lineHeight: "1.25rem", fontWeight: "700" }],       // 16px — inner page titles
-        "card-title": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],   // 13px — card titles
-        "section": ["0.6875rem", { lineHeight: "0.875rem", fontWeight: "600" }],      // 11px — section headers (uppercase)
-        "body": ["0.75rem", { lineHeight: "1.0625rem" }],                             // 12px — body text
-        "body-sm": ["0.6875rem", { lineHeight: "0.9375rem" }],                        // 11px — captions, metadata
-        "caption": ["0.6875rem", { lineHeight: "0.875rem" }],                         // 11px
-        "micro": ["0.5625rem", { lineHeight: "0.75rem" }],                            // 9px — badges, pills, tab labels
-        // Legacy aliases (mapped to Strava scale)
-        "xxs": ["0.5rem", { lineHeight: "1.4" }],                                    // 8px
-        "display": ["1.125rem", { lineHeight: "1.375rem", fontWeight: "700" }],       // 18px
-        "h1": ["1.125rem", { lineHeight: "1.375rem", fontWeight: "700" }],            // 18px
-        "h2": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],           // 13px
-        "h3": ["0.75rem", { lineHeight: "1.0625rem", fontWeight: "600" }],            // 12px
-        "h4": ["0.6875rem", { lineHeight: "0.875rem", fontWeight: "600" }],           // 11px
-        "body-lg": ["0.75rem", { lineHeight: "1.0625rem" }],                          // 12px
-        "small": ["0.6875rem", { lineHeight: "0.875rem" }],                           // 11px
+        // Typography Scale — increased for readability
+        "page-title": ["1.375rem", { lineHeight: "1.75rem", fontWeight: "700" }],      // 22px
+        "screen-title": ["1.25rem", { lineHeight: "1.625rem", fontWeight: "700" }],    // 20px
+        "card-title": ["0.9375rem", { lineHeight: "1.25rem", fontWeight: "600" }],     // 15px
+        "section": ["0.8125rem", { lineHeight: "1rem", fontWeight: "600" }],           // 13px — section headers
+        "body": ["0.9375rem", { lineHeight: "1.375rem" }],                             // 15px — body text
+        "body-sm": ["0.8125rem", { lineHeight: "1.125rem" }],                          // 13px
+        "caption": ["0.75rem", { lineHeight: "1rem" }],                                // 12px
+        "micro": ["0.625rem", { lineHeight: "0.875rem" }],                             // 10px
+        // Legacy aliases
+        "xxs": ["0.5625rem", { lineHeight: "1.4" }],                                  // 9px
+        "display": ["1.375rem", { lineHeight: "1.75rem", fontWeight: "700" }],         // 22px
+        "h1": ["1.375rem", { lineHeight: "1.75rem", fontWeight: "700" }],              // 22px
+        "h2": ["0.9375rem", { lineHeight: "1.25rem", fontWeight: "600" }],             // 15px
+        "h3": ["0.875rem", { lineHeight: "1.1875rem", fontWeight: "600" }],            // 14px
+        "h4": ["0.8125rem", { lineHeight: "1rem", fontWeight: "600" }],                // 13px
+        "body-lg": ["0.9375rem", { lineHeight: "1.375rem" }],                          // 15px
+        "small": ["0.75rem", { lineHeight: "1rem" }],                                  // 12px
       },
       colors: {
         border: "hsl(var(--border))",
@@ -134,9 +134,9 @@ export default {
         lg: "0 4px 6px -2px rgb(0 0 0 / 0.08)",
         xl: "0 8px 12px -3px rgb(0 0 0 / 0.1)",
         "2xl": "0 12px 24px -6px rgb(0 0 0 / 0.15)",
-        "card-soft": "0 2px 8px rgba(0, 0, 0, 0.5)",
-        colored: "0 4px 12px rgba(201, 168, 76, 0.15)",
-        "colored-lg": "0 6px 16px rgba(201, 168, 76, 0.25)",
+        "card-soft": "0 2px 8px rgba(0, 0, 0, 0.4)",
+        colored: "0 4px 12px rgba(255, 107, 26, 0.15)",
+        "colored-lg": "0 6px 16px rgba(255, 107, 26, 0.25)",
       },
       transitionDuration: {
         fast: "150ms",

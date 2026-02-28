@@ -35,8 +35,8 @@ import { getLocale } from "@/lib/dateUtils";
 
 const TYPE_ACCENT: Record<string, string> = {
   match: 'border-l-primary',
-  training: 'border-l-success',
-  meetup: 'border-l-accent',
+  training: 'border-l-primary',
+  meetup: 'border-l-primary',
 };
 
 interface EventCardProps {
@@ -151,7 +151,7 @@ export const EventCard = memo(({
       <Link to={`/events/${event.id}`} className="block">
         <Card 
           className={cn(
-            "border-l-[2px] overflow-hidden transition-all active:scale-[0.98]",
+            "border-l-[3px] overflow-hidden transition-all active:scale-[0.98]",
             accentClass,
             isPast && "opacity-60"
           )}
