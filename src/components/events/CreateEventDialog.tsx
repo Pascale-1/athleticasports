@@ -40,7 +40,7 @@ export const CreateEventDialog = ({
   createEvent: parentCreateEvent,
   onCreated
 }: CreateEventDialogProps) => {
-  const { t } = useTranslation('events');
+  const { t, i18n } = useTranslation('events');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [activeType, setActiveType] = useState<EventType>(defaultType);
@@ -83,16 +83,18 @@ export const CreateEventDialog = ({
         {showSuccess ? (
           <div className="flex flex-col items-center justify-center py-12 px-6 text-center animate-scale-in">
             <span className="text-5xl mb-4">{sportEmoji}</span>
-            <h2 className="text-[24px] font-bold mb-2">Événement créé ! 🎉</h2>
+            <h2 className="text-[24px] font-bold mb-2">
+              {t('create.successTitle', { defaultValue: i18n.language?.startsWith('fr') ? 'Évènement créé !' : 'Event created!' })} 🎉
+            </h2>
             <p className="text-sm text-muted-foreground mb-6">
-              {t('create.successDesc', { defaultValue: 'Ton événement est prêt' })}
+              {t('create.successDesc', { defaultValue: i18n.language?.startsWith('fr') ? 'Ton événement est prêt' : 'Your event is ready' })}
             </p>
             <div className="flex flex-col gap-2 w-full">
               <Button onClick={handleClose}>
-                {t('create.close', { defaultValue: 'Fermer' })}
+                {t('create.close', { defaultValue: i18n.language?.startsWith('fr') ? 'Fermer' : 'Close' })}
               </Button>
               <Button variant="ghost" onClick={handleCreateAnother}>
-                {t('create.createAnother', { defaultValue: 'Créer un autre' })}
+                {t('create.createAnother', { defaultValue: i18n.language?.startsWith('fr') ? 'Créer un autre' : 'Create another' })}
               </Button>
             </div>
           </div>

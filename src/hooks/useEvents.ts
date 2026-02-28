@@ -153,10 +153,7 @@ export const useEvents = (teamId?: string | null, filters?: {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Event created successfully",
-      });
+      // Toast handled by CreateEventDialog success screen
 
       // Immediately refetch to show the new event
       await fetchEvents();
@@ -182,10 +179,7 @@ export const useEvents = (teamId?: string | null, filters?: {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Event updated successfully",
-      });
+      // No hardcoded English toast — let caller handle
 
       // Immediately refetch to show the updates
       await fetchEvents();
@@ -211,10 +205,7 @@ export const useEvents = (teamId?: string | null, filters?: {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Event deleted successfully",
-      });
+      // No hardcoded English toast — let caller handle
 
       // Immediately refetch to remove deleted event
       await fetchEvents();

@@ -467,19 +467,26 @@ const EventDetail = () => {
               </div>
             )}
 
-            {/* Capacity */}
+            {/* Capacity — always show if max_participants set */}
             {event.max_participants && (
               <div className="flex items-center gap-3 pt-1">
                 <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
                   <Users className="h-5 w-5 text-muted-foreground" />
                 </div>
-                <div>
-                  <p className="text-sm font-medium">
-                    {stats.attending} / {event.max_participants} {t('details.participants')}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {event.max_participants - stats.attending} {t('details.maxParticipants')}
-                  </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[20px] font-bold text-foreground">
+                    {stats.attending} / {event.max_participants}
+                  </span>
+                  {event.looking_for_players && event.max_participants > stats.attending && (
+                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold bg-[rgba(167,139,250,0.10)] text-[#A78BFA]">
+                      🔍 {event.max_participants - stats.attending} {t('details.maxParticipants')}
+                    </span>
+                  )}
+                  {event.max_participants <= stats.attending && (
+                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold bg-[rgba(248,113,113,0.10)] text-[#F87171]">
+                      {t('details.full', 'Full')}
+                    </span>
+                  )}
                 </div>
               </div>
             )}
