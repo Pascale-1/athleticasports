@@ -237,7 +237,7 @@ const Settings = () => {
           <div className="flex items-start gap-4">
             {/* Avatar with persistent camera icon */}
             <div className="relative shrink-0">
-              <Avatar className="h-20 w-20 border-2 border-primary/20">
+              <Avatar className="h-20 w-20 ring-2 ring-primary ring-offset-2 ring-offset-background">
                 <AvatarImage src={profile.avatar_url || ""} />
                 <AvatarFallback className="text-2xl font-bold bg-primary/10 text-primary">
                   {profile.display_name?.[0] || profile.username[0]}

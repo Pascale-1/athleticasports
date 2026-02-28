@@ -37,7 +37,10 @@ export const TrainingSessionCard = ({
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <Card className={cn("p-3 sm:p-4", isPast && "opacity-50")}>
+      <Card className={cn(
+        "p-3 sm:p-4 border-l-[3px]",
+        isPast ? "opacity-50 border-l-muted" : "border-l-primary",
+      )}>
         <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
           <div className="flex-1 space-y-2 w-full min-w-0">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
@@ -74,15 +77,15 @@ export const TrainingSessionCard = ({
             </div>
 
             <div className="flex gap-1 mt-2">
-              <Badge variant="secondary" className="text-xs bg-success hover:bg-success/90 text-success-foreground">
+              <Badge variant="secondary" className="text-xs bg-success/15 hover:bg-success/20 text-success border-0">
                 <Check className="h-3 w-3 mr-1" />
                 {stats.attending}
               </Badge>
-              <Badge variant="secondary" className="text-xs bg-warning hover:bg-warning/90 text-warning-foreground">
+              <Badge variant="secondary" className="text-xs bg-muted hover:bg-muted/90 text-[hsl(215,20%,84%)] border-0">
                 <HelpCircle className="h-3 w-3 mr-1" />
                 {stats.maybe}
               </Badge>
-              <Badge variant="destructive" className="text-xs">
+              <Badge variant="destructive" className="text-xs bg-destructive/15 hover:bg-destructive/20 text-destructive border-0">
                 <X className="h-3 w-3 mr-1" />
                 {stats.not_attending}
               </Badge>

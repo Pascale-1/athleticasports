@@ -98,10 +98,10 @@ export const EventCard = memo(({
     // Status chip logic
     let chip: { emoji: string; label: string; className: string };
     if (isPast) {
-      chip = { emoji: '🏁', label: 'Final', className: 'bg-muted text-muted-foreground' };
+      chip = { emoji: '✓', label: 'Final', className: 'bg-muted text-[hsl(215,20%,84%)]' };
     } else {
       const dateStr = format(startTime, "MMM d", { locale });
-      chip = { emoji: '📅', label: `${dateStr} · ${time}`, className: 'bg-primary/10 text-primary' };
+      chip = { emoji: '🔵', label: `${dateStr} · ${time}`, className: 'bg-primary/15 text-primary' };
     }
 
     // Hero text: large date/time for upcoming, title for past
@@ -234,14 +234,14 @@ export const EventCard = memo(({
                   {event.title}
                 </h3>
                 {!isPast && (
-                  <p className="text-[22px] font-bold leading-tight text-primary mt-0.5">
+                  <p className="text-[17px] font-semibold leading-tight text-primary mt-0.5">
                     {heroText}
                   </p>
                 )}
               </div>
 
               {/* ROW 3: Muted metadata — sport, location, attendees */}
-              <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+              <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
                 {sportEmoji && <span>{sportEmoji}</span>}
                 {isPast && <span>{timeStr}</span>}
                 {venueName && (
