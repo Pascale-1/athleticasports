@@ -1,98 +1,126 @@
 
 
-# Home Screen Redesign
+# Events List Screen Redesign
 
-## Files to modify
+## Files to modify (4 files)
 
 | File | Changes |
 |------|-------|
-| `src/pages/Index.tsx` | Full layout restructure: greeting section, stats grid, CTA row, team card, games feed |
-| `src/i18n/locales/fr/common.json` | Add `home.greeting`, `home.greetingSubtitle`, `home.joinTeam` keys |
+| `src/pages/Events.tsx` | Consolidate nav into 2 rows: underline tabs + scrollable sport chips; move view/search icons into tab row |
+| `src/components/events/EventCard.tsx` | Add type-based bg tint; increase title to 17px; ensure status badge uses high-contrast success styling |
+| `src/components/mobile/FAB.tsx` | Increase to 56px circle (`h-14 w-14`) |
+| `src/components/EmptyState.tsx` | Increase title to 16px semibold; add emoji/icon size bump |
 
-## Changes
+---
 
-### 1. Index.tsx — Greeting section (replace hero card)
+## 1. Events.tsx — Tab row (Row 1, 48px)
 
-Remove the current hero Card (lines 215-249) with avatar/welcome. Replace with a simple text-only greeting below the utility row:
+Replace current muted-bg segmented control (lines 228-254) with an underline-style tab bar:
 
 ```tsx
-<div className="space-y-0.5">
-  <h1 className="text-[22px] font-bold tracking-tight">
-    Bonjour {profile.display_name || profile.username} 👋
-  </h1>
-  <p className="text-[14px] text-muted-foreground">
-    {t('home.greetingSubtitle')}
-  </p>
+<div className="flex items-center h-12 border-b border-border">
+  <div className="flex-1 flex">
+    {TAB_CONFIG.map(({ key, labelKey }) => (
+      <button
+        key={key}
+        className={cn(
+          "flex-1 h-12 text-sm font-medium transition-colors relative",
+          activeTab === key ? "text-primary" : "text-muted-foreground"
+        )}
+        onClick={() => handleTabChange(key)}
+      >
+        {t(labelKey)}
+        {activeTab === key && (
+          <span className="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-primary rounded-full" />
+        )}
+      </button>
+    ))}
+  </div>
+  {/* Right: view toggles + search (only on 'my' tab) */}
+  <div className="flex items-center gap-1 shrink-0">
+    {activeTab === 'my' && (
+      <>
+        <Button size="icon" variant={viewMode === 'list' ? "default" : "ghost"} className="h-8 w-8" onClick={...}>
+          <List className="h-5 w-5" />
+        </Button>
+        <Button size="icon" variant={viewMode === 'calendar' ? "default" : "ghost"} className="h-8 w-8" onClick={...}>
+          <CalendarIcon className="h-5 w-5" />
+        </Button>
+      </>
+    )}
+    <Button size="icon" variant={showSearch ? "default" : "ghost"} className="h-8 w-8" onClick={...}>
+      <Search className="h-5 w-5" />
+    </Button>
+  </div>
 </div>
 ```
 
-No avatar, no Card wrapper — clean typographic greeting.
+Remove tab icons — text-only tabs. Remove Badge counts from tabs (cleaner).
 
-### 2. Stats grid — keep as-is (already standalone 3-col, 28px bold)
+## 2. Events.tsx — Sport filter chips (Row 2, 40px)
 
-Already matches spec. Numbers use `text-[28px] font-bold`, labels `text-xs text-muted-foreground`. No change needed.
-
-### 3. CTA row — swap primary/secondary
-
-Current: "Trouver un match" = primary (filled), "Créer un événement" = outlined.  
-Spec: "Trouver un match" = outlined secondary, "Créer un événement" = filled primary.
-
-- Swap variants: Find → `variant="outline" className="bg-card border-border"`, Create → `variant="default"`
-- Add subtitles inside each button: small muted line below the label
-- Both keep `h-[52px] flex-1 rounded-xl`, icon 20px left
+Move below the tab row. Render on all tabs (not just 'my'). Horizontally scrollable, pill style:
 
 ```tsx
-<div className="flex gap-2">
-  <Button variant="outline" className="flex-1 h-[52px] rounded-xl bg-card ..." onClick={...}>
-    <Search className="h-5 w-5 shrink-0" />
-    <div className="text-left">
-      <span className="text-sm font-medium">{t('home.findGame')}</span>
-      <span className="text-[11px] text-muted-foreground block">{t('home.findGameSubtitle')}</span>
-    </div>
+<div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1">
+  <Button
+    size="sm"
+    className={cn("h-8 px-3 text-xs rounded-full shrink-0",
+      activeEventType === 'all' ? "bg-primary text-primary-foreground" : "bg-card border text-foreground"
+    )}
+    onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
+  >
+    {t('types.all')}
   </Button>
-  <Button variant="default" className="flex-1 h-[52px] rounded-xl ..." onClick={...}>
-    <Plus className="h-5 w-5 shrink-0" />
-    <div className="text-left">
-      <span className="text-sm font-medium">{t('home.organizeEvent')}</span>
-      <span className="text-[11px] text-primary-foreground/70 block">{t('home.organizeEventSubtitle')}</span>
-    </div>
-  </Button>
+  {EVENT_TYPE_LEGEND.map(({ type, labelKey, icon: Icon }) => (
+    <Button key={type} size="sm" className={cn("h-8 px-3 text-xs rounded-full shrink-0 gap-1.5",
+      activeEventType === type ? "bg-primary text-primary-foreground" : "bg-card border text-foreground"
+    )} onClick={...}>
+      <Icon className="h-3.5 w-3.5" />
+      {t(labelKey)}
+    </Button>
+  ))}
 </div>
 ```
 
-### 4. Team row — update label + height
+Remove duplicate filter rows from 'organized' and 'my' tab sections — they now share the single row above.
 
-Change label from `t('home.createTeam')` ("Équipe +") to `t('home.joinTeam')` ("Rejoindre une équipe"). Change height to `h-14` (56px). Keep existing card styling (rounded-xl, bg-card, border, icon left, chevron right).
+## 3. EventCard.tsx — Type-based background tint
 
-### 5. "Matchs à rejoindre" section — redesign header
+Add a subtle 4% opacity color tint matching the left border. At line 131, extend the Card className:
 
-- Remove bg-success tint from the wrapping Card — use plain `Card className="p-3"`
-- Section header: icon + "Matchs à rejoindre" + count Badge + right-aligned "Voir tout →"
-- Use `text-[13px] font-semibold text-muted-foreground` for the section title (not green)
-- Replace the green-tinted icon/text with standard muted styling
-
-### 6. AvailableGameCard compact — add "Rejoindre" pill
-
-Already shows a "Rejoindre" button via `showJoinBadge` prop with `bg-primary` fill. This matches the spec. The `ArrowRight` icon should be removed and replaced with just the text label. Change line 137 in AvailableGameCard:
 ```tsx
-<Button size="sm" className="h-7 px-3 text-[11px]">{t('matching:actions.join')}</Button>
+<Card className={cn(
+  "border-l-[5px] overflow-hidden transition-all active:scale-[0.98]",
+  accentClass,
+  // Add type-based bg tint
+  event.type === 'training' && "bg-info/[0.04]",
+  event.type === 'match' && "bg-warning/[0.04]",
+  event.type === 'meetup' && "bg-success/[0.04]",
+  isPast && "opacity-60"
+)}>
 ```
 
-### 7. Hardcoded color cleanup in upcoming events
+Update title to 17px: line 153 change `text-base` to `text-[17px]`.
 
-Lines 431-435: Replace `bg-amber-100 dark:bg-amber-900/50 text-amber-700` with `bg-warning/15 text-warning` and `bg-blue-100 dark:bg-blue-900/50 text-blue-700` with `bg-info/15 text-info`.
+## 4. FAB.tsx — 56px circle
 
-### 8. Translation keys
+Change `h-12 w-12` to `h-14 w-14` (56px).
 
-Add to `fr/common.json`:
-```json
-"home.greetingSubtitle": "Prêt·e pour ta prochaine session ?",
-"home.joinTeam": "Rejoindre une équipe"
-```
+## 5. EmptyState.tsx — Larger title
 
-Add to `en/common.json`:
-```json
-"home.greetingSubtitle": "Ready for your next session?",
-"home.joinTeam": "Join a team"
-```
+Change title from `text-sm` to `text-base font-semibold` (16px). Increase icon wrapper size.
+
+## Summary
+
+| Change | Detail |
+|--------|--------|
+| Tab bar | Underline-style text tabs, 48px height, no icons |
+| Sport chips | Shared scrollable row, pill style, bg-primary active |
+| View/search icons | Right-aligned in tab row, 20px icons |
+| Card bg tint | 4% opacity type color on card background |
+| Card title | 17px semibold |
+| FAB | 56px circle |
+| Empty state | 16px title |
+| Filter dedup | Remove duplicate filter rows from organized/my sections |
 
