@@ -122,7 +122,7 @@ export function AccountDangerZone() {
         </p>
         <Button
           variant="outline"
-          className="border-destructive text-destructive hover:bg-destructive hover:text-white w-full sm:w-auto"
+          className="border-destructive text-destructive hover:bg-destructive hover:text-primary-foreground w-full sm:w-auto"
           onClick={handleOpenDialog}
         >
           <Trash2 className="h-4 w-4 mr-2 flex-shrink-0" />

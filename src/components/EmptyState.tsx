@@ -12,11 +12,11 @@ export const EmptyState = ({ icon: Icon, title, description, action, emoji }: Em
   return (
     <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
       {emoji && <span className="text-5xl mb-3">{emoji}</span>}
-      <div className="rounded-full bg-muted p-4 mb-3">
-        <Icon className="h-7 w-7 text-muted-foreground" />
+      <div className="rounded-full bg-primary/10 p-4 mb-3">
+        <Icon className="h-12 w-12 text-primary" />
       </div>
-      <h3 className="text-[15px] font-semibold mb-1">{title}</h3>
-      <p className="text-[13px] text-muted-foreground mb-5 max-w-xs">
+      <h3 className="text-[17px] font-bold mb-1 text-foreground">{title}</h3>
+      <p className="text-[14px] text-muted-foreground mb-5 max-w-xs">
         {description}
       </p>
       {action && <div>{action}</div>}

@@ -87,7 +87,7 @@ export const InstallPrompt = () => {
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-primary">
-                  <Download className="h-5 w-5 text-white" />
+                  <Download className="h-5 w-5 text-primary-foreground" />
                 </div>
                 <div>
                   <CardTitle className="text-lg">Install Athletica</CardTitle>

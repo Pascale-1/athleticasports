@@ -13,7 +13,7 @@ const accentColors = [
   "border-l-purple-500",
   "border-l-blue-500",
   "border-l-green-500",
-  "border-l-orange-500",
+  "border-l-primary",
   "border-l-pink-500",
   "border-l-cyan-500",
 ];

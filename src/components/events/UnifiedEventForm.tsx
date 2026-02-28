@@ -884,7 +884,7 @@ export const UnifiedEventForm = ({
               className={cn(
                 "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all duration-150 min-h-[32px]",
                 !hasCost
-                  ? "bg-success/90 text-white shadow-sm"
+                  ? "bg-success/90 text-success-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >

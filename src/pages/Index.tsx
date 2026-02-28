@@ -224,24 +224,28 @@ const Index = () => {
           {/* Next Match Hero Card */}
           {!eventsLoading && upcomingEvents.length > 0 && (
             <AnimatedCard delay={0.12}>
-              <Link to={`/events/${upcomingEvents[0].id}`}>
-                <Card className="p-4 bg-primary/5 border border-primary/20 active:scale-[0.98] transition-transform">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-primary mb-1">
-                    {t('home.nextMatch', { defaultValue: 'Prochain événement' })}
-                  </p>
-                  <h2 className="text-[20px] font-bold leading-tight text-foreground">
-                    {upcomingEvents[0].title}
-                  </h2>
-                  <p className="text-[16px] font-semibold text-primary mt-1">
-                    {formatDateTimeShort(upcomingEvents[0].start_time)}
-                  </p>
-                  {upcomingEvents[0].location && (
-                    <p className="text-[11px] text-muted-foreground mt-1 truncate">
-                      📍 {upcomingEvents[0].location}
+              <div className="relative">
+                {/* Subtle radial glow behind hero */}
+                <div className="absolute inset-0 -top-8 -left-4 -right-4 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(56,189,248,0.07) 0%, transparent 60%)' }} />
+                <Link to={`/events/${upcomingEvents[0].id}`} className="relative z-10">
+                  <Card className="p-4 bg-card border border-border active:scale-[0.98] transition-transform">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground mb-1">
+                      {t('home.nextMatch', { defaultValue: 'Prochain événement' })}
                     </p>
-                  )}
-                </Card>
-              </Link>
+                    <h2 className="text-[20px] font-bold leading-tight text-foreground">
+                      {upcomingEvents[0].title}
+                    </h2>
+                    <p className="text-[17px] font-semibold text-primary mt-1">
+                      {formatDateTimeShort(upcomingEvents[0].start_time)}
+                    </p>
+                    {upcomingEvents[0].location && (
+                      <p className="text-[12px] text-muted-foreground mt-1 truncate">
+                        📍 {upcomingEvents[0].location}
+                      </p>
+                    )}
+                  </Card>
+                </Link>
+              </div>
             </AnimatedCard>
           )}
 
@@ -319,7 +323,7 @@ const Index = () => {
                   <Users className="h-5 w-5 text-primary" />
                 </div>
                 <span className="flex-1 text-sm font-medium">{t('home.joinTeam')}</span>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                <ChevronRight className="h-4 w-4 text-muted" />
               </div>
             </div>
           </AnimatedCard>

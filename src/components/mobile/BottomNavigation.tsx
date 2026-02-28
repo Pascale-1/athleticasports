@@ -133,8 +133,8 @@ export const BottomNavigation = () => {
               className={cn(
                 "relative flex flex-col items-center justify-center gap-0 px-3 py-1 rounded-lg transition-all duration-150 active:scale-[0.92] min-w-[56px] min-h-[38px]",
                 isActive
-                  ? "text-primary bg-primary/10"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "text-primary"
+                  : "text-muted hover:text-muted-foreground"
               )}
             >
               <div className="relative">
@@ -146,7 +146,7 @@ export const BottomNavigation = () => {
                 />
                 {/* Notification badge */}
                 {item.badge > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[14px] h-[14px] bg-accent text-accent-foreground text-[9px] font-bold rounded-full flex items-center justify-center px-0.5">
+                  <span className="absolute -top-1 -right-1 min-w-[14px] h-[14px] bg-primary text-primary-foreground text-[9px] font-bold rounded-full flex items-center justify-center px-0.5">
                     {item.badge > 9 ? '9+' : item.badge}
                   </span>
                 )}
