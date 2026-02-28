@@ -1,8 +1,8 @@
 
 
-# Strava-inspired Typography & Density Overhaul
+# FORCE Dark Palette — Complete Color System Replacement
 
-Aggressive reduction of all font sizes, spacing, and padding to achieve a compact, data-dense mobile UI. Changes cascade through theme tokens where possible, with targeted component edits for hardcoded values.
+Replace the entire color system in `src/index.css` with the dark-first FORCE palette. Update `:root` to be the dark palette (since no theme toggle exists). Update sport accent utilities. Update `tailwind.config.ts` shadow token. Update component hardcoded Tailwind color classes (e.g., `bg-amber-100`, `text-blue-600`) to use design tokens.
 
 ---
 
@@ -10,201 +10,250 @@ Aggressive reduction of all font sizes, spacing, and padding to achieve a compac
 
 | File | Changes |
 |------|---------|
-| `tailwind.config.ts` | Redefine fontSize scale, spacing scale, borderRadius, shadows |
-| `src/index.css` | Update CSS variables, utility classes |
-| `src/components/ui/card.tsx` | Card padding to 10px/14px, border-radius 10px |
-| `src/components/ui/badge.tsx` | Height 20px, px 6px, text 9px |
-| `src/components/ui/button.tsx` | Base text 12px medium, reduce heights |
-| `src/components/ui/input.tsx` | Text 12px, height reduce |
-| `src/components/ui/textarea.tsx` | Text 12px |
-| `src/components/mobile/BottomNavigation.tsx` | 50px height, 20px icons, 9px labels, active pill |
-| `src/components/mobile/PageHeader.tsx` | Title 18px, subtitle 11px |
-| `src/components/mobile/PageContainer.tsx` | Default padding to 14px horizontal |
-| `src/components/mobile/FAB.tsx` | 44px size, adjust bottom position |
-| `src/components/events/EventCard.tsx` | Title 13px, metadata 12px, tighter padding |
-| `src/components/events/EventsList.tsx` | Gap 1 (4px) |
-| `src/components/events/EventAttendees.tsx` | Avatar sizes reduced |
-| `src/components/teams/TeamCard.tsx` | Title 13px, metadata 12px, avatar 32px |
-| `src/components/ui/avatar-stack.tsx` | Reduce all sizes |
-| `src/pages/EventDetail.tsx` | Section headers 11px, spacing space-y-2, tighter hero |
-| `src/pages/Events.tsx` | Gap 1, padding adjustments |
-| `src/pages/Teams.tsx` | Gap 1, space-y-3 sections |
+| `src/index.css` | Replace `:root` with FORCE dark palette, update `.dark` to match, update sport accent utilities, update shadow utilities |
+| `tailwind.config.ts` | Update `card-soft` shadow for dark, update `colored` shadow to lime |
+| `src/components/ui/card.tsx` | No changes — already uses `bg-card`, `shadow-card-soft` tokens |
+| `src/components/ui/button.tsx` | No changes — already uses `bg-primary text-primary-foreground` |
+| `src/components/ui/input.tsx` | Remove `border border-input`, add `border-0`, ensure `bg-background` maps to surface-elevated via new token |
+| `src/components/mobile/BottomNavigation.tsx` | Update active state: `text-primary bg-primary/10` already works since `--primary` will be lime. Update inactive: use `text-muted-foreground` (will map to hint). Border color will auto-update. |
+| `src/components/teams/TeamMemberCard.tsx` | Replace hardcoded `bg-amber-100 text-amber-800` etc. with token-based classes |
+| `src/components/events/EventTemplateSelector.tsx` | Replace hardcoded type colors with token-based |
+| `src/components/teams/EventsPreview.tsx` | Replace hardcoded type colors |
+| `src/components/events/EventRSVPBar.tsx` | Replace `bg-amber-500/10 text-amber-600` with `bg-warning/10 text-warning` |
+| `src/components/events/RSVPDeadlineDisplay.tsx` | Replace hardcoded amber with `warning` token |
+| `src/components/onboarding/OnboardingHint.tsx` | Replace hardcoded green/amber with tokens |
+| `src/components/teams/GenerateTeamsDialog.tsx` | Replace `text-green-600` with `text-success` |
+| `src/components/profile/FoundingMemberBadge.tsx` | Replace hardcoded amber/orange gradient with primary token |
+| `src/pages/ConfirmDeletion.tsx` | Replace hardcoded green/amber with success/warning tokens |
+| `index.html` | Add `class="dark"` to `<html>` tag to activate dark mode class for any remaining `.dark:` prefixed utilities |
 
 ---
 
-## 1. tailwind.config.ts — New Strava-scale tokens
+## 1. src/index.css — FORCE palette as `:root`
 
+Replace entire `:root` block:
+
+```css
+:root {
+  /* FORCE Palette — Dark First */
+  --background: 0 0% 6%;           /* #0F0F0F */
+  --foreground: 0 0% 100%;         /* #FFFFFF */
+
+  /* Text Color Scale */
+  --text-primary: 0 0% 100%;       /* #FFFFFF */
+  --text-secondary: 0 0% 83%;      /* #D4D4D4 */
+  --text-muted: 0 0% 64%;          /* #A3A3A3 */
+  --text-hint: 0 0% 32%;           /* #525252 */
+  --text-link: 73 100% 50%;        /* #CCFF00 — electric lime */
+
+  /* Card / Surface */
+  --card: 0 0% 10%;                /* #1A1A1A */
+  --card-foreground: 0 0% 100%;
+
+  /* Popover */
+  --popover: 0 0% 14%;             /* #242424 */
+  --popover-foreground: 0 0% 100%;
+
+  /* Primary — Electric Lime */
+  --primary: 73 100% 50%;          /* #CCFF00 */
+  --primary-light: 73 100% 55%;
+  --primary-dark: 73 100% 40%;     /* #A3CC00 */
+  --primary-foreground: 0 0% 4%;   /* #0A0A0A — dark on lime */
+
+  /* Primary Subtle (tinted bg) */
+  --primary-subtle: 73 100% 7%;    /* #1A2400 */
+
+  /* Accent */
+  --accent: 0 0% 14%;              /* #242424 — surface-elevated */
+  --accent-foreground: 0 0% 100%;
+
+  /* Muted */
+  --muted: 0 0% 14%;               /* #242424 */
+  --muted-foreground: 0 0% 64%;    /* #A3A3A3 */
+
+  /* Destructive */
+  --destructive: 0 84% 60%;        /* #EF4444 */
+  --destructive-foreground: 0 0% 100%;
+
+  /* Success */
+  --success: 142 71% 45%;          /* #22C55E */
+  --success-foreground: 0 0% 100%;
+
+  /* Warning */
+  --warning: 45 100% 50%;
+  --warning-foreground: 0 0% 6%;
+
+  /* Info */
+  --info: 73 100% 50%;             /* same as primary in FORCE */
+  --info-foreground: 0 0% 4%;
+
+  /* Match */
+  --match: 73 100% 50%;
+  --match-foreground: 0 0% 4%;
+
+  /* Border & Input */
+  --border: 0 0% 16%;              /* #2A2A2A */
+  --input: 0 0% 14%;               /* #242424 — surface-elevated, no visible border */
+  --ring: 73 100% 50%;             /* lime focus ring */
+
+  /* Neutrals */
+  --neutral-50: 0 0% 10%;
+  --neutral-100: 0 0% 12%;
+  --neutral-200: 0 0% 16%;
+  --neutral-300: 0 0% 20%;
+  --neutral-400: 0 0% 32%;
+  --neutral-500: 0 0% 45%;
+  --neutral-600: 0 0% 60%;
+  --neutral-700: 0 0% 75%;
+  --neutral-800: 0 0% 85%;
+  --neutral-900: 0 0% 95%;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --shadow-md: 0 2px 4px -1px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 4px 8px -2px rgb(0 0 0 / 0.5);
+  --shadow-xl: 0 8px 16px -4px rgb(0 0 0 / 0.6);
+  --shadow-2xl: 0 16px 32px -8px rgb(0 0 0 / 0.7);
+  --shadow-colored: 0 4px 12px rgba(204, 255, 0, 0.15);
+  --shadow-colored-lg: 0 6px 16px rgba(204, 255, 0, 0.25);
+
+  /* Sidebar */
+  --sidebar-background: 0 0% 10%;
+  --sidebar-foreground: 0 0% 64%;
+  --sidebar-primary: 73 100% 50%;
+  --sidebar-primary-foreground: 0 0% 4%;
+  --sidebar-accent: 0 0% 14%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 0 0% 16%;
+  --sidebar-ring: 73 100% 50%;
+
+  /* Sport-specific tints */
+  --sport-football: 120 33% 8%;    /* #0A1F0A */
+  --sport-basketball: 30 100% 6%;  /* #1F1200 */
+  --sport-volleyball: 252 50% 8%;  /* #0D0A1F */
+  --sport-running: 20 100% 6%;     /* #1F0A00 */
+}
 ```
-fontSize:
-  "page-title": ["1.125rem", { lineHeight: "1.375rem", fontWeight: "700" }]    // 18px
-  "screen-title": ["1rem", { lineHeight: "1.25rem", fontWeight: "700" }]       // 16px
-  "card-title": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }]   // 13px
-  "section": ["0.6875rem", { lineHeight: "0.875rem", fontWeight: "600" }]      // 11px
-  "body": ["0.75rem", { lineHeight: "1.0625rem" }]                             // 12px
-  "body-sm": ["0.6875rem", { lineHeight: "0.9375rem" }]                        // 11px
-  "caption": ["0.6875rem", { lineHeight: "0.875rem" }]                         // 11px
-  "micro": ["0.5625rem", { lineHeight: "0.75rem" }]                            // 9px
-  + update all legacy aliases (display/h1=18px, h2=13px, h3=12px, h4=11px)
 
-borderRadius:
-  sm: "0.375rem"    // 6px
-  md: "0.5rem"      // 8px  
-  lg: "0.625rem"    // 10px
-  xl: "1rem"        // 16px
+`.dark` block: identical to `:root` (or remove the block entirely and keep only `:root`).
 
-boxShadow:
-  "card-soft": "0 1px 4px rgba(0, 0, 0, 0.06)"  // lighter for denser layout
+Update sport accent utilities:
+```css
+.sport-accent-football { border-left-color: hsl(var(--sport-football)); background-color: hsl(var(--sport-football)); }
+.sport-accent-basketball { border-left-color: hsl(var(--sport-basketball)); background-color: hsl(var(--sport-basketball)); }
+.sport-accent-volleyball { border-left-color: hsl(var(--sport-volleyball)); background-color: hsl(var(--sport-volleyball)); }
+.sport-accent-tennis { border-left-color: hsl(73 100% 50% / 0.15); }
+.sport-accent-badminton { border-left-color: hsl(73 100% 50% / 0.15); }
 ```
 
-## 2. src/index.css — CSS variables
+Update shadow utilities:
+```css
+.shadow-colored { box-shadow: 0 4px 12px rgba(204, 255, 0, 0.15); }
+.shadow-colored-lg { box-shadow: 0 8px 24px rgba(204, 255, 0, 0.25); }
+```
 
-No changes needed — text color tokens already match spec.
+Keep spacing, radius, transitions unchanged.
 
-## 3. card.tsx — Compact padding + radius
+## 2. tailwind.config.ts — Shadow token update
 
-- All variants: `rounded-[10px]` instead of `rounded-2xl`
-- CardHeader: `p-2.5 px-3.5` (10px/14px)
-- CardContent: `p-2.5 px-3.5 pt-0`
-- CardFooter: `p-2.5 px-3.5 pt-0`
-- CardTitle: `text-[13px]`
-- CardDescription: `text-[12px]`
+Update `card-soft` shadow:
+```
+"card-soft": "0 2px 8px rgba(0, 0, 0, 0.4)"
+```
 
-## 4. badge.tsx — 20px height, 9px text
+Update `colored` shadows to lime:
+```
+colored: "0 4px 12px rgba(204, 255, 0, 0.15)"
+"colored-lg": "0 6px 16px rgba(204, 255, 0, 0.25)"
+```
 
-- Base: `text-[9px] font-medium`
-- Size `sm`: `px-1.5 py-0 text-[9px] h-[20px]`
-- Size `xs`: `px-1 py-0 text-[8px] h-3.5`
-- Size `md`: `px-2 py-0.5 text-[10px]`
+## 3. index.html — Force dark class
 
-## 5. button.tsx — 12px medium labels
+Add `class="dark"` to `<html>` tag so any remaining `dark:` prefixed utilities activate.
 
-- Base cva: `text-[12px] font-medium` (was 13px semibold)
-- Size `default`: `h-9 px-3.5 py-2 min-h-[36px]`
-- Size `sm`: `h-8 px-3 py-1.5 text-[11px] min-h-[32px]`
-- Size `lg`: `h-10 px-5 py-2 text-[12px] min-h-[40px]`
-- Size `icon`: `h-9 w-9 min-h-[36px] min-w-[36px]`
+## 4. src/components/ui/input.tsx — Borderless dark input
 
-## 6. input.tsx — 12px text, compact height
+Change: `border border-input bg-background` → `border-0 bg-accent` (maps to surface-elevated #242424)
+Placeholder: already uses `placeholder:text-muted-foreground` which will now be #A3A3A3. Change to `placeholder:text-[hsl(var(--text-hint))]` for #525252.
 
-- `h-10` (was h-12), `text-[12px]`, `px-3 py-2`
+## 5. src/components/teams/TeamMemberCard.tsx — Token-based role badges
 
-## 7. textarea.tsx — 12px text
+Replace hardcoded colors:
+```tsx
+const roleColors: Record<string, string> = {
+  owner: "bg-primary/20 text-primary border-primary/30",
+  admin: "bg-accent text-foreground border-border",
+  coach: "bg-success/20 text-success border-success/30",
+  member: "bg-muted text-muted-foreground border-border",
+};
+```
 
-- `text-[12px]`
+## 6. src/components/events/EventTemplateSelector.tsx — Token-based type colors
 
-## 8. BottomNavigation.tsx — 50px, 20px icons, 9px labels
+```tsx
+const TYPE_COLORS: Record<EventType, string> = {
+  training: "bg-primary/10 text-primary border-primary/20",
+  match: "bg-warning/10 text-warning border-warning/20",
+  meetup: "bg-success/10 text-success border-success/20",
+};
+```
 
-- Nav height: `h-[calc(50px+env(safe-area-inset-bottom))]`
-- Icon: `h-5 w-5` (20px)
-- Label: `text-[9px]`
-- Active pill: keep existing `bg-primary/10` approach
-- Tighter gap: `gap-0`
+## 7. src/components/teams/EventsPreview.tsx — Token-based type colors
 
-## 9. PageHeader.tsx — 18px title, 11px subtitle
+Same pattern as EventTemplateSelector above.
 
-- Title: `text-[18px]` (was text-page-title which was 20px)
-- Subtitle: `text-[11px]`
-- Reduce `pb-3` → `pb-2`, `space-y-1` → `space-y-0.5`
-- Back button: `text-[10px]`, `h-6`
+## 8. src/components/events/EventRSVPBar.tsx — Warning token
 
-## 10. PageContainer.tsx — 14px horizontal padding
+Replace `bg-amber-500/10 text-amber-600 border-amber-500/20` → `bg-warning/10 text-warning border-warning/20`
 
-- `compact`: `px-3.5 py-2`
-- `default`: `px-3.5 py-2`
-- `spacious`: `px-4 py-3`
+## 9. src/components/events/RSVPDeadlineDisplay.tsx — Warning token
 
-## 11. FAB.tsx — 44px
+Replace all `amber-*` references with `warning` token equivalents.
 
-- `h-11 w-11` (44px, was h-14 w-14)
-- `bottom-16 right-3.5`
+## 10. src/components/onboarding/OnboardingHint.tsx — Token-based variants
 
-## 12. EventCard.tsx — Ultra-compact
+```tsx
+const variantStyles = {
+  info: 'border-primary/30 bg-primary/5',
+  success: 'border-success/30 bg-success/5',
+  tip: 'border-warning/30 bg-warning/5',
+};
+const iconVariantStyles = {
+  info: 'text-primary',
+  success: 'text-success',
+  tip: 'text-warning',
+};
+```
 
-- Title: `text-[13px]` (was 14px)
-- Time/location metadata: `text-[12px]`
-- DateBlock area: `px-2.5 py-2.5`
-- Content area: `px-2.5 py-2`
-- Gap between rows: `gap-1` (was gap-1.5)
-- Attendance text: `text-[10px]`
-- Public/Private labels: `text-[9px]`
-- Icon sizes in metadata: `h-2.5 w-2.5`
+## 11. src/components/teams/GenerateTeamsDialog.tsx
 
-## 13. EventsList.tsx — 4px gap
+Replace `text-green-600` → `text-success`
 
-- `space-y-1` (was space-y-3)
+## 12. src/components/profile/FoundingMemberBadge.tsx
 
-## 14. EventAttendees.tsx — Smaller avatars
+Replace `from-amber-500/20 to-orange-500/20 border-amber-500/40` → `from-primary/20 to-primary/30 border-primary/40`
 
-- Main avatar size: `h-6 w-6` (24px for member rows)
-- Reduce from current h-7 w-7
+## 13. src/pages/ConfirmDeletion.tsx
 
-## 15. TeamCard.tsx — Compact
-
-- Title: `text-[13px]`
-- Avatar: `h-8 w-8` (32px, was h-12 w-12)
-- AvatarFallback text: `text-sm` (was text-lg)
-- Sport ribbon: `text-[11px]`, `px-2.5 py-0.5 mt-1 mb-0.5`
-- Description: `text-[11px]`
-- Members row: `text-[12px]`
-- Content padding: `p-2.5`
-- Member row icons: `h-2.5 w-2.5`
-
-## 16. avatar-stack.tsx — Smaller
-
-- `xs`: `h-4 w-4 text-[7px]`
-- `sm`: `h-5 w-5 text-[8px]`
-- `md`: `h-6 w-6 text-[9px]`
-
-## 17. EventDetail.tsx — Tight detail page
-
-- Main container: `space-y-2` (was space-y-3)
-- Section headers: `text-[11px] uppercase tracking-[0.8px]` with `text-hint` color
-- Card content padding: `p-3` (was p-4)
-- Hero `pb-3` → `pb-2`, `pt-3` → `pt-2`
-- Title: `text-[16px]` (was text-screen-title = 18px)
-- Badge text: `text-[10px]` with `px-2 py-0.5`
-- Back button: `h-8` (was h-9)
-- Reduce `mb-3` after badges → `mb-2`
-- Reduce `mb-4` after section headers → `mb-2`
-
-## 18. Events.tsx — Tight list
-
-- Main `space-y-3` → `space-y-2`
-- Tab bar: `h-10` (was h-12), tab text `text-[12px]`
-- Filter chips: `h-7 px-2.5 text-[10px]`
-- Section time group headers: already use `text-section` which will now be 11px
-- Skeleton/loading gaps: `space-y-1`
-
-## 19. Teams.tsx — Tight list
-
-- Main `space-y-6` → `space-y-3`
-- Grid gap: `gap-1` (4px, was gap-2)
-- View toggle pills: `h-8 text-[11px]`
-- Loading skeleton gaps: `gap-1`
+Replace `bg-green-100 dark:bg-green-900` → `bg-success/10`, `text-green-600 dark:text-green-400` → `text-success`, `bg-amber-100 dark:bg-amber-900` → `bg-warning/10`, `text-amber-600 dark:text-amber-400` → `text-warning`
 
 ---
 
 ## Summary
 
-| Token | Before | After |
-|-------|--------|-------|
-| page-title | 20px | 18px |
-| screen-title | 18px | 16px |
-| card-title | 14px | 13px |
-| section | 12px | 11px |
-| body | 13px | 12px |
-| micro | 10px | 9px |
-| Card radius | 16px | 10px |
-| Card gap in lists | 12px | 4px |
-| Card padding | 12-16px | 10-14px |
-| Bottom nav | 52px | 50px |
-| Nav icons | 22px | 20px |
-| Nav labels | 10px | 9px |
-| FAB size | 56px | 44px |
-| Badge height | 22px | 20px |
-| Button height | 40px | 36px |
-| Input height | 48px | 40px |
-| Screen h-padding | 16px | 14px |
-| Team avatar | 48px | 32px |
-| Avatar stack xs | 20px | 16px |
+| Element | Before | After |
+|---------|--------|-------|
+| App background | `#FFFFFF` (white) | `#0F0F0F` (near black) |
+| Card surface | `#FFFFFF` | `#1A1A1A` |
+| Primary color | `#0066FF` (blue) | `#CCFF00` (electric lime) |
+| Primary button text | White on blue | Black on lime |
+| Text primary | `#111827` | `#FFFFFF` |
+| Text muted | `#6B7280` | `#A3A3A3` |
+| Text hint | `#9CA3AF` | `#525252` |
+| Links | `#3B82F6` (blue) | `#CCFF00` (lime) |
+| Borders | `#E5E5E5` | `#2A2A2A` |
+| Focus ring | Blue | Lime |
+| Card shadow | Light `0.06` opacity | Dark `0.4` opacity |
+| Sport accents | Bright colors | Deep tinted backgrounds |
+| Hardcoded colors | 18 files with `bg-amber-*` etc. | Token-based (`text-warning`, `text-success`, `text-primary`) |
 
