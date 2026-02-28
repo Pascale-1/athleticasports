@@ -1,160 +1,73 @@
 
 
-# Momentum Palette — Complete Color System Replacement
+# Championship Palette — Complete Color System Replacement
 
-Replace Ignite (Deep Navy + Electric Orange) with Momentum (Deep Plum + Electric Citrus on Warm Cream). Update all CSS variables and shadow tints. Fix the `accent-foreground` token mapping (was white, now plum). Update tailwind shadow tokens.
-
-Also fix French typo: "Rechercher des équipes..." is actually already correct in the JSON. Will verify if there's a different display issue.
+Replace Momentum (Deep Plum + Electric Citrus on Warm Cream) with Championship (Champagne Gold on Matte Black). This is a dark-first palette. Only 3 files need token updates; 1 file needs event accent remapping.
 
 ---
 
-## Files to modify (3 files)
+## Files to modify (4 files)
 
-### 1. `src/index.css` — Replace `:root` + `.dark` with Momentum palette
+### 1. `src/index.css` — Replace `:root` + `.dark` with Championship palette
 
-```css
-:root {
-  /* MOMENTUM Palette — Deep Plum + Electric Citrus */
-  --background: 30 14% 96%;         /* #F7F5F2 — warm cream */
-  --foreground: 270 30% 8%;         /* #120D1A */
+All HSL values updated to Championship spec:
 
-  --text-primary: 270 30% 8%;       /* #120D1A */
-  --text-secondary: 220 9% 26%;     /* #374151 */
-  --text-muted: 220 5% 46%;         /* #6B7280 */
-  --text-hint: 220 5% 63%;          /* #9CA3AF */
-  --text-link: 268 60% 27%;         /* #3D1A6E */
+| Token | Momentum (before) | Championship (after) |
+|-------|-------------------|---------------------|
+| `--background` | `30 14% 96%` warm cream | `0 0% 4%` #0A0A0A matte black |
+| `--foreground` | `270 30% 8%` dark plum | `0 0% 96%` #F5F5F5 light |
+| `--card` | `0 0% 100%` white | `0 0% 8%` #141414 surface |
+| `--popover` | `280 6% 94%` light plum | `0 0% 12%` #1F1F1F elevated |
+| `--primary` | `268 60% 27%` plum | `43 50% 54%` #C9A84C gold |
+| `--primary-foreground` | white | `0 0% 4%` black on gold |
+| `--accent` | `72 100% 47%` citrus | `43 72% 66%` #E8C46A lighter gold |
+| `--accent-foreground` | plum | `0 0% 4%` black on gold |
+| `--border` | `270 10% 92%` plum-tint | `0 0% 16%` #2A2A2A |
+| `--input` | `280 6% 94%` | `0 0% 12%` #1F1F1F |
+| `--muted` | `280 6% 94%` | `0 0% 12%` #1F1F1F |
+| `--muted-foreground` | `220 5% 46%` | `0 0% 64%` #A3A3A3 |
+| `--destructive` | `0 72% 51%` | `0 84% 60%` #EF4444 |
+| `--success` | `142 64% 37%` | `142 71% 45%` #22C55E |
 
-  --card: 0 0% 100%;                /* #FFFFFF */
-  --card-foreground: 270 30% 8%;
+Sport tints become dark versions. Shadows become pure black rgba. Shadow utilities updated.
 
-  --popover: 280 6% 94%;            /* #F0EEF0 */
-  --popover-foreground: 270 30% 8%;
+`.dark` block: identical to `:root` (dark-first system).
 
-  --primary: 268 60% 27%;           /* #3D1A6E — deep plum */
-  --primary-light: 268 60% 32%;
-  --primary-dark: 268 60% 20%;      /* #2E1254 */
-  --primary-foreground: 0 0% 100%;  /* white on plum */
+### 2. `index.html` — Update theme-color meta tag
 
-  --primary-subtle: 268 44% 94%;    /* #EDE8F7 */
+Change `content="#0080FF"` → `content="#0A0A0A"` to match dark background.
 
-  --accent: 72 100% 47%;            /* #C8F000 — electric citrus */
-  --accent-foreground: 268 60% 27%; /* #3D1A6E — plum text ON citrus */
-
-  --accent-subtle: 72 91% 92%;      /* #F5FDD6 */
-
-  --muted: 280 6% 94%;              /* #F0EEF0 */
-  --muted-foreground: 220 5% 46%;   /* #6B7280 */
-
-  --destructive: 0 72% 51%;         /* #DC2626 */
-  --destructive-foreground: 0 0% 100%;
-
-  --success: 142 64% 37%;           /* #16A34A */
-  --success-foreground: 0 0% 100%;
-
-  --warning: 72 100% 47%;           /* same as accent for Momentum */
-  --warning-foreground: 268 60% 27%;
-
-  --info: 268 60% 27%;              /* same as primary */
-  --info-foreground: 0 0% 100%;
-
-  --match: 72 100% 47%;
-  --match-foreground: 268 60% 27%;
-
-  --border: 270 10% 92%;            /* #E9E5EE */
-  --input: 280 6% 94%;              /* #F0EEF0 */
-  --ring: 268 60% 27%;              /* plum focus ring */
-
-  /* Neutrals — plum-tinted */
-  --neutral-50: 30 14% 96%;
-  --neutral-100: 280 6% 94%;
-  --neutral-200: 270 10% 92%;
-  --neutral-300: 270 8% 85%;
-  --neutral-400: 220 5% 63%;
-  --neutral-500: 220 5% 46%;
-  --neutral-600: 220 9% 26%;
-  --neutral-700: 270 30% 8%;
-  --neutral-800: 270 30% 5%;
-  --neutral-900: 270 30% 3%;
-
-  /* Shadows — plum-tinted */
-  --shadow-sm: 0 1px 2px 0 rgb(61 26 110 / 0.04);
-  --shadow-md: 0 1px 4px rgba(61, 26, 110, 0.08);
-  --shadow-lg: 0 4px 8px -2px rgb(61 26 110 / 0.08);
-  --shadow-xl: 0 8px 16px -4px rgb(61 26 110 / 0.1);
-  --shadow-2xl: 0 16px 32px -8px rgb(61 26 110 / 0.12);
-  --shadow-colored: 0 4px 12px rgba(200, 240, 0, 0.15);
-  --shadow-colored-lg: 0 6px 16px rgba(200, 240, 0, 0.25);
-
-  /* Sidebar */
-  --sidebar-background: 0 0% 100%;
-  --sidebar-foreground: 220 5% 46%;
-  --sidebar-primary: 268 60% 27%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 280 6% 94%;
-  --sidebar-accent-foreground: 270 30% 8%;
-  --sidebar-border: 270 10% 92%;
-  --sidebar-ring: 268 60% 27%;
-
-  /* Sport tints */
-  --sport-football: 130 40% 93%;    /* #EAF5E9 */
-  --sport-basketball: 48 96% 89%;   /* #FEF3C7 */
-  --sport-volleyball: 268 44% 94%;  /* #EDE8F7 */
-  --sport-running: 72 91% 92%;      /* #F5FDD6 */
-}
-```
-
-`.dark` block: identical to `:root`.
-
-Update sport accent utilities:
-```css
-.sport-accent-tennis { border-left-color: hsl(268 60% 27% / 0.15); }
-.sport-accent-badminton { border-left-color: hsl(268 60% 27% / 0.15); }
-```
-
-Update shadow utilities:
-```css
-.shadow-colored { box-shadow: 0 4px 12px rgba(200, 240, 0, 0.15); }
-.shadow-colored-lg { box-shadow: 0 6px 16px rgba(200, 240, 0, 0.25); }
-```
-
-Comment header: change "IGNITE Palette — Deep Navy + Electric Orange" → "MOMENTUM Palette — Deep Plum + Electric Citrus"
-
-### 2. `tailwind.config.ts` — Shadow tokens
+### 3. `tailwind.config.ts` — Shadow tokens
 
 ```
-"card-soft": "0 1px 4px rgba(61, 26, 110, 0.08)"
-colored: "0 4px 12px rgba(200, 240, 0, 0.15)"
-"colored-lg": "0 6px 16px rgba(200, 240, 0, 0.25)"
+"card-soft": "0 2px 8px rgba(0, 0, 0, 0.5)"
+colored: "0 4px 12px rgba(201, 168, 76, 0.15)"
+"colored-lg": "0 6px 16px rgba(201, 168, 76, 0.25)"
 ```
 
-### 3. French typo fix — `src/i18n/locales/fr/teams.json`
+### 4. `src/components/events/EventCard.tsx` — Event accent remapping
 
-The search placeholder "Rechercher des équipes..." is already correct (has the 's'). No change needed there. But checking for other potential issues — the file looks clean.
+Championship spec changes event type → border mapping:
+```typescript
+const TYPE_ACCENT: Record<string, string> = {
+  match: 'border-l-primary',    // gold
+  training: 'border-l-success', // green
+  meetup: 'border-l-accent',    // lighter gold
+};
+```
+
+Also update tinted background classes to match new mapping.
 
 ---
 
-## What changes automatically (no file edits needed)
+## What changes automatically (no edits needed)
 
-Since all components use design tokens, the following update automatically:
-- Primary buttons: plum background, white text
-- Active nav tab: plum icon + label + plum-subtle pill
-- Accent badges (notification, event counts): citrus background, plum text
-- Progress bars using `accent`: now citrus
-- Links using `text-link`: now plum
-- Card shadows: plum-tinted
-- Focus rings: plum
-- All `bg-primary/10`, `text-primary`, `bg-accent`, `text-accent-foreground` references
-
-## Summary
-
-| Token | Ignite (before) | Momentum (after) |
-|-------|-----------------|-------------------|
-| `--background` | `#F8F9FB` cool gray | `#F7F5F2` warm cream |
-| `--primary` | `#1B2D4F` navy | `#3D1A6E` deep plum |
-| `--accent` | `#F95C00` orange | `#C8F000` electric citrus |
-| `--accent-foreground` | `#FFFFFF` white | `#3D1A6E` plum |
-| `--border` | `#E5E7EB` gray | `#E9E5EE` plum-tinted |
-| `--shadow` tint | navy `rgb(27,45,79)` | plum `rgb(61,26,110)` |
-| Sport volleyball | blue tint | plum tint |
-| Sport running | orange tint | citrus tint |
+All components using design tokens inherit Championship automatically:
+- Primary buttons: gold background, black text
+- Nav active tab: gold icon/label + gold-subtle pill
+- Notification badge: gold bg, black text
+- Cards: dark surface, black shadow
+- Inputs: dark elevated surface
+- Focus rings: gold
+- All `bg-primary`, `text-primary`, `bg-accent` references
 
