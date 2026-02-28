@@ -133,8 +133,8 @@ export const AvailableGameCard = ({
                     {t('matching:labels.joined')}
                   </Badge>
                 ) : showJoinBadge && game.spotsLeft !== 0 ? (
-                  <Button size="sm" className="h-7 px-2.5 text-[11px] gap-1" onClick={handleQuickJoin} disabled={isJoining}>
-                    {isJoining ? <Loader2 className="h-3 w-3 animate-spin" /> : <>{t('matching:actions.join')}<ArrowRight className="h-3 w-3" /></>}
+                  <Button size="sm" className="h-7 px-3 text-[11px]" onClick={handleQuickJoin} disabled={isJoining}>
+                    {isJoining ? <Loader2 className="h-3 w-3 animate-spin" /> : t('matching:actions.join')}
                   </Button>
                 ) : null}
               </div>
