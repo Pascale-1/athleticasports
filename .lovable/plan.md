@@ -1,28 +1,33 @@
 
 
-# Why the "3" Badge Persists on Events Tab
+# Sign-In Screen UX Improvements
 
-## Root Cause
+## Changes
 
-The badge in `BottomNavigation.tsx` counts upcoming team events where you have no RSVP record. You currently have 3 such events. The badge only clears when you actually RSVP to those events -- it does **not** clear just by visiting the Events page.
+### 1. Translation keys (`en/auth.json` + `fr/auth.json`)
+Add:
+- `"rememberMe"`: EN `"Remember me"` / FR `"Se souvenir de moi"`
 
-According to the intended behavior (from the feature spec), the badge should also clear when the user views the Events screen.
+### 2. `src/pages/Auth.tsx` — Password toggle + Remember me
 
-## Fix
+**Password visibility toggle:**
+- Add `showPassword` state
+- Wrap password `<Input>` in a `relative` div
+- Change input type to `showPassword ? "text" : "password"`
+- Add `pr-10` to input, place an `Eye`/`EyeOff` icon button absolutely positioned right inside the field
+- Icon color: `text-[#64748B]` default, `text-[#38BDF8]` when visible
 
-### `src/components/mobile/BottomNavigation.tsx`
+**Remember me checkbox:**
+- Add `rememberMe` state, initialized from `localStorage.getItem("athletica_remember") === "true"`
+- On mount: if remember is true, read saved email/password from localStorage and prefill via `emailForm.setValue`
+- On successful sign-in (not sign-up): if `rememberMe`, save email+password to localStorage; if not, clear them
+- Render a tappable label+checkbox row between password field and sign-in button (only when `!isSignUp`)
+- Custom styled 18px checkbox with rounded-md, the specified border/bg colors, and smooth transition
 
-Add logic to set `todayEvents` to `0` when the current route is `/events`, so the badge disappears while the user is on that screen:
+**Security note:** Storing password in localStorage is as requested. This is a UX-only change — no auth logic changes.
 
-**Line 82** -- wrap the badge set in a route check:
-```tsx
-// After computing unansweredCount:
-setTodayEvents(location.pathname.startsWith('/events') ? 0 : unansweredCount);
-```
-
-Since `fetchBadges` already re-runs on `location.pathname` change (line 87), this will:
-- Hide the badge when navigating to `/events`
-- Show it again when navigating away (if there are still unanswered events)
-
-One line changed. No other files affected.
+### Files changed
+1. `src/i18n/locales/en/auth.json` — add `rememberMe` key
+2. `src/i18n/locales/fr/auth.json` — add `rememberMe` key  
+3. `src/pages/Auth.tsx` — add password toggle + remember me checkbox
 
