@@ -374,7 +374,7 @@ const Index = () => {
                       </div>
                       <h2 className="text-section font-semibold">{t('matching:yourUpcomingEvents')}</h2>
                       <Badge variant="secondary" className="text-[10px]">
-                        {upcomingEvents.length}
+                        {userEvents.length}
                       </Badge>
                     </div>
                     <Button
