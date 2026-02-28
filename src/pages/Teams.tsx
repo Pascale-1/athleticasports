@@ -291,7 +291,7 @@ const Teams = () => {
               transition={{ delay: 0.2 }}
             >
               {filteredMyTeams.length > 0 ? (
-                <div className="grid grid-cols-1 gap-3">
+                <div className="grid grid-cols-1 gap-2">
                   {filteredMyTeams.map((team, index) => (
                     <AnimatedCard key={team.id} delay={0.25 + index * 0.05} hover={false}>
                       <TeamCard
@@ -327,13 +327,13 @@ const Teams = () => {
               transition={{ delay: 0.2 }}
             >
               {loading ? (
-                <div className="grid grid-cols-1 gap-3">
+                <div className="grid grid-cols-1 gap-2">
                   {[...Array(6)].map((_, i) => (
                     <TeamCardSkeleton key={i} />
                   ))}
                 </div>
               ) : filteredPublicTeams.length > 0 ? (
-                <div className="grid grid-cols-1 gap-3">
+                <div className="grid grid-cols-1 gap-2">
                   {filteredPublicTeams.map((team, index) => (
                     <AnimatedCard key={team.id} delay={0.25 + index * 0.05} hover={false}>
                       <TeamCard

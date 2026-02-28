@@ -93,8 +93,11 @@ export const EventCard = memo(({
     minute: minutes === 0 ? undefined : '2-digit'
   }).toLowerCase();
 
-  // Full location — no truncation
-  const venueName = event.location || null;
+  // Truncate to city name for list cards
+  const fullLocation = event.location || null;
+  const venueName = fullLocation?.includes(',') 
+    ? fullLocation.split(',').pop()?.trim() 
+    : fullLocation;
 
   // Sport emoji
   const sportEmoji = event.sport ? getSportEmoji(event.sport) : null;
@@ -154,7 +157,7 @@ export const EventCard = memo(({
               <div className="flex items-start gap-2">
                 <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
                   <h3 className={cn(
-                    "text-[17px] font-semibold leading-tight",
+                    "text-[15px] font-semibold leading-tight",
                     isPast && "text-muted-foreground"
                   )}>
                     {event.title}
@@ -223,7 +226,7 @@ export const EventCard = memo(({
               </div>
 
               {/* Row 2: Sport + Time */}
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
                 {sportEmoji && (
                   <span className="text-sm leading-none">{sportEmoji}</span>
                 )}
@@ -239,7 +242,7 @@ export const EventCard = memo(({
 
               {/* Row 3: Location */}
               {venueName && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
                   <MapPin className="h-3 w-3 shrink-0" />
                   <span className="line-clamp-2 break-words">{venueName}</span>
                 </div>

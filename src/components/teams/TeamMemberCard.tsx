@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, UserMinus, Shield } from "lucide-react";
+import { MoreVertical, UserMinus, Shield, Crown } from "lucide-react";
 import { TeamMemberWithProfile } from "@/lib/teams";
 
 interface TeamMemberCardProps {
@@ -20,10 +20,17 @@ interface TeamMemberCardProps {
 }
 
 const roleColors: Record<string, string> = {
-  owner: "bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900 dark:text-purple-200",
+  owner: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900 dark:text-amber-200",
   admin: "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900 dark:text-blue-200",
   coach: "bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-200",
   member: "bg-muted text-muted-foreground border-border",
+};
+
+const roleIcons: Record<string, React.ElementType | null> = {
+  owner: Crown,
+  admin: Shield,
+  coach: null,
+  member: null,
 };
 
 export const TeamMemberCard = ({
@@ -52,7 +59,8 @@ export const TeamMemberCard = ({
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Badge variant="outline" className={`${roleColors[member.role]} text-xs flex-shrink-0`}>
+          <Badge variant="outline" className={`${roleColors[member.role]} text-[11px] flex-shrink-0 gap-1`}>
+            {roleIcons[member.role] && (() => { const RoleIcon = roleIcons[member.role]!; return <RoleIcon className="h-3 w-3" />; })()}
             {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
           </Badge>
           {canModifyMember && (

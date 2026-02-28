@@ -142,6 +142,7 @@ export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps
 
   const previewAttendees = [...grouped.attending, ...grouped.maybe].slice(0, 5);
   const totalResponses = attendees.length;
+  const autoExpand = totalResponses <= 5;
 
   if (attendees.length === 0) {
     return (
@@ -187,15 +188,15 @@ export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps
         <div className="flex items-center gap-3">
           <div className="flex -space-x-2">
             {previewAttendees.map((attendee) => (
-              <Avatar key={attendee.user_id} className="h-9 w-9 border-2 border-background ring-1 ring-border/50">
+              <Avatar key={attendee.user_id} className="h-7 w-7 border-2 border-background ring-1 ring-border/50">
                 <AvatarImage src={attendee.profiles?.avatar_url || ''} />
-                <AvatarFallback className="text-xs bg-muted">
+                <AvatarFallback className="text-[10px] bg-muted">
                   {(attendee.profiles?.display_name?.[0] || attendee.profiles?.username?.[0] || '?').toUpperCase()}
                 </AvatarFallback>
               </Avatar>
             ))}
             {totalResponses > 5 && (
-              <div className="h-9 w-9 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs font-medium ring-1 ring-border/50">
+              <div className="h-7 w-7 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium ring-1 ring-border/50">
                 +{totalResponses - 5}
               </div>
             )}
@@ -208,26 +209,36 @@ export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps
 
       {totalResponses > 0 && (
         <>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="w-full justify-between hover:bg-muted/50 -mx-2 px-2"
-            onClick={() => setShowAll(!showAll)}
-          >
-            <span className="text-sm">
-              {showAll 
-                ? t('attendees.hideDetails') 
-                : t('attendees.seeAll', { count: totalResponses })}
-            </span>
-            {showAll ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </Button>
-
-          {showAll && (
+          {autoExpand ? (
             <div className="space-y-3 pt-2 border-t">
               <StatusSection status="attending" attendees={grouped.attending} currentUserId={currentUserId} labels={labels} />
               <StatusSection status="maybe" attendees={grouped.maybe} currentUserId={currentUserId} labels={labels} />
               <StatusSection status="not_attending" attendees={grouped.not_attending} currentUserId={currentUserId} labels={labels} />
             </div>
+          ) : (
+            <>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-full justify-between hover:bg-muted/50 -mx-2 px-2"
+                onClick={() => setShowAll(!showAll)}
+              >
+                <span className="text-sm">
+                  {showAll 
+                    ? t('attendees.hideDetails') 
+                    : t('attendees.seeAll', { count: totalResponses })}
+                </span>
+                {showAll ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </Button>
+
+              {showAll && (
+                <div className="space-y-3 pt-2 border-t">
+                  <StatusSection status="attending" attendees={grouped.attending} currentUserId={currentUserId} labels={labels} />
+                  <StatusSection status="maybe" attendees={grouped.maybe} currentUserId={currentUserId} labels={labels} />
+                  <StatusSection status="not_attending" attendees={grouped.not_attending} currentUserId={currentUserId} labels={labels} />
+                </div>
+              )}
+            </>
           )}
         </>
       )}

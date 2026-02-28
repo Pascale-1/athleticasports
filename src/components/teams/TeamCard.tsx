@@ -24,14 +24,16 @@ export const TeamCard = memo(({ team, memberCount = 0, isMember, members = [] }:
   const sport = typeof team.sport === 'string' ? team.sport : null;
   const sportEmoji = sport ? getSportEmoji(sport) : null;
 
+  const sportAccentClass = sport ? `sport-accent-${sport.toLowerCase()}` : '';
+
   return (
     <Link to={`/teams/${team.id}`}>
-      <Card variant="interactive" className="group">
+      <Card variant="interactive" className={cn("group", sport && `border-l-[4px] ${sportAccentClass}`)}>
         <CardContent className="p-0">
-          {/* Sport Ribbon */}
+          {/* Sport Ribbon — slim separator */}
           {sport && (
-            <div className="px-3 py-1.5 bg-primary/5 border-b border-border/50">
-              <span className="text-sm font-semibold uppercase tracking-wider text-primary flex items-center gap-1.5">
+            <div className="px-3 py-1 mt-1.5 mb-1">
+              <span className="text-[14px] font-semibold uppercase tracking-[0.5px] text-primary flex items-center gap-1.5">
                 {sportEmoji && <span>{sportEmoji}</span>}
                 <span>{sport}</span>
               </span>
@@ -51,7 +53,7 @@ export const TeamCard = memo(({ team, memberCount = 0, isMember, members = [] }:
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <h3 className="text-card-title font-heading font-semibold truncate">
+                  <h3 className="text-[15px] font-heading font-semibold truncate">
                     {team.name}
                   </h3>
                   {isMember && (
@@ -78,8 +80,8 @@ export const TeamCard = memo(({ team, memberCount = 0, isMember, members = [] }:
                   {members.length > 0 ? (
                     <AvatarStack users={members} max={4} size="xs" />
                   ) : (
-                    <div className="flex items-center gap-1 text-caption text-muted-foreground">
-                      <Users className="h-2.5 w-2.5" />
+                    <div className="flex items-center gap-1 text-[13px] text-muted-foreground">
+                      <Users className="h-3 w-3" />
                       <span>{memberCount} {memberCount === 1 ? t('member') : t('memberPlural')}</span>
                     </div>
                   )}
