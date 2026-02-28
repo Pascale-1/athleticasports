@@ -255,7 +255,7 @@ const EventDetail = () => {
   return (
     <PageContainer className="pb-48 lg:pb-8">
       <motion.div 
-        className="space-y-5"
+        className="space-y-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -308,7 +308,7 @@ const EventDetail = () => {
                 style={{ backgroundColor: eventConfig.bgColor, color: eventConfig.color }}
               >
                 <EventIcon className="h-3 w-3 mr-1" />
-                {t(`types.${getEventTypeKey(event.type)}`)}
+                {t(`types.${getEventTypeKey(event.type)}`, event.type)}
               </Badge>
               <Badge variant="outline" className="text-xs rounded-full px-2.5 py-0.5">
                 {event.is_public ? t('status.public') : t('status.private', 'Privé')}
@@ -322,7 +322,7 @@ const EventDetail = () => {
               {isOngoing && <Badge className="text-xs rounded-full px-2.5 py-0.5 bg-success text-success-foreground animate-pulse">{t('status.liveNow')}</Badge>}
             </div>
 
-            <h1 className="text-[26px] font-heading font-bold tracking-tight mb-4">{event.title}</h1>
+            <h1 className="text-[26px] font-heading font-bold tracking-tight mb-2">{event.title}</h1>
 
             <div className="flex items-center gap-2">
               <AddToCalendarButton event={event} variant="ghost" />

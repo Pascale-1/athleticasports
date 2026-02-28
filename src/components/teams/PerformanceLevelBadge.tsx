@@ -25,22 +25,22 @@ export const PerformanceLevelBadge = ({ level, size = "md" }: PerformanceLevelBa
   const configs = {
     1: {
       icon: Star,
-      label: "Level 1",
+      label: "Débutante",
       className: "bg-amber-100 text-amber-800 border-amber-300",
     },
     2: {
       icon: Check,
-      label: "Level 2",
+      label: "Intermédiaire",
       className: "bg-green-100 text-green-800 border-green-300",
     },
     3: {
       icon: Circle,
-      label: "Level 3",
+      label: "Avancée",
       className: "bg-blue-100 text-blue-800 border-blue-300",
     },
     4: {
       icon: CircleDot,
-      label: "Level 4",
+      label: "Experte",
       className: "bg-gray-100 text-gray-800 border-gray-300",
     },
   };

@@ -31,7 +31,7 @@ export const TeamCard = memo(({ team, memberCount = 0, isMember, members = [] }:
           {/* Sport Ribbon */}
           {sport && (
             <div className="px-3 py-1.5 bg-primary/5 border-b border-border/50">
-              <span className="text-caption font-medium text-primary flex items-center gap-1">
+              <span className="text-sm font-semibold uppercase tracking-wider text-primary flex items-center gap-1.5">
                 {sportEmoji && <span>{sportEmoji}</span>}
                 <span>{sport}</span>
               </span>

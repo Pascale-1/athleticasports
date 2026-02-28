@@ -11,11 +11,13 @@ interface TeamAboutSectionProps {
 export const TeamAboutSection = ({ description, maxLines = 3 }: TeamAboutSectionProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  if (!description) {
+  const isPlaceholder = !description || description.trim().length < 5 || /^(test|asdf|xxx|abc)/i.test(description.trim());
+
+  if (isPlaceholder) {
     return (
       <Card>
         <CardContent className="p-4 text-center text-muted-foreground">
-          <p className="text-caption">No description available</p>
+          <p className="text-sm">Ajouter une description pour présenter ton équipe 💬</p>
         </CardContent>
       </Card>
     );
