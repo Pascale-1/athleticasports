@@ -33,8 +33,8 @@ import { getSportEmoji } from "@/lib/sports";
 
 // Left accent bar colors per event type
 const TYPE_ACCENT: Record<string, string> = {
-  training: 'border-l-info',
-  match: 'border-l-warning',
+  training: 'border-l-primary',
+  match: 'border-l-accent',
   meetup: 'border-l-success',
 };
 
@@ -134,8 +134,8 @@ export const EventCard = memo(({
         className={cn(
           "border-l-[5px] overflow-hidden transition-all active:scale-[0.98]",
           accentClass,
-          event.type === 'training' && "bg-info/[0.04]",
-          event.type === 'match' && "bg-warning/[0.04]",
+          event.type === 'training' && "bg-primary/[0.04]",
+          event.type === 'match' && "bg-accent/[0.04]",
           event.type === 'meetup' && "bg-success/[0.04]",
           isPast && "opacity-60"
         )}

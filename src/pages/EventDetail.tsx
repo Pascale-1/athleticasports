@@ -377,7 +377,7 @@ const EventDetail = () => {
             </h3>
             
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-lg bg-primary/10 flex flex-col items-center justify-center shrink-0">
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex flex-col items-center justify-center shrink-0">
                 <span className="text-[10px] font-semibold text-primary uppercase leading-none">
                   {format(startDate, "MMM")}
                 </span>

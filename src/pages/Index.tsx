@@ -189,8 +189,8 @@ const Index = () => {
   return (
     <PageContainer bottomPadding={false}>
       <PullToRefresh onRefresh={handleRefresh}>
-        <motion.div 
-          className="space-y-6 pb-24"
+          <motion.div 
+            className="space-y-3 pb-24"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
@@ -212,10 +212,10 @@ const Index = () => {
           {/* Greeting Section - Clean typographic */}
           <AnimatedCard delay={0.1}>
             <div data-walkthrough="profile" className="space-y-0.5">
-              <h1 className="text-[22px] font-bold tracking-tight">
+              <h1 className="text-[18px] font-bold tracking-tight">
                 Bonjour {profile.display_name || profile.username} 👋
               </h1>
-              <p className="text-[14px] text-muted-foreground">
+              <p className="text-[12px] text-muted-foreground">
                 {t('home.greetingSubtitle')}
               </p>
             </div>
@@ -226,23 +226,23 @@ const Index = () => {
             <div className="grid grid-cols-3 gap-4">
               <button 
                 onClick={() => navigate("/teams?filter=my-teams")}
-                className="flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[64px]"
+                className="flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[52px]"
               >
-                <span className="text-[28px] font-bold text-foreground leading-none">{stats.teams}</span>
+                <span className="text-[20px] font-bold text-foreground leading-none">{stats.teams}</span>
                 <span className="text-xs text-muted-foreground">{t('home.teams')}</span>
               </button>
               <button
                 onClick={() => navigate("/events?type=match")}
-                className="flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[64px]"
+                className="flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[52px]"
               >
-                <span className="text-[28px] font-bold text-foreground leading-none">{stats.upcomingMatches}</span>
+                <span className="text-[20px] font-bold text-foreground leading-none">{stats.upcomingMatches}</span>
                 <span className="text-xs text-muted-foreground">{t('home.games')}</span>
               </button>
               <button
                 onClick={() => navigate("/events?tab=my")}
-                className="flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[64px]"
+                className="flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[52px]"
               >
-                <span className="text-[28px] font-bold text-foreground leading-none">{stats.eventsAttended}</span>
+                <span className="text-[20px] font-bold text-foreground leading-none">{stats.eventsAttended}</span>
                 <span className="text-xs text-muted-foreground">{t('home.eventsAttended')}</span>
               </button>
             </div>
@@ -263,7 +263,7 @@ const Index = () => {
               <div className="flex gap-2">
                 <Button 
                   variant="outline"
-                  className="flex-1 flex items-center gap-2 h-[52px] rounded-xl bg-card border-border active:scale-[0.98]"
+                  className="flex-1 flex items-center gap-2 h-11 rounded-xl bg-card border-border active:scale-[0.98]"
                   onClick={() => setFindMatchSheetOpen(true)}
                 >
                   <Search className="h-5 w-5 shrink-0" />
@@ -275,7 +275,7 @@ const Index = () => {
                 
                 <Button 
                   variant="default"
-                  className="flex-1 flex items-center gap-2 h-[52px] rounded-xl active:scale-[0.98]"
+                  className="flex-1 flex items-center gap-2 h-11 rounded-xl active:scale-[0.98]"
                   onClick={() => setCreateEventDialogOpen(true)}
                 >
                   <Plus className="h-5 w-5 shrink-0" />
@@ -289,7 +289,7 @@ const Index = () => {
               {/* Team row */}
               <div 
                 onClick={() => navigate("/teams")}
-                className="rounded-xl bg-card border border-border h-14 px-4 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform"
+                className="rounded-xl bg-card border border-border h-11 px-4 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform"
               >
                 <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                   <Users className="h-5 w-5 text-primary" />

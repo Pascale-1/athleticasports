@@ -26,7 +26,7 @@ const TYPE_ICONS: Record<EventType, React.ReactNode> = {
 
 const TYPE_COLORS: Record<EventType, string> = {
   training: "bg-primary/10 text-primary border-primary/20",
-  match: "bg-warning/10 text-warning border-warning/20",
+  match: "bg-accent/10 text-accent border-accent/20",
   meetup: "bg-success/10 text-success border-success/20",
 };
 
