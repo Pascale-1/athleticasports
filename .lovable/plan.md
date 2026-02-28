@@ -1,73 +1,58 @@
 
 
-# Championship Palette — Complete Color System Replacement
+# Event Card Redesign — Compact 2-Row Layout with Inline RSVP
 
-Replace Momentum (Deep Plum + Electric Citrus on Warm Cream) with Championship (Champagne Gold on Matte Black). This is a dark-first palette. Only 3 files need token updates; 1 file needs event accent remapping.
-
----
-
-## Files to modify (4 files)
-
-### 1. `src/index.css` — Replace `:root` + `.dark` with Championship palette
-
-All HSL values updated to Championship spec:
-
-| Token | Momentum (before) | Championship (after) |
-|-------|-------------------|---------------------|
-| `--background` | `30 14% 96%` warm cream | `0 0% 4%` #0A0A0A matte black |
-| `--foreground` | `270 30% 8%` dark plum | `0 0% 96%` #F5F5F5 light |
-| `--card` | `0 0% 100%` white | `0 0% 8%` #141414 surface |
-| `--popover` | `280 6% 94%` light plum | `0 0% 12%` #1F1F1F elevated |
-| `--primary` | `268 60% 27%` plum | `43 50% 54%` #C9A84C gold |
-| `--primary-foreground` | white | `0 0% 4%` black on gold |
-| `--accent` | `72 100% 47%` citrus | `43 72% 66%` #E8C46A lighter gold |
-| `--accent-foreground` | plum | `0 0% 4%` black on gold |
-| `--border` | `270 10% 92%` plum-tint | `0 0% 16%` #2A2A2A |
-| `--input` | `280 6% 94%` | `0 0% 12%` #1F1F1F |
-| `--muted` | `280 6% 94%` | `0 0% 12%` #1F1F1F |
-| `--muted-foreground` | `220 5% 46%` | `0 0% 64%` #A3A3A3 |
-| `--destructive` | `0 72% 51%` | `0 84% 60%` #EF4444 |
-| `--success` | `142 64% 37%` | `142 71% 45%` #22C55E |
-
-Sport tints become dark versions. Shadows become pure black rgba. Shadow utilities updated.
-
-`.dark` block: identical to `:root` (dark-first system).
-
-### 2. `index.html` — Update theme-color meta tag
-
-Change `content="#0080FF"` → `content="#0A0A0A"` to match dark background.
-
-### 3. `tailwind.config.ts` — Shadow tokens
-
-```
-"card-soft": "0 2px 8px rgba(0, 0, 0, 0.5)"
-colored: "0 4px 12px rgba(201, 168, 76, 0.15)"
-"colored-lg": "0 6px 16px rgba(201, 168, 76, 0.25)"
-```
-
-### 4. `src/components/events/EventCard.tsx` — Event accent remapping
-
-Championship spec changes event type → border mapping:
-```typescript
-const TYPE_ACCENT: Record<string, string> = {
-  match: 'border-l-primary',    // gold
-  training: 'border-l-success', // green
-  meetup: 'border-l-accent',    // lighter gold
-};
-```
-
-Also update tinted background classes to match new mapping.
+Completely rewrite `EventCard.tsx` to a tight 2-row layout (~90px max height) with an embedded inline RSVP pill toggle replacing the current dropdown menu approach.
 
 ---
 
-## What changes automatically (no edits needed)
+## File: `src/components/events/EventCard.tsx` — Full rewrite
 
-All components using design tokens inherit Championship automatically:
-- Primary buttons: gold background, black text
-- Nav active tab: gold icon/label + gold-subtle pill
-- Notification badge: gold bg, black text
-- Cards: dark surface, black shadow
-- Inputs: dark elevated surface
-- Focus rings: gold
-- All `bg-primary`, `text-primary`, `bg-accent` references
+### Layout structure
+
+```text
+┌─ 2px accent ─┬────────────────────────────────────────────────┐
+│              │ ROW 1: [40x40 date] [title + meta]  [Public|X] │
+│              │ ROW 2: [ ✓ Going ][ ? Maybe ][ ✗ Can't Go ]    │
+└──────────────┴────────────────────────────────────────────────┘
+```
+
+### Changes
+
+1. **Remove** the left DateBlock column + vertical divider layout. Replace with a flat 2-row card.
+
+2. **ROW 1** — single flex row:
+   - LEFT: 40x40px date badge (`rounded-lg bg-muted`), day number 14px bold `text-primary`, month 9px uppercase `text-muted-foreground`
+   - CENTER (flex-1): event title 13px semibold `text-foreground`, below it a single metadata line: sport emoji + time + "·" + city name, all 11px `text-muted-foreground`
+   - RIGHT: visibility label (Public/Privé) 10px `text-muted-foreground`, below it "X going" 10px `text-muted-foreground`
+   - Organizer dropdown menu preserved but only the `⋮` trigger
+
+3. **ROW 2** — full-width inline RSVP toggle (only when `onRSVPChange` is provided):
+   - Height 26px, margin-top 6px, 3 equal-width pills in a flex row with gap-1.5
+   - Each pill: `rounded-full`, 11px medium text, icons 12px
+   - Inactive: `bg-muted text-muted-foreground`
+   - Active Going: `bg-success text-success-foreground`
+   - Active Maybe: `bg-primary/10 text-primary` (primary-subtle)
+   - Active Can't Go: `bg-destructive/10 text-destructive` (danger-subtle)
+   - Click handler: if tapping active status → call `onRSVPChange` with same status (parent handles toggle-off); otherwise set new status
+   - `e.preventDefault()` on each button to prevent Link navigation
+
+4. **Card wrapper**:
+   - `border-l-[2px]` (down from 5px) with TYPE_ACCENT mapping unchanged (match=primary/gold, training=success/green, meetup=accent/gold)
+   - Remove tinted background classes (`bg-primary/[0.04]` etc.) — just use card surface
+   - Keep `active:scale-[0.98]` press animation
+   - Padding: `py-2.5 px-3.5` (10px vertical, 14px horizontal)
+
+5. **Remove**: AvatarStack import, avatar display, players-needed badge, Clock/MapPin icon imports (metadata on single line without icons), capacity fraction display. Keep it minimal.
+
+6. **Keep**: organizer dropdown menu (edit/delete), past event opacity, recurring icon, Link wrapper.
+
+### Updated accent border width
+Change `border-l-[5px]` → `border-l-[2px]` per spec.
+
+---
+
+## No other files need changes
+
+The `EventRSVPBar.tsx` (detail page sticky bar) remains unchanged. This only affects the list card component.
 
