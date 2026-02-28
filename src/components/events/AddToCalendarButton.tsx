@@ -77,7 +77,7 @@ export const AddToCalendarButton = ({
       <DropdownMenuTrigger asChild>
         <Button variant={variant} size={size} className="gap-2">
           <CalendarPlus className="h-4 w-4" />
-          <span className="hidden sm:inline">{t("calendar.addToCalendar")}</span>
+          <span>{t("calendar.addToCalendar")}</span>
           <ChevronDown className="h-3 w-3" />
         </Button>
       </DropdownMenuTrigger>

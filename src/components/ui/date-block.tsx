@@ -61,7 +61,7 @@ export const DateBlock = ({ date, size = "sm", className, showWeekday = false }:
       className={cn(
         "flex flex-col items-center justify-center rounded-lg shrink-0 py-2 px-1",
         sizeClasses[size],
-        isEventToday && "bg-primary text-primary-foreground",
+        isEventToday && "bg-primary/15 text-primary",
         isEventTomorrow && "bg-warning/15 text-warning",
         isEventPast && "bg-muted/50 text-muted-foreground",
         !isEventToday && !isEventTomorrow && !isEventPast && "bg-primary/10 text-primary",

@@ -76,7 +76,7 @@ export const AvailableGameCard = ({
 
   const getLocationLabel = () => {
     if (game.location_district) return getDistrictLabel(game.location_district, lang);
-    if (game.location) return game.location.length > 25 ? game.location.substring(0, 25) + '...' : game.location;
+    if (game.location) return game.location;
     return t('common:location.tbd');
   };
 
@@ -121,11 +121,11 @@ export const AvailableGameCard = ({
                 <span>{startDate.toLocaleTimeString(lang === 'fr' ? 'fr-FR' : 'en-US', { hour: 'numeric', minute: '2-digit' })}</span>
                 <span className="text-muted-foreground/40">·</span>
                 <MapPin className="h-3 w-3 shrink-0" />
-                <span className="truncate">{getLocationLabel()}</span>
+                <span className="break-words line-clamp-2">{getLocationLabel()}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-caption text-muted-foreground">
-                  {game.spotsLeft} {t('common:spotsLeft', 'spots left')}
+                  {game.spotsLeft} {t('common:status.spotsLeft', 'places restantes')}
                 </span>
                 {hasJoined ? (
                   <Badge size="xs" className="bg-success/10 text-success border border-success/20">
@@ -167,11 +167,11 @@ export const AvailableGameCard = ({
                 <span>{startDate.toLocaleTimeString(lang === 'fr' ? 'fr-FR' : 'en-US', { hour: 'numeric', minute: '2-digit' })}</span>
                 <span className="text-muted-foreground/40">·</span>
                 <MapPin className="h-3 w-3" />
-                <span className="truncate">{getLocationLabel()}</span>
+                <span className="break-words line-clamp-2">{getLocationLabel()}</span>
               </div>
               {game.spotsLeft !== undefined && (
                 <p className="text-caption text-muted-foreground mt-1">
-                  {game.spotsLeft} {t('common:spotsLeft', 'spots left')}
+                  {game.spotsLeft} {t('common:status.spotsLeft', 'places restantes')}
                 </p>
               )}
             </div>

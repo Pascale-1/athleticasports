@@ -131,7 +131,7 @@ export const EventCard = memo(({
     <Link to={`/events/${event.id}`} className="block">
       <Card 
         className={cn(
-          "border-l-4 overflow-hidden transition-all active:scale-[0.98]",
+          "border-l-[5px] overflow-hidden transition-all active:scale-[0.98]",
           accentClass,
           isPast && "opacity-60"
         )}
@@ -176,7 +176,7 @@ export const EventCard = memo(({
                     <Repeat className="h-3.5 w-3.5 text-muted-foreground" />
                   )}
                   {event.is_public 
-                    ? <Globe className="h-3.5 w-3.5 text-muted-foreground/70" />
+                    ? <span className="flex items-center gap-0.5"><Globe className="h-3.5 w-3.5 text-muted-foreground/70" /><span className="text-[10px] text-muted-foreground">Public</span></span>
                     : <Lock className="h-3.5 w-3.5 text-muted-foreground/70" />
                   }
                   {isOrganizerView && (
@@ -285,7 +285,7 @@ export const EventCard = memo(({
                           size="sm" 
                           className={cn(
                             "h-8 px-3 text-xs rounded-full gap-1.5 shrink-0",
-                            userStatus === 'attending' && "bg-success/15 text-success border-success/30 hover:bg-success/25",
+                            userStatus === 'attending' && "bg-success text-white border-success hover:bg-success/90",
                             userStatus === 'maybe' && "bg-warning/15 text-warning border-warning/30 hover:bg-warning/25",
                             userStatus === 'not_attending' && "bg-muted text-muted-foreground hover:bg-muted/80",
                             !userStatus && "bg-primary text-primary-foreground hover:bg-primary/90"

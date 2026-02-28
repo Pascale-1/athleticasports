@@ -323,7 +323,7 @@ const EventDetail = () => {
             <h1 className="text-2xl font-heading font-bold tracking-tight mb-4">{event.title}</h1>
 
             <div className="flex items-center gap-2">
-              <AddToCalendarButton event={event} />
+              <AddToCalendarButton event={event} variant="ghost" />
             </div>
           </div>
         </div>
@@ -370,7 +370,7 @@ const EventDetail = () => {
         {/* When & Where Card */}
         <Card className="overflow-hidden">
           <CardContent className="p-4 space-y-4">
-            <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">
+            <h3 className="font-semibold text-[13px] text-muted-foreground">
               {t('details.whereAndWhen')}
             </h3>
             
@@ -488,7 +488,7 @@ const EventDetail = () => {
         {hasMatchDetails && (
           <Card>
             <CardContent className="p-4 space-y-4">
-              <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">
+              <h3 className="font-semibold text-[13px] text-muted-foreground">
                 {t('details.matchInfo')}
               </h3>
               
@@ -504,12 +504,12 @@ const EventDetail = () => {
                 </div>
               )}
               
-              <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2">
                 {event.home_away && (
-                  <Badge variant="outline" className="capitalize">
+                  <Badge variant="outline" className="bg-muted text-muted-foreground">
                     {event.home_away === 'home' && <Home className="h-3 w-3 mr-1" />}
                     {event.home_away === 'away' && <Plane className="h-3 w-3 mr-1" />}
-                    {event.home_away}
+                    {t(`game.terrain.${event.home_away}`, `Terrain : ${event.home_away}`)}
                   </Badge>
                 )}
                 {event.match_format && (
@@ -526,7 +526,7 @@ const EventDetail = () => {
         {/* Who's Coming Card */}
         <Card>
           <CardContent className="p-4">
-            <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide mb-4">
+            <h3 className="font-semibold text-[13px] text-muted-foreground mb-4">
               <Users2 className="h-3.5 w-3.5 inline mr-1.5" />
               {t('details.whoComing')}
             </h3>
@@ -538,7 +538,7 @@ const EventDetail = () => {
         {event.description && (
           <Card>
             <CardContent className="p-4">
-              <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide mb-3">
+              <h3 className="font-semibold text-[13px] text-muted-foreground mb-3">
                 {t('details.about')}
               </h3>
               <p className={cn(

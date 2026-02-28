@@ -82,7 +82,8 @@
     "maybe": "Peut-être",
     "declined": "Pas dispo",
     "full": "Complet",
-    "available": "Ouvert"
+    "available": "Ouvert",
+    "spotsLeft": "places restantes"
   },
   "errors": {
     "generic": "Une erreur s'est produite",
