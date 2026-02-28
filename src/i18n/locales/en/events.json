@@ -18,6 +18,7 @@
   "tabs": {
     "myEvents": "Attending",
     "myEventsSubtitle": "events you're attending",
+    "declined": "Declined",
     "organized": "Organized",
     "openGames": "Open Games",
     "organizedSubtitle": "events you're organizing",

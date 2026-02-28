@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar as CalendarIcon, List, Search, Dumbbell, Users, Swords, Compass, ClipboardList, CalendarCheck, Crown } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, List, Search, Dumbbell, Users, Swords, Compass, ClipboardList, CalendarCheck, Crown, X as XIcon } from "lucide-react";
 import { useUserEvents, UserEvent } from "@/hooks/useUserEvents";
 import { useEventFilters } from "@/hooks/useEventFilters";
 import { useDiscoverEvents } from "@/hooks/useDiscoverEvents";
@@ -57,7 +57,7 @@ const Events = () => {
   
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
-  const [activeEventType, setActiveEventType] = useState<'all' | 'training' | 'meetup' | 'match'>('all');
+  const [activeEventType, setActiveEventType] = useState<'all' | 'training' | 'meetup' | 'match' | 'declined'>('all');
   const [activeTab, setActiveTab] = useState<'my' | 'organized' | 'discover'>('my');
   const [showSearch, setShowSearch] = useState(false);
   
@@ -70,6 +70,11 @@ const Events = () => {
     status: 'upcoming',
     includeNotAttending: false // Only show Going/Maybe
   });
+  // Fetch declined events separately
+  const { events: declinedEvents, loading: declinedLoading, refetch: refetchDeclined } = useUserEvents({ 
+    status: 'upcoming',
+    includeNotAttending: true
+  });
   const { events: discoverEvents, loading: discoverLoading, refetch: refetchDiscover } = useDiscoverEvents();
   const { events: createdEvents, loading: createdEventsLoading, refetch: refetchCreatedEvents } = useCreatedEvents({ status: 'upcoming' });
   
@@ -80,10 +85,11 @@ const Events = () => {
   const handleRefresh = useCallback(async () => {
     await Promise.all([
       refetchAttending(),
+      refetchDeclined(),
       refetchDiscover(),
       refetchCreatedEvents(),
     ]);
-  }, [refetchAttending, refetchDiscover, refetchCreatedEvents]);
+  }, [refetchAttending, refetchDeclined, refetchDiscover, refetchCreatedEvents]);
   
   // Read tab from URL params
   useEffect(() => {
@@ -104,9 +110,12 @@ const Events = () => {
 
   // Filter created events by type
   const filteredCreatedEvents = createdEvents.filter(event => {
-    if (activeEventType === 'all') return true;
+    if (activeEventType === 'all' || activeEventType === 'declined') return true;
     return event.type === activeEventType;
   });
+
+  // Only declined events from the full list
+  const onlyDeclinedEvents = declinedEvents.filter(e => e.userStatus === 'not_attending');
 
   const handleResetFilters = () => {
     setSearchQuery('');
@@ -286,12 +295,29 @@ const Events = () => {
               {t(labelKey)}
             </Button>
           ))}
+          {/* Declined filter chip */}
+          {activeTab === 'my' && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className={cn("h-7 px-2.5 text-[10px] rounded-full shrink-0 gap-1.5",
+                activeEventType === 'declined' ? "bg-destructive/10 text-destructive hover:bg-destructive/20" : "bg-card border text-foreground"
+              )}
+              onClick={() => { setActiveEventType('declined'); setTypeFilter('all'); }}
+            >
+              <XIcon className="h-3.5 w-3.5" />
+              {t('tabs.declined')}
+              {onlyDeclinedEvents.length > 0 && (
+                <span className="ml-0.5 text-[9px]">({onlyDeclinedEvents.length})</span>
+              )}
+            </Button>
+          )}
         </div>
 
         {/* Collapsible Search */}
         {showSearch && (
           <div className="relative animate-fade-in">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[hsl(var(--text-hint))]" />
             <Input
               placeholder={t('search.placeholder')}
               value={filters.searchQuery}
@@ -367,6 +393,19 @@ const Events = () => {
                 {[1, 2, 3].map((i) => (
                   <EventCardSkeleton key={i} />
                 ))}
+              </div>
+            ) : activeEventType === 'declined' ? (
+              // Declined events view
+              <div className="space-y-2">
+                {onlyDeclinedEvents.length > 0 ? (
+                  <EventsList events={onlyDeclinedEvents} showInlineRSVP />
+                ) : (
+                  <EmptyState
+                    icon={XIcon}
+                    title={t('tabs.declined')}
+                    description={t('empty.noResults')}
+                  />
+                )}
               </div>
             ) : viewMode === 'calendar' ? (
               <EventCalendar events={filteredEvents} />

@@ -18,6 +18,7 @@
   "tabs": {
     "myEvents": "Participations",
     "myEventsSubtitle": "événements auxquels vous participez",
+    "declined": "Refusés",
     "organized": "Organisés",
     "openGames": "Matchs ouverts",
     "organizedSubtitle": "événements que vous organisez",

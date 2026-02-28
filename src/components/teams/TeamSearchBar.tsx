@@ -15,22 +15,22 @@ export const TeamSearchBar = ({
 }: TeamSearchBarProps) => {
   return (
     <div className="relative w-full max-w-full">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[hsl(var(--text-hint))] pointer-events-none" />
       <Input
         type="text"
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-12 pl-10 pr-10 text-base w-full max-w-full"
+        className="h-9 pl-9 pr-10 text-[12px] w-full max-w-full"
       />
       {value && (
         <Button
           variant="ghost"
           size="icon"
           onClick={() => onChange("")}
-          className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 min-h-[32px] min-w-[32px]"
+          className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 min-h-[28px] min-w-[28px]"
         >
-          <X className="h-4 w-4" />
+          <X className="h-3.5 w-3.5" />
         </Button>
       )}
     </div>

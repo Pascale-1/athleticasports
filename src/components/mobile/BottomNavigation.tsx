@@ -39,21 +39,47 @@ export const BottomNavigation = () => {
       setPendingInvites(inviteCount || 0);
     }
 
-    // Get today's events count
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    // Get upcoming events where user has NO attendance record (unanswered RSVP)
+    const now = new Date().toISOString();
 
-    const { count: eventCount } = await supabase
-      .from('event_attendance')
-      .select('*, events!inner(*)', { count: 'exact', head: true })
+    // First get events user is part of (via team membership or public) that are upcoming
+    // and where user has NO attendance record at all
+    const { data: userTeamIds } = await supabase
+      .from('team_members')
+      .select('team_id')
       .eq('user_id', user.id)
-      .eq('status', 'attending')
-      .gte('events.start_time', today.toISOString())
-      .lt('events.start_time', tomorrow.toISOString());
+      .eq('status', 'active');
 
-    setTodayEvents(eventCount || 0);
+    const teamIds = userTeamIds?.map(t => t.team_id) || [];
+
+    // Get upcoming events for user's teams that user hasn't responded to
+    let unansweredCount = 0;
+
+    if (teamIds.length > 0) {
+      // Get upcoming team events
+      const { data: teamEvents } = await supabase
+        .from('events')
+        .select('id')
+        .in('team_id', teamIds)
+        .gte('start_time', now)
+        .limit(50);
+
+      if (teamEvents && teamEvents.length > 0) {
+        const eventIds = teamEvents.map(e => e.id);
+        
+        // Get events user HAS responded to
+        const { data: responded } = await supabase
+          .from('event_attendance')
+          .select('event_id')
+          .eq('user_id', user.id)
+          .in('event_id', eventIds);
+
+        const respondedIds = new Set(responded?.map(r => r.event_id) || []);
+        unansweredCount = eventIds.filter(id => !respondedIds.has(id)).length;
+      }
+    }
+
+    setTodayEvents(unansweredCount);
   }, []);
 
   useEffect(() => {
