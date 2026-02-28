@@ -128,35 +128,30 @@ const Index = () => {
 
   const fetchStats = async (userId: string) => {
     try {
-      const [teamsRes, matchesRes, eventsRes] = await Promise.all([
-        supabase
-          .from('team_members')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', userId),
-        supabase
-          .from('event_attendance')
-          .select('event_id, events!inner(type, start_time)', { count: 'exact', head: true })
-          .eq('user_id', userId)
-          .eq('status', 'attending')
-          .eq('events.type', 'match')
-          .gte('events.start_time', new Date().toISOString()),
-        supabase
-          .from('event_attendance')
-          .select('event_id, events!inner(start_time)', { count: 'exact', head: true })
-          .eq('user_id', userId)
-          .eq('status', 'attending')
-          .gte('events.start_time', new Date().toISOString()),
-      ]);
+      const teamsRes = await supabase
+        .from('team_members')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
 
-      setStats({
+      setStats(prev => ({
+        ...prev,
         teams: teamsRes.count || 0,
-        upcomingMatches: matchesRes.count || 0,
-        eventsAttended: eventsRes.count || 0,
-      });
+      }));
     } catch (error) {
       console.error('Error fetching stats:', error);
     }
   };
+
+  // Derive match & event counts from already-fetched userEvents
+  useEffect(() => {
+    if (!eventsLoading) {
+      setStats(prev => ({
+        ...prev,
+        upcomingMatches: userEvents.filter(e => e.type === 'match').length,
+        eventsAttended: userEvents.length,
+      }));
+    }
+  }, [userEvents, eventsLoading]);
 
   const handleRefresh = async () => {
     if (user?.id) {
