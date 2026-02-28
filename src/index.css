@@ -2,49 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Electric Orange on Deep Black
+/* Deep Violet + Warm Gold
    Dark-first system. All colors MUST be HSL. */
 
 @layer base {
   :root {
-    /* Electric Orange — Deep Blue-Black */
-    --background: 240 20% 4%;          /* #0D0D14 */
-    --foreground: 0 0% 94%;            /* #EFEFEF */
+    /* Deep Violet — Dark Purple-Black */
+    --background: 260 25% 6%;          /* #0F0D14 */
+    --foreground: 249 100% 97%;        /* #F0EEFF */
 
     /* Text Color Scale */
-    --text-primary: 0 0% 94%;          /* #EFEFEF */
-    --text-secondary: 240 5% 55%;      /* #8A8A9A */
-    --text-muted: 240 5% 55%;          /* #8A8A9A */
-    --text-hint: 240 5% 35%;           /* #525260 */
-    --text-link: 22 95% 54%;           /* #FF6B1A — orange */
+    --text-primary: 249 100% 97%;      /* #F0EEFF */
+    --text-secondary: 261 17% 58%;     /* #8B7FA8 */
+    --text-muted: 261 17% 58%;         /* #8B7FA8 */
+    --text-hint: 261 17% 40%;
+    --text-link: 263 84% 58%;          /* #7C3AED — violet */
 
     /* Card / Surface */
-    --card: 240 15% 9%;                /* #161620 */
-    --card-foreground: 0 0% 94%;
+    --card: 256 22% 12%;               /* #1A1625 */
+    --card-foreground: 249 100% 97%;
 
     /* Popover */
-    --popover: 240 15% 12%;            /* #1E1E2A */
-    --popover-foreground: 0 0% 94%;
+    --popover: 256 22% 15%;
+    --popover-foreground: 249 100% 97%;
 
-    /* Primary — Electric Orange */
-    --primary: 22 95% 54%;             /* #FF6B1A */
-    --primary-light: 22 95% 60%;
-    --primary-dark: 22 95% 47%;
-    --primary-foreground: 0 0% 100%;   /* white on orange */
+    /* Primary — Deep Violet */
+    --primary: 263 84% 58%;            /* #7C3AED */
+    --primary-light: 263 84% 65%;
+    --primary-dark: 263 84% 50%;
+    --primary-foreground: 0 0% 100%;   /* white on violet */
 
     /* Primary Subtle (tinted bg) */
-    --primary-subtle: 22 40% 10%;
+    --primary-subtle: 263 40% 12%;
 
-    /* Accent — Same Orange */
-    --accent: 22 95% 54%;              /* #FF6B1A */
-    --accent-foreground: 0 0% 100%;
+    /* Accent — Warm Gold */
+    --accent: 38 92% 50%;              /* #F59E0B */
+    --accent-foreground: 0 0% 9%;      /* dark text on gold */
 
     /* Accent Subtle */
-    --accent-subtle: 22 30% 8%;
+    --accent-subtle: 38 30% 10%;
 
     /* Muted */
-    --muted: 240 15% 12%;
-    --muted-foreground: 240 5% 55%;
+    --muted: 256 22% 15%;
+    --muted-foreground: 261 17% 58%;
 
     /* Destructive */
     --destructive: 0 84% 60%;          /* #EF4444 */
@@ -59,29 +59,29 @@
     --warning-foreground: 0 0% 100%;
 
     /* Info */
-    --info: 22 95% 54%;
+    --info: 263 84% 58%;
     --info-foreground: 0 0% 100%;
 
     /* Match */
-    --match: 22 95% 54%;
-    --match-foreground: 0 0% 100%;
+    --match: 38 92% 50%;
+    --match-foreground: 0 0% 9%;
 
     /* Border & Input */
-    --border: 240 10% 18%;
-    --input: 240 15% 12%;
-    --ring: 22 95% 54%;
+    --border: 260 15% 20%;
+    --input: 256 22% 15%;
+    --ring: 263 84% 58%;
 
-    /* Neutrals Scale — dark */
-    --neutral-50: 240 20% 4%;
-    --neutral-100: 240 15% 9%;
-    --neutral-200: 240 15% 12%;
-    --neutral-300: 240 10% 18%;
-    --neutral-400: 240 5% 35%;
-    --neutral-500: 240 5% 55%;
-    --neutral-600: 0 0% 75%;
-    --neutral-700: 0 0% 85%;
-    --neutral-800: 0 0% 90%;
-    --neutral-900: 0 0% 94%;
+    /* Neutrals Scale — purple-tinted dark */
+    --neutral-50: 260 25% 4%;
+    --neutral-100: 260 20% 9%;
+    --neutral-200: 260 18% 12%;
+    --neutral-300: 260 15% 18%;
+    --neutral-400: 260 10% 35%;
+    --neutral-500: 261 10% 55%;
+    --neutral-600: 260 5% 75%;
+    --neutral-700: 260 5% 85%;
+    --neutral-800: 260 5% 90%;
+    --neutral-900: 249 100% 97%;
 
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
@@ -89,8 +89,8 @@
     --shadow-lg: 0 4px 12px -2px rgb(0 0 0 / 0.5);
     --shadow-xl: 0 8px 16px -4px rgb(0 0 0 / 0.6);
     --shadow-2xl: 0 16px 32px -8px rgb(0 0 0 / 0.7);
-    --shadow-colored: 0 4px 12px rgba(255, 107, 26, 0.15);
-    --shadow-colored-lg: 0 6px 16px rgba(255, 107, 26, 0.25);
+    --shadow-colored: 0 2px 12px rgba(124, 58, 237, 0.15);
+    --shadow-colored-lg: 0 4px 16px rgba(124, 58, 237, 0.25);
 
     /* Spacing System */
     --spacing-xs: 0.25rem;
@@ -117,14 +117,14 @@
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Sidebar */
-    --sidebar-background: 240 15% 9%;
-    --sidebar-foreground: 240 5% 55%;
-    --sidebar-primary: 22 95% 54%;
+    --sidebar-background: 256 22% 9%;
+    --sidebar-foreground: 261 17% 58%;
+    --sidebar-primary: 263 84% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 15% 12%;
-    --sidebar-accent-foreground: 0 0% 94%;
-    --sidebar-border: 240 10% 18%;
-    --sidebar-ring: 22 95% 54%;
+    --sidebar-accent: 256 22% 12%;
+    --sidebar-accent-foreground: 249 100% 97%;
+    --sidebar-border: 260 15% 20%;
+    --sidebar-ring: 263 84% 58%;
 
     /* Sport-specific tints */
     --sport-football: 120 100% 3%;
@@ -133,112 +133,112 @@
     --sport-running: 30 100% 5%;
 
     /* Event type colors */
-    --event-match-bg: 22 30% 9%;
-    --event-match-border: 22 95% 54%;
+    --event-match-bg: 38 30% 9%;
+    --event-match-border: 38 92% 50%;
     --event-training-bg: 140 30% 6%;
     --event-training-border: 140 30% 38%;
     --event-social-bg: 0 20% 9%;
     --event-social-border: 0 20% 58%;
-    --event-other-bg: 228 20% 8%;
-    --event-other-border: 218 18% 53%;
+    --event-other-bg: 260 20% 8%;
+    --event-other-border: 263 18% 53%;
   }
 
   /* Dark-first system — dark mirrors root */
   .dark {
-    --background: 240 20% 4%;
-    --foreground: 0 0% 94%;
-    --text-primary: 0 0% 94%;
-    --text-secondary: 240 5% 55%;
-    --text-muted: 240 5% 55%;
-    --text-hint: 240 5% 35%;
-    --text-link: 22 95% 54%;
-    --card: 240 15% 9%;
-    --card-foreground: 0 0% 94%;
-    --popover: 240 15% 12%;
-    --popover-foreground: 0 0% 94%;
-    --primary: 22 95% 54%;
-    --primary-light: 22 95% 60%;
-    --primary-dark: 22 95% 47%;
+    --background: 260 25% 6%;
+    --foreground: 249 100% 97%;
+    --text-primary: 249 100% 97%;
+    --text-secondary: 261 17% 58%;
+    --text-muted: 261 17% 58%;
+    --text-hint: 261 17% 40%;
+    --text-link: 263 84% 58%;
+    --card: 256 22% 12%;
+    --card-foreground: 249 100% 97%;
+    --popover: 256 22% 15%;
+    --popover-foreground: 249 100% 97%;
+    --primary: 263 84% 58%;
+    --primary-light: 263 84% 65%;
+    --primary-dark: 263 84% 50%;
     --primary-foreground: 0 0% 100%;
-    --primary-subtle: 22 40% 10%;
-    --accent: 22 95% 54%;
-    --accent-foreground: 0 0% 100%;
-    --accent-subtle: 22 30% 8%;
-    --muted: 240 15% 12%;
-    --muted-foreground: 240 5% 55%;
+    --primary-subtle: 263 40% 12%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 9%;
+    --accent-subtle: 38 30% 10%;
+    --muted: 256 22% 15%;
+    --muted-foreground: 261 17% 58%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 96%;
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
-    --info: 22 95% 54%;
+    --info: 263 84% 58%;
     --info-foreground: 0 0% 100%;
-    --match: 22 95% 54%;
-    --match-foreground: 0 0% 100%;
-    --border: 240 10% 18%;
-    --input: 240 15% 12%;
-    --ring: 22 95% 54%;
-    --neutral-50: 240 20% 4%;
-    --neutral-100: 240 15% 9%;
-    --neutral-200: 240 15% 12%;
-    --neutral-300: 240 10% 18%;
-    --neutral-400: 240 5% 35%;
-    --neutral-500: 240 5% 55%;
-    --neutral-600: 0 0% 75%;
-    --neutral-700: 0 0% 85%;
-    --neutral-800: 0 0% 90%;
-    --neutral-900: 0 0% 94%;
+    --match: 38 92% 50%;
+    --match-foreground: 0 0% 9%;
+    --border: 260 15% 20%;
+    --input: 256 22% 15%;
+    --ring: 263 84% 58%;
+    --neutral-50: 260 25% 4%;
+    --neutral-100: 260 20% 9%;
+    --neutral-200: 260 18% 12%;
+    --neutral-300: 260 15% 18%;
+    --neutral-400: 260 10% 35%;
+    --neutral-500: 261 10% 55%;
+    --neutral-600: 260 5% 75%;
+    --neutral-700: 260 5% 85%;
+    --neutral-800: 260 5% 90%;
+    --neutral-900: 249 100% 97%;
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
     --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 4px 12px -2px rgb(0 0 0 / 0.5);
     --shadow-xl: 0 8px 16px -4px rgb(0 0 0 / 0.6);
     --shadow-2xl: 0 16px 32px -8px rgb(0 0 0 / 0.7);
-    --shadow-colored: 0 4px 12px rgba(255, 107, 26, 0.15);
-    --shadow-colored-lg: 0 6px 16px rgba(255, 107, 26, 0.25);
-    --sidebar-background: 240 15% 9%;
-    --sidebar-foreground: 240 5% 55%;
-    --sidebar-primary: 22 95% 54%;
+    --shadow-colored: 0 2px 12px rgba(124, 58, 237, 0.15);
+    --shadow-colored-lg: 0 4px 16px rgba(124, 58, 237, 0.25);
+    --sidebar-background: 256 22% 9%;
+    --sidebar-foreground: 261 17% 58%;
+    --sidebar-primary: 263 84% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 15% 12%;
-    --sidebar-accent-foreground: 0 0% 94%;
-    --sidebar-border: 240 10% 18%;
-    --sidebar-ring: 22 95% 54%;
+    --sidebar-accent: 256 22% 12%;
+    --sidebar-accent-foreground: 249 100% 97%;
+    --sidebar-border: 260 15% 20%;
+    --sidebar-ring: 263 84% 58%;
     --sport-football: 120 100% 3%;
     --sport-basketball: 36 100% 5%;
     --sport-volleyball: 260 33% 7%;
     --sport-running: 30 100% 5%;
-    --event-match-bg: 22 30% 9%;
-    --event-match-border: 22 95% 54%;
+    --event-match-bg: 38 30% 9%;
+    --event-match-border: 38 92% 50%;
     --event-training-bg: 140 30% 6%;
     --event-training-border: 140 30% 38%;
     --event-social-bg: 0 20% 9%;
     --event-social-border: 0 20% 58%;
-    --event-other-bg: 228 20% 8%;
-    --event-other-border: 218 18% 53%;
+    --event-other-bg: 260 20% 8%;
+    --event-other-border: 263 18% 53%;
   }
 
-  /* Light mode — Championship Gold on Warm Parchment */
+  /* Light mode — Violet + Gold on light */
   .light {
-    --background: 0 0% 98%;              /* #FAFAFA */
-    --foreground: 0 0% 9%;               /* #171717 */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 9%;
     --text-primary: 0 0% 9%;
     --text-secondary: 0 0% 35%;
     --text-muted: 0 0% 45%;
     --text-hint: 0 0% 62%;
-    --text-link: 22 95% 48%;
+    --text-link: 263 84% 50%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 9%;
     --popover: 0 0% 96%;
     --popover-foreground: 0 0% 9%;
-    --primary: 22 95% 48%;               /* slightly darker orange for light bg */
-    --primary-light: 22 95% 54%;
-    --primary-dark: 22 95% 40%;
+    --primary: 263 84% 50%;
+    --primary-light: 263 84% 58%;
+    --primary-dark: 263 84% 42%;
     --primary-foreground: 0 0% 100%;
-    --primary-subtle: 22 85% 95%;
-    --accent: 22 95% 54%;
-    --accent-foreground: 22 95% 40%;
-    --accent-subtle: 22 85% 97%;
+    --primary-subtle: 263 85% 95%;
+    --accent: 38 92% 45%;
+    --accent-foreground: 0 0% 9%;
+    --accent-subtle: 38 85% 97%;
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
     --destructive: 0 72% 51%;
@@ -247,13 +247,13 @@
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
-    --info: 22 95% 48%;
+    --info: 263 84% 50%;
     --info-foreground: 0 0% 100%;
-    --match: 22 95% 48%;
-    --match-foreground: 0 0% 100%;
+    --match: 38 92% 45%;
+    --match-foreground: 0 0% 9%;
     --border: 0 0% 90%;
     --input: 0 0% 96%;
-    --ring: 22 95% 48%;
+    --ring: 263 84% 50%;
     --neutral-50: 0 0% 98%;
     --neutral-100: 0 0% 96%;
     --neutral-200: 0 0% 93%;
@@ -269,28 +269,28 @@
     --shadow-lg: 0 4px 12px -2px rgb(0 0 0 / 0.08);
     --shadow-xl: 0 8px 16px -4px rgb(0 0 0 / 0.1);
     --shadow-2xl: 0 16px 32px -8px rgb(0 0 0 / 0.12);
-    --shadow-colored: 0 4px 12px rgba(255, 107, 26, 0.1);
-    --shadow-colored-lg: 0 6px 16px rgba(255, 107, 26, 0.15);
+    --shadow-colored: 0 2px 12px rgba(124, 58, 237, 0.1);
+    --shadow-colored-lg: 0 4px 16px rgba(124, 58, 237, 0.15);
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 0 0% 45%;
-    --sidebar-primary: 22 95% 48%;
+    --sidebar-primary: 263 84% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 96%;
     --sidebar-accent-foreground: 0 0% 9%;
     --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 22 95% 48%;
+    --sidebar-ring: 263 84% 50%;
     --sport-football: 120 30% 94%;
     --sport-basketball: 40 90% 94%;
     --sport-volleyball: 260 100% 97%;
     --sport-running: 28 90% 95%;
-    --event-match-bg: 22 85% 96%;
-    --event-match-border: 22 95% 54%;
+    --event-match-bg: 38 85% 96%;
+    --event-match-border: 38 92% 50%;
     --event-training-bg: 130 30% 94%;
     --event-training-border: 140 30% 38%;
     --event-social-bg: 0 50% 97%;
     --event-social-border: 0 20% 58%;
-    --event-other-bg: 225 30% 95%;
-    --event-other-border: 218 18% 53%;
+    --event-other-bg: 260 30% 95%;
+    --event-other-border: 263 18% 53%;
   }
 }
 
@@ -352,13 +352,13 @@
     @apply text-primary font-bold;
   }
 
-  /* Shadow Utilities — orange-tinted */
+  /* Shadow Utilities — violet-tinted */
   .shadow-colored {
-    box-shadow: 0 4px 12px rgba(255, 107, 26, 0.15);
+    box-shadow: 0 2px 12px rgba(124, 58, 237, 0.15);
   }
 
   .shadow-colored-lg {
-    box-shadow: 0 6px 16px rgba(255, 107, 26, 0.25);
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.25);
   }
 
   .transition-smooth {
@@ -463,8 +463,8 @@
   .sport-accent-football { border-left-color: hsl(var(--sport-football)); background-color: hsl(var(--sport-football)); }
   .sport-accent-basketball { border-left-color: hsl(var(--sport-basketball)); background-color: hsl(var(--sport-basketball)); }
   .sport-accent-volleyball { border-left-color: hsl(var(--sport-volleyball)); background-color: hsl(var(--sport-volleyball)); }
-  .sport-accent-tennis { border-left-color: hsl(22 95% 54% / 0.15); }
-  .sport-accent-badminton { border-left-color: hsl(22 95% 54% / 0.15); }
+  .sport-accent-tennis { border-left-color: hsl(263 84% 58% / 0.15); }
+  .sport-accent-badminton { border-left-color: hsl(263 84% 58% / 0.15); }
 
   @media (max-width: 374px) {
     .text-page-title { font-size: 1.125rem !important; line-height: 1.5rem !important; }
