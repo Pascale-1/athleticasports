@@ -62,7 +62,7 @@ export const PageHeader = ({
         <div className="flex-1 min-w-0">
           <h1 className="text-page-title font-heading font-bold tracking-tight line-clamp-2">{title}</h1>
           {subtitle && (
-            <p className="text-caption text-muted-foreground mt-0.5">{subtitle}</p>
+            <p className="text-[12px] text-muted-foreground mt-0.5">{subtitle}</p>
           )}
         </div>
         {rightAction && (

@@ -157,7 +157,7 @@ export const EventCard = memo(({
               <div className="flex items-start gap-2">
                 <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
                   <h3 className={cn(
-                    "text-[15px] font-semibold leading-tight",
+                    "text-[14px] font-semibold leading-tight",
                     isPast && "text-muted-foreground"
                   )}>
                     {event.title}

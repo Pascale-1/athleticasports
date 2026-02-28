@@ -10,15 +10,22 @@ All colors MUST be HSL.
   :root {
     /* Background & Foreground */
     --background: 0 0% 100%;
-    --foreground: 0 0% 15%;
+    --foreground: 220 13% 9%;
+
+    /* Text Color Scale */
+    --text-primary: 220 13% 9%;
+    --text-secondary: 220 9% 26%;
+    --text-muted: 220 5% 46%;
+    --text-hint: 220 5% 63%;
+    --text-link: 217 91% 60%;
 
     /* Card */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 15%;
+    --card-foreground: 220 13% 9%;
 
     /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 15%;
+    --popover-foreground: 220 13% 9%;
 
     /* Primary - Electric Blue (#0066FF) */
     --primary: 211 100% 50%;
@@ -28,11 +35,11 @@ All colors MUST be HSL.
 
     /* Muted Accent */
     --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 15%;
+    --accent-foreground: 220 13% 9%;
 
     /* Muted */
     --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted-foreground: 220 5% 46%;
 
     /* Destructive - Red (#F44336) */
     --destructive: 4 90% 58%;
@@ -120,6 +127,13 @@ All colors MUST be HSL.
     /* Background & Foreground */
     --background: 0 0% 10%;
     --foreground: 0 0% 98%;
+
+    /* Text Color Scale (Dark Mode) */
+    --text-primary: 0 0% 98%;
+    --text-secondary: 0 0% 85%;
+    --text-muted: 0 0% 65%;
+    --text-hint: 0 0% 50%;
+    --text-link: 217 91% 65%;
 
     /* Card */
     --card: 0 0% 12%;
@@ -352,7 +366,15 @@ All colors MUST be HSL.
   }
   
   .text-subtle {
-    @apply text-muted-foreground;
+    color: hsl(var(--text-muted));
+  }
+
+  .text-hint {
+    color: hsl(var(--text-hint));
+  }
+
+  .text-link {
+    color: hsl(var(--text-link));
   }
 
   /* Interactive Touch States */

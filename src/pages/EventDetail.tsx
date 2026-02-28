@@ -322,7 +322,7 @@ const EventDetail = () => {
               {isOngoing && <Badge className="text-xs rounded-full px-2.5 py-0.5 bg-success text-success-foreground animate-pulse">{t('status.liveNow')}</Badge>}
             </div>
 
-            <h1 className="text-[22px] font-heading font-bold tracking-tight mb-1">{event.title}</h1>
+            <h1 className="text-screen-title font-heading font-bold tracking-tight mb-1">{event.title}</h1>
 
             <div className="flex items-center gap-2">
               <AddToCalendarButton event={event} variant="ghost" />
@@ -372,7 +372,7 @@ const EventDetail = () => {
         {/* When & Where Card */}
         <Card className="overflow-hidden">
           <CardContent className="p-4 space-y-4">
-             <h3 className="font-semibold text-[14px] uppercase tracking-[0.5px] text-muted-foreground">
+             <h3 className="font-semibold text-[12px] uppercase tracking-[0.6px] text-hint">
               {t('details.whereAndWhen')}
             </h3>
             
@@ -490,7 +490,7 @@ const EventDetail = () => {
         {hasMatchDetails && (
           <Card>
             <CardContent className="p-4 space-y-4">
-              <h3 className="font-semibold text-[13px] text-muted-foreground">
+              <h3 className="font-semibold text-[12px] uppercase tracking-[0.6px] text-hint">
                 {t('details.matchInfo')}
               </h3>
               
@@ -528,7 +528,7 @@ const EventDetail = () => {
         {/* Who's Coming Card */}
         <Card>
           <CardContent className="p-4">
-            <h3 className="font-semibold text-[13px] text-muted-foreground mb-4">
+            <h3 className="font-semibold text-[12px] uppercase tracking-[0.6px] text-hint mb-4">
               <Users2 className="h-3.5 w-3.5 inline mr-1.5" />
               {t('details.whoComing')}
             </h3>
@@ -540,7 +540,7 @@ const EventDetail = () => {
         {event.description && (
           <Card>
             <CardContent className="p-4">
-              <h3 className="font-semibold text-[13px] text-muted-foreground mb-3">
+              <h3 className="font-semibold text-[12px] uppercase tracking-[0.6px] text-hint mb-3">
                 {t('details.about')}
               </h3>
               <p className={cn(
