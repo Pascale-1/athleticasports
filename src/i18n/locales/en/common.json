@@ -404,12 +404,76 @@
     "searchPlaceholder": "Search by username or email...",
     "noUsersFound": "No users found matching \"{{query}}\"",
     "inviteByEmail": "Invite {{email}} by email",
-    "inviteButton": "Invite Members"
+    "inviteButton": "Invite Members",
+    "role": "Role"
   },
   "backToTeams": "Back to Teams",
   "users": {
     "title": "Users Directory",
     "subtitle": "Browse all registered users",
-    "noUsers": "No users found"
-  }
+    "noUsers": "No users found",
+    "searchPlaceholder": "Search users...",
+    "member": "Member",
+    "active": "Active",
+    "joined": "Joined {{date}}"
+  },
+  "joinTeam": {
+    "title": "Team Invitation",
+    "invalidLink": "Invalid invite link",
+    "invalidCode": "Invalid invite code or team not found",
+    "notAccepting": "This team is not accepting new members via link",
+    "loadError": "Failed to load team information",
+    "teamNotFound": "Team not found",
+    "browseTeams": "Browse Teams",
+    "memberCount": "{{count}} member",
+    "memberCount_other": "{{count}} members",
+    "privateTeam": "Private Team",
+    "joining": "Joining...",
+    "joinTeam": "Join {{name}}",
+    "signInToJoin": "Sign in to join {{name}}",
+    "redirectToSignIn": "You'll be redirected to sign in or create an account",
+    "agreeToRules": "By joining, you agree to the team's rules and guidelines"
+  },
+  "acceptInvitation": {
+    "title": "Team Invitation",
+    "processing": "Processing your invitation...",
+    "problem": "There was a problem with your invitation",
+    "success": "Success!",
+    "accepting": "Accepting invitation...",
+    "invalidLink": "Invalid invitation link. Please check the URL and try again.",
+    "invalidResponse": "Invalid response from server",
+    "invitationExpired": "Invitation Expired",
+    "invitationExpiredDesc": "This invitation link is no longer valid. Please contact the team administrator to receive a new invitation.",
+    "emailMismatch": "Email Mismatch",
+    "invitedEmail": "Invited email:",
+    "yourEmail": "Your current email:",
+    "emailMismatchDesc": "To accept this invitation, you need to sign in with the email address that received it.",
+    "signInDifferent": "Sign in with Different Email",
+    "redirecting": "Redirecting to your team...",
+    "needHelp": "Need help with invitations?",
+    "goToTeams": "Go to Teams"
+  },
+  "practiceTeams": {
+    "title": "Practice Teams",
+    "balanced": "{{count}} balanced teams generated",
+    "none": "No teams generated yet",
+    "noTeams": "No teams generated",
+    "noTeamsDesc": "Generate balanced practice teams based on player performance levels",
+    "generateTeams": "Generate Teams",
+    "regenerate": "Regenerate",
+    "loadingTeams": "Loading teams..."
+  },
+  "profileToasts": {
+    "updated": "Profile updated",
+    "updateError": "Failed to update profile",
+    "loadError": "Failed to load profile",
+    "avatarUpdated": "Avatar updated successfully",
+    "avatarError": "Failed to upload avatar",
+    "imageOnly": "Only image files are allowed",
+    "fileTooLarge": "File is too large (max 5MB)",
+    "invalidType": "Invalid file type. Allowed: jpg, jpeg, png, webp, gif",
+    "linkCopied": "Profile link copied to clipboard"
+  },
+  "matchFound": "Match Found",
+  "until": "Until {{date}}"
 }

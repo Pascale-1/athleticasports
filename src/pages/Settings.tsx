@@ -60,7 +60,7 @@ const Settings = () => {
       setProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);
-      toast.error("Failed to load profile");
+      toast.error(t("profileToasts.loadError"));
     } finally {
       setLoading(false);
     }
@@ -85,12 +85,12 @@ const Settings = () => {
 
       if (error) throw error;
       
-      toast.success("Profile updated");
+      toast.success(t("profileToasts.updated"));
       setEditingField(null);
       fetchProfile();
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error("Failed to update profile");
+      toast.error(t("profileToasts.updateError"));
     }
   };
 
@@ -109,12 +109,12 @@ const Settings = () => {
         .eq('user_id', profile.user_id);
 
       if (error) throw error;
-      toast.success("Profile updated");
+      toast.success(t("profileToasts.updated"));
       setEditingField(null);
       fetchProfile();
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error("Failed to update profile");
+      toast.error(t("profileToasts.updateError"));
     }
   };
 
@@ -130,19 +130,19 @@ const Settings = () => {
       const fileExt = file.name.split('.').pop()?.toLowerCase();
 
       if (!file.type.startsWith('image/')) {
-        toast.error("Only image files are allowed");
+        toast.error(t("profileToasts.imageOnly"));
         return;
       }
 
       const MAX_FILE_SIZE = 5 * 1024 * 1024;
       if (file.size > MAX_FILE_SIZE) {
-        toast.error("File is too large (max 5MB)");
+        toast.error(t("profileToasts.fileTooLarge"));
         return;
       }
 
       const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
       if (!fileExt || !allowedExtensions.includes(fileExt)) {
-        toast.error("Invalid file type. Allowed: jpg, jpeg, png, webp, gif");
+        toast.error(t("profileToasts.invalidType"));
         return;
       }
 
@@ -165,11 +165,11 @@ const Settings = () => {
 
       if (updateError) throw updateError;
 
-      toast.success("Avatar updated successfully");
+      toast.success(t("profileToasts.avatarUpdated"));
       fetchProfile();
     } catch (error) {
       console.error('Error uploading avatar:', error);
-      toast.error("Failed to upload avatar");
+      toast.error(t("profileToasts.avatarError"));
     } finally {
       setUploading(false);
     }
@@ -177,8 +177,8 @@ const Settings = () => {
 
   const handleShare = async () => {
     const shareData = {
-      title: `${profile?.display_name || profile?.username}'s Profile`,
-      text: `Check out my profile on Sports Collective!`,
+      title: `${profile?.display_name || profile?.username}`,
+      text: `Athletica`,
       url: window.location.href,
     };
 
@@ -187,7 +187,7 @@ const Settings = () => {
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(window.location.href);
-        toast.success("Profile link copied to clipboard");
+        toast.success(t("profileToasts.linkCopied"));
       }
     } catch (error) {
       console.error('Error sharing:', error);
@@ -208,8 +208,8 @@ const Settings = () => {
     return (
       <PageContainer>
         <div className="text-center py-12">
-          <p className="text-muted-foreground mb-4">Profile not found</p>
-          <Button onClick={() => navigate("/")}>Go Home</Button>
+          <p className="text-muted-foreground mb-4">{t("errors.profileNotFound")}</p>
+          <Button onClick={() => navigate("/")}>{t("actions.goHome")}</Button>
         </div>
       </PageContainer>
     );
@@ -224,7 +224,6 @@ const Settings = () => {
   return (
     <PageContainer>
       <div className="max-w-2xl mx-auto space-y-6">
-        {/* Header */}
         <PageHeader
           title={t("profile.title")}
           showBackButton
@@ -232,10 +231,8 @@ const Settings = () => {
           rightAction={<LogoutButton variant="header" />}
         />
 
-        {/* Hero Section - Left-aligned on mobile */}
         <Card className="p-4">
           <div className="flex items-start gap-4">
-            {/* Avatar with persistent camera icon */}
             <div className="relative shrink-0">
               <Avatar className="h-20 w-20 ring-2 ring-primary ring-offset-2 ring-offset-background">
                 <AvatarImage src={profile.avatar_url || ""} />
@@ -263,7 +260,6 @@ const Settings = () => {
               />
             </div>
 
-            {/* Name and Info */}
             <div className="flex-1 min-w-0 space-y-1">
               <h1 className="text-lg font-bold break-words">
                 {profile.display_name || profile.username}
@@ -280,7 +276,6 @@ const Settings = () => {
             </div>
           </div>
 
-          {/* Action Button */}
           <div className="mt-4">
             <Button variant="outline" size="sm" onClick={handleShare} className="w-full h-9">
               <Share2 className="h-4 w-4 mr-2" />
@@ -288,11 +283,9 @@ const Settings = () => {
             </Button>
           </div>
 
-          {/* Stats Row */}
           <ProfileStats userId={profile.user_id} />
         </Card>
 
-        {/* Tabbed Content */}
         <ProfileTabs
           profile={profile}
           email={email}
@@ -306,7 +299,6 @@ const Settings = () => {
           setTempValues={setTempValues}
         />
 
-        {/* Account Danger Zone */}
         <AccountDangerZone />
       </div>
     </PageContainer>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,6 +22,7 @@ interface ProfileWithRoles extends Profile {
 }
 
 const Users = () => {
+  const { t } = useTranslation("common");
   const [profiles, setProfiles] = useState<ProfileWithRoles[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -73,14 +75,14 @@ const Users = () => {
   return (
     <div className="space-y-4 sm:space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Users Directory</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">Browse all registered users</p>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t("users.title")}</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">{t("users.subtitle")}</p>
       </div>
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Search users..."
+          placeholder={t("users.searchPlaceholder")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-9"
@@ -124,15 +126,15 @@ const Users = () => {
                   <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Trophy className="h-3 w-3" />
-                      <span>Member</span>
+                      <span>{t("users.member")}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <CalendarCheck className="h-3 w-3" />
-                      <span>Active</span>
+                      <span>{t("users.active")}</span>
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Joined {new Date(profile.created_at).toLocaleDateString()}
+                    {t("users.joined", { date: new Date(profile.created_at).toLocaleDateString() })}
                   </p>
                 </div>
               </div>
@@ -143,7 +145,7 @@ const Users = () => {
 
       {filteredProfiles.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">No users found</p>
+          <p className="text-muted-foreground">{t("users.noUsers")}</p>
         </div>
       )}
     </div>

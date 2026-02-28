@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useTeamChat } from "@/hooks/useTeamChat";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ interface TeamChatProps {
 }
 
 export const TeamChat = ({ teamId }: TeamChatProps) => {
+  const { t } = useTranslation("common");
   const { messages, loading, loadingMore, hasMore, loadMoreMessages, sendMessage, deleteMessage } = useTeamChat(teamId);
   const [input, setInput] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -38,7 +40,6 @@ export const TeamChat = ({ teamId }: TeamChatProps) => {
   }, []);
 
   useEffect(() => {
-    // Auto-scroll to bottom when new messages arrive
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
@@ -70,7 +71,7 @@ export const TeamChat = ({ teamId }: TeamChatProps) => {
       <ScrollArea className="min-h-[200px] max-h-[400px] pr-4" ref={scrollRef}>
         {messages.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            <p>No messages yet. Start the conversation!</p>
+            <p>{t("chat.noMessages")}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -85,7 +86,7 @@ export const TeamChat = ({ teamId }: TeamChatProps) => {
                 {loadingMore ? (
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 ) : null}
-                Load earlier messages
+                {t("chat.loadEarlier")}
               </Button>
             )}
             {messages.map((msg) => (
@@ -127,7 +128,7 @@ export const TeamChat = ({ teamId }: TeamChatProps) => {
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type a message..."
+          placeholder={t("chat.placeholder")}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
@@ -148,14 +149,14 @@ export const TeamChat = ({ teamId }: TeamChatProps) => {
       <AlertDialog open={!!messageToDelete} onOpenChange={() => setMessageToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Message</AlertDialogTitle>
+            <AlertDialogTitle>{t("chat.deleteConfirm")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this message? This action cannot be undone.
+              {t("chat.deleteConfirmDesc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+            <AlertDialogCancel>{t("actions.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>{t("actions.delete")}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

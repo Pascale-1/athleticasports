@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar as CalendarIcon, List, LayoutGrid, Plus } from "lucide-react";
@@ -16,6 +17,8 @@ import type { Event } from "@/lib/events";
 const TeamEvents = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation("common");
+  const { t: tEvents } = useTranslation("events");
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   
@@ -24,7 +27,6 @@ const TeamEvents = () => {
   
   const loading = teamLoading || eventsLoading;
 
-  // Group events by time period
   const groupEventsByTime = (events: Event[]) => {
     const today: Event[] = [];
     const tomorrow: Event[] = [];
@@ -52,7 +54,6 @@ const TeamEvents = () => {
   return (
     <PageContainer>
       <div className="space-y-6 animate-fade-in">
-        {/* Header with Back Navigation */}
         <div className="flex items-start gap-3">
           <Button 
             variant="ghost" 
@@ -65,21 +66,20 @@ const TeamEvents = () => {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 text-caption text-muted-foreground mb-1">
               <Link to="/discover" className="hover:text-foreground transition-colors">
-                Discover
+                {t("teamEvents.discover")}
               </Link>
               <span>/</span>
               <Link to={`/teams/${teamId}`} className="hover:text-foreground transition-colors break-words">
                 {team?.name}
               </Link>
             </div>
-            <h1 className="text-heading-2 font-bold">Team Events</h1>
+            <h1 className="text-heading-2 font-bold">{t("teamEvents.title")}</h1>
             <p className="text-caption text-muted-foreground">
-              View and RSVP to upcoming events
+              {t("teamEvents.subtitle")}
             </p>
           </div>
         </div>
 
-        {/* View Toggle */}
         <div className="flex items-center gap-2">
           <Button
             variant={viewMode === 'list' ? 'default' : 'outline'}
@@ -88,7 +88,7 @@ const TeamEvents = () => {
             className="flex-1 sm:flex-none"
           >
             <List className="h-4 w-4" />
-            <span className="ml-2 hidden sm:inline">List</span>
+            <span className="ml-2 hidden sm:inline">{t("teamEvents.list")}</span>
           </Button>
           <Button
             variant={viewMode === 'calendar' ? 'default' : 'outline'}
@@ -97,11 +97,10 @@ const TeamEvents = () => {
             className="flex-1 sm:flex-none"
           >
             <CalendarIcon className="h-4 w-4" />
-            <span className="ml-2 hidden sm:inline">Calendar</span>
+            <span className="ml-2 hidden sm:inline">{t("teamEvents.calendar")}</span>
           </Button>
         </div>
 
-        {/* Content */}
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
@@ -114,33 +113,33 @@ const TeamEvents = () => {
           <div className="space-y-6">
             {groupedEvents.today.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-body-large font-semibold text-primary">Today</h3>
+                <h3 className="text-body-large font-semibold text-primary">{t("teamEvents.today")}</h3>
                 <EventsList events={groupedEvents.today} showInlineRSVP />
               </div>
             )}
             {groupedEvents.tomorrow.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-body-large font-semibold">Tomorrow</h3>
+                <h3 className="text-body-large font-semibold">{t("teamEvents.tomorrow")}</h3>
                 <EventsList events={groupedEvents.tomorrow} showInlineRSVP />
               </div>
             )}
             {groupedEvents.thisWeek.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-body-large font-semibold">This Week</h3>
+                <h3 className="text-body-large font-semibold">{t("teamEvents.thisWeek")}</h3>
                 <EventsList events={groupedEvents.thisWeek} showInlineRSVP />
               </div>
             )}
             {groupedEvents.later.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-body-large font-semibold">Coming Up</h3>
+                <h3 className="text-body-large font-semibold">{t("teamEvents.comingUp")}</h3>
                 <EventsList events={groupedEvents.later} showInlineRSVP />
               </div>
             )}
             {events.length === 0 && (
               <EventsList
                 events={[]}
-                emptyTitle="No upcoming events"
-                emptyDescription="Check back later for new team events"
+                emptyTitle={t("teamEvents.noUpcoming")}
+                emptyDescription={t("teamEvents.noUpcomingDesc")}
               />
             )}
           </div>
@@ -149,7 +148,7 @@ const TeamEvents = () => {
 
       <FAB
         icon={<Plus className="h-5 w-5" />}
-        label="Create Event"
+        label={tEvents("createEvent")}
         onClick={() => setCreateDialogOpen(true)}
       />
 

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ interface MyMatchStatusProps {
 }
 
 export const MyMatchStatus = ({ onFindMatchClick }: MyMatchStatusProps) => {
+  const { t } = useTranslation("common");
   const { availability, loading: availabilityLoading, cancelAvailability } = usePlayerAvailability();
   const { proposals, loading: proposalsLoading, acceptProposal, declineProposal } = useMatchProposals();
   const [cancelling, setCancelling] = useState(false);
@@ -29,14 +31,13 @@ export const MyMatchStatus = ({ onFindMatchClick }: MyMatchStatusProps) => {
     }
   };
 
-  // Don't render if nothing to show
   if (loading) {
     return (
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Swords className="h-5 w-5 text-primary" />
-            Match Status
+            {t("matching.matchStatus")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -57,18 +58,17 @@ export const MyMatchStatus = ({ onFindMatchClick }: MyMatchStatusProps) => {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Swords className="h-5 w-5 text-primary" />
-          Match Status
+          {t("matching.matchStatus")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Pending Proposals */}
         {proposals.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Bell className="h-4 w-4 text-primary" />
                 <span className="text-sm font-medium">
-                  {proposals.length} match{proposals.length > 1 ? 'es' : ''} found!
+                  {t("matching.matchesFound", { count: proposals.length })}
                 </span>
               </div>
             </div>
@@ -84,13 +84,12 @@ export const MyMatchStatus = ({ onFindMatchClick }: MyMatchStatusProps) => {
           </div>
         )}
 
-        {/* Active Availability */}
         {availability && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Search className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Looking for matches</span>
+                <span className="text-sm font-medium">{t("matching.lookingForMatches")}</span>
               </div>
               <Button
                 variant="ghost"
@@ -114,7 +113,7 @@ export const MyMatchStatus = ({ onFindMatchClick }: MyMatchStatusProps) => {
                 </Badge>
                 <span className="text-xs text-muted-foreground">
                   <Calendar className="h-3 w-3 inline mr-1" />
-                  Until {format(new Date(availability.available_until), "MMM d")}
+                  {t("until", { date: format(new Date(availability.available_until), "MMM d") })}
                 </span>
               </div>
               
@@ -128,7 +127,6 @@ export const MyMatchStatus = ({ onFindMatchClick }: MyMatchStatusProps) => {
           </div>
         )}
 
-        {/* CTA if no availability */}
         {!availability && proposals.length === 0 && (
           <Button 
             variant="outline" 
@@ -136,7 +134,7 @@ export const MyMatchStatus = ({ onFindMatchClick }: MyMatchStatusProps) => {
             onClick={onFindMatchClick}
           >
             <Search className="h-4 w-4 mr-2" />
-            Find a Match
+            {t("matching.findMatch")}
           </Button>
         )}
       </CardContent>

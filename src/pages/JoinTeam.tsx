@@ -26,7 +26,8 @@ export default function JoinTeam() {
   const { code } = useParams<{ code: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { t } = useTranslation('teams');
+  const { t } = useTranslation('common');
+  const { t: tTeams } = useTranslation('teams');
   const [team, setTeam] = useState<TeamInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isJoining, setIsJoining] = useState(false);
@@ -39,57 +40,43 @@ export default function JoinTeam() {
 
   const checkAuthAndFetchTeam = async () => {
     if (!code) {
-      setError("Invalid invite link");
+      setError(t("joinTeam.invalidLink"));
       setIsLoading(false);
       return;
     }
 
     try {
-      // Check authentication
       const { data: { user } } = await supabase.auth.getUser();
       setIsAuthenticated(!!user);
 
-      // Fetch team info
       const { data: teamData, error: teamError } = await supabase
         .from("teams")
-        .select(`
-          id,
-          name,
-          description,
-          avatar_url,
-          sport,
-          is_private,
-          allow_link_joining
-        `)
+        .select(`id, name, description, avatar_url, sport, is_private, allow_link_joining`)
         .eq("invite_code", code.toUpperCase())
         .single();
 
       if (teamError || !teamData) {
-        setError("Invalid invite code or team not found");
+        setError(t("joinTeam.invalidCode"));
         setIsLoading(false);
         return;
       }
 
       if (!teamData.allow_link_joining) {
-        setError("This team is not accepting new members via link");
+        setError(t("joinTeam.notAccepting"));
         setIsLoading(false);
         return;
       }
 
-      // Get member count
       const { count } = await supabase
         .from("team_members")
         .select("*", { count: "exact", head: true })
         .eq("team_id", teamData.id)
         .eq("status", "active");
 
-      setTeam({
-        ...teamData,
-        member_count: count || 0,
-      });
+      setTeam({ ...teamData, member_count: count || 0 });
     } catch (err) {
       console.error("Error fetching team:", err);
-      setError("Failed to load team information");
+      setError(t("joinTeam.loadError"));
     } finally {
       setIsLoading(false);
     }
@@ -97,7 +84,6 @@ export default function JoinTeam() {
 
   const handleJoinTeam = async () => {
     if (!code || !isAuthenticated) {
-      // Redirect to auth page, then back here
       navigate(`/auth?redirect=/teams/join/${code}`);
       return;
     }
@@ -108,21 +94,21 @@ export default function JoinTeam() {
 
       if (result.alreadyMember) {
         toast({
-          title: t('toast.alreadyMember'),
-          description: t('toast.alreadyMemberDesc'),
+          title: tTeams('toast.alreadyMember'),
+          description: tTeams('toast.alreadyMemberDesc'),
         });
       } else {
         toast({
-          title: t('status.success', { ns: 'common' }),
-          description: t('toast.joinSuccess', { name: team?.name }),
+          title: t('status.success'),
+          description: tTeams('toast.joinSuccess', { name: team?.name }),
         });
       }
 
       navigate(`/teams/${result.teamId}`);
     } catch (err: any) {
       toast({
-        title: t('status.error', { ns: 'common' }),
-        description: err.message || t('toast.leaveError'),
+        title: t('status.error'),
+        description: err.message || tTeams('toast.leaveError'),
         variant: "destructive",
       });
     } finally {
@@ -134,7 +120,7 @@ export default function JoinTeam() {
     return (
       <div className="container max-w-2xl mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-[60vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground">Loading team information...</p>
+        <p className="text-muted-foreground">{t("invitations.loadingTeam")}</p>
       </div>
     );
   }
@@ -144,9 +130,9 @@ export default function JoinTeam() {
       <div className="container max-w-2xl mx-auto px-4 py-16">
         <Alert variant="destructive">
           <AlertDescription className="flex flex-col items-center text-center gap-4">
-            <p>{error || "Team not found"}</p>
+            <p>{error || t("joinTeam.teamNotFound")}</p>
             <Button onClick={() => navigate("/teams")} variant="outline">
-              Browse Teams
+              {t("joinTeam.browseTeams")}
             </Button>
           </AlertDescription>
         </Alert>
@@ -173,14 +159,14 @@ export default function JoinTeam() {
               <span>•</span>
               <span className="flex items-center gap-1">
                 <Users className="h-4 w-4" />
-                {team.member_count} member{team.member_count !== 1 ? 's' : ''}
+                {t("joinTeam.memberCount", { count: team.member_count })}
               </span>
             </CardDescription>
           </div>
           {team.is_private && (
             <Badge variant="secondary" className="mx-auto">
               <Shield className="h-3 w-3 mr-1" />
-              Private Team
+              {t("joinTeam.privateTeam")}
             </Badge>
           )}
         </CardHeader>
@@ -201,23 +187,23 @@ export default function JoinTeam() {
               {isJoining ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Joining...
+                  {t("joinTeam.joining")}
                 </>
               ) : isAuthenticated ? (
-                `Join ${team.name}`
+                t("joinTeam.joinTeam", { name: team.name })
               ) : (
-                `Sign in to join ${team.name}`
+                t("joinTeam.signInToJoin", { name: team.name })
               )}
             </Button>
 
             {!isAuthenticated && (
               <p className="text-xs text-center text-muted-foreground">
-                You'll be redirected to sign in or create an account
+                {t("joinTeam.redirectToSignIn")}
               </p>
             )}
 
             <p className="text-xs text-center text-muted-foreground">
-              By joining, you agree to the team's rules and guidelines
+              {t("joinTeam.agreeToRules")}
             </p>
           </div>
         </CardContent>

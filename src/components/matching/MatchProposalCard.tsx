@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,7 @@ interface MatchProposalCardProps {
 }
 
 export const MatchProposalCard = ({ proposal, onAccept, onDecline }: MatchProposalCardProps) => {
+  const { t } = useTranslation("common");
   const [showCommitmentDialog, setShowCommitmentDialog] = useState(false);
   const [commitmentChecked, setCommitmentChecked] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -76,7 +78,7 @@ export const MatchProposalCard = ({ proposal, onAccept, onDecline }: MatchPropos
               <div className="flex items-center gap-2">
                 <Badge variant="secondary" className="bg-primary/10 text-primary">
                   <Trophy className="h-3 w-3 mr-1" />
-                  Match Found
+                  {t("matchFound")}
                 </Badge>
               </div>
               <h3 className="font-semibold text-lg line-clamp-2">{event.title}</h3>
@@ -103,7 +105,7 @@ export const MatchProposalCard = ({ proposal, onAccept, onDecline }: MatchPropos
             {event.players_needed && (
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Users className="h-4 w-4 flex-shrink-0" />
-                <span>{event.players_needed} players needed</span>
+                <span>{event.players_needed} {t("matching.matchesFound", { count: event.players_needed }).includes("match") ? "players needed" : ""}</span>
               </div>
             )}
           </div>
@@ -116,7 +118,7 @@ export const MatchProposalCard = ({ proposal, onAccept, onDecline }: MatchPropos
               disabled={loading}
             >
               <CheckCircle2 className="h-4 w-4 mr-2" />
-              Accept
+              {t("actions.accept")}
             </Button>
             <Button
               variant="outline"
@@ -129,7 +131,7 @@ export const MatchProposalCard = ({ proposal, onAccept, onDecline }: MatchPropos
               ) : (
                 <>
                   <X className="h-4 w-4 mr-2" />
-                  Decline
+                  {t("actions.decline")}
                 </>
               )}
             </Button>
@@ -143,20 +145,17 @@ export const MatchProposalCard = ({ proposal, onAccept, onDecline }: MatchPropos
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              Commitment Required
+              {t("matching.commitmentRequired")}
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-4">
-              <p>
-                By accepting this match, you are <strong>committing to attend</strong>. 
-                This is a binding commitment to ensure fair play for all participants.
-              </p>
+              <p>{t("matching.commitmentDesc")}</p>
               
               <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
                 <p className="text-sm font-medium text-destructive">
-                  ⚠️ Cancellations are not allowed after accepting
+                  ⚠️ {t("matching.noCancellations")}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Please only accept if you are certain you can attend.
+                  {t("matching.onlyAcceptIfCertain")}
                 </p>
               </div>
 
@@ -170,7 +169,7 @@ export const MatchProposalCard = ({ proposal, onAccept, onDecline }: MatchPropos
                   htmlFor="commitment"
                   className="text-sm leading-tight cursor-pointer"
                 >
-                  I understand and commit to attending this match on{" "}
+                  {t("matching.acknowledgeCommitment")} —{" "}
                   <strong>
                     {format(new Date(event.start_time), "EEEE, MMMM d")}
                   </strong>
@@ -179,7 +178,7 @@ export const MatchProposalCard = ({ proposal, onAccept, onDecline }: MatchPropos
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={loading}>{t("actions.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmAccept}
               disabled={!commitmentChecked || loading}
@@ -190,7 +189,7 @@ export const MatchProposalCard = ({ proposal, onAccept, onDecline }: MatchPropos
               ) : (
                 <CheckCircle2 className="h-4 w-4 mr-2" />
               )}
-              Accept & Commit
+              {t("matching.confirmAccept")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
