@@ -42,7 +42,7 @@ export const EventsList = ({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-1">
       {events.map((event) => (
         <EventCardWithAttendance 
           key={event.id} 

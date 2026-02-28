@@ -255,7 +255,7 @@ const EventDetail = () => {
   return (
     <PageContainer className="pb-48 lg:pb-8">
       <motion.div 
-        className="space-y-3"
+        className="space-y-2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -267,13 +267,13 @@ const EventDetail = () => {
             style={{ backgroundColor: eventConfig.bgColor }}
           />
           
-          <div className="px-4 pt-3 pb-3 bg-gradient-to-b from-muted/40 to-transparent">
-            <div className="flex items-center justify-between mb-2">
+          <div className="px-3.5 pt-2 pb-2 bg-gradient-to-b from-muted/40 to-transparent">
+            <div className="flex items-center justify-between mb-1.5">
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => navigate(-1)}
-                className="h-9 -ml-2"
+                className="h-8 -ml-2"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 {t('common:actions.back', 'Back')}
@@ -301,28 +301,28 @@ const EventDetail = () => {
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 mb-3">
+            <div className="flex flex-wrap items-center gap-1.5 mb-2">
               <Badge 
                 variant="secondary"
-                className="text-xs rounded-full px-2.5 py-0.5"
+                className="text-[10px] rounded-full px-2 py-0.5"
                 style={{ backgroundColor: eventConfig.bgColor, color: eventConfig.color }}
               >
                 <EventIcon className="h-3 w-3 mr-1" />
                 {t(`types.${getEventTypeKey(event.type)}`, event.type)}
               </Badge>
-              <Badge variant="outline" className="text-xs rounded-full px-2.5 py-0.5">
+              <Badge variant="outline" className="text-[10px] rounded-full px-2 py-0.5">
                 {event.is_public ? t('status.public') : t('status.private', 'Privé')}
               </Badge>
               {teamName && (
-                <Badge variant="outline" className="text-xs rounded-full px-2.5 py-0.5 bg-background/80">
+                <Badge variant="outline" className="text-[10px] rounded-full px-2 py-0.5 bg-background/80">
                   {teamName}
                 </Badge>
               )}
-              {isPastEvent && <Badge variant="secondary" className="text-xs rounded-full px-2.5 py-0.5">{t('status.past')}</Badge>}
-              {isOngoing && <Badge className="text-xs rounded-full px-2.5 py-0.5 bg-success text-success-foreground animate-pulse">{t('status.liveNow')}</Badge>}
+              {isPastEvent && <Badge variant="secondary" className="text-[10px] rounded-full px-2 py-0.5">{t('status.past')}</Badge>}
+              {isOngoing && <Badge className="text-[10px] rounded-full px-2 py-0.5 bg-success text-success-foreground animate-pulse">{t('status.liveNow')}</Badge>}
             </div>
 
-            <h1 className="text-screen-title font-heading font-bold tracking-tight mb-1">{event.title}</h1>
+            <h1 className="text-[16px] font-heading font-bold tracking-tight mb-1">{event.title}</h1>
 
             <div className="flex items-center gap-2">
               <AddToCalendarButton event={event} variant="ghost" />
@@ -371,8 +371,8 @@ const EventDetail = () => {
 
         {/* When & Where Card */}
         <Card className="overflow-hidden">
-          <CardContent className="p-4 space-y-4">
-             <h3 className="font-semibold text-[12px] uppercase tracking-[0.6px] text-hint">
+          <CardContent className="p-3 space-y-3">
+             <h3 className="font-semibold text-[11px] uppercase tracking-[0.8px] text-hint">
               {t('details.whereAndWhen')}
             </h3>
             
@@ -489,8 +489,8 @@ const EventDetail = () => {
         {/* Match Details Card */}
         {hasMatchDetails && (
           <Card>
-            <CardContent className="p-4 space-y-4">
-              <h3 className="font-semibold text-[12px] uppercase tracking-[0.6px] text-hint">
+            <CardContent className="p-3 space-y-3">
+              <h3 className="font-semibold text-[11px] uppercase tracking-[0.8px] text-hint">
                 {t('details.matchInfo')}
               </h3>
               
@@ -527,8 +527,8 @@ const EventDetail = () => {
 
         {/* Who's Coming Card */}
         <Card>
-          <CardContent className="p-4">
-            <h3 className="font-semibold text-[12px] uppercase tracking-[0.6px] text-hint mb-4">
+          <CardContent className="p-3">
+            <h3 className="font-semibold text-[11px] uppercase tracking-[0.8px] text-hint mb-2">
               <Users2 className="h-3.5 w-3.5 inline mr-1.5" />
               {t('details.whoComing')}
             </h3>
@@ -539,8 +539,8 @@ const EventDetail = () => {
         {/* About / Description Card */}
         {event.description && (
           <Card>
-            <CardContent className="p-4">
-              <h3 className="font-semibold text-[12px] uppercase tracking-[0.6px] text-hint mb-3">
+            <CardContent className="p-3">
+              <h3 className="font-semibold text-[11px] uppercase tracking-[0.8px] text-hint mb-2">
                 {t('details.about')}
               </h3>
               <p className={cn(
@@ -579,7 +579,7 @@ const EventDetail = () => {
         {/* Share Section (Admin only) */}
         {canEdit && event.invite_code && (
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-3">
               <EventInviteLink
                 eventId={event.id}
                 inviteCode={event.invite_code}

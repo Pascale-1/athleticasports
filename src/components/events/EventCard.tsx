@@ -143,7 +143,7 @@ export const EventCard = memo(({
         <CardContent className="p-0">
           <div className="flex gap-0">
             {/* Left: DateBlock */}
-            <div className="flex flex-col items-center justify-center px-3 py-3 shrink-0">
+            <div className="flex flex-col items-center justify-center px-2.5 py-2.5 shrink-0">
               <DateBlock date={event.start_time} size="compact" />
             </div>
 
@@ -151,13 +151,13 @@ export const EventCard = memo(({
             <div className="w-px bg-border shrink-0" />
 
             {/* Right: Content */}
-            <div className="flex-1 min-w-0 px-3 py-2.5 flex flex-col gap-1.5">
+            <div className="flex-1 min-w-0 px-2.5 py-2 flex flex-col gap-1">
 
               {/* Row 1: Title + organizer actions */}
               <div className="flex items-start gap-2">
                 <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
                   <h3 className={cn(
-                    "text-[14px] font-semibold leading-tight",
+                    "text-[13px] font-semibold leading-tight",
                     isPast && "text-muted-foreground"
                   )}>
                     {event.title}
@@ -180,8 +180,8 @@ export const EventCard = memo(({
                     <Repeat className="h-3.5 w-3.5 text-muted-foreground" />
                   )}
                   {event.is_public 
-                    ? <span className="flex items-center gap-0.5"><Globe className="h-3.5 w-3.5 text-muted-foreground/70" /><span className="text-[10px] text-muted-foreground">Public</span></span>
-                    : <span className="flex items-center gap-0.5"><Lock className="h-3.5 w-3.5 text-muted-foreground/70" /><span className="text-[10px] text-muted-foreground">{t('status.private')}</span></span>
+                    ? <span className="flex items-center gap-0.5"><Globe className="h-3 w-3 text-muted-foreground/70" /><span className="text-[9px] text-muted-foreground">Public</span></span>
+                    : <span className="flex items-center gap-0.5"><Lock className="h-3 w-3 text-muted-foreground/70" /><span className="text-[9px] text-muted-foreground">{t('status.private')}</span></span>
                   }
                   {isOrganizerView && (
                     <>
@@ -226,11 +226,11 @@ export const EventCard = memo(({
               </div>
 
               {/* Row 2: Sport + Time */}
-              <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
+              <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
                 {sportEmoji && (
-                  <span className="text-sm leading-none">{sportEmoji}</span>
+                  <span className="text-xs leading-none">{sportEmoji}</span>
                 )}
-                <Clock className="h-3 w-3 shrink-0" />
+                <Clock className="h-2.5 w-2.5 shrink-0" />
                 <span>{timeStr}</span>
                 {event.cost && event.cost.trim() !== '' && (
                   <>
@@ -242,8 +242,8 @@ export const EventCard = memo(({
 
               {/* Row 3: Location */}
               {venueName && (
-                <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
-                  <MapPin className="h-3 w-3 shrink-0" />
+                <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
+                  <MapPin className="h-2.5 w-2.5 shrink-0" />
                   <span className="line-clamp-2 break-words">{venueName}</span>
                 </div>
               )}
@@ -255,7 +255,7 @@ export const EventCard = memo(({
                   {attendees.length > 0 && (
                     <AvatarStack users={attendees} max={3} size="xs" />
                   )}
-                  <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+                  <span className="text-[10px] text-muted-foreground whitespace-nowrap">
                     {hasCapacity 
                       ? `${attendeeCount}/${maxParticipants}` 
                       : attendeeCount > 0 ? `${attendeeCount} ${t('rsvp.going')}` : ''

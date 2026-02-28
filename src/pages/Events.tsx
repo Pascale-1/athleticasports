@@ -203,7 +203,7 @@ const Events = () => {
   return (
     <PageContainer>
       <PullToRefresh onRefresh={handleRefresh}>
-        <div className="space-y-3 pb-24 animate-fade-in">
+        <div className="space-y-2 pb-24 animate-fade-in">
         <PageHeader
           title={t('title')}
           subtitle={getTabSubtitle()}
@@ -225,13 +225,13 @@ const Events = () => {
         />
 
         {/* Row 1: Underline tabs + view/search icons */}
-        <div className="flex items-center h-12 border-b border-border">
+        <div className="flex items-center h-10 border-b border-border">
           <div className="flex-1 flex">
             {TAB_CONFIG.map(({ key, labelKey }) => (
               <button
                 key={key}
                 className={cn(
-                  "flex-1 h-12 text-sm font-medium transition-colors relative",
+                  "flex-1 h-10 text-[12px] font-medium transition-colors relative",
                   activeTab === key ? "text-primary" : "text-muted-foreground"
                 )}
                 onClick={() => handleTabChange(key as any)}
@@ -265,7 +265,7 @@ const Events = () => {
           <Button
             size="sm"
             variant="ghost"
-            className={cn("h-8 px-3 text-xs rounded-full shrink-0",
+            className={cn("h-7 px-2.5 text-[10px] rounded-full shrink-0",
               activeEventType === 'all' ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-card border text-foreground"
             )}
             onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
@@ -277,7 +277,7 @@ const Events = () => {
               key={type}
               size="sm"
               variant="ghost"
-              className={cn("h-8 px-3 text-xs rounded-full shrink-0 gap-1.5",
+              className={cn("h-7 px-2.5 text-[10px] rounded-full shrink-0 gap-1.5",
                 activeEventType === type ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-card border text-foreground"
               )}
               onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
@@ -304,9 +304,9 @@ const Events = () => {
 
         {activeTab === 'discover' ? (
           // Discover Tab
-          <div className="space-y-3">
+          <div className="space-y-2">
             {discoverLoading ? (
-              <div className="space-y-3">
+              <div className="space-y-1">
                 {[1, 2, 3].map((i) => (
                   <EventCardSkeleton key={i} />
                 ))}
@@ -329,9 +329,9 @@ const Events = () => {
           </div>
         ) : activeTab === 'organized' ? (
           // Organized Events Tab
-          <div className="space-y-3">
+          <div className="space-y-2">
             {createdEventsLoading ? (
-              <div className="space-y-3">
+              <div className="space-y-1">
                 {[1, 2, 3].map((i) => (
                   <EventCardSkeleton key={i} />
                 ))}
@@ -363,7 +363,7 @@ const Events = () => {
           <>
             {/* Content */}
             {attendingLoading ? (
-              <div className="space-y-3">
+              <div className="space-y-1">
                 {[1, 2, 3].map((i) => (
                   <EventCardSkeleton key={i} />
                 ))}

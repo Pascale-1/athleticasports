@@ -32,20 +32,20 @@ export const TeamCard = memo(({ team, memberCount = 0, isMember, members = [] }:
         <CardContent className="p-0">
           {/* Sport Ribbon — slim separator */}
           {sport && (
-            <div className="px-3 py-1 mt-1.5 mb-1">
-              <span className="text-[12px] font-semibold uppercase tracking-[0.6px] text-primary flex items-center gap-1.5">
+            <div className="px-3.5 py-0.5 mt-1 mb-0.5">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.8px] text-primary flex items-center gap-1.5">
                 {sportEmoji && <span>{sportEmoji}</span>}
                 <span>{sport}</span>
               </span>
             </div>
           )}
           
-          <div className="p-3">
-            <div className="flex items-center gap-3">
-              {/* Avatar - Larger */}
-              <Avatar className="h-12 w-12 rounded-xl shrink-0">
+          <div className="p-2.5">
+            <div className="flex items-center gap-2">
+              {/* Avatar */}
+              <Avatar className="h-8 w-8 rounded-lg shrink-0">
                 <AvatarImage src={team.avatar_url || ""} />
-                <AvatarFallback className="text-lg font-heading font-bold bg-primary/10 text-primary rounded-xl">
+                <AvatarFallback className="text-sm font-heading font-bold bg-primary/10 text-primary rounded-lg">
                   {team.name.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -53,7 +53,7 @@ export const TeamCard = memo(({ team, memberCount = 0, isMember, members = [] }:
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <h3 className="text-[14px] font-heading font-semibold truncate">
+                  <h3 className="text-[13px] font-heading font-semibold truncate">
                     {team.name}
                   </h3>
                   {isMember && (
@@ -62,26 +62,26 @@ export const TeamCard = memo(({ team, memberCount = 0, isMember, members = [] }:
                     </Badge>
                   )}
                   {team.is_private ? (
-                    <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
+                    <Lock className="h-2.5 w-2.5 text-muted-foreground shrink-0" />
                   ) : (
-                    <Globe className="h-3 w-3 text-muted-foreground shrink-0" />
+                    <Globe className="h-2.5 w-2.5 text-muted-foreground shrink-0" />
                   )}
                 </div>
 
                 {/* Description */}
                 {team.description && (
-                  <p className="text-caption text-muted-foreground line-clamp-2 mt-0.5">
+                  <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">
                     {team.description}
                   </p>
                 )}
 
                 {/* Members row */}
-                <div className="flex items-center gap-2 mt-1.5">
+                <div className="flex items-center gap-2 mt-1">
                   {members.length > 0 ? (
                     <AvatarStack users={members} max={4} size="xs" />
                   ) : (
-                    <div className="flex items-center gap-1 text-[13px] text-muted-foreground">
-                      <Users className="h-3 w-3" />
+                    <div className="flex items-center gap-1 text-[12px] text-muted-foreground">
+                      <Users className="h-2.5 w-2.5" />
                       <span>{memberCount} {memberCount === 1 ? t('member') : t('memberPlural')}</span>
                     </div>
                   )}
@@ -89,7 +89,7 @@ export const TeamCard = memo(({ team, memberCount = 0, isMember, members = [] }:
               </div>
 
               {/* Chevron */}
-              <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
             </div>
           </div>
         </CardContent>

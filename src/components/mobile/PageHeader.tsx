@@ -36,23 +36,23 @@ export const PageHeader = ({
   };
 
   return (
-    <div className={cn("space-y-1 border-b border-border/30 pb-3", className)}>
+    <div className={cn("space-y-0.5 border-b border-border/30 pb-2", className)}>
       {/* Breadcrumb or Back button */}
       {(showBackButton || breadcrumb) && (
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-0.5">
           {showBackButton && (
             <Button
               variant="ghost"
               size="sm"
               onClick={handleBack}
-              className="h-7 px-1.5 -ml-1.5 text-muted-foreground hover:text-foreground"
+              className="h-6 px-1.5 -ml-1.5 text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="h-3.5 w-3.5 mr-0.5" />
-              <span className="text-[11px]">{t('actions.back')}</span>
+              <span className="text-[10px]">{t('actions.back')}</span>
             </Button>
           )}
           {breadcrumb && !showBackButton && (
-            <span className="text-xs text-muted-foreground">{breadcrumb}</span>
+            <span className="text-[10px] text-muted-foreground">{breadcrumb}</span>
           )}
         </div>
       )}
@@ -60,9 +60,9 @@ export const PageHeader = ({
       {/* Title Row */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <h1 className="text-page-title font-heading font-bold tracking-tight line-clamp-2">{title}</h1>
+          <h1 className="text-[18px] font-heading font-bold tracking-tight line-clamp-2">{title}</h1>
           {subtitle && (
-            <p className="text-[12px] text-muted-foreground mt-0.5">{subtitle}</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>
           )}
         </div>
         {rightAction && (
