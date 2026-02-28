@@ -228,7 +228,7 @@ const Settings = () => {
           title={t("profile.title")}
           showBackButton
           backPath="/"
-          rightAction={<LogoutButton variant="header" />}
+          rightAction={undefined}
         />
 
         <Card className="p-4">
@@ -264,7 +264,18 @@ const Settings = () => {
               <h1 className="text-lg font-bold break-words">
                 {profile.display_name || profile.username}
               </h1>
-              <p className="text-sm text-muted-foreground">@{profile.username}</p>
+              <p className="text-sm text-muted-foreground">
+                @{/^user_[0-9a-f]+$/i.test(profile.username)
+                  ? (() => {
+                      const name = profile.display_name || profile.full_name;
+                      if (!name) return profile.username;
+                      const parts = name.trim().split(/\s+/);
+                      return parts.length > 1
+                        ? parts[0] + parts[parts.length - 1][0].toUpperCase()
+                        : parts[0];
+                    })()
+                  : profile.username}
+              </p>
               {profile.is_founding_member && (
                 <FoundingMemberBadge size="sm" />
               )}

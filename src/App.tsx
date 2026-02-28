@@ -222,7 +222,7 @@ const App = () => {
 
   return (
   <ErrorBoundary>
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <NotificationProvider>

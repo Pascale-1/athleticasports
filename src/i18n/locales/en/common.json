@@ -116,7 +116,10 @@
     "organizeEvent": "Create Event",
     "organizeEventSubtitle": "Game, training, social",
     "noUpcomingGames": "No upcoming games",
+    "noUpcomingGamesDesc": "Find a game or create your own",
     "createEvent": "Create Event",
+    "greeting": "Hello {{name}} 👋",
+    "nextEvent": "NEXT EVENT",
     "lookingToPlay": "Looking to play?",
     "wantToOrganize": "Want to organize?",
     "setAvailability": "Set Availability",
@@ -192,7 +195,8 @@
     "myTeams": "My Teams",
     "noUpcomingEvents": "No upcoming events — find a game or create one!",
     "noPastEvents": "No past events yet",
-    "noTeams": "Not a member of any team yet"
+    "noTeams": "Not a member of any team yet",
+    "memberSince": "Member since {{date}}"
   },
   "sports": {
     "football": "Football",
@@ -294,6 +298,7 @@
     "addDisplayName": "Set your display name",
     "addBio": "Write a short bio",
     "addSport": "Choose your primary sport",
+    "setUsername": "Set a username",
     "complete": "Complete Profile"
   },
   "nextEvent": {

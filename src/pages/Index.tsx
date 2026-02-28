@@ -213,7 +213,7 @@ const Index = () => {
           <AnimatedCard delay={0.1}>
             <div data-walkthrough="profile" className="space-y-0.5">
               <h1 className="text-[18px] font-bold tracking-tight">
-                Bonjour {profile.display_name || profile.username} 👋
+                {t('home.greeting', { name: profile.display_name || profile.username })}
               </h1>
               <p className="text-[12px] text-muted-foreground">
                 {t('home.greetingSubtitle')}
@@ -230,7 +230,7 @@ const Index = () => {
                 <Link to={`/events/${upcomingEvents[0].id}`} className="relative z-10">
                   <Card className="p-4 bg-card border border-border active:scale-[0.98] transition-transform">
                     <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground mb-1">
-                      {t('home.nextMatch', { defaultValue: 'Prochain événement' })}
+                      {t('home.nextEvent')}
                     </p>
                     <h2 className="text-[20px] font-bold leading-tight text-foreground">
                       {upcomingEvents[0].title}
@@ -464,7 +464,7 @@ const Index = () => {
                     <CalendarCheck className="h-6 w-6 text-muted-foreground" />
                   </div>
                   <p className="text-base font-semibold mb-1">{t('home.noUpcomingGames')}</p>
-                  <p className="text-xs text-muted-foreground mb-3">{t('home.noUpcomingGamesDesc', { defaultValue: 'Trouve un match ou crée le tien' })}</p>
+                  <p className="text-xs text-muted-foreground mb-3">{t('home.noUpcomingGamesDesc')}</p>
                   <Button onClick={() => setCreateEventDialogOpen(true)} size="sm">
                     <Plus className="h-4 w-4 mr-1" />
                     {t('home.organizeEvent')}

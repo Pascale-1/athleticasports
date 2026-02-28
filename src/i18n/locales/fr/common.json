@@ -116,7 +116,10 @@
     "organizeEvent": "Créer un event",
     "organizeEventSubtitle": "Match, séance, sortie",
     "noUpcomingGames": "Aucune partie à venir",
+    "noUpcomingGamesDesc": "Trouve un match ou crée le tien",
     "createEvent": "Créer un événement",
+    "greeting": "Bonjour {{name}} 👋",
+    "nextEvent": "PROCHAIN ÉVÉNEMENT",
     "lookingToPlay": "Envie de jouer ?",
     "wantToOrganize": "Envie d'organiser ?",
     "setAvailability": "Ma disponibilité",
@@ -192,7 +195,8 @@
     "myTeams": "Mes équipes",
     "noUpcomingEvents": "Aucun événement à venir — trouve une partie ou crée-en une !",
     "noPastEvents": "Pas encore d'événements passés",
-    "noTeams": "Pas encore membre d'une équipe"
+    "noTeams": "Pas encore membre d'une équipe",
+    "memberSince": "Membre depuis {{date}}"
   },
   "sports": {
     "football": "Football",
@@ -294,6 +298,7 @@
     "addDisplayName": "Définir un nom d'affichage",
     "addBio": "Écrire une courte bio",
     "addSport": "Choisir votre sport principal",
+    "setUsername": "Définir un nom d'utilisateur",
     "complete": "Compléter le profil"
   },
   "nextEvent": {

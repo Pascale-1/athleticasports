@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useLogout } from "@/hooks/useLogout";
 
 interface LogoutButtonProps {
-  variant?: "header" | "inline";
+  variant?: "header" | "inline" | "settings";
 }
 
 export function LogoutButton({ variant = "header" }: LogoutButtonProps) {
@@ -21,6 +21,19 @@ export function LogoutButton({ variant = "header" }: LogoutButtonProps) {
       >
         {t("profile.logout")}
         <ChevronRight className="h-4 w-4 ml-1" />
+      </Button>
+    );
+  }
+
+  if (variant === "settings") {
+    return (
+      <Button
+        variant="ghost"
+        onClick={logout}
+        className="w-full justify-start text-[#64748B] hover:text-foreground hover:bg-muted"
+      >
+        <LogOut className="h-4 w-4 mr-2" />
+        {t("profile.logout")}
       </Button>
     );
   }
