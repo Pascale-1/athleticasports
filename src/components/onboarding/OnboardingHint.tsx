@@ -19,14 +19,14 @@ interface OnboardingHintProps {
 
 const variantStyles = {
   info: 'border-primary/30 bg-primary/5',
-  success: 'border-green-500/30 bg-green-500/5',
-  tip: 'border-amber-500/30 bg-amber-500/5',
+  success: 'border-success/30 bg-success/5',
+  tip: 'border-warning/30 bg-warning/5',
 };
 
 const iconVariantStyles = {
   info: 'text-primary',
-  success: 'text-green-600',
-  tip: 'text-amber-600',
+  success: 'text-success',
+  tip: 'text-warning',
 };
 
 export const OnboardingHint = ({

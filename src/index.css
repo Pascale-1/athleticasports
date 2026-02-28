@@ -2,91 +2,92 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* FORCE Palette — Dark-first color system
+   Inspired by WNBA, NWSL, Nike Women. All colors MUST be HSL. */
 
 @layer base {
   :root {
-    /* Background & Foreground */
-    --background: 0 0% 100%;
-    --foreground: 220 13% 9%;
+    /* FORCE Palette — Dark First */
+    --background: 0 0% 6%;           /* #0F0F0F */
+    --foreground: 0 0% 100%;         /* #FFFFFF */
 
     /* Text Color Scale */
-    --text-primary: 220 13% 9%;
-    --text-secondary: 220 9% 26%;
-    --text-muted: 220 5% 46%;
-    --text-hint: 220 5% 63%;
-    --text-link: 217 91% 60%;
+    --text-primary: 0 0% 100%;       /* #FFFFFF */
+    --text-secondary: 0 0% 83%;      /* #D4D4D4 */
+    --text-muted: 0 0% 64%;          /* #A3A3A3 */
+    --text-hint: 0 0% 32%;           /* #525252 */
+    --text-link: 73 100% 50%;        /* #CCFF00 — electric lime */
 
-    /* Card */
-    --card: 0 0% 100%;
-    --card-foreground: 220 13% 9%;
+    /* Card / Surface */
+    --card: 0 0% 10%;                /* #1A1A1A */
+    --card-foreground: 0 0% 100%;
 
     /* Popover */
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 13% 9%;
+    --popover: 0 0% 14%;             /* #242424 */
+    --popover-foreground: 0 0% 100%;
 
-    /* Primary - Electric Blue (#0066FF) */
-    --primary: 211 100% 50%;
-    --primary-light: 211 100% 95%;
-    --primary-dark: 211 100% 40%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary — Electric Lime */
+    --primary: 73 100% 50%;          /* #CCFF00 */
+    --primary-light: 73 100% 55%;
+    --primary-dark: 73 100% 40%;     /* #A3CC00 */
+    --primary-foreground: 0 0% 4%;   /* #0A0A0A — dark on lime */
 
-    /* Muted Accent */
-    --accent: 0 0% 96%;
-    --accent-foreground: 220 13% 9%;
+    /* Primary Subtle (tinted bg) */
+    --primary-subtle: 73 100% 7%;    /* #1A2400 */
+
+    /* Accent — surface-elevated */
+    --accent: 0 0% 14%;              /* #242424 */
+    --accent-foreground: 0 0% 100%;
 
     /* Muted */
-    --muted: 0 0% 96%;
-    --muted-foreground: 220 5% 46%;
+    --muted: 0 0% 14%;               /* #242424 */
+    --muted-foreground: 0 0% 64%;    /* #A3A3A3 */
 
-    /* Destructive - Red (#F44336) */
-    --destructive: 4 90% 58%;
+    /* Destructive */
+    --destructive: 0 84% 60%;        /* #EF4444 */
     --destructive-foreground: 0 0% 100%;
 
-    /* Success - Green (#00C853) */
-    --success: 142 71% 39%;
+    /* Success */
+    --success: 142 71% 45%;          /* #22C55E */
     --success-foreground: 0 0% 100%;
 
-    /* Warning - Amber (#FFB300) */
+    /* Warning */
     --warning: 45 100% 50%;
-    --warning-foreground: 0 0% 13%;
+    --warning-foreground: 0 0% 6%;
 
-    /* Info - Blue (#2196F3) */
-    --info: 207 90% 54%;
-    --info-foreground: 0 0% 100%;
+    /* Info — same as primary in FORCE */
+    --info: 73 100% 50%;
+    --info-foreground: 0 0% 4%;
 
-    /* Match - Gold/Amber (#F5A623) */
-    --match: 40 91% 55%;
-    --match-foreground: 0 0% 10%;
+    /* Match */
+    --match: 73 100% 50%;
+    --match-foreground: 0 0% 4%;
 
     /* Border & Input */
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 211 100% 50%;
+    --border: 0 0% 16%;              /* #2A2A2A */
+    --input: 0 0% 14%;               /* #242424 — surface-elevated */
+    --ring: 73 100% 50%;             /* lime focus ring */
 
-    /* Neutrals Scale */
-    --neutral-50: 0 0% 98%;
-    --neutral-100: 0 0% 96%;
-    --neutral-200: 0 0% 90%;
-    --neutral-300: 0 0% 83%;
-    --neutral-400: 0 0% 70%;
-    --neutral-500: 0 0% 60%;
-    --neutral-600: 0 0% 50%;
-    --neutral-700: 0 0% 40%;
-    --neutral-800: 0 0% 25%;
-    --neutral-900: 0 0% 15%;
+    /* Neutrals Scale (inverted for dark-first) */
+    --neutral-50: 0 0% 10%;
+    --neutral-100: 0 0% 12%;
+    --neutral-200: 0 0% 16%;
+    --neutral-300: 0 0% 20%;
+    --neutral-400: 0 0% 32%;
+    --neutral-500: 0 0% 45%;
+    --neutral-600: 0 0% 60%;
+    --neutral-700: 0 0% 75%;
+    --neutral-800: 0 0% 85%;
+    --neutral-900: 0 0% 95%;
 
-
-    /* Shadows - Subtle & Modern */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03);
-    --shadow-md: 0 2px 4px -1px rgb(0 0 0 / 0.06);
-    --shadow-lg: 0 4px 6px -2px rgb(0 0 0 / 0.08);
-    --shadow-xl: 0 8px 12px -3px rgb(0 0 0 / 0.1);
-    --shadow-2xl: 0 12px 24px -6px rgb(0 0 0 / 0.15);
-    --shadow-colored: 0 4px 12px rgba(0, 128, 255, 0.12);
-    --shadow-colored-lg: 0 6px 16px rgba(0, 128, 255, 0.18);
+    /* Shadows — deeper for dark surfaces */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+    --shadow-md: 0 2px 4px -1px rgb(0 0 0 / 0.5);
+    --shadow-lg: 0 4px 8px -2px rgb(0 0 0 / 0.5);
+    --shadow-xl: 0 8px 16px -4px rgb(0 0 0 / 0.6);
+    --shadow-2xl: 0 16px 32px -8px rgb(0 0 0 / 0.7);
+    --shadow-colored: 0 4px 12px rgba(204, 255, 0, 0.15);
+    --shadow-colored-lg: 0 6px 16px rgba(204, 255, 0, 0.25);
 
     /* Spacing System (for reference) */
     --spacing-xs: 0.25rem;
@@ -113,105 +114,86 @@ All colors MUST be HSL.
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Sidebar */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 40%;
-    --sidebar-primary: 211 100% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 15%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 211 100% 50%;
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 64%;
+    --sidebar-primary: 73 100% 50%;
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-accent: 0 0% 14%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 73 100% 50%;
+
+    /* Sport-specific deep tints */
+    --sport-football: 120 33% 8%;    /* #0A1F0A */
+    --sport-basketball: 30 100% 6%;  /* #1F1200 */
+    --sport-volleyball: 252 50% 8%;  /* #0D0A1F */
+    --sport-running: 20 100% 6%;     /* #1F0A00 */
   }
 
+  /* Dark class mirrors root — dark-first system */
   .dark {
-    /* Background & Foreground */
-    --background: 0 0% 10%;
-    --foreground: 0 0% 98%;
-
-    /* Text Color Scale (Dark Mode) */
-    --text-primary: 0 0% 98%;
-    --text-secondary: 0 0% 85%;
-    --text-muted: 0 0% 65%;
-    --text-hint: 0 0% 50%;
-    --text-link: 217 91% 65%;
-
-    /* Card */
-    --card: 0 0% 12%;
-    --card-foreground: 0 0% 98%;
-
-    /* Popover */
-    --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 98%;
-
-    /* Primary - Electric Blue (Dark Mode) */
-    --primary: 211 100% 60%;
-    --primary-light: 211 100% 70%;
-    --primary-dark: 211 100% 50%;
-    --primary-foreground: 0 0% 100%;
-
-    /* Muted Accent */
-    --accent: 0 0% 20%;
-    --accent-foreground: 0 0% 98%;
-
-    /* Muted */
-    --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 65%;
-
-    /* Destructive - Red (Dark Mode) */
-    --destructive: 4 90% 65%;
+    --background: 0 0% 6%;
+    --foreground: 0 0% 100%;
+    --text-primary: 0 0% 100%;
+    --text-secondary: 0 0% 83%;
+    --text-muted: 0 0% 64%;
+    --text-hint: 0 0% 32%;
+    --text-link: 73 100% 50%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 14%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 73 100% 50%;
+    --primary-light: 73 100% 55%;
+    --primary-dark: 73 100% 40%;
+    --primary-foreground: 0 0% 4%;
+    --primary-subtle: 73 100% 7%;
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 100%;
+    --muted: 0 0% 14%;
+    --muted-foreground: 0 0% 64%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-
-    /* Success - Green (Dark Mode) */
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
-
-    /* Warning - Amber (Dark Mode) */
-    --warning: 45 100% 60%;
-    --warning-foreground: 0 0% 10%;
-
-    /* Info - Blue (Dark Mode) */
-    --info: 207 90% 60%;
-    --info-foreground: 0 0% 100%;
-
-    /* Match - Gold/Amber (Dark Mode) */
-    --match: 40 91% 60%;
-    --match-foreground: 0 0% 10%;
-
-    /* Border & Input */
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 211 95% 60%;
-
-    /* Neutrals Scale (Dark Mode) */
-    --neutral-50: 0 0% 15%;
-    --neutral-100: 0 0% 18%;
-    --neutral-200: 0 0% 22%;
-    --neutral-300: 0 0% 28%;
-    --neutral-400: 0 0% 40%;
-    --neutral-500: 0 0% 50%;
+    --warning: 45 100% 50%;
+    --warning-foreground: 0 0% 6%;
+    --info: 73 100% 50%;
+    --info-foreground: 0 0% 4%;
+    --match: 73 100% 50%;
+    --match-foreground: 0 0% 4%;
+    --border: 0 0% 16%;
+    --input: 0 0% 14%;
+    --ring: 73 100% 50%;
+    --neutral-50: 0 0% 10%;
+    --neutral-100: 0 0% 12%;
+    --neutral-200: 0 0% 16%;
+    --neutral-300: 0 0% 20%;
+    --neutral-400: 0 0% 32%;
+    --neutral-500: 0 0% 45%;
     --neutral-600: 0 0% 60%;
-    --neutral-700: 0 0% 70%;
+    --neutral-700: 0 0% 75%;
     --neutral-800: 0 0% 85%;
-    --neutral-900: 0 0% 98%;
-
-    /* Shadows (adjusted for dark mode) */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.3);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.4);
-    --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.6);
-    --shadow-colored: 0 8px 24px rgba(0, 128, 255, 0.25);
-    --shadow-colored-lg: 0 12px 32px rgba(0, 128, 255, 0.35);
-
-    /* Sidebar */
-    --sidebar-background: 0 0% 12%;
-    --sidebar-foreground: 0 0% 85%;
-    --sidebar-primary: 211 95% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 18%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 211 95% 60%;
+    --neutral-900: 0 0% 95%;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+    --shadow-md: 0 2px 4px -1px rgb(0 0 0 / 0.5);
+    --shadow-lg: 0 4px 8px -2px rgb(0 0 0 / 0.5);
+    --shadow-xl: 0 8px 16px -4px rgb(0 0 0 / 0.6);
+    --shadow-2xl: 0 16px 32px -8px rgb(0 0 0 / 0.7);
+    --shadow-colored: 0 4px 12px rgba(204, 255, 0, 0.15);
+    --shadow-colored-lg: 0 6px 16px rgba(204, 255, 0, 0.25);
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 64%;
+    --sidebar-primary: 73 100% 50%;
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-accent: 0 0% 14%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 73 100% 50%;
+    --sport-football: 120 33% 8%;
+    --sport-basketball: 30 100% 6%;
+    --sport-volleyball: 252 50% 8%;
+    --sport-running: 20 100% 6%;
   }
 }
 
@@ -261,11 +243,11 @@ All colors MUST be HSL.
 
   /* Interactive Utilities */
   .hover-scale {
-    @apply transition-transform duration-200 hover:scale-105;
+    @apply transition-transform duration-200 hover:scale-105 active:scale-95;
   }
 
   .hover-lift {
-    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+    @apply transition-all duration-300 ease-out hover:-translate-y-1;
   }
 
   .press-scale {
@@ -277,13 +259,13 @@ All colors MUST be HSL.
     @apply text-primary font-bold;
   }
 
-  /* Shadow Utilities */
+  /* Shadow Utilities — lime-tinted for FORCE */
   .shadow-colored {
-    box-shadow: 0 8px 24px rgba(0, 128, 255, 0.20);
+    box-shadow: 0 4px 12px rgba(204, 255, 0, 0.15);
   }
 
   .shadow-colored-lg {
-    box-shadow: 0 12px 32px rgba(0, 128, 255, 0.30);
+    box-shadow: 0 8px 24px rgba(204, 255, 0, 0.25);
   }
 
   /* Smooth Transitions */
@@ -294,18 +276,6 @@ All colors MUST be HSL.
   /* Animation Utilities */
   .story-link {
     @apply relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
-  }
-
-  .hover-lift {
-    @apply transition-all duration-300 ease-out hover:-translate-y-1;
-  }
-
-  .hover-scale {
-    @apply transition-transform duration-200 ease-out hover:scale-105 active:scale-95;
-  }
-
-  .press-scale {
-    @apply transition-transform duration-100 ease-out active:scale-95;
   }
 
   /* Text wrapping utilities */
@@ -404,12 +374,12 @@ All colors MUST be HSL.
     background-color: hsl(var(--primary));
   }
 
-  /* Sport accent utility classes */
-  .sport-accent-football { border-left-color: hsl(142 71% 45%); }
-  .sport-accent-basketball { border-left-color: hsl(25 95% 53%); }
-  .sport-accent-volleyball { border-left-color: hsl(48 96% 53%); }
-  .sport-accent-tennis { border-left-color: hsl(142 71% 45%); }
-  .sport-accent-badminton { border-left-color: hsl(207 90% 54%); }
+  /* Sport accent utility classes — deep tints for FORCE */
+  .sport-accent-football { border-left-color: hsl(var(--sport-football)); background-color: hsl(var(--sport-football)); }
+  .sport-accent-basketball { border-left-color: hsl(var(--sport-basketball)); background-color: hsl(var(--sport-basketball)); }
+  .sport-accent-volleyball { border-left-color: hsl(var(--sport-volleyball)); background-color: hsl(var(--sport-volleyball)); }
+  .sport-accent-tennis { border-left-color: hsl(73 100% 50% / 0.15); }
+  .sport-accent-badminton { border-left-color: hsl(73 100% 50% / 0.15); }
 
   /* Compact mobile typography overrides for extra-small screens */
   @media (max-width: 374px) {
