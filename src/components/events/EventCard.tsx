@@ -131,6 +131,9 @@ export const EventCard = memo(({
         className={cn(
           "border-l-[5px] overflow-hidden transition-all active:scale-[0.98]",
           accentClass,
+          event.type === 'training' && "bg-info/[0.04]",
+          event.type === 'match' && "bg-warning/[0.04]",
+          event.type === 'meetup' && "bg-success/[0.04]",
           isPast && "opacity-60"
         )}
       >
@@ -151,7 +154,7 @@ export const EventCard = memo(({
               <div className="flex items-start gap-2">
                 <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
                   <h3 className={cn(
-                    "text-base font-semibold leading-tight",
+                    "text-[17px] font-semibold leading-tight",
                     isPast && "text-muted-foreground"
                   )}>
                     {event.title}

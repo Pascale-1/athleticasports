@@ -224,34 +224,83 @@ const Events = () => {
           variant="info"
         />
 
-        {/* Modern Tab Bar with Icons - Compact */}
-        <div className="flex gap-0.5 p-0.5 bg-muted/50 rounded-lg overflow-x-auto scrollbar-hide">
-          {TAB_CONFIG.map(({ key, icon: Icon, labelKey }) => {
-            const isActive = activeTab === key;
-            const count = key === 'my' ? attendingEvents.length : key === 'organized' ? createdEvents.length : discoverEvents.length;
-            
-            return (
+        {/* Row 1: Underline tabs + view/search icons */}
+        <div className="flex items-center h-12 border-b border-border">
+          <div className="flex-1 flex">
+            {TAB_CONFIG.map(({ key, labelKey }) => (
               <button
                 key={key}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-1 h-8 px-2 rounded-md text-[11px] font-medium transition-all whitespace-nowrap active:scale-[0.97]",
-                  isActive 
-                    ? "bg-background text-foreground shadow-sm" 
-                    : "text-muted-foreground hover:text-foreground"
+                  "flex-1 h-12 text-sm font-medium transition-colors relative",
+                  activeTab === key ? "text-primary" : "text-muted-foreground"
                 )}
                 onClick={() => handleTabChange(key as any)}
               >
-                <Icon className={cn("h-3 w-3 shrink-0", isActive && "text-primary")} />
-                <span>{t(labelKey)}</span>
-                {count > 0 && (
-                  <Badge variant={isActive ? "default" : "secondary"} size="xs">
-                    {count}
-                  </Badge>
+                {t(labelKey)}
+                {activeTab === key && (
+                  <span className="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-primary rounded-full" />
                 )}
               </button>
-            );
-          })}
+            ))}
+          </div>
+          <div className="flex items-center gap-1 shrink-0 pr-1">
+            {activeTab === 'my' && (
+              <>
+                <Button size="icon" variant={viewMode === 'list' ? "default" : "ghost"} className="h-8 w-8" onClick={() => setViewMode('list')}>
+                  <List className="h-4 w-4" />
+                </Button>
+                <Button size="icon" variant={viewMode === 'calendar' ? "default" : "ghost"} className="h-8 w-8" onClick={() => setViewMode('calendar')}>
+                  <CalendarIcon className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+            <Button size="icon" variant={showSearch ? "default" : "ghost"} className="h-8 w-8" onClick={() => setShowSearch(!showSearch)}>
+              <Search className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
+
+        {/* Row 2: Sport filter chips (shared across all tabs) */}
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1">
+          <Button
+            size="sm"
+            variant="ghost"
+            className={cn("h-8 px-3 text-xs rounded-full shrink-0",
+              activeEventType === 'all' ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-card border text-foreground"
+            )}
+            onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
+          >
+            {t('types.all')}
+          </Button>
+          {EVENT_TYPE_LEGEND.map(({ type, labelKey, icon: Icon }) => (
+            <Button
+              key={type}
+              size="sm"
+              variant="ghost"
+              className={cn("h-8 px-3 text-xs rounded-full shrink-0 gap-1.5",
+                activeEventType === type ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-card border text-foreground"
+              )}
+              onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {t(labelKey)}
+            </Button>
+          ))}
+        </div>
+
+        {/* Collapsible Search */}
+        {showSearch && (
+          <div className="relative animate-fade-in">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t('search.placeholder')}
+              value={filters.searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-9"
+              autoFocus
+            />
+          </div>
+        )}
 
         {activeTab === 'discover' ? (
           // Discover Tab
@@ -281,31 +330,6 @@ const Events = () => {
         ) : activeTab === 'organized' ? (
           // Organized Events Tab
           <div className="space-y-3">
-            {/* Compact Type Filter */}
-            <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-hide pb-1">
-              <Button 
-                size="sm" 
-                variant={activeEventType === 'all' ? "default" : "outline"}
-                className="h-7 px-2 text-[11px] shrink-0"
-                onClick={() => setActiveEventType('all')}
-              >
-                {t('types.all')}
-              </Button>
-              
-              {EVENT_TYPE_LEGEND.map(({ type, labelKey, icon: Icon, color }) => (
-                <Button 
-                  key={type}
-                  size="sm" 
-                  variant={activeEventType === type ? "default" : "outline"}
-                  className="h-7 px-2 text-[11px] gap-0.5 shrink-0"
-                  onClick={() => setActiveEventType(type as any)}
-                >
-                  <Icon className={cn("h-3 w-3", activeEventType !== type && color)} />
-                  <span>{t(labelKey)}</span>
-                </Button>
-              ))}
-            </div>
-
             {createdEventsLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
@@ -337,81 +361,6 @@ const Events = () => {
         ) : (
           // My Events Tab
           <>
-            {/* Unified Controls Row */}
-            <div className="space-y-2">
-            {/* Filter Bar */}
-              <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-hide">
-                {/* Type Filters */}
-                <Button 
-                  size="sm" 
-                  variant={activeEventType === 'all' ? "default" : "outline"}
-                  className="h-7 px-2 text-[11px] shrink-0"
-                  onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
-                >
-                  {t('types.all')}
-                </Button>
-                
-                {EVENT_TYPE_LEGEND.map(({ type, labelKey, icon: Icon, color }) => (
-                  <Button 
-                    key={type}
-                    size="sm" 
-                    variant={activeEventType === type ? "default" : "outline"}
-                    className="h-7 px-2 text-[11px] gap-0.5 shrink-0"
-                    onClick={() => { setActiveEventType(type as any); setTypeFilter(type as any); }}
-                  >
-                    <Icon className={cn("h-3 w-3", activeEventType !== type && color)} />
-                    <span>{t(labelKey)}</span>
-                  </Button>
-                ))}
-
-                <div className="flex-1" />
-
-                {/* View Toggle */}
-                <div className="flex gap-0.5 shrink-0">
-                  <Button 
-                    size="sm" 
-                    variant={viewMode === 'list' ? "default" : "ghost"}
-                    className="h-7 w-7 p-0"
-                    onClick={() => setViewMode('list')}
-                  >
-                    <List className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant={viewMode === 'calendar' ? "default" : "ghost"}
-                    className="h-7 w-7 p-0"
-                    onClick={() => setViewMode('calendar')}
-                  >
-                    <CalendarIcon className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-                
-                {/* Search Toggle */}
-                <Button
-                  size="sm"
-                  variant={showSearch ? "default" : "ghost"}
-                  className="h-7 w-7 p-0 shrink-0"
-                  onClick={() => setShowSearch(!showSearch)}
-                >
-                  <Search className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-
-              {/* Collapsible Search */}
-              {showSearch && (
-                <div className="relative animate-fade-in">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    placeholder={t('search.placeholder')} 
-                    value={filters.searchQuery} 
-                    onChange={(e) => setSearchQuery(e.target.value)} 
-                    className="pl-9 h-9" 
-                    autoFocus
-                  />
-                </div>
-              )}
-            </div>
-
             {/* Content */}
             {attendingLoading ? (
               <div className="space-y-3">
