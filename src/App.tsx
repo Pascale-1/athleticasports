@@ -11,6 +11,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { InstallPrompt } from "./components/InstallPrompt";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import { ThemeProvider } from "next-themes";
 import { Loader2 } from "lucide-react";
 
 // Lazy load all route components for code splitting
@@ -221,18 +222,20 @@ const App = () => {
 
   return (
   <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <NotificationProvider>
-          <Toaster />
-          <Sonner />
-          <InstallPrompt />
-          <Router>
-            <AppRoutes />
-          </Router>
-        </NotificationProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <NotificationProvider>
+            <Toaster />
+            <Sonner />
+            <InstallPrompt />
+            <Router>
+              <AppRoutes />
+            </Router>
+          </NotificationProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   </ErrorBoundary>
   );
 };
