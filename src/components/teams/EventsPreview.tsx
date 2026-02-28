@@ -8,6 +8,7 @@ import { useEventAttendance } from "@/hooks/useEventAttendance";
 import { formatEventDate } from "@/lib/events";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { getEventTypeKey, EventType } from "@/lib/eventConfig";
 
 interface EventsPreviewProps {
   events: Event[];
@@ -72,7 +73,7 @@ const EventPreviewCard = ({ event, canRSVP }: { event: Event; canRSVP: boolean }
       case 'training':
         return 'bg-primary/10 text-primary border-primary/20';
       case 'match':
-        return 'bg-accent/10 text-accent border-accent/20';
+        return 'bg-primary/10 text-primary border-primary/20';
       case 'meetup':
         return 'bg-success/10 text-success border-success/20';
       default:
@@ -86,10 +87,10 @@ const EventPreviewCard = ({ event, canRSVP }: { event: Event; canRSVP: boolean }
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="outline" className={cn("text-[10px]", getEventTypeColor(event.type))}>
-              {t(`types.${event.type}`)}
+              {t(`types.${getEventTypeKey(event.type as EventType)}`)}
             </Badge>
             {event.is_recurring && (
-              <Flame className="h-3 w-3 text-warning" />
+              <Flame className="h-3 w-3 text-primary" />
             )}
           </div>
           <Link to={`/events/${event.id}`}>

@@ -20,8 +20,8 @@ const eventTypeIcon = (type: string) => {
 
 const eventTypeColor = (type: string) => {
   switch (type) {
-    case 'match': return 'bg-warning/10 text-warning';
-    case 'training': return 'bg-info/10 text-info';
+    case 'match': return 'bg-primary/10 text-primary';
+    case 'training': return 'bg-primary/10 text-primary';
     case 'meetup': return 'bg-success/10 text-success';
     default: return 'bg-primary/10 text-primary';
   }

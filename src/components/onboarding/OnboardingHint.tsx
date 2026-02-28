@@ -20,13 +20,13 @@ interface OnboardingHintProps {
 const variantStyles = {
   info: 'border-primary/30 bg-primary/5',
   success: 'border-success/30 bg-success/5',
-  tip: 'border-warning/30 bg-warning/5',
+  tip: 'border-primary/30 bg-primary/5',
 };
 
 const iconVariantStyles = {
   info: 'text-primary',
   success: 'text-success',
-  tip: 'text-warning',
+  tip: 'text-primary',
 };
 
 export const OnboardingHint = ({

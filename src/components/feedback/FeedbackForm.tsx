@@ -32,7 +32,7 @@ interface FeedbackFormProps {
 
 const categories = [
   { value: 'bug', icon: Bug, color: 'text-destructive' },
-  { value: 'suggestion', icon: Lightbulb, color: 'text-warning' },
+  { value: 'suggestion', icon: Lightbulb, color: 'text-primary' },
   { value: 'question', icon: HelpCircle, color: 'text-primary' },
   { value: 'praise', icon: Star, color: 'text-success' },
 ] as const;

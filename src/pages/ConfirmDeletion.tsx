@@ -129,10 +129,10 @@ export default function ConfirmDeletion() {
         {status === "expired" && (
           <>
             <CardHeader className="text-center">
-              <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-warning/10 flex items-center justify-center">
-                <AlertTriangle className="h-8 w-8 text-warning" />
+              <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center">
+                <AlertTriangle className="h-8 w-8 text-destructive" />
               </div>
-              <CardTitle className="text-warning">
+              <CardTitle className="text-destructive">
                 {t("accountDeletion.expiredTitle")}
               </CardTitle>
               <CardDescription>

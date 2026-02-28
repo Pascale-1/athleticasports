@@ -25,7 +25,7 @@ const statusConfig: Record<StatusType, {
   maybe: {
     icon: HelpCircle,
     labelKey: "status.maybe",
-    className: "bg-warning/10 text-warning border-warning/20",
+    className: "bg-primary/10 text-primary border-primary/20",
   },
   declined: {
     icon: X,
@@ -35,7 +35,7 @@ const statusConfig: Record<StatusType, {
   pending: {
     icon: Clock,
     labelKey: "status.pending",
-    className: "bg-info/10 text-info border-info/20",
+    className: "bg-primary/10 text-primary border-primary/20",
   },
   full: {
     icon: Users,
@@ -70,11 +70,11 @@ export const StatusPill = ({
 
     const dotColorClasses: Record<StatusType, string> = {
       going: "bg-success",
-      maybe: "bg-warning",
+      maybe: "bg-primary",
       declined: "bg-muted-foreground",
       full: "bg-destructive",
       available: "bg-primary",
-      pending: "bg-warning",
+      pending: "bg-primary",
     };
 
     return (

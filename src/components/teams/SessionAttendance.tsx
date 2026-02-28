@@ -66,7 +66,7 @@ export const SessionAttendance = ({
             <Check className="h-3 w-3 mr-1" />
             {stats.attending} Attending
           </Badge>
-          <Badge variant="secondary" className="bg-warning hover:bg-warning/90 text-warning-foreground">
+          <Badge variant="secondary" className="bg-primary hover:bg-primary/90 text-primary-foreground">
             <HelpCircle className="h-3 w-3 mr-1" />
             {stats.maybe} Maybe
           </Badge>
@@ -99,7 +99,7 @@ export const SessionAttendance = ({
               size="sm"
               onClick={() => setAttendance("maybe")}
               className={cn(
-                userStatus === "maybe" && "bg-warning hover:bg-warning/90"
+                userStatus === "maybe" && "bg-primary hover:bg-primary/90"
               )}
             >
               <HelpCircle className="h-4 w-4 mr-1" />
@@ -162,7 +162,7 @@ export const SessionAttendance = ({
             >
               <CollapsibleTrigger className="flex items-center justify-between w-full p-2 rounded-md hover:bg-muted">
                 <div className="flex items-center gap-2">
-                  <HelpCircle className="h-4 w-4 text-warning" />
+                  <HelpCircle className="h-4 w-4 text-primary" />
                   <span className="font-medium">Maybe ({stats.maybe})</span>
                 </div>
                 {expandedSection === "maybe" ? (

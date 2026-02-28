@@ -36,9 +36,9 @@ export const PerformanceLevelsTab = ({ teamId, members, canManage }: Performance
   });
 
   const statsCards = [
-    { label: "Débutante", level: 1, count: stats.level1, icon: Star, color: "text-warning" },
+    { label: "Débutante", level: 1, count: stats.level1, icon: Star, color: "text-primary" },
     { label: "Intermédiaire", level: 2, count: stats.level2, icon: TrendingUp, color: "text-success" },
-    { label: "Avancée", level: 3, count: stats.level3, icon: Users, color: "text-info" },
+    { label: "Avancée", level: 3, count: stats.level3, icon: Users, color: "text-primary" },
     { label: "Experte", level: 4, count: stats.level4, icon: Target, color: "text-muted-foreground" },
   ];
 

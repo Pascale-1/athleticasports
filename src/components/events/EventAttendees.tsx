@@ -53,7 +53,7 @@ const AttendeeRow = ({
         )}
       </span>
       {attendee.is_committed && (
-        <Badge variant="secondary" className="text-xs bg-warning/20 text-warning-foreground">
+        <Badge variant="secondary" className="text-xs bg-primary/20 text-primary">
           ⭐ {committedLabel}
         </Badge>
       )}
@@ -82,8 +82,8 @@ const StatusSection = ({
     maybe: {
       label: labels.maybe,
       icon: HelpCircle,
-      color: "text-warning",
-      bgColor: "bg-warning/10",
+      color: "text-primary",
+      bgColor: "bg-primary/10",
     },
     not_attending: {
       label: labels.cantGo,
@@ -172,7 +172,7 @@ export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps
         </div>
         {grouped.maybe.length > 0 && (
           <div className="flex items-center gap-1.5">
-            <HelpCircle className="h-4 w-4 text-warning" />
+            <HelpCircle className="h-4 w-4 text-primary" />
             <span className="text-sm text-muted-foreground">{grouped.maybe.length} {labels.maybe.toLowerCase()}</span>
           </div>
         )}

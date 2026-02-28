@@ -23,13 +23,13 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 const colorMap: Record<string, string> = {
-  team_invitation: "bg-info/10 text-info",
+  team_invitation: "bg-primary/10 text-primary",
   new_follower: "bg-success/10 text-success",
-  team_announcement: "bg-warning/10 text-warning",
+  team_announcement: "bg-primary/10 text-primary",
   training_session: "bg-primary/10 text-primary",
-  event_join_request: "bg-info/10 text-info",
+  event_join_request: "bg-primary/10 text-primary",
   event_join_response: "bg-success/10 text-success",
-  match_proposal: "bg-warning/10 text-warning",
+  match_proposal: "bg-primary/10 text-primary",
   player_available: "bg-primary/10 text-primary",
   event_attendance: "bg-success/10 text-success",
 };

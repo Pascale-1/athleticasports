@@ -181,7 +181,7 @@ const AcceptInvitation = () => {
               )}
               
               {errorDetails.errorType === 'wrong_email' && (
-                <Alert className="mb-4 border-warning">
+                <Alert className="mb-4 border-destructive">
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Email Mismatch</AlertTitle>
                   <AlertDescription className="text-xs">

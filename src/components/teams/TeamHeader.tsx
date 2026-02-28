@@ -15,7 +15,7 @@ interface TeamHeaderProps {
 }
 
 const roleColors: Record<string, string> = {
-  owner: "bg-warning/20 text-warning border-warning/30",
+  owner: "bg-primary/20 text-primary border-primary/30",
   admin: "bg-primary/10 text-primary border-primary/20",
   coach: "bg-success/20 text-success border-success/30",
   member: "bg-muted text-muted-foreground border-border",
