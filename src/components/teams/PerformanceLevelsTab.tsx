@@ -36,10 +36,10 @@ export const PerformanceLevelsTab = ({ teamId, members, canManage }: Performance
   });
 
   const statsCards = [
-    { label: "Elite", level: 1, count: stats.level1, icon: Star, color: "text-warning" },
-    { label: "Advanced", level: 2, count: stats.level2, icon: TrendingUp, color: "text-success" },
-    { label: "Intermediate", level: 3, count: stats.level3, icon: Users, color: "text-info" },
-    { label: "Beginner", level: 4, count: stats.level4, icon: Target, color: "text-muted-foreground" },
+    { label: "Débutante", level: 1, count: stats.level1, icon: Star, color: "text-warning" },
+    { label: "Intermédiaire", level: 2, count: stats.level2, icon: TrendingUp, color: "text-success" },
+    { label: "Avancée", level: 3, count: stats.level3, icon: Users, color: "text-info" },
+    { label: "Experte", level: 4, count: stats.level4, icon: Target, color: "text-muted-foreground" },
   ];
 
   return (
@@ -89,12 +89,12 @@ export const PerformanceLevelsTab = ({ teamId, members, canManage }: Performance
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Levels</SelectItem>
-                <SelectItem value="1">Level 1</SelectItem>
-                <SelectItem value="2">Level 2</SelectItem>
-                <SelectItem value="3">Level 3</SelectItem>
-                <SelectItem value="4">Level 4</SelectItem>
-                <SelectItem value="unassigned">Unassigned</SelectItem>
+                <SelectItem value="all">Tous les niveaux</SelectItem>
+                <SelectItem value="1">Débutante</SelectItem>
+                <SelectItem value="2">Intermédiaire</SelectItem>
+                <SelectItem value="3">Avancée</SelectItem>
+                <SelectItem value="4">Experte</SelectItem>
+                <SelectItem value="unassigned">Non assigné</SelectItem>
               </SelectContent>
             </Select>
           </div>

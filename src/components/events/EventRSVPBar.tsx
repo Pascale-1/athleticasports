@@ -57,9 +57,6 @@ export const EventRSVPBar = ({
             <CheckCircle2 className="h-4 w-4 text-amber-600" />
             <span className="text-sm font-medium text-amber-600">{t('rsvp.committedToMatch')}</span>
           </div>
-          <p className="text-xs text-center text-muted-foreground mt-2">
-            {t('rsvp.stats', { going: stats.attending, maybe: stats.maybe })}
-          </p>
         </div>
       </div>
     );
@@ -73,9 +70,6 @@ export const EventRSVPBar = ({
             <Lock className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium text-muted-foreground">{t('rsvp.closed')}</span>
           </div>
-          <p className="text-xs text-center text-muted-foreground mt-2">
-            {t('rsvp.stats', { going: stats.attending, maybe: stats.maybe })}
-          </p>
         </div>
       </div>
     );
@@ -83,18 +77,7 @@ export const EventRSVPBar = ({
 
   return (
     <div className="fixed bottom-16 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t p-3 lg:bottom-0 lg:relative lg:border lg:rounded-lg lg:bg-card">
-      <div className="max-w-lg mx-auto space-y-2">
-        {userStatus && !isCommitted && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onRemoveAttendance}
-            className="w-full text-sm font-semibold text-primary hover:text-primary/80 min-h-[44px] flex items-center justify-center"
-          >
-            {t('rsvp.cancelAttendance')}
-          </Button>
-        )}
-
+      <div className="max-w-lg mx-auto">
         <div className="flex gap-2">
           <Button
             variant={userStatus === 'attending' ? "default" : "outline"}
@@ -136,10 +119,6 @@ export const EventRSVPBar = ({
             {t('rsvp.notGoing')}
           </Button>
         </div>
-        
-        <p className="text-xs text-center text-muted-foreground">
-          {t('rsvp.stats', { going: stats.attending, maybe: stats.maybe })}
-        </p>
       </div>
     </div>
   );
