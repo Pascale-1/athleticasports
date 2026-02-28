@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useTranslation } from "react-i18next";
+import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,8 @@ const Auth = () => {
   
   const [isSignUp, setIsSignUp] = useState(false);
   const [invitationId, setInvitationId] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(() => localStorage.getItem("athletica_remember") === "true");
   const returnUrl = searchParams.get("returnUrl");
 
   const emailSchema = z.object({
@@ -57,6 +60,14 @@ const Auth = () => {
     if (invitationIdParam) {
       setInvitationId(invitationIdParam);
       sessionStorage.setItem("pendingInvitationId", invitationIdParam);
+    }
+
+    // Prefill remembered credentials
+    if (localStorage.getItem("athletica_remember") === "true") {
+      const savedEmail = localStorage.getItem("athletica_email");
+      const savedPassword = localStorage.getItem("athletica_password");
+      if (savedEmail) emailForm.setValue("email", savedEmail);
+      if (savedPassword) emailForm.setValue("password", savedPassword);
     }
   }, [searchParams]);
 
@@ -152,6 +163,17 @@ const Auth = () => {
             throw new Error(t('confirmEmail'));
           }
           throw error;
+        }
+
+        // Persist or clear remembered credentials
+        if (rememberMe) {
+          localStorage.setItem("athletica_remember", "true");
+          localStorage.setItem("athletica_email", data.email);
+          localStorage.setItem("athletica_password", data.password);
+        } else {
+          localStorage.removeItem("athletica_remember");
+          localStorage.removeItem("athletica_email");
+          localStorage.removeItem("athletica_password");
         }
 
         toast({
@@ -267,18 +289,64 @@ const Auth = () => {
                   </button>
                 )}
               </div>
-              <Input
-                id="password"
-                type="password"
-                placeholder={t('passwordPlaceholder')}
-                {...emailForm.register("password")}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder={t('passwordPlaceholder')}
+                  className="pr-10"
+                  {...emailForm.register("password")}
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-0 bg-transparent border-none cursor-pointer"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-[#38BDF8]" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-[#64748B]" />
+                  )}
+                </button>
+              </div>
               {emailForm.formState.errors.password && (
                 <p className="text-sm text-destructive">
                   {emailForm.formState.errors.password.message}
                 </p>
               )}
             </div>
+
+            {!isSignUp && (
+              <label
+                className="flex items-center gap-3 py-3 cursor-pointer select-none"
+                htmlFor="rememberMe"
+              >
+                <span
+                  className={`flex items-center justify-center w-[18px] h-[18px] rounded-[6px] border-[1.5px] transition-all duration-150 ease-in-out ${
+                    rememberMe
+                      ? "bg-[#38BDF8] border-[#38BDF8]"
+                      : "bg-transparent border-[#334155]"
+                  }`}
+                >
+                  {rememberMe && (
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M2.5 6L5 8.5L9.5 3.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </span>
+                <input
+                  id="rememberMe"
+                  type="checkbox"
+                  className="sr-only"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                <span className="text-[14px] font-normal text-[#F1F5F9]">
+                  {t('rememberMe')}
+                </span>
+              </label>
+            )}
 
             {invitationId && (
               <p className="text-xs text-muted-foreground text-center">
