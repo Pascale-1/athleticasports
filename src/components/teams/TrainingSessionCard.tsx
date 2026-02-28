@@ -64,11 +64,11 @@ export const TrainingSessionCard = ({
             </div>
 
             <div className="flex gap-1 mt-2">
-              <Badge variant="secondary" className="text-xs bg-green-500 hover:bg-green-600 text-white">
+              <Badge variant="secondary" className="text-xs bg-success hover:bg-success/90 text-success-foreground">
                 <Check className="h-3 w-3 mr-1" />
                 {stats.attending}
               </Badge>
-              <Badge variant="secondary" className="text-xs bg-yellow-500 hover:bg-yellow-600 text-white">
+              <Badge variant="secondary" className="text-xs bg-warning hover:bg-warning/90 text-warning-foreground">
                 <HelpCircle className="h-3 w-3 mr-1" />
                 {stats.maybe}
               </Badge>

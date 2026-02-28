@@ -63,9 +63,9 @@ export const SwipeableEventCard = ({
     if (!userStatus) return null;
     
     const variants = {
-      attending: { label: t('rsvp.going'), className: 'bg-green-500/10 text-green-700 dark:text-green-400' },
-      maybe: { label: t('rsvp.maybe'), className: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400' },
-      not_attending: { label: t('rsvp.notGoing'), className: 'bg-red-500/10 text-red-700 dark:text-red-400' },
+      attending: { label: t('rsvp.going'), className: 'bg-success/10 text-success' },
+      maybe: { label: t('rsvp.maybe'), className: 'bg-warning/10 text-warning' },
+      not_attending: { label: t('rsvp.notGoing'), className: 'bg-destructive/10 text-destructive' },
     };
 
     const { label, className } = variants[userStatus];

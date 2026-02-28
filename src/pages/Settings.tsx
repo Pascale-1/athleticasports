@@ -223,7 +223,7 @@ const Settings = () => {
 
   return (
     <PageContainer>
-      <div className="max-w-2xl mx-auto space-y-4">
+      <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <PageHeader
           title={t("profile.title")}

@@ -192,7 +192,7 @@ const Index = () => {
     <PageContainer bottomPadding={false}>
       <PullToRefresh onRefresh={handleRefresh}>
         <motion.div 
-          className="space-y-4 pb-24"
+          className="space-y-6 pb-24"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}

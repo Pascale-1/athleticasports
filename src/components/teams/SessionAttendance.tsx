@@ -62,11 +62,11 @@ export const SessionAttendance = ({
       <CardContent className="space-y-4">
         {/* Quick Stats */}
         <div className="flex flex-wrap gap-2">
-          <Badge variant="default" className="bg-green-500 hover:bg-green-600">
+          <Badge variant="default" className="bg-success hover:bg-success/90">
             <Check className="h-3 w-3 mr-1" />
             {stats.attending} Attending
           </Badge>
-          <Badge variant="secondary" className="bg-yellow-500 hover:bg-yellow-600 text-white">
+          <Badge variant="secondary" className="bg-warning hover:bg-warning/90 text-warning-foreground">
             <HelpCircle className="h-3 w-3 mr-1" />
             {stats.maybe} Maybe
           </Badge>
@@ -88,7 +88,7 @@ export const SessionAttendance = ({
               size="sm"
               onClick={() => setAttendance("attending")}
               className={cn(
-                userStatus === "attending" && "bg-green-500 hover:bg-green-600"
+                userStatus === "attending" && "bg-success hover:bg-success/90"
               )}
             >
               <Check className="h-4 w-4 mr-1" />
@@ -99,7 +99,7 @@ export const SessionAttendance = ({
               size="sm"
               onClick={() => setAttendance("maybe")}
               className={cn(
-                userStatus === "maybe" && "bg-yellow-500 hover:bg-yellow-600"
+                userStatus === "maybe" && "bg-warning hover:bg-warning/90"
               )}
             >
               <HelpCircle className="h-4 w-4 mr-1" />
@@ -126,7 +126,7 @@ export const SessionAttendance = ({
             >
               <CollapsibleTrigger className="flex items-center justify-between w-full p-2 rounded-md hover:bg-muted">
                 <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500" />
+                  <Check className="h-4 w-4 text-success" />
                   <span className="font-medium">Attending ({stats.attending})</span>
                 </div>
                 {expandedSection === "attending" ? (
@@ -162,7 +162,7 @@ export const SessionAttendance = ({
             >
               <CollapsibleTrigger className="flex items-center justify-between w-full p-2 rounded-md hover:bg-muted">
                 <div className="flex items-center gap-2">
-                  <HelpCircle className="h-4 w-4 text-yellow-500" />
+                  <HelpCircle className="h-4 w-4 text-warning" />
                   <span className="font-medium">Maybe ({stats.maybe})</span>
                 </div>
                 {expandedSection === "maybe" ? (
