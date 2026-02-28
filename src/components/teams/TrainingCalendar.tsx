@@ -4,9 +4,11 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrainingSessionCard } from "./TrainingSessionCard";
 import { CreateSessionDialog } from "./CreateSessionDialog";
-import { Plus } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
+import { Plus, Dumbbell } from "lucide-react";
 import { Event } from "@/lib/events";
-import { isSameDay } from "date-fns";
+import { isSameDay, isBefore } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface TrainingCalendarProps {
   sessions: Event[];
@@ -33,12 +35,24 @@ export const TrainingCalendar = ({
 }: TrainingCalendarProps) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<'upcoming' | 'past'>('upcoming');
 
-  const sessionsOnSelectedDate = sessions.filter((session) =>
+  const now = new Date();
+
+  // Filter sessions by upcoming/past
+  const filteredSessions = sessions.filter((session) => {
+    const sessionDate = new Date(session.start_time);
+    if (activeFilter === 'upcoming') {
+      return !isBefore(sessionDate, now);
+    }
+    return isBefore(sessionDate, now);
+  });
+
+  const sessionsOnSelectedDate = filteredSessions.filter((session) =>
     isSameDay(new Date(session.start_time), selectedDate)
   );
 
-  const datesWithSessions = sessions.map((session) => new Date(session.start_time));
+  const datesWithSessions = filteredSessions.map((session) => new Date(session.start_time));
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -50,6 +64,32 @@ export const TrainingCalendar = ({
             New Session
           </Button>
         )}
+      </div>
+
+      {/* Segmented Toggle: À venir | Passés */}
+      <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-xl sticky top-0 z-10">
+        <button
+          className={cn(
+            "flex-1 h-9 rounded-lg text-xs font-medium transition-all active:scale-[0.98]",
+            activeFilter === 'upcoming'
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+          onClick={() => setActiveFilter('upcoming')}
+        >
+          À venir
+        </button>
+        <button
+          className={cn(
+            "flex-1 h-9 rounded-lg text-xs font-medium transition-all active:scale-[0.98]",
+            activeFilter === 'past'
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+          onClick={() => setActiveFilter('past')}
+        >
+          Passés
+        </button>
       </div>
 
       <div className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-[300px_1fr] lg:gap-6">
@@ -92,25 +132,30 @@ export const TrainingCalendar = ({
           <CardContent>
             {sessionsOnSelectedDate.length > 0 ? (
               <div className="space-y-3">
-                {sessionsOnSelectedDate.map((session) => (
-                  <TrainingSessionCard
-                    key={session.id}
-                    session={session}
-                    canEdit={canManage || currentUserId === session.created_by}
-                    canManage={canManage}
-                    totalMembers={totalMembers}
-                    currentUserId={currentUserId || undefined}
-                    onUpdate={(data) => onUpdateSession(session.id, data)}
-                    onDelete={() => onDeleteSession(session.id)}
-                  />
-                ))}
+                {sessionsOnSelectedDate.map((session) => {
+                  const sessionIsPast = isBefore(new Date(session.start_time), now);
+                  return (
+                    <TrainingSessionCard
+                      key={session.id}
+                      session={session}
+                      canEdit={canManage || currentUserId === session.created_by}
+                      canManage={canManage}
+                      totalMembers={totalMembers}
+                      currentUserId={currentUserId || undefined}
+                      isPast={sessionIsPast}
+                      onUpdate={(data) => onUpdateSession(session.id, data)}
+                      onDelete={() => onDeleteSession(session.id)}
+                    />
+                  );
+                })}
               </div>
             ) : (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground body-default mb-4">
-                  No training sessions scheduled for this day
-                </p>
-                {canCreateSession && (
+              <EmptyState
+                icon={Dumbbell}
+                title="No sessions"
+                description="No training sessions scheduled for this day"
+                emoji="🏋️"
+                action={canCreateSession ? (
                   <Button 
                     variant="outline" 
                     size="sm"
@@ -119,8 +164,8 @@ export const TrainingCalendar = ({
                     <Plus className="h-4 w-4 mr-2" />
                     Create Session
                   </Button>
-                )}
-              </div>
+                ) : undefined}
+              />
             )}
           </CardContent>
         </Card>

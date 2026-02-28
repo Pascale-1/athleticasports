@@ -8,6 +8,7 @@ import { TrainingSession } from "@/hooks/useTrainingSessions";
 import { TrainingSessionDetail } from "./TrainingSessionDetail";
 import { format } from "date-fns";
 import { useSessionAttendance } from "@/hooks/useSessionAttendance";
+import { cn } from "@/lib/utils";
 
 interface TrainingSessionCardProps {
   session: TrainingSession;
@@ -15,6 +16,7 @@ interface TrainingSessionCardProps {
   canManage: boolean;
   totalMembers: number;
   currentUserId?: string;
+  isPast?: boolean;
   onUpdate: (data: Partial<TrainingSession>) => void;
   onDelete: () => void;
 }
@@ -25,6 +27,7 @@ export const TrainingSessionCard = ({
   canManage,
   totalMembers,
   currentUserId,
+  isPast = false,
   onDelete,
 }: TrainingSessionCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,11 +37,18 @@ export const TrainingSessionCard = ({
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <Card className="p-3 sm:p-4">
+      <Card className={cn("p-3 sm:p-4", isPast && "opacity-50")}>
         <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
           <div className="flex-1 space-y-2 w-full min-w-0">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-              <h4 className="font-semibold text-sm sm:text-base truncate">{session.title}</h4>
+              <div className="flex items-center gap-2">
+                <h4 className="font-semibold text-sm sm:text-base truncate">{session.title}</h4>
+                {isPast && (
+                  <Badge variant="secondary" className="text-[10px] bg-muted text-muted-foreground">
+                    Terminé
+                  </Badge>
+                )}
+              </div>
               <Badge variant="outline" className="text-xs flex-shrink-0">
                 {format(startTime, "HH:mm")} - {format(endTime, "HH:mm")}
               </Badge>
