@@ -32,13 +32,20 @@ import { Event, isPastEvent } from "@/lib/events";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { getSportEmoji } from "@/lib/sports";
-import { format } from "date-fns";
+import { format, isWithinInterval } from "date-fns";
 import { getLocale } from "@/lib/dateUtils";
+import { getEventTypeKey, EventType } from "@/lib/eventConfig";
 
 const TYPE_ACCENT: Record<string, string> = {
   match: 'border-l-primary',
   training: 'border-l-[#CBD5E1]',
   meetup: 'border-l-[#A78BFA]',
+};
+
+const TYPE_CHIP_STYLE: Record<string, { emoji: string; className: string }> = {
+  match: { emoji: '⚽', className: 'bg-[rgba(56,189,248,0.10)] text-primary' },
+  training: { emoji: '🏃', className: 'bg-[rgba(203,213,225,0.10)] text-[#CBD5E1]' },
+  meetup: { emoji: '🤝', className: 'bg-[rgba(167,139,250,0.10)] text-[#A78BFA]' },
 };
 
 interface EventCardProps {
@@ -81,8 +88,9 @@ export const EventCard = memo(({
   const isRecurringParent = event.is_recurring && !event.parent_event_id;
   const hasOrganizerActions = isOrganizerView && (onEdit || onDelete);
   const isPast = isPastEvent(event);
+  const isLive = isWithinInterval(new Date(), { start: new Date(event.start_time), end: new Date(event.end_time) });
 
-  const { statusChip, heroText, venueName, sportEmoji, timeStr } = useMemo(() => {
+  const { statusChip, heroText, venueName, sportEmoji, timeStr, typeChip } = useMemo(() => {
     const startTime = new Date(event.start_time);
     const minutes = startTime.getMinutes();
     const time = startTime.toLocaleTimeString(lang, { 
@@ -95,14 +103,21 @@ export const EventCard = memo(({
       ? fullLocation.split(',').pop()?.trim() 
       : fullLocation;
 
-    // Status chip logic
+    // Status chip logic per spec
     let chip: { emoji: string; label: string; className: string };
-    if (isPast) {
-      chip = { emoji: '✓', label: 'Final', className: 'bg-muted text-[hsl(215,20%,84%)]' };
+    if (isLive) {
+      chip = { emoji: '●', label: t('status.liveNow', 'Live'), className: 'bg-[rgba(22,163,74,0.12)] text-[#16A34A]' };
+    } else if (isPast) {
+      chip = { emoji: '✓', label: t('status.past', 'Done'), className: 'bg-popover text-muted-foreground' };
     } else {
       const dateStr = format(startTime, "MMM d", { locale });
-      chip = { emoji: '🔵', label: `${dateStr} · ${time}`, className: 'bg-primary/15 text-primary' };
+      chip = { emoji: '📅', label: `${dateStr}`, className: 'bg-transparent border border-muted text-muted-foreground' };
     }
+
+    // Type chip
+    const typeStyle = TYPE_CHIP_STYLE[event.type] || TYPE_CHIP_STYLE.match;
+    const typeLabel = t(`types.${getEventTypeKey(event.type as EventType)}`, event.type);
+    const tChip = { ...typeStyle, label: `${typeStyle.emoji} ${typeLabel}` };
 
     // Hero text: large date/time for upcoming, title for past
     const hero = isPast ? event.title : format(startTime, "EEEE d MMM", { locale });
@@ -113,8 +128,9 @@ export const EventCard = memo(({
       venueName: venue,
       sportEmoji: event.sport ? getSportEmoji(event.sport) : null,
       timeStr: time,
+      typeChip: tChip,
     };
-  }, [event.start_time, event.location, event.sport, event.title, lang, locale, isPast]);
+  }, [event.start_time, event.end_time, event.location, event.sport, event.title, event.type, lang, locale, isPast, isLive, t]);
 
   const [rsvpSheetOpen, setRsvpSheetOpen] = useState(false);
 
@@ -172,15 +188,15 @@ export const EventCard = memo(({
         >
           <CardContent className="p-0">
             <div className="py-3 px-3.5 flex flex-col gap-1.5">
-              {/* ROW 1: Status chip + organizer menu */}
+              {/* ROW 1: Type chip + Status chip + organizer menu */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
+                  {/* Type chip */}
                   <span className={cn(
-                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                    statusChip.className
+                    "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold",
+                    typeChip.className
                   )}>
-                    <span>{statusChip.emoji}</span>
-                    {statusChip.label}
+                    {typeChip.label}
                   </span>
                   {(isRecurringParent || isPartOfSeries) && (
                     <Repeat className="h-3 w-3 text-muted-foreground" />
@@ -190,6 +206,17 @@ export const EventCard = memo(({
                       ? <><Globe className="h-2.5 w-2.5" /></>
                       : <><Lock className="h-2.5 w-2.5" /></>
                     }
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {/* Status chip */}
+                  <span className={cn(
+                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                    statusChip.className,
+                    isLive && "animate-pulse"
+                  )}>
+                    <span>{statusChip.emoji}</span>
+                    {statusChip.label}
                   </span>
                 </div>
 
