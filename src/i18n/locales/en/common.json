@@ -54,7 +54,11 @@
     "invite": "Invite",
     "accept": "Accept",
     "decline": "Decline",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "post": "Post",
+    "goHome": "Go to Home",
+    "tryAgain": "Try Again",
+    "retrying": "Retrying..."
   },
   "time": {
     "today": "Today",
@@ -90,7 +94,10 @@
     "notFound": "Not found",
     "unauthorized": "Unauthorized",
     "networkError": "Connection error",
-    "tryAgain": "Please try again"
+    "tryAgain": "Please try again",
+    "somethingWrong": "Something went wrong",
+    "somethingWrongDesc": "We encountered an unexpected error. Please try again.",
+    "profileNotFound": "Profile not found"
   },
   "home": {
     "welcome": "Welcome back, {{name}}!",
@@ -142,7 +149,20 @@
     "cancelDescription": "Are you sure you want to cancel this invitation? This action cannot be undone.",
     "cancelButton": "Cancel Invitation",
     "invited": "Invited",
-    "resending": "Resending..."
+    "resending": "Resending...",
+    "acceptingInvitation": "Accepting invitation...",
+    "processingInvitation": "Processing your invitation...",
+    "invitationProblem": "There was a problem with your invitation",
+    "invitationExpired": "Invitation Expired",
+    "invitationExpiredDesc": "This invitation link is no longer valid. Please contact the team administrator to receive a new invitation.",
+    "emailMismatch": "Email Mismatch",
+    "invitedEmail": "Invited email:",
+    "yourEmail": "Your current email:",
+    "emailMismatchDesc": "To accept this invitation, you need to sign in with the email address that received it.",
+    "signInDifferent": "Sign in with Different Email",
+    "redirectingToTeam": "Redirecting to your team...",
+    "needHelp": "Need help with invitations?",
+    "loadingTeam": "Loading team information..."
   },
   "profile": {
     "title": "Profile",
@@ -280,5 +300,116 @@
     "title": "Next Event",
     "noEvents": "No upcoming events — find a game or create one!",
     "browseEvents": "Browse Events"
+  },
+  "install": {
+    "title": "Install Athletica",
+    "subtitle": "Get the full app experience",
+    "offline": "Works offline",
+    "faster": "Faster loading",
+    "homeScreen": "Add to home screen",
+    "button": "Install App"
+  },
+  "performance": {
+    "title": "Performance Levels",
+    "levels": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced",
+      "expert": "Expert"
+    },
+    "allLevels": "All Levels",
+    "unassigned": "Unassigned",
+    "noMembers": "No members found",
+    "ofTeam": "of team",
+    "assign": "Assign",
+    "assignLevel": "Assign Performance Level",
+    "assignLevelDesc": "Set the performance level for this player",
+    "levelLabel": "Performance Level",
+    "notesOptional": "Notes (Optional)",
+    "notesPlaceholder": "Add any notes about this assessment...",
+    "saving": "Saving...",
+    "manageLevels": "Assign and manage performance levels for team members",
+    "viewLevels": "View performance levels for team members",
+    "levelDescriptions": {
+      "1": "Top performer with exceptional skills",
+      "2": "Strong skills and consistent performance",
+      "3": "Developing skills and improving",
+      "4": "Learning basics and fundamentals"
+    }
+  },
+  "attendance": {
+    "title": "Attendance",
+    "attending": "Attending",
+    "maybe": "Maybe",
+    "notAttending": "Not Attending",
+    "noResponse": "No Response",
+    "noOneAttending": "No one attending yet",
+    "noOneMaybe": "No one marked as maybe",
+    "everyoneAttending": "Everyone is attending"
+  },
+  "chat": {
+    "noMessages": "No messages yet. Start the conversation!",
+    "loadEarlier": "Load earlier messages",
+    "placeholder": "Type a message...",
+    "deleteConfirm": "Delete this message?",
+    "deleteConfirmDesc": "This action cannot be undone."
+  },
+  "announcement": {
+    "placeholder": "Share an announcement with your team...",
+    "textareaPlaceholder": "What's on your mind?"
+  },
+  "matching": {
+    "matchStatus": "Match Status",
+    "lookingForMatches": "Looking for matches",
+    "matchesFound": "{{count}} match found!",
+    "matchesFound_other": "{{count}} matches found!",
+    "findMatch": "Find a Match",
+    "commitmentRequired": "Commitment Required",
+    "commitmentDesc": "By accepting this match, you are committing to attend. This is a binding commitment to ensure fair play for all participants.",
+    "noCancellations": "Cancellations are not allowed after accepting",
+    "onlyAcceptIfCertain": "Please only accept if you are certain you can attend.",
+    "acknowledgeCommitment": "I understand and commit to attending this match",
+    "confirmAccept": "Accept & Commit"
+  },
+  "teamGeneration": {
+    "noTeams": "No teams generated",
+    "noTeamsDesc": "Generate balanced practice teams based on player performance levels",
+    "generateTeams": "Generate Teams",
+    "loadingTeams": "Loading teams...",
+    "regenerate": "Regenerate"
+  },
+  "teamAbout": {
+    "addDescription": "Add a description to introduce your team 💬",
+    "about": "About",
+    "showLess": "Show less",
+    "readMore": "Read more"
+  },
+  "teamEvents": {
+    "title": "Team Events",
+    "subtitle": "View and RSVP to upcoming events",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "thisWeek": "This Week",
+    "comingUp": "Coming Up",
+    "noUpcoming": "No upcoming events",
+    "noUpcomingDesc": "Check back later for new team events",
+    "list": "List",
+    "calendar": "Calendar",
+    "discover": "Discover"
+  },
+  "inviteMembers": {
+    "title": "Invite Team Member",
+    "description": "Search for users by username or display name, or invite by email.",
+    "searchLabel": "Search Users",
+    "searchPlaceholder": "Search by username or email...",
+    "noUsersFound": "No users found matching \"{{query}}\"",
+    "inviteByEmail": "Invite {{email}} by email",
+    "inviteButton": "Invite Members"
+  },
+  "backToTeams": "Back to Teams",
+  "users": {
+    "title": "Users Directory",
+    "subtitle": "Browse all registered users",
+    "noUsers": "No users found"
   }
 }

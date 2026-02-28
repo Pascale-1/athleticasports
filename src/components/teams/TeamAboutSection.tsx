@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -10,6 +11,7 @@ interface TeamAboutSectionProps {
 
 export const TeamAboutSection = ({ description, maxLines = 3 }: TeamAboutSectionProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { t } = useTranslation("common");
 
   const isPlaceholder = !description || description.trim().length < 5 || /^(test|asdf|xxx|abc)/i.test(description.trim());
 
@@ -17,7 +19,7 @@ export const TeamAboutSection = ({ description, maxLines = 3 }: TeamAboutSection
     return (
       <Card>
         <CardContent className="p-4 text-center text-muted-foreground">
-          <p className="text-sm">Ajouter une description pour présenter ton équipe 💬</p>
+          <p className="text-sm">{t("teamAbout.addDescription")}</p>
         </CardContent>
       </Card>
     );
@@ -28,7 +30,7 @@ export const TeamAboutSection = ({ description, maxLines = 3 }: TeamAboutSection
   return (
     <Card>
       <CardContent className="p-4">
-        <h3 className="text-body-large font-semibold mb-2">About</h3>
+        <h3 className="text-body-large font-semibold mb-2">{t("teamAbout.about")}</h3>
         <p className={`text-body text-muted-foreground whitespace-pre-wrap ${
           !isExpanded && needsExpansion ? `line-clamp-${maxLines}` : ''
         }`}>
@@ -42,9 +44,9 @@ export const TeamAboutSection = ({ description, maxLines = 3 }: TeamAboutSection
             className="mt-2 text-primary"
           >
             {isExpanded ? (
-              <>Show less <ChevronUp className="h-4 w-4 ml-1" /></>
+              <>{t("teamAbout.showLess")} <ChevronUp className="h-4 w-4 ml-1" /></>
             ) : (
-              <>Read more <ChevronDown className="h-4 w-4 ml-1" /></>
+              <>{t("teamAbout.readMore")} <ChevronDown className="h-4 w-4 ml-1" /></>
             )}
           </Button>
         )}

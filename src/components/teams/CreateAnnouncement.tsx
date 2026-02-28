@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +12,7 @@ interface CreateAnnouncementProps {
 export const CreateAnnouncement = ({ onPost }: CreateAnnouncementProps) => {
   const [content, setContent] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
+  const { t } = useTranslation("common");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,12 +32,12 @@ export const CreateAnnouncement = ({ onPost }: CreateAnnouncementProps) => {
             onClick={() => setIsExpanded(true)}
           >
             <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="text-xs sm:text-sm">Share an announcement with your team...</span>
+            <span className="text-xs sm:text-sm">{t("announcement.placeholder")}</span>
           </div>
         ) : (
           <div className="space-y-3">
             <Textarea
-              placeholder="What's on your mind?"
+              placeholder={t("announcement.textareaPlaceholder")}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               className="min-h-[80px] sm:min-h-[100px] text-xs sm:text-sm"
@@ -56,10 +58,10 @@ export const CreateAnnouncement = ({ onPost }: CreateAnnouncementProps) => {
                   }}
                   className="flex-1 sm:flex-initial min-h-11"
                 >
-                  <span className="text-xs sm:text-sm">Cancel</span>
+                  <span className="text-xs sm:text-sm">{t("actions.cancel")}</span>
                 </Button>
                 <Button type="submit" disabled={!content.trim()} className="flex-1 sm:flex-initial min-h-11">
-                  <span className="text-xs sm:text-sm">Post</span>
+                  <span className="text-xs sm:text-sm">{t("actions.post")}</span>
                 </Button>
               </div>
             </div>

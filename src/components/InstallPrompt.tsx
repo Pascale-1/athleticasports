@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download, X } from "lucide-react";
@@ -10,59 +11,37 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export const InstallPrompt = () => {
+  const { t } = useTranslation("common");
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
-    // Check if already installed
     if (window.matchMedia("(display-mode: standalone)").matches) {
       setIsInstalled(true);
       return;
     }
-
-    // Listen for the beforeinstallprompt event
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      
-      // Show prompt after a short delay (don't be too aggressive)
       setTimeout(() => {
         const dismissed = localStorage.getItem("pwa-install-dismissed");
-        if (!dismissed) {
-          setShowPrompt(true);
-        }
+        if (!dismissed) setShowPrompt(true);
       }, 3000);
     };
-
     window.addEventListener("beforeinstallprompt", handler);
-
-    // Check if app was installed
     window.addEventListener("appinstalled", () => {
       setIsInstalled(true);
       setShowPrompt(false);
       localStorage.removeItem("pwa-install-dismissed");
     });
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handler);
-    };
+    return () => { window.removeEventListener("beforeinstallprompt", handler); };
   }, []);
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
-
-    // Show the install prompt
     deferredPrompt.prompt();
-
-    // Wait for the user to respond to the prompt
-    const { outcome } = await deferredPrompt.userChoice;
-
-    if (outcome === "accepted") {
-      console.log("User accepted the install prompt");
-    }
-
-    // Clear the prompt
+    await deferredPrompt.userChoice;
     setDeferredPrompt(null);
     setShowPrompt(false);
   };
@@ -90,34 +69,22 @@ export const InstallPrompt = () => {
                   <Download className="h-5 w-5 text-primary-foreground" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">Install Athletica</CardTitle>
-                  <CardDescription className="text-xs mt-1">
-                    Get the full app experience
-                  </CardDescription>
+                  <CardTitle className="text-lg">{t("install.title")}</CardTitle>
+                  <CardDescription className="text-xs mt-1">{t("install.subtitle")}</CardDescription>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 -mt-1"
-                onClick={handleDismiss}
-              >
+              <Button variant="ghost" size="icon" className="h-8 w-8 -mt-1" onClick={handleDismiss}>
                 <X className="h-4 w-4" />
               </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-2 pb-4">
             <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Works offline</li>
-              <li>• Faster loading</li>
-              <li>• Add to home screen</li>
+              <li>• {t("install.offline")}</li>
+              <li>• {t("install.faster")}</li>
+              <li>• {t("install.homeScreen")}</li>
             </ul>
-            <Button
-              onClick={handleInstall}
-              className="w-full"
-            >
-              Install App
-            </Button>
+            <Button onClick={handleInstall} className="w-full">{t("install.button")}</Button>
           </CardContent>
         </Card>
       </motion.div>
