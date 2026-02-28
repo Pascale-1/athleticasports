@@ -93,20 +93,18 @@ export const EventCard = memo(({
     minute: minutes === 0 ? undefined : '2-digit'
   }).toLowerCase();
 
-  // Venue name only (before the first comma)
-  const venueName = event.location 
-    ? event.location.split(',')[0].trim()
-    : null;
+  // Full location — no truncation
+  const venueName = event.location || null;
 
   // Sport emoji
   const sportEmoji = event.sport ? getSportEmoji(event.sport) : null;
 
   const getStatusLabel = () => {
     switch (userStatus) {
-      case 'attending': return t('common:going', 'Going');
-      case 'maybe': return t('common:maybe', 'Maybe');
-      case 'not_attending': return t('common:declined', "Can't");
-      default: return t('common:join', 'Join');
+      case 'attending': return t('rsvp.going');
+      case 'maybe': return t('rsvp.maybe');
+      case 'not_attending': return t('rsvp.notGoing');
+      default: return t('common:actions.join');
     }
   };
 
@@ -160,12 +158,12 @@ export const EventCard = memo(({
                   </h3>
                   {isPast && (
                     <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 shrink-0 bg-muted text-muted-foreground">
-                      {t('common:past', 'Past')}
+                      {t('common:time.past')}
                     </Badge>
                   )}
                   {isFull && !isPast && (
                     <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 shrink-0 bg-warning/15 text-warning">
-                      {t('common:full', 'Full')}
+                      {t('common:status.full')}
                     </Badge>
                   )}
                 </div>
@@ -177,7 +175,7 @@ export const EventCard = memo(({
                   )}
                   {event.is_public 
                     ? <span className="flex items-center gap-0.5"><Globe className="h-3.5 w-3.5 text-muted-foreground/70" /><span className="text-[10px] text-muted-foreground">Public</span></span>
-                    : <Lock className="h-3.5 w-3.5 text-muted-foreground/70" />
+                    : <span className="flex items-center gap-0.5"><Lock className="h-3.5 w-3.5 text-muted-foreground/70" /><span className="text-[10px] text-muted-foreground">{t('status.private')}</span></span>
                   }
                   {isOrganizerView && (
                     <>
@@ -254,7 +252,7 @@ export const EventCard = memo(({
                   <span className="text-[11px] text-muted-foreground whitespace-nowrap">
                     {hasCapacity 
                       ? `${attendeeCount}/${maxParticipants}` 
-                      : attendeeCount > 0 ? `${attendeeCount} ${t('common:going', 'going')}` : ''
+                      : attendeeCount > 0 ? `${attendeeCount} ${t('rsvp.going')}` : ''
                     }
                   </span>
                   {showNeedBadge && (
@@ -275,7 +273,7 @@ export const EventCard = memo(({
                       variant="secondary"
                       className="h-8 px-3 text-xs rounded-full bg-warning/15 text-warning cursor-not-allowed"
                     >
-                      {t('common:full', 'Full')}
+                      {t('common:status.full')}
                     </Badge>
                   ) : (
                     <DropdownMenu>
@@ -301,14 +299,14 @@ export const EventCard = memo(({
                           className="gap-2"
                         >
                           <Check className="h-4 w-4 text-success" />
-                          {t('common:going', 'Going')}
+                          {t('rsvp.going')}
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={(e) => { e.preventDefault(); onRSVPChange('maybe'); }}
                           className="gap-2"
                         >
                           <HelpCircle className="h-4 w-4 text-warning" />
-                          {t('common:maybe', 'Maybe')}
+                          {t('rsvp.maybe')}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem 
@@ -316,7 +314,7 @@ export const EventCard = memo(({
                           className="gap-2"
                         >
                           <X className="h-4 w-4 text-muted-foreground" />
-                          {t('common:declined', "Can't Go")}
+                          {t('rsvp.notGoing')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

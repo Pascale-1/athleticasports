@@ -264,6 +264,11 @@
     "home": "Domicile",
     "away": "Extérieur",
     "neutral": "Neutre",
+    "terrain": {
+      "home": "Domicile",
+      "away": "Extérieur",
+      "neutral": "Neutre"
+    },
     "format": "Format de la partie",
     "lookingForPlayers": "Recherche de participants",
     "playersNeeded": "Participants recherchés",

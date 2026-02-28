@@ -131,7 +131,7 @@ export const EventRSVPBar = ({
             variant="ghost"
             size="sm"
             onClick={onRemoveAttendance}
-            className="w-full text-sm text-primary hover:text-primary/80 mt-3"
+            className="w-full text-[14px] text-primary hover:text-primary/80 mt-4 min-h-[44px] flex items-center justify-center"
           >
             {t('rsvp.cancelAttendance')}
           </Button>
