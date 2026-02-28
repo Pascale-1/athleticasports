@@ -33,7 +33,7 @@ export const TeamCard = memo(({ team, memberCount = 0, isMember, members = [] }:
           {/* Sport Ribbon — slim separator */}
           {sport && (
             <div className="px-3 py-1 mt-1.5 mb-1">
-              <span className="text-[14px] font-semibold uppercase tracking-[0.5px] text-primary flex items-center gap-1.5">
+              <span className="text-[12px] font-semibold uppercase tracking-[0.6px] text-primary flex items-center gap-1.5">
                 {sportEmoji && <span>{sportEmoji}</span>}
                 <span>{sport}</span>
               </span>
@@ -53,7 +53,7 @@ export const TeamCard = memo(({ team, memberCount = 0, isMember, members = [] }:
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <h3 className="text-[15px] font-heading font-semibold truncate">
+                  <h3 className="text-[14px] font-heading font-semibold truncate">
                     {team.name}
                   </h3>
                   {isMember && (

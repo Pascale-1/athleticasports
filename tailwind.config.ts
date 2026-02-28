@@ -25,23 +25,24 @@ export default {
         body: ["Inter", "system-ui", "sans-serif"],
       },
       fontSize: {
-        // Semantic Typography Scale
-        "page-title": ["1.375rem", { lineHeight: "1.75rem", fontWeight: "700" }],    // 22px
-        "section": ["0.875rem", { lineHeight: "1.125rem", fontWeight: "600" }],      // 14px
-        "card-title": ["0.9375rem", { lineHeight: "1.25rem", fontWeight: "600" }],   // 15px
-        "body": ["0.875rem", { lineHeight: "1.25rem" }],                             // 14px
-        "body-sm": ["0.75rem", { lineHeight: "1.0625rem" }],                         // 12px
-        "caption": ["0.75rem", { lineHeight: "1rem" }],                              // 12px
-        "micro": ["0.625rem", { lineHeight: "0.875rem" }],                           // 10px
-        // Legacy
-        "xxs": ["0.5rem", { lineHeight: "1.4" }],                                   // 8px
-        "display": ["1.375rem", { lineHeight: "1.75rem", fontWeight: "700" }],       // 22px
-        "h1": ["1.375rem", { lineHeight: "1.75rem", fontWeight: "700" }],            // 22px
-        "h2": ["0.9375rem", { lineHeight: "1.25rem", fontWeight: "600" }],           // 15px
-        "h3": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "600" }],            // 14px
-        "h4": ["0.8125rem", { lineHeight: "1.125rem", fontWeight: "600" }],          // 13px
-        "body-lg": ["0.875rem", { lineHeight: "1.25rem" }],                          // 14px
-        "small": ["0.75rem", { lineHeight: "1rem" }],                                // 12px
+        // Semantic Typography Scale (Global)
+        "page-title": ["1.25rem", { lineHeight: "1.625rem", fontWeight: "700" }],     // 20px — main screen titles
+        "screen-title": ["1.125rem", { lineHeight: "1.5rem", fontWeight: "700" }],    // 18px — inner page titles
+        "section": ["0.75rem", { lineHeight: "1rem", fontWeight: "600" }],            // 12px — section headers (uppercase)
+        "card-title": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "600" }],     // 14px — card titles
+        "body": ["0.8125rem", { lineHeight: "1.25rem" }],                             // 13px — body text
+        "body-sm": ["0.75rem", { lineHeight: "1.0625rem" }],                          // 12px — captions, metadata
+        "caption": ["0.75rem", { lineHeight: "1rem" }],                               // 12px
+        "micro": ["0.625rem", { lineHeight: "0.875rem" }],                            // 10px — badges, pills, tab labels
+        // Legacy aliases (mapped to new scale)
+        "xxs": ["0.5rem", { lineHeight: "1.4" }],                                    // 8px
+        "display": ["1.25rem", { lineHeight: "1.625rem", fontWeight: "700" }],        // 20px
+        "h1": ["1.25rem", { lineHeight: "1.625rem", fontWeight: "700" }],             // 20px
+        "h2": ["0.875rem", { lineHeight: "1.25rem", fontWeight: "600" }],             // 14px
+        "h3": ["0.8125rem", { lineHeight: "1.25rem", fontWeight: "600" }],            // 13px
+        "h4": ["0.75rem", { lineHeight: "1rem", fontWeight: "600" }],                 // 12px
+        "body-lg": ["0.8125rem", { lineHeight: "1.25rem" }],                          // 13px
+        "small": ["0.75rem", { lineHeight: "1rem" }],                                 // 12px
       },
       colors: {
         border: "hsl(var(--border))",
