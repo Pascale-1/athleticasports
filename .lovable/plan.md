@@ -1,41 +1,115 @@
 
 
-# Fix: Stats Not Reflecting User's Actual Events
+# Event Detail Screen Redesign
 
-## Problem
+## Files to modify (3 files)
 
-The home screen stats are computed incorrectly:
+| File | Changes |
+|------|---------|
+| `src/pages/EventDetail.tsx` | Header badges, title size, calendar button label, section headers to Title Case, location link style, home_away pill, RSVP bar layout |
+| `src/components/events/EventRSVPBar.tsx` | 3 equal flex-1 buttons at 52px, 14px semibold labels, cancel button above bar with 8px margin |
+| `src/components/events/EventAttendees.tsx` | Avatar overlap max 5, summary line "X confirmés · X peut-être" in 13px muted |
 
-1. **"Parties" (upcomingMatches)** — queries ALL upcoming match events globally (`events` table where `type=match`), not filtered to events the user is attending
-2. **"Événements" (eventsAttended)** — counts ALL attendance records (past + future) with `status=attending`, not just upcoming events
+---
 
-## Fix (1 file: `src/pages/Index.tsx`)
+## 1. EventDetail.tsx — Header (lines 304-328)
 
-Replace the `fetchStats` function's three queries:
-
-### Current (broken)
-```typescript
-// Matches: counts ALL upcoming matches globally
-supabase.from('events').select('*', { count: 'exact', head: true })
-  .eq('type', 'match').gte('start_time', new Date().toISOString())
-
-// Events attended: counts ALL attendance records (past+future)
-supabase.from('event_attendance').select('*', { count: 'exact', head: true })
-  .eq('user_id', userId).eq('status', 'attending')
+**Badges**: Sport type + visibility on one line, 12px pill style:
+```tsx
+<div className="flex items-center gap-2 mb-3">
+  <Badge variant="secondary" className="text-xs rounded-full px-2.5 py-0.5"
+    style={{ backgroundColor: eventConfig.bgColor, color: eventConfig.color }}>
+    <EventIcon className="h-3 w-3 mr-1" />
+    {t(`types.${getEventTypeKey(event.type)}`)}
+  </Badge>
+  <Badge variant="outline" className="text-xs rounded-full px-2.5 py-0.5">
+    {event.is_public ? t('status.public') : t('status.private', 'Privé')}
+  </Badge>
+  {/* team/past/ongoing badges follow */}
+</div>
 ```
 
-### Fixed
-```typescript
-// Matches: count upcoming matches where THIS USER is attending
-supabase.from('event_attendance').select('event_id, events!inner(type, start_time)', { count: 'exact', head: true })
-  .eq('user_id', userId).eq('status', 'attending')
-  .eq('events.type', 'match').gte('events.start_time', new Date().toISOString())
+**Title**: Change `text-2xl` to `text-[26px]`, keep `font-bold`.
 
-// Events attended: count UPCOMING events where user is attending (not past)
-supabase.from('event_attendance').select('event_id, events!inner(start_time)', { count: 'exact', head: true })
-  .eq('user_id', userId).eq('status', 'attending')
-  .gte('events.start_time', new Date().toISOString())
+**Calendar button**: Already using `AddToCalendarButton` with `variant="ghost"` — this is correct per spec. No change needed.
+
+## 2. EventDetail.tsx — Section headers (lines 373, 491, 529, 541)
+
+All already use `text-[13px] text-muted-foreground font-semibold` — they're Title Case in the translation file. Verify translations match:
+- `details.whereAndWhen` → "Quand et où" ✓
+- `details.matchInfo` → "Infos du match" ✓  
+- `details.whoComing` → "Qui vient ?" ✓
+- `details.about` → "À propos" ✓
+
+No changes needed — translations already Title Case.
+
+## 3. EventDetail.tsx — Home/away pill (lines 508-514)
+
+Change from `Badge variant="outline"` to pill style with `bg-muted rounded-full text-[13px]`:
+```tsx
+<Badge variant="outline" className="bg-muted rounded-full text-[13px] text-muted-foreground">
+  {event.home_away === 'home' && <Home className="h-3 w-3 mr-1" />}
+  {event.home_away === 'away' && <Plane className="h-3 w-3 mr-1" />}
+  Terrain : {t(`game.${event.home_away}`)}
+</Badge>
 ```
 
-This ensures both stats reflect only the user's own upcoming events, matching what `useUserEvents` returns.
+## 4. EventDetail.tsx — Location link (lines 396-441)
+
+Replace the dropdown trigger's "Ouvrir dans Plans" subtitle with an accent-colored underlined link style:
+```tsx
+<p className="text-xs text-primary underline">
+  {t('details.tapToOpenMaps')}
+</p>
+```
+Remove `line-clamp-2` from address to show full display.
+
+## 5. EventRSVPBar.tsx — RSVP buttons redesign (lines 88-137)
+
+- All 3 buttons: `flex-1 h-[52px]`, `text-sm font-semibold` (14px)
+- Active attending: `bg-primary text-primary-foreground`
+- Active maybe: `bg-warning text-warning-foreground`  
+- Active not_attending: `bg-destructive text-destructive-foreground`
+- Inactive: `bg-card border border-border text-muted-foreground`
+- Move "Annuler ma participation" button ABOVE the RSVP button row, 14px accent color, min-h-[44px], mb-2
+
+Restructure the layout:
+```tsx
+<div className="max-w-lg mx-auto space-y-2">
+  {/* Cancel button above */}
+  {userStatus && !isCommitted && (
+    <Button variant="ghost" size="sm" onClick={onRemoveAttendance}
+      className="w-full text-sm font-semibold text-primary min-h-[44px]">
+      {t('rsvp.cancelAttendance')}
+    </Button>
+  )}
+  {/* 3 equal buttons */}
+  <div className="flex gap-2">
+    {/* attending/maybe/not_attending buttons with h-[52px] flex-1 */}
+  </div>
+  <p className="text-xs text-center text-muted-foreground">...</p>
+</div>
+```
+
+## 6. EventAttendees.tsx — Participant summary
+
+The component already shows overlapping avatars (max 5) and names. Update the summary line below avatars to use 13px muted format "X confirmés · X peut-être":
+```tsx
+<p className="text-[13px] text-muted-foreground">
+  {grouped.attending.length} {t('attendees.going').toLowerCase()} · {grouped.maybe.length} {t('attendees.maybe').toLowerCase()}
+</p>
+```
+
+## Summary
+
+| Element | Change |
+|---------|--------|
+| Header badges | 12px pill, sport + visibility on one line |
+| Title | 26px bold |
+| Section headers | Already Title Case — no change |
+| Home/away | Pill: `bg-muted rounded-full text-[13px]` with "Terrain :" prefix |
+| Location | Full address, accent underlined link |
+| RSVP buttons | 3 × flex-1, 52px, 14px semibold |
+| Cancel button | Moved above RSVP row, 14px accent, 44px tap target |
+| Attendees summary | "X confirmés · X peut-être" in 13px muted |
 
