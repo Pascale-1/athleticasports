@@ -1,40 +1,28 @@
 
 
-# Make Max Participants Required (Default: 10) + Always Show Attendee Count
+# Why the "3" Badge Persists on Events Tab
 
-## Combined Plan (merges previous plan)
+## Root Cause
 
-### 1. `src/components/events/UnifiedEventForm.tsx` — 3 line changes
+The badge in `BottomNavigation.tsx` counts upcoming team events where you have no RSVP record. You currently have 3 such events. The badge only clears when you actually RSVP to those events -- it does **not** clear just by visiting the Events page.
 
-**Line 78 — Schema:** Make field required
+According to the intended behavior (from the feature spec), the badge should also clear when the user views the Events screen.
+
+## Fix
+
+### `src/components/mobile/BottomNavigation.tsx`
+
+Add logic to set `todayEvents` to `0` when the current route is `/events`, so the badge disappears while the user is on that screen:
+
+**Line 82** -- wrap the badge set in a route check:
 ```tsx
-// FROM
-maxParticipants: z.string().optional(),
-// TO
-maxParticipants: z.string().min(1, "Required"),
+// After computing unansweredCount:
+setTodayEvents(location.pathname.startsWith('/events') ? 0 : unansweredCount);
 ```
 
-**Line 252 — Default value:** Pre-fill with 10
-```tsx
-// FROM
-maxParticipants: '',
-// TO
-maxParticipants: '10',
-```
+Since `fetchBadges` already re-runs on `location.pathname` change (line 87), this will:
+- Hide the badge when navigating to `/events`
+- Show it again when navigating away (if there are still unanswered events)
 
-**Line 443 — Submission mapping:** Always parse (no fallback to undefined)
-```tsx
-// FROM
-max_participants: values.maxParticipants ? parseInt(values.maxParticipants, 10) : undefined,
-// TO
-max_participants: parseInt(values.maxParticipants, 10),
-```
-
-### 2. `src/components/events/EventCard.tsx` — already applied
-The attendee count condition was already changed from `attendeeCount > 0 || event.max_participants` to `attendeeCount >= 0` in the last edit. No further change needed.
-
-### Summary
-- Every new event will have `max_participants` set (default 10, user can change)
-- Every event card always shows the attendee count
-- Existing events without `max_participants` still render fine (they just show `👥 N` without `/ max`)
+One line changed. No other files affected.
 
