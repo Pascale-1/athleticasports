@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import {
   Loader2, Globe, Lock, Users, Euro, CalendarIcon, MapPin,
-  PenLine, AlignLeft, ChevronDown, Link2, type LucideIcon
+  PenLine, AlignLeft, ChevronDown, Link2, Clock, UserPlus, type LucideIcon
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion } from "framer-motion";
@@ -80,6 +80,15 @@ export const EditEventDialog = ({
   const [hasCost, setHasCost] = useState(!!event.cost);
   const [paymentLink, setPaymentLink] = useState(event.payment_link || '');
 
+  // RSVP Deadline
+  const [hasRsvpDeadline, setHasRsvpDeadline] = useState(!!event.rsvp_deadline);
+  const [rsvpDeadlineDate, setRsvpDeadlineDate] = useState('');
+  const [rsvpDeadlineTime, setRsvpDeadlineTime] = useState('');
+
+  // Looking for Players
+  const [lookingForPlayers, setLookingForPlayers] = useState(event.looking_for_players || false);
+  const [playersNeeded, setPlayersNeeded] = useState(event.players_needed?.toString() || '4');
+
   // Initialize form with event data
   useEffect(() => {
     if (open) {
@@ -95,6 +104,21 @@ export const EditEventDialog = ({
       setCostType((event.cost_type as 'total' | 'per_person') || 'total');
       setHasCost(!!event.cost);
       setPaymentLink(event.payment_link || '');
+
+      // RSVP Deadline
+      setHasRsvpDeadline(!!event.rsvp_deadline);
+      if (event.rsvp_deadline) {
+        const dl = new Date(event.rsvp_deadline);
+        setRsvpDeadlineDate(format(dl, 'yyyy-MM-dd'));
+        setRsvpDeadlineTime(format(dl, 'HH:mm'));
+      } else {
+        setRsvpDeadlineDate('');
+        setRsvpDeadlineTime('18:00');
+      }
+
+      // Looking for Players
+      setLookingForPlayers(event.looking_for_players || false);
+      setPlayersNeeded(event.players_needed?.toString() || '4');
 
       // Parse dates
       const start = new Date(event.start_time);
@@ -143,6 +167,18 @@ export const EditEventDialog = ({
     data.cost = hasCost ? (cost || undefined) : undefined;
     data.cost_type = hasCost ? costType : undefined;
     data.payment_link = hasCost && cost && parseFloat(cost) > 0 && paymentLink ? paymentLink : undefined;
+
+    // Add RSVP deadline
+    if (hasRsvpDeadline && rsvpDeadlineDate && rsvpDeadlineTime) {
+      const dl = new Date(`${rsvpDeadlineDate}T${rsvpDeadlineTime}`);
+      data.rsvp_deadline = dl > new Date() ? dl.toISOString() : undefined;
+    } else {
+      data.rsvp_deadline = undefined;
+    }
+
+    // Add looking for players
+    data.looking_for_players = lookingForPlayers;
+    data.players_needed = lookingForPlayers ? parseInt(playersNeeded) || undefined : undefined;
 
     const success = await onUpdate(event.id, data);
     setIsSubmitting(false);
@@ -338,7 +374,84 @@ export const EditEventDialog = ({
               </AnimatePresence>
             </FieldRow>
 
-            {/* 7 — More options */}
+            {/* 7 — RSVP Deadline */}
+            <FieldRow icon={Clock} separator={false} iconAlign="center">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium">
+                  {t('form.rsvpDeadline')}
+                </p>
+                <Switch
+                  checked={hasRsvpDeadline}
+                  onCheckedChange={(checked) => {
+                    setHasRsvpDeadline(checked);
+                    if (!checked) { setRsvpDeadlineDate(''); setRsvpDeadlineTime('18:00'); }
+                  }}
+                />
+              </div>
+
+              <AnimatePresence initial={false}>
+                {hasRsvpDeadline && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="flex items-center gap-2 mt-2">
+                      <input
+                        type="date"
+                        value={rsvpDeadlineDate}
+                        onChange={(e) => setRsvpDeadlineDate(e.target.value)}
+                        className="flex-1 h-9 rounded-lg border border-border bg-muted/30 px-3 text-sm outline-none focus:border-primary transition-colors"
+                      />
+                      <input
+                        type="time"
+                        value={rsvpDeadlineTime}
+                        onChange={(e) => setRsvpDeadlineTime(e.target.value)}
+                        className="w-24 h-9 rounded-lg border border-border bg-muted/30 px-3 text-sm outline-none focus:border-primary transition-colors"
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </FieldRow>
+
+            {/* 8 — Looking for Players */}
+            {(event.type === 'match' || event.type === 'training') && (
+              <FieldRow icon={UserPlus} separator={false} iconAlign="center">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium">
+                    {t('form.lookingForPlayers', 'Looking for players')}
+                  </p>
+                  <Switch checked={lookingForPlayers} onCheckedChange={setLookingForPlayers} />
+                </div>
+
+                <AnimatePresence initial={false}>
+                  {lookingForPlayers && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="flex items-center gap-2 mt-2">
+                        <Label className="text-xs text-muted-foreground">{t('form.playersNeeded', 'Players needed')}</Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          value={playersNeeded}
+                          onChange={(e) => setPlayersNeeded(e.target.value)}
+                          className="w-20 h-9 text-xs text-right"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </FieldRow>
+            )}
+
             {hasMoreOptions && (
               <div className="py-3">
                 <button

@@ -454,7 +454,12 @@ export const UnifiedEventForm = ({
       players_needed: showLookingForPlayersSection && lookingForPlayers ? parseInt(playersNeeded, 10) : undefined,
       is_recurring: isRecurring,
       recurrence_rule: generateRecurrenceRule(),
-      rsvp_deadline: showRsvpDeadline ? calculateRsvpDeadline(startDate)?.toISOString() : undefined,
+      rsvp_deadline: (() => {
+        if (!showRsvpDeadline) return undefined;
+        const deadline = calculateRsvpDeadline(startDate);
+        if (!deadline || deadline < new Date()) return undefined;
+        return deadline.toISOString();
+      })(),
       cost: hasCost ? (cost || undefined) : undefined,
       cost_type: hasCost ? costType : undefined,
       payment_link: hasCost && cost && parseFloat(cost) > 0 && paymentLink ? paymentLink : undefined,
@@ -1130,16 +1135,21 @@ export const UnifiedEventForm = ({
                     )}
 
                     {watchedDate && watchedStartTime && (
-                      <p className="text-[10px] text-primary">
-                        {(() => {
-                          const [hours, minutes] = watchedStartTime.split(':').map(Number);
-                          const eventDateTime = new Date(watchedDate);
-                          eventDateTime.setHours(hours, minutes, 0, 0);
-                          const deadline = calculateRsvpDeadline(eventDateTime);
-                          if (deadline) return t('form.deadlinePreview', { time: format(deadline, 'EEE MMM d, HH:mm') });
-                          return null;
-                        })()}
-                      </p>
+                      (() => {
+                        const [hours, minutes] = watchedStartTime.split(':').map(Number);
+                        const eventDateTime = new Date(watchedDate);
+                        eventDateTime.setHours(hours, minutes, 0, 0);
+                        const deadline = calculateRsvpDeadline(eventDateTime);
+                        if (!deadline) return null;
+                        const isPast = deadline < new Date();
+                        return (
+                          <p className={cn("text-[10px]", isPast ? "text-destructive font-medium" : "text-primary")}>
+                            {isPast
+                              ? t('form.deadlinePast', 'This deadline is in the past — it will be ignored')
+                              : t('form.deadlinePreview', { time: format(deadline, 'EEE MMM d, HH:mm') })}
+                          </p>
+                        );
+                      })()
                     )}
                   </div>
                 )}
