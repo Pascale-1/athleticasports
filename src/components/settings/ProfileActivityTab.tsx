@@ -5,7 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CalendarCheck, Users, ChevronRight, Clock, Trophy, Dumbbell, Coffee } from "lucide-react";
+import { CalendarCheck, Users, ChevronRight, Clock } from "lucide-react";
+import { getEventTypeEmoji } from "@/lib/eventIcons";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserEvents } from "@/hooks/useUserEvents";
 import { formatDateTimeShort } from "@/lib/dateUtils";
@@ -18,14 +19,6 @@ interface Team {
   avatar_url: string | null;
 }
 
-const eventTypeIcon = (type: string) => {
-  switch (type) {
-    case 'match': return Trophy;
-    case 'training': return Dumbbell;
-    case 'meetup': return Coffee;
-    default: return CalendarCheck;
-  }
-};
 
 export const ProfileActivityTab = ({ userId }: { userId: string }) => {
   const { t } = useTranslation();
@@ -97,15 +90,15 @@ export const ProfileActivityTab = ({ userId }: { userId: string }) => {
               ) : displayUpcoming.length > 0 ? (
                 <div className="space-y-2">
                   {displayUpcoming.map(event => {
-                    const Icon = eventTypeIcon(event.type);
+                    const emoji = getEventTypeEmoji(event.type, event.sport);
                     return (
                       <div
                         key={event.id}
                         onClick={() => navigate(`/events/${event.id}`)}
                         className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/50 hover:bg-muted cursor-pointer transition-colors active:scale-[0.99]"
                       >
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                          <Icon className="h-4 w-4 text-primary" />
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-base">
+                          {emoji}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">{event.title}</p>
@@ -229,15 +222,15 @@ export const ProfileActivityTab = ({ userId }: { userId: string }) => {
               ) : displayPast.length > 0 ? (
                 <div className="space-y-2">
                   {displayPast.map(event => {
-                    const Icon = eventTypeIcon(event.type);
+                    const emoji = getEventTypeEmoji(event.type, event.sport);
                     return (
                       <div
                         key={event.id}
                         onClick={() => navigate(`/events/${event.id}`)}
                         className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/50 hover:bg-muted cursor-pointer transition-colors active:scale-[0.99]"
                       >
-                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
-                          <Icon className="h-4 w-4 text-muted-foreground" />
+                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0 text-base">
+                          {emoji}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">{event.title}</p>
