@@ -480,5 +480,16 @@
     "linkCopied": "Profile link copied to clipboard"
   },
   "matchFound": "Match Found",
-  "until": "Until {{date}}"
+  "until": "Until {{date}}",
+  "usernameSelection": {
+    "skip": "Skip for now",
+    "title": "Choose your username",
+    "subtitle": "This is how other players will find you",
+    "placeholder": "your_username",
+    "helper": "3–20 characters. Letters, numbers, and underscores only.",
+    "confirm": "Confirm username",
+    "taken": "Username already taken",
+    "available": "Available",
+    "checking": "Checking..."
+  }
 }

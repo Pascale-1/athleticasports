@@ -35,6 +35,7 @@ const InvitationHelp = lazy(() => import("./pages/InvitationHelp"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const JoinEvent = lazy(() => import("./pages/JoinEvent"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
+const ChooseUsername = lazy(() => import("./pages/ChooseUsername"));
 const ConfirmDeletion = lazy(() => import("./pages/ConfirmDeletion"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const PendingInvitations = lazy(() => import("./pages/PendingInvitations"));
@@ -72,8 +73,13 @@ const AppRoutes = () => (
     <Routes>
       <Route path="/auth" element={<Auth />} />
       <Route path="/onboarding" element={
-        <ProtectedRoute skipOnboardingCheck>
+        <ProtectedRoute skipOnboardingCheck skipUsernameCheck>
           <Onboarding />
+        </ProtectedRoute>
+      } />
+      <Route path="/choose-username" element={
+        <ProtectedRoute skipOnboardingCheck skipUsernameCheck>
+          <ChooseUsername />
         </ProtectedRoute>
       } />
       <Route path="/" element={
