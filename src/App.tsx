@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, HashRouter, Routes, Route } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
+import { useDeepLink } from "./hooks/useDeepLink";
 import { AppLayout } from "./components/AppLayout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { InstallPrompt } from "./components/InstallPrompt";
@@ -68,7 +69,15 @@ try {
 }
 const Router = isNative ? HashRouter : BrowserRouter;
 
+// Deep link handler - must be inside Router for useNavigate access
+const DeepLinkHandler = () => {
+  useDeepLink();
+  return null;
+};
+
 const AppRoutes = () => (
+  <>
+  <DeepLinkHandler />
   <Suspense fallback={<PageLoader />}>
     <Routes>
       <Route path="/auth" element={<Auth />} />
@@ -190,6 +199,7 @@ const AppRoutes = () => (
       <Route path="*" element={<NotFound />} />
     </Routes>
   </Suspense>
+  </>
 );
 
 const App = () => {

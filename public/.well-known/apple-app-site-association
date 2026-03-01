@@ -1,0 +1,9 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [{
+      "appID": "TEAM_ID.com.athletica.sports",
+      "paths": ["/events/*", "/teams/*", "/account/*", "/*"]
+    }]
+  }
+}
