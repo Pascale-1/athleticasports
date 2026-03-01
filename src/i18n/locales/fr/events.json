@@ -176,6 +176,7 @@
     "isPrivateDesc": "Seules les membres invitées peuvent voir",
     "moreOptions": "Plus d'options",
     "sport": "Sport",
+    "sportRequired": "Veuillez sélectionner un sport",
     "selectSport": "Sélectionner un sport",
     "selectEventType": "Type d'événement",
     "preview": "Aperçu",
@@ -220,7 +221,8 @@
       "selectCategory": "Sélectionner une catégorie",
       "physicalLocation": "Lieu physique (optionnel)",
       "virtualLink": "Lien virtuel (optionnel)",
-      "create": "Créer la sortie"
+      "create": "Créer la sortie",
+      "categoryRequired": "Veuillez sélectionner une catégorie"
     },
     "game": {
       "title": "Titre de la partie",
@@ -333,8 +335,8 @@
     "postGame": "Apéro",
     "teamDinner": "Repas",
     "social": "Social",
-    "fitness": "Fitness",
-    "activity": "Activité",
+    "teamBuilding": "Team Building",
+    "outing": "Sortie loisirs",
     "other": "Autre"
   },
   "calendar": {

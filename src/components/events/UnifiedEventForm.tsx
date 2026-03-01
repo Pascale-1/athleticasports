@@ -52,8 +52,8 @@ const MEETUP_CATEGORIES = [
   { value: 'post_game', emoji: '🍻' },
   { value: 'team_dinner', emoji: '🍽️' },
   { value: 'social', emoji: '🎉' },
-  { value: 'fitness', emoji: '💪' },
-  { value: 'activity', emoji: '🏃' },
+  { value: 'team_building', emoji: '🤝' },
+  { value: 'outing', emoji: '🏕️' },
   { value: 'other', emoji: '📋' },
 ];
 
@@ -304,8 +304,8 @@ export const UnifiedEventForm = ({
       post_game: t('categories.postGame'),
       team_dinner: t('categories.teamDinner'),
       social: t('categories.social'),
-      fitness: t('categories.fitness'),
-      activity: t('categories.activity'),
+      team_building: t('categories.teamBuilding'),
+      outing: t('categories.outing'),
       other: t('categories.other'),
     };
     return categoryMap[value] || value;
@@ -380,8 +380,21 @@ export const UnifiedEventForm = ({
     switch (currentStepId) {
       case 0:
         return await form.trigger('title');
-      case 1:
+      case 1: {
+        // Sport is mandatory for training and match
+        if (showSportSelector && !selectedSport) {
+          const { toast } = await import('sonner');
+          toast.error(t('form.sportRequired'));
+          return false;
+        }
+        // Category is mandatory for meetup
+        if (showCategorySelector && !selectedCategory) {
+          const { toast } = await import('sonner');
+          toast.error(t('form.meetup.categoryRequired'));
+          return false;
+        }
         return true;
+      }
       case 2:
         return await form.trigger(['date', 'startTime', 'location']);
       case 3:

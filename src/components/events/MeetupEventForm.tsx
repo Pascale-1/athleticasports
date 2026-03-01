@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
-import { CalendarIcon, MapPin, Video, Tv, Utensils, Wine, PartyPopper, Dumbbell } from "lucide-react";
+import { CalendarIcon, MapPin, Video, Tv, Utensils, Wine, PartyPopper, Users } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CreateEventData } from "@/hooks/useEvents";
@@ -44,7 +44,8 @@ const CATEGORIES = [
   { value: 'post_game', emoji: '🍻', icon: Wine },
   { value: 'team_dinner', emoji: '🍽️', icon: Utensils },
   { value: 'social', emoji: '🎉', icon: PartyPopper },
-  { value: 'fitness', emoji: '💪', icon: Dumbbell },
+  { value: 'team_building', emoji: '🤝', icon: Users },
+  { value: 'outing', emoji: '🏕️', icon: MapPin },
   { value: 'other', emoji: '📌', icon: MapPin },
 ];
 
