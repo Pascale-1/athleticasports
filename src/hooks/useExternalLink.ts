@@ -1,6 +1,14 @@
 import { Browser } from '@capacitor/browser';
 import { Capacitor } from '@capacitor/core';
 
+const normalizeUrl = (url: string): string => {
+  const trimmed = url.trim();
+  if (!/^https?:\/\//i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+  return trimmed;
+};
+
 /**
  * Opens an external URL using the most reliable method for the current platform.
  * - Native: Uses Capacitor Browser plugin
@@ -18,19 +26,16 @@ const openUrlWithAnchor = (url: string): void => {
 
 export const useExternalLink = () => {
   const openExternalUrl = async (url: string) => {
+    const normalizedUrl = normalizeUrl(url);
     try {
       if (Capacitor.isNativePlatform()) {
-        // Native app: use Capacitor Browser plugin for in-app browser
-        await Browser.open({ url });
+        await Browser.open({ url: normalizedUrl });
       } else {
-        // Web browser (including iframes): use anchor click method
-        // This is more reliable than window.open and avoids cross-origin issues
-        openUrlWithAnchor(url);
+        openUrlWithAnchor(normalizedUrl);
       }
     } catch (error) {
       console.error('Failed to open external URL:', error);
-      // Fallback to anchor click
-      openUrlWithAnchor(url);
+      openUrlWithAnchor(normalizedUrl);
     }
   };
 
@@ -39,14 +44,15 @@ export const useExternalLink = () => {
 
 // Standalone function for use outside React components
 export const openExternalUrl = async (url: string) => {
+  const normalizedUrl = normalizeUrl(url);
   try {
     if (Capacitor.isNativePlatform()) {
-      await Browser.open({ url });
+      await Browser.open({ url: normalizedUrl });
     } else {
-      openUrlWithAnchor(url);
+      openUrlWithAnchor(normalizedUrl);
     }
   } catch (error) {
     console.error('Failed to open external URL:', error);
-    openUrlWithAnchor(url);
+    openUrlWithAnchor(normalizedUrl);
   }
 };
