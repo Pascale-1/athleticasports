@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getDisplayUsername } from "@/lib/usernameUtils";
 import { useTranslation } from "react-i18next";
 import {
   Dialog,
@@ -180,7 +181,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canMa
                         </p>
                         {(!user.display_name || user.display_name === user.username) && (
                           <p className="text-xs text-muted-foreground truncate">
-                            @{user.username}
+                            {getDisplayUsername(user.username, user.display_name)}
                           </p>
                         )}
                       </div>

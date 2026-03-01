@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Search, Trophy, CalendarCheck } from "lucide-react";
+import { getDisplayUsername, getFriendlyUsername } from "@/lib/usernameUtils";
 
 interface Profile {
   id: string;
@@ -59,10 +60,12 @@ const Users = () => {
     }
   };
 
-  const filteredProfiles = profiles.filter(profile =>
-    profile.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    profile.display_name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProfiles = profiles.filter(profile => {
+    const friendly = getFriendlyUsername(profile.username, profile.display_name);
+    return friendly.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      profile.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      profile.display_name?.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   if (loading) {
     return (
@@ -97,12 +100,12 @@ const Users = () => {
                 <Avatar className="h-16 w-16 md:h-20 md:w-20">
                   <AvatarImage src={profile.avatar_url || undefined} />
                   <AvatarFallback className="text-lg md:text-xl">
-                    {profile.username.substring(0, 2).toUpperCase()}
+                    {(profile.display_name || profile.username).substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 
                 <div className="space-y-1 w-full">
-                  <h3 className="font-semibold text-base sm:text-lg truncate">@{profile.username}</h3>
+                  <h3 className="font-semibold text-base sm:text-lg truncate">{getDisplayUsername(profile.username, profile.display_name)}</h3>
                   {profile.display_name && (
                     <p className="text-xs sm:text-sm text-muted-foreground truncate">{profile.display_name}</p>
                   )}
