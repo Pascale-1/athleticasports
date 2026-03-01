@@ -302,6 +302,10 @@ const Settings = () => {
           setTempValues={setTempValues}
         />
 
+        <Card className="p-4">
+          <LogoutButton variant="settings" />
+        </Card>
+
         <AccountDangerZone />
       </div>
     </PageContainer>
