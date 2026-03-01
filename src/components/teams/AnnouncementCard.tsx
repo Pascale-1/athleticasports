@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Pin, Trash2, Bot } from "lucide-react";
 import { TeamAnnouncement } from "@/hooks/useTeamAnnouncements";
-import { formatDistanceToNow } from "date-fns";
+import { formatAbsoluteTimestamp } from "@/lib/dateUtils";
 
 const renderSimpleMarkdown = (text: string) => {
   const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -53,7 +53,7 @@ export const AnnouncementCard = ({
                 {isSystemUser(announcement.profile?.username) ? 'Athletica' : `@${announcement.profile?.username}`}
               </p>
               <span className="text-xs sm:text-sm text-muted-foreground flex-shrink-0">
-                {formatDistanceToNow(new Date(announcement.created_at), { addSuffix: true })}
+                {formatAbsoluteTimestamp(announcement.created_at)}
               </span>
               {announcement.is_pinned && (
                 <Pin className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
