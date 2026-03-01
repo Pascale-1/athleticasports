@@ -311,10 +311,14 @@ export const ProfileTabs = ({
         {/* Change Password Section */}
         <ChangePasswordSection email={email} />
 
-        {/* Logout */}
-        <LogoutButton variant="settings" />
-
         <FeedbackForm open={feedbackOpen} onOpenChange={setFeedbackOpen} />
+
+        {/* Logout */}
+        <Card>
+          <CardContent className="pt-6">
+            <LogoutButton variant="settings" />
+          </CardContent>
+        </Card>
       </TabsContent>
     </Tabs>
   );

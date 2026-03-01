@@ -28,9 +28,9 @@ export function LogoutButton({ variant = "header" }: LogoutButtonProps) {
   if (variant === "settings") {
     return (
       <Button
-        variant="ghost"
+        variant="outline"
         onClick={logout}
-        className="w-full justify-start text-[#64748B] hover:text-foreground hover:bg-muted"
+        className="w-full justify-start text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
       >
         <LogOut className="h-4 w-4 mr-2" />
         {t("profile.logout")}
