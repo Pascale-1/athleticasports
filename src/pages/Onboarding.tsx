@@ -6,18 +6,20 @@ import { toast } from "sonner";
 
 import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { WelcomeStep } from "@/components/onboarding/WelcomeStep";
+import { UsernameStep } from "@/components/onboarding/UsernameStep";
 import { SportStep } from "@/components/onboarding/SportStep";
 import { LocationStep } from "@/components/onboarding/LocationStep";
 import { GoalStep, type OnboardingGoal } from "@/components/onboarding/GoalStep";
 import { CompletionStep } from "@/components/onboarding/CompletionStep";
 import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 const Onboarding = () => {
   const navigate = useNavigate();
   const { setTrigger } = useAppWalkthrough();
   const [currentStep, setCurrentStep] = useState(1);
+  const [chosenUsername, setChosenUsername] = useState<string>("");
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   const [otherCity, setOtherCity] = useState("");
@@ -63,19 +65,22 @@ const Onboarding = () => {
         .from('profiles')
         .upsert({
           user_id: user.id,
-          username: `user_${user.id.substring(0, 8)}`,
+          username: chosenUsername || `user_${user.id.substring(0, 8)}`,
           display_name: user.user_metadata?.full_name || user.user_metadata?.name || null,
           avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
           primary_sport: selectedSport,
           preferred_district: preferredDistrict,
           onboarding_completed: true,
-          is_founding_member: true, // Beta users are founding members
+          is_founding_member: true,
         }, {
           onConflict: 'user_id',
           ignoreDuplicates: false,
         });
 
       if (error) throw error;
+
+      // Mark username as OK in sessionStorage so ProtectedRoute skips the check
+      sessionStorage.setItem(`username_ok_v2_${user.id}`, '1');
 
       // Wait for database propagation before navigating
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -94,7 +99,7 @@ const Onboarding = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Progress Bar - hide on welcome and completion */}
+      {/* Progress Bar - hide on welcome (1) and completion (6) */}
       {currentStep > 1 && currentStep < TOTAL_STEPS && (
         <div className="p-4 pt-6">
           <OnboardingProgress currentStep={currentStep - 1} totalSteps={TOTAL_STEPS - 2} />
@@ -108,6 +113,16 @@ const Onboarding = () => {
             <WelcomeStep key="welcome" onNext={handleNext} />
           )}
           {currentStep === 2 && (
+            <UsernameStep
+              key="username"
+              onNext={(username) => {
+                setChosenUsername(username);
+                handleNext();
+              }}
+              onBack={handleBack}
+            />
+          )}
+          {currentStep === 3 && (
             <SportStep
               key="sport"
               selectedSport={selectedSport}
@@ -116,7 +131,7 @@ const Onboarding = () => {
               onBack={handleBack}
             />
           )}
-          {currentStep === 3 && (
+          {currentStep === 4 && (
             <LocationStep
               key="location"
               selectedDistrict={selectedDistrict}
@@ -127,7 +142,7 @@ const Onboarding = () => {
               onBack={handleBack}
             />
           )}
-          {currentStep === 4 && (
+          {currentStep === 5 && (
             <GoalStep
               key="goal"
               selectedGoals={selectedGoals}
@@ -142,7 +157,7 @@ const Onboarding = () => {
               onBack={handleBack}
             />
           )}
-          {currentStep === 5 && (
+          {currentStep === 6 && (
             <CompletionStep
               key="completion"
               goals={selectedGoals}

@@ -52,6 +52,17 @@
       "explore": "Explorer"
     }
   },
+  "username": {
+    "title": "Choisis ton pseudo",
+    "subtitle": "C'est comme ça que les autres te trouveront",
+    "placeholder": "pseudo",
+    "helper": "3-20 caractères, lettres, chiffres, underscores",
+    "checking": "Vérification en cours...",
+    "available": "Ce pseudo est disponible !",
+    "taken": "Ce pseudo est déjà pris",
+    "confirm": "Continuer",
+    "back": "Retour"
+  },
   "progress": {
     "step": "Étape {{current}} sur {{total}}"
   },
