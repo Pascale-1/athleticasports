@@ -31,7 +31,7 @@ import {
 import { Event, isPastEvent } from "@/lib/events";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { getSportEmoji } from "@/lib/sports";
+import { getSportEmoji, getSportLabel } from "@/lib/sports";
 import { format, isWithinInterval } from "date-fns";
 import { getLocale } from "@/lib/dateUtils";
 import { getEventTypeKey, EventType } from "@/lib/eventConfig";
@@ -85,7 +85,7 @@ export const EventCard = memo(({
   const isPast = isPastEvent(event);
   const isLive = isWithinInterval(new Date(), { start: new Date(event.start_time), end: new Date(event.end_time) });
 
-  const { statusChip, dateBlock, venueName, sportEmoji, timeStr, typeChip } = useMemo(() => {
+  const { statusChip, dateBlock, venueName, timeStr, typeChip } = useMemo(() => {
     const startTime = new Date(event.start_time);
     const minutes = startTime.getMinutes();
     const time = startTime.toLocaleTimeString(lang, { 
@@ -109,10 +109,15 @@ export const EventCard = memo(({
       chip = { emoji: '📅', label: `${dateStr}`, className: 'bg-transparent border border-muted text-muted-foreground' };
     }
 
-    // Type chip
+    // Type chip — merge sport label when available
     const tc = TYPE_COLORS[event.type] || TYPE_COLORS.match;
     const typeLabel = t(`types.${getEventTypeKey(event.type as EventType)}`, event.type);
-    const tChip = { emoji: tc.emoji, className: `${tc.chipBg} ${tc.chipText}`, label: `${tc.emoji} ${typeLabel}` };
+    const sportLang = i18n.language?.startsWith('fr') ? 'fr' : 'en';
+    const chipEmoji = event.sport ? getSportEmoji(event.sport) : tc.emoji;
+    const chipLabel = event.sport 
+      ? `${chipEmoji} ${typeLabel} · ${getSportLabel(event.sport, sportLang)}`
+      : `${tc.emoji} ${typeLabel}`;
+    const tChip = { emoji: chipEmoji, className: `${tc.chipBg} ${tc.chipText}`, label: chipLabel };
 
     // Date block text: abbreviated day + date for the corner
     const dateBlock = format(startTime, "EEE d MMM", { locale }).toUpperCase();
@@ -121,7 +126,6 @@ export const EventCard = memo(({
       statusChip: chip,
       dateBlock,
       venueName: venue,
-      sportEmoji: event.sport ? getSportEmoji(event.sport) : null,
       timeStr: time,
       typeChip: tChip,
     };
@@ -269,7 +273,7 @@ export const EventCard = memo(({
 
               {/* ROW 5: Location + participant count */}
               <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
-                {sportEmoji && <span>{sportEmoji}</span>}
+                {/* Sport is now shown in ROW 1 type chip */}
                 {venueName && (
                   <span className="flex items-center gap-0.5 truncate">
                     <MapPin className="h-2.5 w-2.5 shrink-0" />

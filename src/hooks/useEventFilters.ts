@@ -14,6 +14,7 @@ export interface EventFilters {
   teamId?: string | null;
   isPublic?: boolean;
   sortOrder: 'asc' | 'desc';
+  sport: string;
 }
 
 export const useEventFilters = (events: Event[]) => {
@@ -22,6 +23,7 @@ export const useEventFilters = (events: Event[]) => {
     status: 'upcoming',
     searchQuery: '',
     sortOrder: 'asc',
+    sport: 'all',
   });
 
   const filteredEvents = useMemo(() => {
@@ -45,6 +47,11 @@ export const useEventFilters = (events: Event[]) => {
     // Filter by public/private
     if (filters.isPublic !== undefined) {
       filtered = filtered.filter(e => e.is_public === filters.isPublic);
+    }
+
+    // Filter by sport
+    if (filters.sport !== 'all') {
+      filtered = filtered.filter(e => e.sport?.toLowerCase() === filters.sport.toLowerCase());
     }
 
     // Search filter
@@ -79,6 +86,7 @@ export const useEventFilters = (events: Event[]) => {
       status: 'upcoming',
       searchQuery: '',
       sortOrder: 'asc',
+      sport: 'all',
     });
   };
 
@@ -88,6 +96,7 @@ export const useEventFilters = (events: Event[]) => {
   const setSortOrder = (order: 'asc' | 'desc') => updateFilter('sortOrder', order);
   const setTeamFilter = (teamId: string | null | undefined) => updateFilter('teamId', teamId);
   const setPublicFilter = (isPublic: boolean | undefined) => updateFilter('isPublic', isPublic);
+  const setSportFilter = (sport: string) => updateFilter('sport', sport);
 
   return {
     filters,
@@ -100,5 +109,6 @@ export const useEventFilters = (events: Event[]) => {
     setSortOrder,
     setTeamFilter,
     setPublicFilter,
+    setSportFilter,
   };
 };
