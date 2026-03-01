@@ -78,17 +78,23 @@ const ChooseUsername = () => {
       .eq("user_id", user.id)
       .maybeSingle();
 
-    const fallback = getFriendlyUsername(
+    const base = getFriendlyUsername(
       "user_placeholder",
       profile?.display_name,
       profile?.full_name
     );
+    const fallback = `${base}_${user.id.substring(0, 4)}`;
 
-    await supabase
+    const { error } = await supabase
       .from("profiles")
       .update({ username: fallback })
       .eq("user_id", user.id);
 
+    if (error) {
+      console.error("Failed to set fallback username:", error);
+    }
+
+    sessionStorage.setItem(`username_ok_v2_${user.id}`, '1');
     navigate("/", { replace: true });
   };
 
