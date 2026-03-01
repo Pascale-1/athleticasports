@@ -293,7 +293,9 @@
     "visibility": "Visibility",
     "filters": "Filters",
     "dateRange": "Date Range",
-    "clearFilters": "Clear Filters"
+    "clearFilters": "Clear Filters",
+    "sport": "Sport",
+    "allSports": "All Sports"
   },
   "invite": {
     "title": "Invite Participants",

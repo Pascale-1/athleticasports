@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar as CalendarIcon, List, Search, Dumbbell, Users, Swords, Compass, ClipboardList, CalendarCheck, Crown, X as XIcon } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, List, Search, Dumbbell, Users, Swords, Compass, ClipboardList, CalendarCheck, Crown, X as XIcon, ChevronDown } from "lucide-react";
 import { useUserEvents, UserEvent } from "@/hooks/useUserEvents";
 import { useEventFilters } from "@/hooks/useEventFilters";
 import { useDiscoverEvents } from "@/hooks/useDiscoverEvents";
@@ -25,6 +25,8 @@ import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
 import { PullToRefresh } from "@/components/animations/PullToRefresh";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { getActiveSports, getSportEmoji, getSportLabel } from "@/lib/sports";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,7 +52,7 @@ const TAB_CONFIG = [
 ] as const;
 
 const Events = () => {
-  const { t } = useTranslation('events');
+  const { t, i18n } = useTranslation('events');
   
   const { t: tCommon } = useTranslation('common');
   const [searchParams, setSearchParams] = useSearchParams();
@@ -58,6 +60,8 @@ const Events = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [activeEventType, setActiveEventType] = useState<'all' | 'training' | 'meetup' | 'match' | 'declined'>('all');
+  const [activeSport, setActiveSport] = useState<string>('all');
+  const [sportPopoverOpen, setSportPopoverOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'my' | 'organized' | 'discover'>('my');
   const [showSearch, setShowSearch] = useState(false);
   
@@ -106,13 +110,24 @@ const Events = () => {
     filteredEvents,
     setTypeFilter,
     setSearchQuery,
+    setSportFilter,
   } = useEventFilters(attendingEvents);
 
-  // Filter created events by type
+  // Filter created events by type and sport
   const filteredCreatedEvents = createdEvents.filter(event => {
-    if (activeEventType === 'all' || activeEventType === 'declined') return true;
-    return event.type === activeEventType;
+    if (activeEventType !== 'all' && activeEventType !== 'declined' && event.type !== activeEventType) return false;
+    if (activeSport !== 'all' && event.sport?.toLowerCase() !== activeSport.toLowerCase()) return false;
+    return true;
   });
+
+  // Filter discover events by type and sport
+  const filteredDiscoverEvents = useMemo(() => {
+    return discoverEvents.filter(event => {
+      if (activeEventType !== 'all' && activeEventType !== 'declined' && event.type !== activeEventType) return false;
+      if (activeSport !== 'all' && event.sport?.toLowerCase() !== activeSport.toLowerCase()) return false;
+      return true;
+    });
+  }, [discoverEvents, activeEventType, activeSport]);
 
   // Only declined events from the full list
   const onlyDeclinedEvents = declinedEvents.filter(e => e.userStatus === 'not_attending');
@@ -120,7 +135,9 @@ const Events = () => {
   const handleResetFilters = () => {
     setSearchQuery('');
     setActiveEventType('all');
+    setActiveSport('all');
     setTypeFilter('all');
+    setSportFilter('all');
   };
 
   // Handle event edit
@@ -277,7 +294,7 @@ const Events = () => {
             className={cn("h-7 px-2.5 text-[10px] rounded-full shrink-0",
               activeEventType === 'all' ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-card border text-foreground"
             )}
-            onClick={() => { setActiveEventType('all'); setTypeFilter('all'); }}
+            onClick={() => { setActiveEventType('all'); setTypeFilter('all'); setActiveSport('all'); setSportFilter('all'); }}
           >
             {t('types.all')}
           </Button>
@@ -295,6 +312,44 @@ const Events = () => {
               {t(labelKey)}
             </Button>
           ))}
+          {/* Sport dropdown chip */}
+          <Popover open={sportPopoverOpen} onOpenChange={setSportPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                size="sm"
+                variant="ghost"
+                className={cn("h-7 px-2.5 text-[10px] rounded-full shrink-0 gap-1",
+                  activeSport !== 'all' ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-card border text-foreground"
+                )}
+              >
+                {activeSport !== 'all' ? `${getSportEmoji(activeSport)} ${getSportLabel(activeSport, i18n.language?.startsWith('fr') ? 'fr' : 'en')}` : `🏅 ${t('filters.sport')}`}
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-1" align="start">
+              <button
+                className={cn(
+                  "w-full text-left px-3 py-2 rounded-md text-sm transition-colors",
+                  activeSport === 'all' ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
+                )}
+                onClick={() => { setActiveSport('all'); setSportFilter('all'); setSportPopoverOpen(false); }}
+              >
+                {t('filters.allSports')}
+              </button>
+              {getActiveSports().map(sport => (
+                <button
+                  key={sport.id}
+                  className={cn(
+                    "w-full text-left px-3 py-2 rounded-md text-sm transition-colors",
+                    activeSport === sport.id ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
+                  )}
+                  onClick={() => { setActiveSport(sport.id); setSportFilter(sport.id); setSportPopoverOpen(false); }}
+                >
+                  {sport.emoji} {sport.label[i18n.language?.startsWith('fr') ? 'fr' : 'en']}
+                </button>
+              ))}
+            </PopoverContent>
+          </Popover>
           {/* Declined filter chip */}
           {activeTab === 'my' && (
             <Button
@@ -337,8 +392,8 @@ const Events = () => {
                   <EventCardSkeleton key={i} />
                 ))}
               </div>
-            ) : discoverEvents.length > 0 ? (
-              <EventsList events={discoverEvents} showInlineRSVP />
+            ) : filteredDiscoverEvents.length > 0 ? (
+              <EventsList events={filteredDiscoverEvents} showInlineRSVP />
             ) : (
               <EmptyState
                 icon={Compass}

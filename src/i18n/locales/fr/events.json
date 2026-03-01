@@ -298,7 +298,9 @@
     "visibility": "Visibilité",
     "filters": "Filtres",
     "dateRange": "Période",
-    "clearFilters": "Effacer les filtres"
+    "clearFilters": "Effacer les filtres",
+    "sport": "Sport",
+    "allSports": "Tous les sports"
   },
   "invite": {
     "title": "Inviter des participantes",
