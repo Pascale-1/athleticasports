@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trophy, Users, User, Mail, Calendar, Globe, MessageSquare, PlayCircle, Pencil, Settings, Activity, KeyRound } from "lucide-react";
+import { Trophy, Users, User, AtSign, Mail, Calendar, Globe, MessageSquare, PlayCircle, Pencil, Settings, Activity, KeyRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { getDisplayUsername } from "@/lib/usernameUtils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -119,6 +120,14 @@ export const ProfileTabs = ({
                 <span className="text-sm text-muted-foreground">{t('profile.email')}:</span>
                 <span className="text-sm">{email}</span>
               </div>
+
+              {profile?.username && (
+                <div className="flex items-center gap-3">
+                  <AtSign className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">{t('profile.username')}:</span>
+                  <span className="text-sm font-medium">{getDisplayUsername(profile.username, profile.display_name, profile.full_name)}</span>
+                </div>
+              )}
 
               {profile?.primary_sport && (
                 <div className="flex items-center gap-3">

@@ -75,7 +75,9 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false, skipUser
       }
 
       // Use cached values if available (sessionStorage persists across route navigations)
-      const usernameCached = sessionStorage.getItem(`username_ok_${user.id}`) === '1';
+      // Version 2: bumped after resetting all existing usernames to user_ format
+      const cacheKey = `username_ok_v2_${user.id}`;
+      const usernameCached = sessionStorage.getItem(cacheKey) === '1';
       if (onboardingCachedRef.current && usernameCached) {
         setOnboardingCompleted(true);
         setHasCustomUsername(true);
@@ -102,7 +104,7 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false, skipUser
           const customUsername = !isSystemUsername(data?.username);
           setHasCustomUsername(customUsername);
           if (customUsername) {
-            sessionStorage.setItem(`username_ok_${user.id}`, '1');
+            sessionStorage.setItem(`username_ok_v2_${user.id}`, '1');
           }
         }
       } catch (err) {
