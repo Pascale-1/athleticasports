@@ -57,7 +57,10 @@
     "noPast": "No past events",
     "noResults": "No events found",
     "tryAdjusting": "Try adjusting your search or filters",
-    "createFirst": "Create your first event to get started"
+    "createFirst": "Create your first event to get started",
+    "noFilterResults": "No events match your filters",
+    "tryDifferentFilters": "Try selecting a different sport or event type",
+    "clearFilters": "Clear filters"
   },
   "details": {
     "when": "When",

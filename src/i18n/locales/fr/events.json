@@ -57,7 +57,10 @@
     "noPast": "Aucun événement passé",
     "noResults": "Aucun événement trouvé",
     "tryAdjusting": "Essayez d'ajuster vos filtres",
-    "createFirst": "Créez votre premier événement"
+    "createFirst": "Créez votre premier événement",
+    "noFilterResults": "Aucun événement ne correspond",
+    "tryDifferentFilters": "Essayez un autre sport ou type d'événement",
+    "clearFilters": "Effacer les filtres"
   },
   "details": {
     "when": "Quand",

@@ -226,6 +226,8 @@ const Events = () => {
     }
   };
 
+  const hasActiveFilters = activeEventType !== 'all' || activeSport !== 'all' || filters.searchQuery;
+
   return (
     <PageContainer>
       <PullToRefresh onRefresh={handleRefresh}>
@@ -397,14 +399,20 @@ const Events = () => {
             ) : (
               <EmptyState
                 icon={Compass}
-                title={t('discover.empty')}
-                description={t('discover.emptyDesc')}
+                title={hasActiveFilters ? t('empty.noFilterResults') : t('discover.empty')}
+                description={hasActiveFilters ? t('empty.tryDifferentFilters') : t('discover.emptyDesc')}
                 emoji="🔍"
                 action={
-                  <Button onClick={() => setCreateDialogOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    {t('createEvent')}
-                  </Button>
+                  hasActiveFilters ? (
+                    <Button variant="outline" onClick={handleResetFilters}>
+                      {t('empty.clearFilters')}
+                    </Button>
+                  ) : (
+                    <Button onClick={() => setCreateDialogOpen(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      {t('createEvent')}
+                    </Button>
+                  )
                 }
               />
             )}
@@ -429,14 +437,20 @@ const Events = () => {
             ) : (
               <EmptyState
                 icon={ClipboardList}
-                title={t('organized.empty')}
-                description={t('organized.emptyDesc')}
+                title={hasActiveFilters ? t('empty.noFilterResults') : t('organized.empty')}
+                description={hasActiveFilters ? t('empty.tryDifferentFilters') : t('organized.emptyDesc')}
                 emoji="📋"
                 action={
-                  <Button onClick={() => setCreateDialogOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    {t('createEvent')}
-                  </Button>
+                  hasActiveFilters ? (
+                    <Button variant="outline" onClick={handleResetFilters}>
+                      {t('empty.clearFilters')}
+                    </Button>
+                  ) : (
+                    <Button onClick={() => setCreateDialogOpen(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      {t('createEvent')}
+                    </Button>
+                  )
                 }
               />
             )}
@@ -519,20 +533,26 @@ const Events = () => {
                 {filteredEvents.length === 0 && (
                   <EmptyState
                     icon={CalendarIcon}
-                    title={t('empty.noUpcoming')}
+                    title={hasActiveFilters ? t('empty.noFilterResults') : t('empty.noUpcoming')}
                     emoji="📅"
                     description={
-                      filters.searchQuery
-                        ? t('empty.tryAdjusting')
-                        : t('empty.createFirst')
+                      hasActiveFilters
+                        ? t('empty.tryDifferentFilters')
+                        : filters.searchQuery
+                          ? t('empty.tryAdjusting')
+                          : t('empty.createFirst')
                     }
                     action={
-                      !filters.searchQuery && (
+                      hasActiveFilters ? (
+                        <Button variant="outline" onClick={handleResetFilters}>
+                          {t('empty.clearFilters')}
+                        </Button>
+                      ) : !filters.searchQuery ? (
                         <Button onClick={() => setCreateDialogOpen(true)}>
                           <Plus className="h-4 w-4 mr-2" />
                           {t('createEvent')}
                         </Button>
-                      )
+                      ) : undefined
                     }
                   />
                 )}
