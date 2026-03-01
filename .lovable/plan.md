@@ -1,40 +1,23 @@
 
 
-# Move Username Selection Into Onboarding Flow
+# Fix "Skip for now" on Choose Username page
 
-## Current Flow
-Sign up → Onboarding (5 steps: Welcome → Sport → Location → Goals → Completion) → `/choose-username` → Home
+## Root Cause
 
-## New Flow
-Sign up → Onboarding (6 steps: Welcome → **Username** → Sport → Location → Goals → Completion) → Home
+Two bugs in `handleSkip` in `src/pages/ChooseUsername.tsx`:
 
-The separate `/choose-username` page is eliminated for new users. For existing users who still have a `user_` system username, the `ProtectedRoute` redirect to `/choose-username` remains as a fallback.
+1. **No sessionStorage cache set** -- After skipping, the user navigates to `/` where `ProtectedRoute` re-checks the DB. Even if the username update worked, the cache key `username_ok_v2_` is never set, causing unnecessary re-checks. If the update *failed*, the user gets redirected right back to `/choose-username` in an infinite loop.
 
-## Changes
+2. **Fallback username can collide** -- `getFriendlyUsername("user_placeholder", displayName, fullName)` can produce duplicate values (e.g., two users named "John Doe" both get "JohnD"). The `username` column has a UNIQUE constraint, so the update silently fails, the username stays as `user_*`, and `ProtectedRoute` redirects back -- creating an infinite loop.
 
-### 1. Create `UsernameStep` onboarding component
-**New file**: `src/components/onboarding/UsernameStep.tsx`
+## Fix
 
-Extract the username input UI from `ChooseUsername.tsx` into a reusable step component matching the onboarding step pattern (motion animations, `onNext`/`onBack` props). It will:
-- Show the `@username` input with availability checking (same logic as current page)
-- Call `onNext(username)` when confirmed, passing the chosen username up to the parent
-- No skip option here -- username is required
+In `handleSkip` (`src/pages/ChooseUsername.tsx`):
 
-### 2. Update `Onboarding.tsx`
-- Bump `TOTAL_STEPS` from 5 to 6
-- Add `chosenUsername` state
-- Insert `UsernameStep` as step 2 (after Welcome, before Sport)
-- Shift Sport to step 3, Location to step 4, Goals to step 5, Completion to step 6
-- In `handleComplete`, use `chosenUsername` instead of `user_${user.id.substring(0, 8)}`
-- After saving, set `sessionStorage` cache key `username_ok_v2_${user.id}` to `'1'` so `ProtectedRoute` skips the username check
+1. Generate a unique fallback: use the existing name-derived logic but append the first 4 chars of `user.id` to avoid collisions (e.g., "JohnD_a1b2").
+2. Set `sessionStorage.setItem(\`username_ok_v2_${user.id}\`, '1')` after the update succeeds.
+3. Add error handling on the update call.
 
-### 3. Update progress bar
-Adjust `OnboardingProgress` range: hide on steps 1 (Welcome) and 6 (Completion), show for steps 2-5 with `totalSteps = 4`.
-
-### 4. Keep `/choose-username` as fallback
-The standalone page remains for existing users whose usernames were reset to `user_*`. No changes needed there.
-
-### Files modified
-1. **New**: `src/components/onboarding/UsernameStep.tsx`
-2. `src/pages/Onboarding.tsx` -- add username step, bump total, use chosen username on save
+### File changed
+- `src/pages/ChooseUsername.tsx` -- fix `handleSkip` function
 
