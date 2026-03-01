@@ -52,6 +52,17 @@
       "explore": "Explore"
     }
   },
+  "username": {
+    "title": "Choose your username",
+    "subtitle": "This is how others will find you",
+    "placeholder": "username",
+    "helper": "3-20 characters, letters, numbers, underscores",
+    "checking": "Checking availability...",
+    "available": "Username is available!",
+    "taken": "This username is already taken",
+    "confirm": "Continue",
+    "back": "Back"
+  },
   "progress": {
     "step": "Step {{current}} of {{total}}"
   },
