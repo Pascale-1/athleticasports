@@ -18,30 +18,34 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false, skipUser
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
   const [hasCustomUsername, setHasCustomUsername] = useState<boolean | null>(null);
   const onboardingCachedRef = useRef(false);
-  const usernameCachedRef = useRef(false);
+  const currentUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
-      if (!session?.user) {
+    const updateUser = (sessionUser: User | null) => {
+      const newId = sessionUser?.id ?? null;
+      if (newId === currentUserIdRef.current) return;
+      currentUserIdRef.current = newId;
+      setUser(sessionUser);
+      if (!sessionUser) {
         setLoading(false);
         setOnboardingCompleted(null);
         setHasCustomUsername(null);
       }
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      updateUser(session?.user ?? null);
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (!session?.user) {
-        setLoading(false);
-      }
+      updateUser(session?.user ?? null);
     });
 
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
         supabase.auth.getSession().then(({ data: { session } }) => {
           if (session?.user) {
-            setUser(session.user);
+            updateUser(session.user);
           }
         });
       }
@@ -70,8 +74,11 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false, skipUser
         return;
       }
 
-      // Use cached values if available
-      if (onboardingCachedRef.current && usernameCachedRef.current) {
+      // Use cached values if available (sessionStorage persists across route navigations)
+      const usernameCached = sessionStorage.getItem(`username_ok_${user.id}`) === '1';
+      if (onboardingCachedRef.current && usernameCached) {
+        setOnboardingCompleted(true);
+        setHasCustomUsername(true);
         setLoading(false);
         return;
       }
@@ -94,7 +101,9 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false, skipUser
 
           const customUsername = !isSystemUsername(data?.username);
           setHasCustomUsername(customUsername);
-          if (customUsername) usernameCachedRef.current = true;
+          if (customUsername) {
+            sessionStorage.setItem(`username_ok_${user.id}`, '1');
+          }
         }
       } catch (err) {
         console.error('Error checking profile:', err);
