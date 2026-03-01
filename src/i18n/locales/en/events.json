@@ -176,6 +176,7 @@
     "isPrivateDesc": "Only invited members can see this",
     "moreOptions": "More options",
     "sport": "Sport",
+    "sportRequired": "Please select a sport",
     "selectSport": "Select a sport",
     "selectEventType": "Event type",
     "preview": "Preview",
@@ -220,7 +221,8 @@
       "selectCategory": "Select category",
       "physicalLocation": "Physical Location (Optional)",
       "virtualLink": "Virtual Link (Optional)",
-      "create": "Create Meetup"
+      "create": "Create Meetup",
+      "categoryRequired": "Please select a category"
     },
     "game": {
       "title": "Game Title",
@@ -328,8 +330,8 @@
     "postGame": "Post-Game",
     "teamDinner": "Team Dinner",
     "social": "Social",
-    "fitness": "Fitness",
-    "activity": "Activity",
+    "teamBuilding": "Team Building",
+    "outing": "Outing",
     "other": "Other"
   },
   "calendar": {
