@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, Circle, ChevronRight, X } from "lucide-react";
+import { isSystemUsername } from "@/lib/usernameUtils";
 
 interface ProfileCompletionCardProps {
   profile: {
@@ -16,8 +17,7 @@ interface ProfileCompletionCardProps {
   onGoToAbout: () => void;
 }
 
-const isSystemUsername = (username?: string | null) =>
-  !username || /^user_[0-9a-f]+$/i.test(username);
+// isSystemUsername is now imported from @/lib/usernameUtils
 
 const COMPLETION_FIELDS = [
   { key: 'avatar_url', labelKey: 'profileCompletion.addPhoto' },

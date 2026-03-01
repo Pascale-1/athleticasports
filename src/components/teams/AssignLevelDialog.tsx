@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getDisplayUsername } from "@/lib/usernameUtils";
 import { useTranslation } from "react-i18next";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
@@ -65,7 +66,7 @@ export const AssignLevelDialog = ({ open, onOpenChange, player, onAssign }: Assi
           </Avatar>
           <div>
             <p className="font-medium">{player.displayName || player.username}</p>
-            <p className="text-sm text-muted-foreground">@{player.username}</p>
+            <p className="text-sm text-muted-foreground">{getDisplayUsername(player.username, player.displayName)}</p>
           </div>
           {player.currentLevel && (
             <div className="ml-auto">

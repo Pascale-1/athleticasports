@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { Loader2, Upload, Share2, Camera } from "lucide-react";
 import { ProfileStats } from "@/components/settings/ProfileStats";
+import { getDisplayUsername } from "@/lib/usernameUtils";
 import { ProfileTabs } from "@/components/settings/ProfileTabs";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
@@ -265,16 +266,7 @@ const Settings = () => {
                 {profile.display_name || profile.username}
               </h1>
               <p className="text-sm text-muted-foreground">
-                @{/^user_[0-9a-f]+$/i.test(profile.username)
-                  ? (() => {
-                      const name = profile.display_name || profile.full_name;
-                      if (!name) return profile.username;
-                      const parts = name.trim().split(/\s+/);
-                      return parts.length > 1
-                        ? parts[0] + parts[parts.length - 1][0].toUpperCase()
-                        : parts[0];
-                    })()
-                  : profile.username}
+                {getDisplayUsername(profile.username, profile.display_name, profile.full_name)}
               </p>
               {profile.is_founding_member && (
                 <FoundingMemberBadge size="sm" />
