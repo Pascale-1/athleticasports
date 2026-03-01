@@ -1,26 +1,24 @@
 
 
-# Fix Sport Filter Empty State UX
+# Logout Button Visibility Issue
 
-## Problem
-When a sport filter returns zero results, the empty state shows "No upcoming events" with a "Create event" CTA. Users interpret this as the filter being broken rather than no events matching.
+## Diagnosis
 
-## Solution
-Make the empty state filter-aware across all three tabs. When `activeSport !== 'all'` (or `activeEventType` is set), show a filter-specific message with a "Clear filters" action instead of "Create event".
+The `LogoutButton` component exists in the code and is rendered inside `ProfileTabs.tsx` at line 315, inside the "Settings" tab (4th tab). The component uses `variant="settings"` which renders a `ghost` Button with `text-[#64748B]` — a subtle gray that can easily be missed, especially on a dark background or when scrolling is needed.
 
-## Changes
+The button sits after `ChangePasswordSection` and before `FeedbackForm`, which means on smaller screens it may require scrolling to reach, and the ghost styling makes it blend into the background.
 
-### 1. `src/pages/Events.tsx`
-- Create a helper `hasActiveFilters` that checks `activeEventType !== 'all'` or `activeSport !== 'all'` or `filters.searchQuery`
-- In the "My" tab empty state (line 519-538): when `hasActiveFilters`, show "No events match your filters" with a "Clear filters" button calling `handleResetFilters`
-- In the "Organized" tab empty state (line 430-441): same pattern
-- In the "Discover" tab empty state (line 398-409): same pattern
+## Plan
 
-### 2. `src/i18n/locales/en/events.json`
-- Add `"empty.noFilterResults": "No events match your filters"`
-- Add `"empty.tryDifferentFilters": "Try selecting a different sport or event type"`
+### 1. Make the LogoutButton more visible in the Settings tab (`src/components/settings/ProfileTabs.tsx`)
 
-### 3. `src/i18n/locales/fr/events.json`
-- Add `"empty.noFilterResults": "Aucun événement ne correspond"`
-- Add `"empty.tryDifferentFilters": "Essayez un autre sport ou type d'événement"`
+Wrap the LogoutButton inside a `Card` component (like the other settings items) so it has a clear visual container and stands out. Move it to the very end of the settings tab content (after FeedbackForm), as the last item the user sees.
+
+### 2. Update LogoutButton styling (`src/components/settings/LogoutButton.tsx`)
+
+Change the `settings` variant from `ghost` to `outline` with more visible styling — use `text-destructive` color and a border so it clearly reads as a logout action and cannot be missed.
+
+### Files modified
+1. `src/components/settings/ProfileTabs.tsx` — wrap LogoutButton in a Card, move to end of settings tab
+2. `src/components/settings/LogoutButton.tsx` — update `settings` variant styling for better visibility
 
