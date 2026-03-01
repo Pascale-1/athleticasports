@@ -3,18 +3,22 @@ import { Navigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { Loader2 } from "lucide-react";
+import { isSystemUsername } from "@/lib/usernameUtils";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   skipOnboardingCheck?: boolean;
+  skipUsernameCheck?: boolean;
 }
 
-export const ProtectedRoute = ({ children, skipOnboardingCheck = false }: ProtectedRouteProps) => {
+export const ProtectedRoute = ({ children, skipOnboardingCheck = false, skipUsernameCheck = false }: ProtectedRouteProps) => {
   const location = useLocation();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
+  const [hasCustomUsername, setHasCustomUsername] = useState<boolean | null>(null);
   const onboardingCachedRef = useRef(false);
+  const usernameCachedRef = useRef(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -22,6 +26,7 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false }: Protec
       if (!session?.user) {
         setLoading(false);
         setOnboardingCompleted(null);
+        setHasCustomUsername(null);
       }
     });
 
@@ -32,7 +37,6 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false }: Protec
       }
     });
 
-    // Re-check session on visibility change (for iframe sync after OAuth)
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -51,17 +55,23 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false }: Protec
     };
   }, []);
 
-  // Check onboarding status when user is available
+  // Check onboarding + username status when user is available
   useEffect(() => {
-    const checkOnboarding = async () => {
-      if (!user || skipOnboardingCheck) {
-        if (user) setOnboardingCompleted(true);
+    const checkProfile = async () => {
+      if (!user) {
         setLoading(false);
         return;
       }
 
-      // Once onboarding is confirmed complete, never re-check
-      if (onboardingCachedRef.current) {
+      if (skipOnboardingCheck && skipUsernameCheck) {
+        setOnboardingCompleted(true);
+        setHasCustomUsername(true);
+        setLoading(false);
+        return;
+      }
+
+      // Use cached values if available
+      if (onboardingCachedRef.current && usernameCachedRef.current) {
         setLoading(false);
         return;
       }
@@ -69,30 +79,36 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false }: Protec
       try {
         const { data, error } = await supabase
           .from('profiles')
-          .select('onboarding_completed')
+          .select('onboarding_completed, username')
           .eq('user_id', user.id)
           .maybeSingle();
 
         if (error) {
-          console.error('Error checking onboarding:', error);
+          console.error('Error checking profile:', error);
           setOnboardingCompleted(true);
+          setHasCustomUsername(true);
         } else {
           const completed = data?.onboarding_completed ?? false;
           setOnboardingCompleted(completed);
           if (completed) onboardingCachedRef.current = true;
+
+          const customUsername = !isSystemUsername(data?.username);
+          setHasCustomUsername(customUsername);
+          if (customUsername) usernameCachedRef.current = true;
         }
       } catch (err) {
-        console.error('Error checking onboarding:', err);
+        console.error('Error checking profile:', err);
         setOnboardingCompleted(true);
+        setHasCustomUsername(true);
       } finally {
         setLoading(false);
       }
     };
 
     if (user) {
-      checkOnboarding();
+      checkProfile();
     }
-  }, [user, skipOnboardingCheck]);
+  }, [user, skipOnboardingCheck, skipUsernameCheck]);
 
   if (loading) {
     return (
@@ -107,13 +123,15 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false }: Protec
   }
 
   // Redirect to onboarding if not completed
-  // Guard against redirect loops by checking multiple conditions:
-  // 1. skipOnboardingCheck must be false
-  // 2. onboardingCompleted must be explicitly false (not null/undefined)
-  // 3. Current path must not be onboarding or any of its sub-routes
   const isOnboardingPath = location.pathname.startsWith('/onboarding');
   if (!skipOnboardingCheck && onboardingCompleted === false && !isOnboardingPath) {
     return <Navigate to="/onboarding" replace />;
+  }
+
+  // Redirect to username selection if onboarding done but no custom username
+  const isUsernamePath = location.pathname.startsWith('/choose-username');
+  if (!skipUsernameCheck && onboardingCompleted === true && hasCustomUsername === false && !isUsernamePath) {
+    return <Navigate to="/choose-username" replace />;
   }
 
   return <>{children}</>;

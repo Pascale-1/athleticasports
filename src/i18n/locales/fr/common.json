@@ -480,5 +480,16 @@
     "linkCopied": "Lien du profil copié"
   },
   "matchFound": "Match trouvé",
-  "until": "Jusqu'au {{date}}"
+  "until": "Jusqu'au {{date}}",
+  "usernameSelection": {
+    "skip": "Passer pour l'instant",
+    "title": "Choisissez votre pseudo",
+    "subtitle": "C'est ainsi que les autres joueurs vous trouveront",
+    "placeholder": "votre_pseudo",
+    "helper": "3 à 20 caractères. Lettres, chiffres et underscores uniquement.",
+    "confirm": "Confirmer le pseudo",
+    "taken": "Ce pseudo est déjà pris",
+    "available": "Disponible",
+    "checking": "Vérification..."
+  }
 }
