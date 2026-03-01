@@ -1,4 +1,4 @@
-import { format, formatDistanceToNow, formatRelative, type Locale } from 'date-fns';
+import { format, formatDistanceToNow, formatRelative, isToday, isYesterday, isThisWeek, type Locale } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { enUS } from 'date-fns/locale';
 
@@ -35,8 +35,38 @@ export const formatDateTimeShort = (date: Date | string): string => {
 };
 
 export const formatRelativeDate = (date: Date | string): string => {
+  return formatAbsoluteTimestamp(date);
+};
+
+/**
+ * Absolute timestamp formatter for communications (chat, announcements).
+ * - Same day   → "Today at 18:00" / "Aujourd'hui à 18h00"
+ * - Yesterday  → "Yesterday at 18:00" / "Hier à 18h00"
+ * - This week  → "Mon 24 Feb at 18:00" / "lun. 24 fév. à 18h00"
+ * - Older      → "24 Feb at 18:00" / "24 fév. à 18h00"
+ */
+export const formatAbsoluteTimestamp = (date: Date | string): string => {
   const d = typeof date === 'string' ? new Date(date) : date;
-  return formatDistanceToNow(d, { addSuffix: true, locale: getLocale() });
+  const locale = getLocale();
+  const isFr = locale === fr;
+  const timeFmt = isFr ? "HH'h'mm" : 'HH:mm';
+
+  if (isToday(d)) {
+    const prefix = isFr ? "Aujourd'hui" : 'Today';
+    const connector = isFr ? 'à' : 'at';
+    return `${prefix} ${connector} ${format(d, timeFmt, { locale })}`;
+  }
+  if (isYesterday(d)) {
+    const prefix = isFr ? 'Hier' : 'Yesterday';
+    const connector = isFr ? 'à' : 'at';
+    return `${prefix} ${connector} ${format(d, timeFmt, { locale })}`;
+  }
+  if (isThisWeek(d)) {
+    const connector = isFr ? 'à' : 'at';
+    return `${format(d, 'EEE d MMM', { locale })} ${connector} ${format(d, timeFmt, { locale })}`;
+  }
+  const connector = isFr ? 'à' : 'at';
+  return `${format(d, 'd MMM', { locale })} ${connector} ${format(d, timeFmt, { locale })}`;
 };
 
 export const formatRelativeDateShort = (date: Date | string, baseDate: Date = new Date()): string => {

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Loader2, Trash2 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { formatAbsoluteTimestamp } from "@/lib/dateUtils";
 import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
@@ -103,7 +103,7 @@ export const TeamChat = ({ teamId }: TeamChatProps) => {
                       {msg.profiles?.display_name || msg.profiles?.username}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
+                      {formatAbsoluteTimestamp(msg.created_at)}
                     </span>
                   </div>
                   <p className="text-body break-words">{msg.content}</p>
