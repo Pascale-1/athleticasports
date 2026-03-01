@@ -1,36 +1,40 @@
 
 
-# Make Username Always User-Chosen
+# Move Username Selection Into Onboarding Flow
 
-## Problem
+## Current Flow
+Sign up → Onboarding (5 steps: Welcome → Sport → Location → Goals → Completion) → `/choose-username` → Home
 
-1. The DB function `generate_random_username()` creates usernames like `SwiftStriker1234`, but `isSystemUsername()` only matches `user_[0-9a-f]+`. So existing users are never redirected to `/choose-username`.
-2. New users also get a random username that looks "real", so they're never prompted to choose one.
-3. The username is not visible as a field in the profile settings.
+## New Flow
+Sign up → Onboarding (6 steps: Welcome → **Username** → Sport → Location → Goals → Completion) → Home
 
-## Plan
+The separate `/choose-username` page is eliminated for new users. For existing users who still have a `user_` system username, the `ProtectedRoute` redirect to `/choose-username` remains as a fallback.
 
-### 1. Database migration: Replace `generate_random_username()` to produce `user_` prefix format
+## Changes
 
-Change the function to generate usernames like `user_a3f8b201` (8 hex chars), which matches the existing `isSystemUsername()` regex. This ensures all new signups are detected as system usernames and redirected to `/choose-username`.
+### 1. Create `UsernameStep` onboarding component
+**New file**: `src/components/onboarding/UsernameStep.tsx`
 
-### 2. Database data update: Mark all existing auto-generated usernames
+Extract the username input UI from `ChooseUsername.tsx` into a reusable step component matching the onboarding step pattern (motion animations, `onNext`/`onBack` props). It will:
+- Show the `@username` input with availability checking (same logic as current page)
+- Call `onNext(username)` when confirmed, passing the chosen username up to the parent
+- No skip option here -- username is required
 
-Run an UPDATE to convert all existing non-custom usernames (those matching the old adjective+noun+number pattern) to `user_` format. This will force existing users to choose a username on next login.
+### 2. Update `Onboarding.tsx`
+- Bump `TOTAL_STEPS` from 5 to 6
+- Add `chosenUsername` state
+- Insert `UsernameStep` as step 2 (after Welcome, before Sport)
+- Shift Sport to step 3, Location to step 4, Goals to step 5, Completion to step 6
+- In `handleComplete`, use `chosenUsername` instead of `user_${user.id.substring(0, 8)}`
+- After saving, set `sessionStorage` cache key `username_ok_v2_${user.id}` to `'1'` so `ProtectedRoute` skips the username check
 
-Since we cannot easily regex-match all old generated names, the safest approach: update all profiles where `username` does not match a "clean custom" pattern AND was never manually set. We can identify them by checking if the username matches common patterns from the old generator (e.g., contains adjective+noun combos). A simpler approach: reset ALL usernames that haven't been explicitly chosen. Since the app is early-stage, we can set all profiles where `username` matches the old pattern to `user_` + first 8 chars of `user_id`.
+### 3. Update progress bar
+Adjust `OnboardingProgress` range: hide on steps 1 (Welcome) and 6 (Completion), show for steps 2-5 with `totalSteps = 4`.
 
-### 3. Frontend: Show username in profile settings (read-only)
-
-Add a `@username` row in the Overview tab of `ProfileTabs.tsx`, next to the email row.
-
-### 4. Clear sessionStorage cache
-
-The `ProtectedRoute` caches `username_ok_` in sessionStorage. After resetting usernames, existing sessions will still have the cache. Add a cache-busting version check so the redirect triggers for reset users.
+### 4. Keep `/choose-username` as fallback
+The standalone page remains for existing users whose usernames were reset to `user_*`. No changes needed there.
 
 ### Files modified
-1. **New migration** -- replace `generate_random_username()` to produce `user_` + hex format
-2. **Data update** -- reset existing auto-generated usernames to `user_` + substr(user_id)
-3. `src/components/settings/ProfileTabs.tsx` -- add read-only username display row
-4. `src/components/ProtectedRoute.tsx` -- minor: clear stale sessionStorage on username mismatch
+1. **New**: `src/components/onboarding/UsernameStep.tsx`
+2. `src/pages/Onboarding.tsx` -- add username step, bump total, use chosen username on save
 
