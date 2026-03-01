@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@supabase/supabase-js";
-import { Trophy, Users, Swords, UserPlus, Search, Sparkles, Plus, CalendarCheck, ChevronRight, CheckCircle2, Camera, Megaphone } from "lucide-react";
+import { Trophy, Users, Swords, UserPlus, Search, Sparkles, Plus, CalendarCheck, ChevronRight, Camera, Megaphone } from "lucide-react";
 import { ActivityCard } from "@/components/feed/ActivityCard";
 import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
@@ -451,7 +451,24 @@ const Index = () => {
                               {formatDateTimeShort(match.start_time)}
                             </p>
                           </div>
-                          <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                          {(() => {
+                            const status = match.userStatus;
+                            const chipConfig = status === 'attending'
+                              ? { label: t('events:rsvp.going', 'Going'), bg: 'rgba(52,211,153,0.12)', color: '#34D399' }
+                              : status === 'maybe'
+                              ? { label: t('events:rsvp.maybe', 'Maybe'), bg: 'rgba(203,213,225,0.10)', color: '#CBD5E1' }
+                              : status === 'not_attending'
+                              ? { label: t('events:rsvp.cantGo', "Can't Go"), bg: 'rgba(248,113,113,0.12)', color: '#F87171' }
+                              : null;
+                            return chipConfig ? (
+                              <span
+                                className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap"
+                                style={{ backgroundColor: chipConfig.bg, color: chipConfig.color }}
+                              >
+                                {chipConfig.label}
+                              </span>
+                            ) : null;
+                          })()}
                         </div>
                       );
                     })}
