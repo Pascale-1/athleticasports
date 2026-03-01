@@ -1,72 +1,42 @@
 
 
-# Fix 6 Critical Issues
+# Hybrid Filter Layout: Inline Type Chips + Sport Dropdown
 
-## 1. Language mixing on home screen
-**File: `src/pages/Index.tsx`**
-- Line 216: Hardcoded `"Bonjour"` → use `t('home.greeting', { name: ... })` 
-- Line 233: `home.nextMatch` has French `defaultValue` → remove defaultValue, add proper key
-- Line 467: `home.noUpcomingGamesDesc` has French `defaultValue` → remove defaultValue, add proper key
+## What changes
 
-**File: `src/i18n/locales/en/common.json`** — add keys:
-- `home.greeting`: `"Hello {{name}} 👋"`
-- `home.nextEvent`: `"NEXT EVENT"`
-- `home.noUpcomingGamesDesc`: `"Find a game or create your own"`
+### 1. Add Sport dropdown chip to filter row (`src/pages/Events.tsx`)
+Append a `🏅 Sport ▾` chip after the existing type chips (and before Declined). Uses a `Popover` with sport list from `SPORTS`. When a sport is selected, chip becomes active showing `🎾 Padel ▾`. Selecting "All Sports" clears.
 
-**File: `src/i18n/locales/fr/common.json`** — add keys:
-- `home.greeting`: `"Bonjour {{name}} 👋"`
-- `home.nextEvent`: `"PROCHAIN ÉVÉNEMENT"`
-- `home.noUpcomingGamesDesc`: `"Trouve un match ou crée le tien"`
+```text
+[All] [🏃 Training] [⚽ Game] [🤝 Meetup] [🏅 Sport ▾] [✕ Declined]
+```
 
-## 2. Raw system ID as username
-**File: `src/pages/Settings.tsx`** — line 267
-- Change `@{profile.username}` → use helper: if username matches `user_[hex]` pattern, display `@` + first name + last initial derived from `display_name` or `full_name`, else display `@{username}`
+- Import `Popover`, `PopoverTrigger`, `PopoverContent` from radix
+- Import `getActiveSports`, `getSportEmoji`, `getSportLabel` from `src/lib/sports`
+- Add `activeSport` state (default `'all'`)
+- Render popover chip between the type chips and Declined chip
+- Apply sport filter to `filteredCreatedEvents` and `discoverEvents` inline (simple `.filter()`)
+- Wire to `setSportFilter` from useEventFilters
 
-**File: `src/components/settings/ProfileCompletionCard.tsx`**
-- Add `username` field to `COMPLETION_FIELDS` with key `profileCompletion.setUsername`
+### 2. Add sport filter to `src/hooks/useEventFilters.ts`
+- Add `sport: string` field to `EventFilters` (default `'all'`)
+- Add filtering logic: when sport is not `'all'`, filter by `e.sport?.toLowerCase() === filters.sport.toLowerCase()`
+- Add `setSportFilter` helper
+- Include `sport: 'all'` in `resetFilters`
 
-**Files: `en/common.json` + `fr/common.json`**
-- Add `profileCompletion.setUsername`: EN `"Set a username"` / FR `"Définir un nom d'utilisateur"`
+### 3. Show sport name on EventCard type chip (`src/components/events/EventCard.tsx`)
+- When `event.sport` exists, append `· SportLabel` to the type chip label (e.g., `🎾 Game · Padel`)
+- Use sport-specific emoji instead of the generic type emoji for matches with a sport
+- Remove the standalone `sportEmoji` from ROW 5 (line 272) since it's now in ROW 1
 
-## 3. Broken "ago:" label string
-**File: `src/components/settings/ProfileTabs.tsx`** — line 132
-- Change `{t('time.ago')}:` + `{formatMonthYear(...)}` → use `t('profile.memberSince', { date: formatMonthYear(...) })`
+### 4. Localization
+- `en/events.json`: add `"filters.sport": "Sport"`, `"filters.allSports": "All Sports"`
+- `fr/events.json`: add `"filters.sport": "Sport"`, `"filters.allSports": "Tous les sports"`
 
-**Files: `en/common.json` + `fr/common.json`**
-- Add `profile.memberSince`: EN `"Member since {{date}}"` / FR `"Membre depuis {{date}}"`
-
-## 4. Light mode — Option A (disable toggle, force dark)
-**File: `src/components/settings/ProfileTabs.tsx`**
-- Remove the ThemeToggle import and the theme label + `<ThemeToggle />` block from the settings tab
-- Add comment in the file: `// Light mode token system to be implemented in next sprint`
-
-**File: `src/App.tsx`** — line 225
-- Change `defaultTheme="dark"` and add `forcedTheme="dark"` to `<ThemeProvider>`, or simply remove `enableSystem`
-- Actually: set `forcedTheme="dark"` to prevent any theme switching
-
-## 5. Placeholder content cleanup
-This is database content, not code. The strings "Test", "XXX", "xttt" are user-entered data in the database, not hardcoded in the app. No code changes needed — this requires manual data cleanup in the database. Will note this.
-
-## 6. Log out placement
-**File: `src/pages/Settings.tsx`** — line 231
-- Remove `rightAction={<LogoutButton variant="header" />}` from `<PageHeader>`
-
-**File: `src/components/settings/ProfileTabs.tsx`**
-- Add `LogoutButton` import
-- Add a logout row at the bottom of the settings tab, styled as a standard list item in `text-[#64748B]` (not red)
-
-**File: `src/components/settings/LogoutButton.tsx`**
-- Add a third variant `"settings"` that renders as a non-destructive styled row item
-
-## Files Modified
-1. `src/i18n/locales/en/common.json` — add 5 keys
-2. `src/i18n/locales/fr/common.json` — add 5 keys  
-3. `src/pages/Index.tsx` — fix 3 hardcoded/defaultValue strings
-4. `src/pages/Settings.tsx` — remove logout from header
-5. `src/components/settings/ProfileTabs.tsx` — fix "ago:" string, remove ThemeToggle, add logout to settings tab
-6. `src/components/settings/LogoutButton.tsx` — add "settings" variant
-7. `src/components/settings/ProfileCompletionCard.tsx` — add username to checklist
-8. `src/App.tsx` — force dark theme
-
-Note on issue 5: Placeholder content like "Test", "XXX", "xttt" is user-entered data stored in the database. Cleaning it requires database updates, not code changes. Will flag this separately.
+### Files modified
+1. `src/hooks/useEventFilters.ts` — add sport field + filter logic
+2. `src/pages/Events.tsx` — add sport popover chip to filter row
+3. `src/components/events/EventCard.tsx` — merge sport into type chip, remove standalone emoji
+4. `src/i18n/locales/en/events.json` — 2 keys
+5. `src/i18n/locales/fr/events.json` — 2 keys
 
