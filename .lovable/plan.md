@@ -1,29 +1,39 @@
 
 
-# Fix: "Pay / Book" button not navigating to the payment link
+# Fix: Infinite loading spinner on Android
 
 ## Root Cause
 
-The `openExternalUrl` function (and the anchor-click fallback) sets `href` directly to the user-provided URL. If the stored `payment_link` value lacks a protocol prefix (e.g., `example.com` instead of `https://example.com`), the browser interprets it as a relative path within the app, so the link goes nowhere useful.
+In `src/components/ProtectedRoute.tsx`, the `updateUser` function uses a ref (`currentUserIdRef`) to deduplicate auth state changes. However, the ref starts as `null`, and when the user is not logged in, `onAuthStateChange` fires with `session = null`, producing `newId = null`. The check `newId === currentUserIdRef.current` evaluates to `null === null` → `true`, so the function returns early without ever calling `setLoading(false)`.
+
+On the web preview this may not have been noticed because the user was already logged in (localStorage had a session). On a fresh Android install or after clearing data, there is no stored session, so this bug triggers immediately.
 
 ## Fix
 
-**File: `src/hooks/useExternalLink.ts`**
+**File: `src/components/ProtectedRoute.tsx`**
 
-Add a URL normalization step at the top of `openExternalUrl` (both the hook version and the standalone export): if the URL does not start with `http://` or `https://`, prepend `https://`.
+Add a boolean ref `initialCheckDoneRef` to track whether the first auth callback has been processed. On the first call, always proceed regardless of the deduplication check.
 
 ```ts
-const normalizeUrl = (url: string): string => {
-  const trimmed = url.trim();
-  if (!/^https?:\/\//i.test(trimmed)) {
-    return `https://${trimmed}`;
+const initialCheckDoneRef = useRef(false);
+
+const updateUser = (sessionUser: User | null) => {
+  const newId = sessionUser?.id ?? null;
+  // Always process the first callback; deduplicate subsequent ones
+  if (initialCheckDoneRef.current && newId === currentUserIdRef.current) return;
+  initialCheckDoneRef.current = true;
+  currentUserIdRef.current = newId;
+  setUser(sessionUser);
+  if (!sessionUser) {
+    setLoading(false);
+    setOnboardingCompleted(null);
+    setHasCustomUsername(null);
   }
-  return trimmed;
 };
 ```
 
-Then call `normalizeUrl(url)` before passing to `Browser.open` or `openUrlWithAnchor`.
+This ensures `setLoading(false)` is called on the very first auth event even when the session is null, while still deduplicating subsequent identical callbacks.
 
 ### Files changed
-- `src/hooks/useExternalLink.ts` -- add URL normalization
+- `src/components/ProtectedRoute.tsx` -- fix initial null-session deduplication
 
