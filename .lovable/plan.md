@@ -1,39 +1,28 @@
 
 
-# Fix: Infinite loading spinner on Android
+# Fix: Stale session after background on Android
 
-## Root Cause
-
-In `src/components/ProtectedRoute.tsx`, the `updateUser` function uses a ref (`currentUserIdRef`) to deduplicate auth state changes. However, the ref starts as `null`, and when the user is not logged in, `onAuthStateChange` fires with `session = null`, producing `newId = null`. The check `newId === currentUserIdRef.current` evaluates to `null === null` → `true`, so the function returns early without ever calling `setLoading(false)`.
-
-On the web preview this may not have been noticed because the user was already logged in (localStorage had a session). On a fresh Android install or after clearing data, there is no stored session, so this bug triggers immediately.
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
 ## Fix
 
-**File: `src/components/ProtectedRoute.tsx`**
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-Add a boolean ref `initialCheckDoneRef` to track whether the first auth callback has been processed. On the first call, always proceed regardless of the deduplication check.
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-```ts
-const initialCheckDoneRef = useRef(false);
-
-const updateUser = (sessionUser: User | null) => {
-  const newId = sessionUser?.id ?? null;
-  // Always process the first callback; deduplicate subsequent ones
-  if (initialCheckDoneRef.current && newId === currentUserIdRef.current) return;
-  initialCheckDoneRef.current = true;
-  currentUserIdRef.current = newId;
-  setUser(sessionUser);
-  if (!sessionUser) {
-    setLoading(false);
-    setOnboardingCompleted(null);
-    setHasCustomUsername(null);
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
   }
 };
 ```
 
-This ensures `setLoading(false)` is called on the very first auth event even when the session is null, while still deduplicating subsequent identical callbacks.
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
 
 ### Files changed
-- `src/components/ProtectedRoute.tsx` -- fix initial null-session deduplication
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 
