@@ -19,11 +19,14 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false, skipUser
   const [hasCustomUsername, setHasCustomUsername] = useState<boolean | null>(null);
   const onboardingCachedRef = useRef(false);
   const currentUserIdRef = useRef<string | null>(null);
+  const initialCheckDoneRef = useRef(false);
 
   useEffect(() => {
     const updateUser = (sessionUser: User | null) => {
       const newId = sessionUser?.id ?? null;
-      if (newId === currentUserIdRef.current) return;
+      // Always process the first callback; deduplicate subsequent ones
+      if (initialCheckDoneRef.current && newId === currentUserIdRef.current) return;
+      initialCheckDoneRef.current = true;
       currentUserIdRef.current = newId;
       setUser(sessionUser);
       if (!sessionUser) {
