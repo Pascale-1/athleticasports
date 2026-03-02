@@ -47,9 +47,7 @@ export const ProtectedRoute = ({ children, skipOnboardingCheck = false, skipUser
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
         supabase.auth.getSession().then(({ data: { session } }) => {
-          if (session?.user) {
-            updateUser(session.user);
-          }
+          updateUser(session?.user ?? null);
         });
       }
     };
