@@ -34,7 +34,9 @@ export const TeamGeneralSettings = ({ team }: TeamGeneralSettingsProps) => {
         name: formData.name,
         description: formData.description || null,
         is_private: formData.is_private,
-      } as any);
+        announcement_permission: formData.announcement_permission,
+        chat_permission: formData.chat_permission,
+      });
 
       toast({
         title: t('settingsPage.updateSuccess'),
