@@ -101,6 +101,27 @@ const EventDetail = () => {
     loading: joinRequestsLoading 
   } = useEventJoinRequests(eventId || '');
 
+  // Practice Teams hooks
+  const { teams: generatedTeams, loading: teamsLoading, generating, generateTeams, deleteTeams, createGroup, deleteGroup, assignPlayer, removePlayer } = useTeamGeneration(event?.team_id ? eventId || null : null);
+  const { members: teamMembers } = useTeamMembers(event?.team_id || null);
+  const { getLevelForUser } = usePerformanceLevels(event?.team_id || null);
+
+  // Build player list for manual assignment
+  const allPlayers = useMemo(() => {
+    if (!teamMembers) return [];
+    return teamMembers.map((m: any) => ({
+      user_id: m.user_id,
+      username: m.profiles?.username || "Unknown",
+      display_name: m.profiles?.display_name || null,
+      avatar_url: m.profiles?.avatar_url || null,
+      performance_level: getLevelForUser(m.user_id),
+    }));
+  }, [teamMembers, getLevelForUser]);
+
+  const handleGenerate = useCallback(async (numTeams: number) => {
+    await generateTeams(numTeams);
+  }, [generateTeams]);
+
   // Fetch user's match proposal for this event
   useEffect(() => {
     const fetchUserProposal = async () => {
