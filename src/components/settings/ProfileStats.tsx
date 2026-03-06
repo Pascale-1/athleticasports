@@ -32,9 +32,10 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
           .eq('status', 'active'),
         supabase
           .from('event_attendance')
-          .select('*', { count: 'exact', head: true })
+          .select('id, events!inner(start_time)', { count: 'exact', head: true })
           .eq('user_id', userId)
-          .eq('status', 'attending'),
+          .eq('status', 'attending')
+          .lt('events.start_time', new Date().toISOString()),
       ]);
 
       if (teamsRes.error) console.error('Error fetching team stats:', teamsRes.error);
