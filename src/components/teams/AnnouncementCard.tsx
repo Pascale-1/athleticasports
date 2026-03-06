@@ -77,6 +77,11 @@ export const AnnouncementCard = ({
             </div>
             <p className="text-xs sm:text-sm whitespace-pre-wrap break-words"
                dangerouslySetInnerHTML={{ __html: renderSimpleMarkdown(announcement.content) }} />
+            {hasEvent && (
+              <p className="text-xs text-primary mt-1 font-medium">
+                View Event →
+              </p>
+            )}
           </div>
         </div>
         {(canManage || canEdit) && (
