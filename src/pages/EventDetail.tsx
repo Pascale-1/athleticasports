@@ -573,6 +573,120 @@ const EventDetail = () => {
           </CardContent>
         </Card>
 
+        {/* Practice Teams Section - Team events only */}
+        {event.team_id && isTeamMember && (
+          <Card>
+            <CardContent className="p-3 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-[11px] uppercase tracking-[0.8px] text-hint">
+                  <Users className="h-3.5 w-3.5 inline mr-1.5" />
+                  {t('common:practiceTeams.title', 'Practice Teams')}
+                </h3>
+                {canEdit && (
+                  <div className="flex gap-1.5">
+                    {generatedTeams.length > 0 && !manualMode && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setManualMode(true)}
+                      >
+                        {t('common:practiceTeams.manual', 'Manual')}
+                      </Button>
+                    )}
+                    {manualMode && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setManualMode(false)}
+                      >
+                        {t('common:actions.done', 'Done')}
+                      </Button>
+                    )}
+                    {generatedTeams.length === 0 && !manualMode && (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-xs"
+                          onClick={() => setManualMode(true)}
+                        >
+                          {t('common:practiceTeams.manual', 'Manual')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="h-7 text-xs"
+                          onClick={() => setShowGenerateDialog(true)}
+                          disabled={allPlayers.length < 2}
+                        >
+                          {t('common:practiceTeams.autoGenerate', 'Auto Generate')}
+                        </Button>
+                      </>
+                    )}
+                    {generatedTeams.length > 0 && !manualMode && (
+                      <Button
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setShowGenerateDialog(true)}
+                      >
+                        {t('common:practiceTeams.regenerate', 'Regenerate')}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {teamsLoading ? (
+                <div className="flex justify-center py-4">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                </div>
+              ) : manualMode && canEdit ? (
+                <ManualTeamAssignment
+                  allPlayers={allPlayers}
+                  teams={generatedTeams}
+                  onCreateGroup={createGroup}
+                  onDeleteGroup={deleteGroup}
+                  onAssignPlayer={async (teamId, player) => {
+                    setSaving(true);
+                    await assignPlayer(teamId, player);
+                    setSaving(false);
+                  }}
+                  onRemovePlayer={async (memberId) => {
+                    setSaving(true);
+                    await removePlayer(memberId);
+                    setSaving(false);
+                  }}
+                  saving={saving}
+                />
+              ) : generatedTeams.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {generatedTeams.map((team, idx) => (
+                    <GeneratedTeamCard
+                      key={team.id}
+                      team={team}
+                      accentColor={accentColors[idx % accentColors.length]}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  {t('common:practiceTeams.noTeams', 'No teams created yet')}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Generate Teams Dialog */}
+        <GenerateTeamsDialog
+          open={showGenerateDialog}
+          onOpenChange={setShowGenerateDialog}
+          onGenerate={handleGenerate}
+          totalPlayers={allPlayers.length}
+          generating={generating}
+        />
+
         {/* About / Description Card */}
         {event.description && (
           <Card>
