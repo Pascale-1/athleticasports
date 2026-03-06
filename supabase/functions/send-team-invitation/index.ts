@@ -4,7 +4,7 @@ const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 }
 
 interface InvitationRequest {
@@ -190,7 +190,7 @@ Deno.serve(async (req) => {
     }
 
     // Construct invitation URL using APP_URL secret, client origin, or fallback
-    const appUrl = Deno.env.get('APP_URL') || appOrigin || 'https://cf052cd2-1671-4422-bc90-2b3b42373aba.lovableproject.com'
+    const appUrl = Deno.env.get('APP_URL') || appOrigin || 'https://athleticasports.lovable.app'
     
     // Ensure appUrl doesn't have trailing slash
     const cleanAppUrl = appUrl.replace(/\/$/, '')

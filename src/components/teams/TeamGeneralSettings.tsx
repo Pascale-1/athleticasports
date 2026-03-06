@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
 interface TeamGeneralSettingsProps {
@@ -20,6 +21,8 @@ export const TeamGeneralSettings = ({ team }: TeamGeneralSettingsProps) => {
     name: team.name,
     description: team.description || "",
     is_private: team.is_private,
+    announcement_permission: (team as any).announcement_permission || "admin",
+    chat_permission: (team as any).chat_permission || "member",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,7 +34,7 @@ export const TeamGeneralSettings = ({ team }: TeamGeneralSettingsProps) => {
         name: formData.name,
         description: formData.description || null,
         is_private: formData.is_private,
-      });
+      } as any);
 
       toast({
         title: t('settingsPage.updateSuccess'),
@@ -95,6 +98,43 @@ export const TeamGeneralSettings = ({ team }: TeamGeneralSettingsProps) => {
               setFormData({ ...formData, is_private: checked })
             }
           />
+        </div>
+
+        {/* Permissions */}
+        <div className="space-y-3 rounded-lg border p-4">
+          <h3 className="text-sm font-semibold">{t('settingsPage.permissions', 'Permissions')}</h3>
+          
+          <div className="space-y-2">
+            <Label>{t('settingsPage.whoCanAnnounce', 'Who can post announcements')}</Label>
+            <Select
+              value={formData.announcement_permission}
+              onValueChange={(v) => setFormData({ ...formData, announcement_permission: v })}
+            >
+              <SelectTrigger className="h-11">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin">{t('settingsPage.adminsOnly', 'Admins & Coaches only')}</SelectItem>
+                <SelectItem value="member">{t('settingsPage.allMembers', 'All members')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <Label>{t('settingsPage.whoCanChat', 'Who can post in chat')}</Label>
+            <Select
+              value={formData.chat_permission}
+              onValueChange={(v) => setFormData({ ...formData, chat_permission: v })}
+            >
+              <SelectTrigger className="h-11">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin">{t('settingsPage.adminsOnly', 'Admins & Coaches only')}</SelectItem>
+                <SelectItem value="member">{t('settingsPage.allMembers', 'All members')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <Button type="submit" disabled={isLoading} className="w-full sm:w-auto h-11">

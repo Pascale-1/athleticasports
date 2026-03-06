@@ -1,9 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Pin, Trash2, Bot } from "lucide-react";
+import { Pin, Trash2, Bot, ExternalLink } from "lucide-react";
 import { TeamAnnouncement } from "@/hooks/useTeamAnnouncements";
 import { formatAbsoluteTimestamp } from "@/lib/dateUtils";
+import { useNavigate } from "react-router-dom";
 
 const renderSimpleMarkdown = (text: string) => {
   const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -17,7 +18,7 @@ const isSystemUser = (username?: string) => {
 };
 
 interface AnnouncementCardProps {
-  announcement: TeamAnnouncement;
+  announcement: TeamAnnouncement & { event_id?: string | null };
   canManage: boolean;
   canEdit: boolean;
   onTogglePin: (id: string, isPinned: boolean) => void;
@@ -31,8 +32,20 @@ export const AnnouncementCard = ({
   onTogglePin,
   onDelete,
 }: AnnouncementCardProps) => {
+  const navigate = useNavigate();
+  const hasEvent = !!(announcement as any).event_id;
+
+  const handleCardClick = () => {
+    if (hasEvent) {
+      navigate(`/events/${(announcement as any).event_id}`);
+    }
+  };
+
   return (
-    <Card className={`p-3 sm:p-4 ${announcement.is_pinned ? "border-primary" : ""}`}>
+    <Card 
+      className={`p-3 sm:p-4 ${announcement.is_pinned ? "border-primary" : ""} ${hasEvent ? "cursor-pointer hover:bg-muted/30 transition-colors" : ""}`}
+      onClick={hasEvent ? handleCardClick : undefined}
+    >
       <div className="flex flex-col sm:flex-row items-start gap-3">
         <div className="flex items-start gap-2 sm:gap-3 flex-1 w-full min-w-0">
           {isSystemUser(announcement.profile?.username) ? (
@@ -58,13 +71,16 @@ export const AnnouncementCard = ({
               {announcement.is_pinned && (
                 <Pin className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
               )}
+              {hasEvent && (
+                <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+              )}
             </div>
             <p className="text-xs sm:text-sm whitespace-pre-wrap break-words"
                dangerouslySetInnerHTML={{ __html: renderSimpleMarkdown(announcement.content) }} />
           </div>
         </div>
         {(canManage || canEdit) && (
-          <div className="flex gap-1 w-full sm:w-auto justify-end">
+          <div className="flex gap-1 w-full sm:w-auto justify-end" onClick={(e) => e.stopPropagation()}>
             {canManage && (
               <Button
                 variant="ghost"

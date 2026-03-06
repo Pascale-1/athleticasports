@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,9 +17,19 @@ interface EventsPreviewProps {
   canRSVP: boolean;
 }
 
+type FilterType = 'all' | 'training' | 'match' | 'meetup';
+
 export const EventsPreview = ({ events, teamId, canRSVP }: EventsPreviewProps) => {
   const { t } = useTranslation(['events', 'common']);
-  const upcomingEvents = events.slice(0, 3);
+  const [filter, setFilter] = useState<FilterType>('all');
+
+  const filteredEvents = filter === 'all' 
+    ? events 
+    : events.filter(e => e.type === filter);
+  const displayedEvents = filteredEvents.slice(0, 3);
+
+  const trainingCount = events.filter(e => e.type === 'training').length;
+  const matchCount = events.filter(e => e.type === 'match').length;
 
   if (events.length === 0) {
     return (
@@ -50,14 +61,49 @@ export const EventsPreview = ({ events, teamId, canRSVP }: EventsPreviewProps) =
           </Link>
         </div>
 
+        {/* Filter tabs */}
+        {(trainingCount > 0 || matchCount > 0) && (
+          <div className="flex gap-1.5 mb-3">
+            {(['all', 'training', 'match', 'meetup'] as FilterType[]).map((type) => {
+              const count = type === 'all' ? events.length : events.filter(e => e.type === type).length;
+              if (type !== 'all' && count === 0) return null;
+              const labels: Record<FilterType, string> = {
+                all: t('common:filters.all', 'All'),
+                training: '🏋️ ' + t('events:types.training', 'Training'),
+                match: '⚽ ' + t('events:types.match', 'Match'),
+                meetup: '👥 ' + t('events:types.meetup', 'Meetup'),
+              };
+              return (
+                <button
+                  key={type}
+                  onClick={() => setFilter(type)}
+                  className={cn(
+                    "px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all",
+                    filter === type
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-transparent border-border text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {labels[type]} ({count})
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         <div className="space-y-3">
-          {upcomingEvents.map((event) => (
+          {displayedEvents.map((event) => (
             <EventPreviewCard
               key={event.id}
               event={event}
               canRSVP={canRSVP}
             />
           ))}
+          {filteredEvents.length === 0 && (
+            <p className="text-center text-xs text-muted-foreground py-4">
+              {t('events:preview.noUpcoming')}
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -71,13 +117,22 @@ const EventPreviewCard = ({ event, canRSVP }: { event: Event; canRSVP: boolean }
   const getEventTypeColor = (type: string) => {
     switch (type) {
       case 'training':
-        return 'bg-primary/10 text-primary border-primary/20';
+        return 'bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400';
       case 'match':
-        return 'bg-primary/10 text-primary border-primary/20';
+        return 'bg-orange-500/10 text-orange-600 border-orange-500/20 dark:text-orange-400';
       case 'meetup':
-        return 'bg-success/10 text-success border-success/20';
+        return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400';
       default:
         return 'bg-muted text-muted-foreground';
+    }
+  };
+
+  const getEventTypeIcon = (type: string) => {
+    switch (type) {
+      case 'training': return '🏋️';
+      case 'match': return '⚽';
+      case 'meetup': return '👥';
+      default: return '📅';
     }
   };
 
@@ -87,7 +142,7 @@ const EventPreviewCard = ({ event, canRSVP }: { event: Event; canRSVP: boolean }
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="outline" className={cn("text-[10px]", getEventTypeColor(event.type))}>
-              {t(`types.${getEventTypeKey(event.type as EventType)}`)}
+              {getEventTypeIcon(event.type)} {t(`types.${getEventTypeKey(event.type as EventType)}`)}
             </Badge>
             {event.is_recurring && (
               <Flame className="h-3 w-3 text-primary" />
