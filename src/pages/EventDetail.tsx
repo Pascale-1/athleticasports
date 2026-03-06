@@ -85,6 +85,9 @@ const EventDetail = () => {
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [isTeamMember, setIsTeamMember] = useState(false);
   const [userProposal, setUserProposal] = useState<{ id: string; status: string } | null>(null);
+  const [manualMode, setManualMode] = useState(false);
+  const [showGenerateDialog, setShowGenerateDialog] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const { events, loading, deleteEvent, updateEvent } = useEvents();
   const event = events.find(e => e.id === eventId);
