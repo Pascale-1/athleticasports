@@ -1,28 +1,30 @@
 
 
-# Fix: Stale session after background on Android
+# Fix "When & Where" Card Alignment
 
 ## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+The rows inside the "When & Where" card are misaligned:
+- **Location row** has extra padding (`p-3 -mx-1`) that shifts it out of alignment with the date, cost, and capacity rows
+- The date row, cost row, and capacity row all use a consistent `flex items-center gap-3` pattern with no extra padding
+- The location row breaks this pattern, causing the MapPin icon and address text to sit at different indentation than the other rows
 
-## Fix
+## Fix — `src/pages/EventDetail.tsx`
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+### Location row (lines 431-448)
+Remove the `p-3 -mx-1` padding from the location wrapper div so it aligns with all other rows. Apply the same `flex items-center gap-3` pattern used by date, cost, and capacity rows. Keep the hover/group styling but without the extra padding that causes misalignment.
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
-
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
+Change:
+```
+className="flex items-center gap-3 p-3 -mx-1 rounded-lg hover:bg-muted/50 ..."
+```
+To:
+```
+className="flex items-center gap-3 rounded-lg hover:bg-muted/50 ..."
 ```
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+This single change aligns the location icon box and text with the date block, cost icon, and capacity icon above/below it.
 
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+| File | Change |
+|------|--------|
+| `src/pages/EventDetail.tsx` | Remove `p-3 -mx-1` from location row wrapper (line 434) |
 
