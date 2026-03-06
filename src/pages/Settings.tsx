@@ -181,26 +181,21 @@ const Settings = () => {
   const handleShare = async () => {
     const shareUrl = `${getAppBaseUrl()}/users?user=${profile?.user_id}`;
     const shareData = {
-      title: `${profile?.display_name || profile?.username}`,
-      text: `Athletica`,
+      title: profile?.display_name || profile?.username,
+      text: 'Athletica',
       url: shareUrl,
     };
 
     try {
       if (navigator.share) {
         await navigator.share(shareData);
-      } else {
-        const copied = await copyToClipboard(shareUrl);
-        if (copied) {
-          toast.success(t("profileToasts.linkCopied"));
-        }
+        return;
       }
     } catch (error) {
-      // User cancelled share dialog — not an error
-      if ((error as DOMException)?.name !== 'AbortError') {
-        console.error('Error sharing:', error);
-      }
+      if ((error as DOMException)?.name === 'AbortError') return;
     }
+    const copied = await copyToClipboard(shareUrl);
+    if (copied) toast.success(t("profileToasts.linkCopied"));
   };
 
   if (loading) {
