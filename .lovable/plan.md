@@ -1,28 +1,36 @@
 
 
-# Fix: Stale session after background on Android
+# Fix Event Detail Layout — Harmonize Typography
 
 ## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+The event detail page has inconsistent font sizes creating a jarring visual hierarchy. Key offenders:
 
-## Fix
+1. **Capacity number** (`20px bold`) is oversized — dominates the card
+2. **Day name** (line 419) has no explicit size, defaults to ~16px — too prominent for secondary info
+3. **Opponent name** (line 541) defaults to ~16px — disproportionate
+4. **Location text** (line 440) `text-sm` is fine but the "tap to open maps" link below it competes
+5. **Match badge** `text-[13px]` is slightly large for inline badges
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+## Changes — Single file: `src/pages/EventDetail.tsx`
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+### Capacity row (line 507)
+- Change `text-[20px] font-bold` → `text-sm font-semibold` to match the rest of the card's info rows
 
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
-```
+### Date/time row (lines 419-424)
+- Day name: add `text-sm` to match other info text
+- Time string: already `text-sm` — good
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+### Location row (line 440)
+- Already `text-sm` — keep as is
 
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+### Opponent name (line 541)
+- Change `font-medium` → `text-sm font-medium` for consistency
+
+### Match badges (line 548)
+- Change `text-[13px]` → `text-xs` to match other badges in the header
+
+### Overall card spacing
+- Ensure all info rows use the same pattern: `h-10 w-10` icon box + `text-sm` content — already mostly consistent, just fixing the outliers above
+
+This is purely a typography sizing pass — no structural or functional changes.
 
