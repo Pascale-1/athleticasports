@@ -15,6 +15,7 @@ import { FeedbackForm } from "@/components/feedback/FeedbackForm";
 import { useNavigate } from "react-router-dom";
 import { formatMonthYear } from "@/lib/dateUtils";
 import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
+import { resetAllOnboardingHints } from "@/hooks/useOnboardingHint";
 import { ProfileActivityTab } from "./ProfileActivityTab";
 import { ChangePasswordSection } from "./ChangePasswordSection";
 import { ProfileCompletionCard } from "./ProfileCompletionCard";
@@ -59,6 +60,7 @@ export const ProfileTabs = ({
 
   const handleRestartWalkthrough = () => {
     resetWalkthrough();
+    resetAllOnboardingHints();
     setTrigger();
     navigate('/');
   };
