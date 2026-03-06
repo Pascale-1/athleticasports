@@ -464,9 +464,18 @@
     "none": "Aucune équipe générée",
     "noTeams": "Aucune équipe générée",
     "noTeamsDesc": "Générez des équipes d'entraînement équilibrées selon les niveaux de performance",
-    "generateTeams": "Générer les équipes",
+    "generateTeams": "Auto-générer",
     "regenerate": "Régénérer",
-    "loadingTeams": "Chargement des équipes..."
+    "loadingTeams": "Chargement des équipes...",
+    "manualAssign": "Manuel",
+    "viewMode": "Mode lecture",
+    "unassigned": "Joueurs non assignés",
+    "tapGroup": "Appuyez sur un groupe ci-dessous pour assigner",
+    "allAssigned": "Tous les joueurs sont assignés !",
+    "tapToAdd": "Appuyez pour ajouter le joueur sélectionné",
+    "emptyGroup": "Aucun joueur",
+    "addGroup": "Ajouter un groupe",
+    "newGroupWithPlayer": "Nouveau groupe + assigner"
   },
   "profileToasts": {
     "updated": "Profil mis à jour",
