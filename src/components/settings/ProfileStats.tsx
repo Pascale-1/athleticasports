@@ -37,9 +37,12 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
           .eq('status', 'attending'),
       ]);
 
+      if (teamsRes.error) console.error('Error fetching team stats:', teamsRes.error);
+      if (eventsRes.error) console.error('Error fetching event stats:', eventsRes.error);
+
       setStats({
-        teams: teamsRes.count || 0,
-        eventsAttended: eventsRes.count || 0,
+        teams: teamsRes.error ? 0 : (teamsRes.count ?? 0),
+        eventsAttended: eventsRes.error ? 0 : (eventsRes.count ?? 0),
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
