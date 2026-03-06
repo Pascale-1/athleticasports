@@ -370,12 +370,6 @@ const Teams = () => {
         </motion.div>
       </PullToRefresh>
 
-      {/* FAB */}
-      <FAB
-        icon={<Plus className="h-5 w-5" />}
-        label={t('createTeam')}
-        onClick={() => navigate("/teams/create")}
-      />
     </PageContainer>
   );
 };

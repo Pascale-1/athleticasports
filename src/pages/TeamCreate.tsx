@@ -100,13 +100,15 @@ const TeamCreate = () => {
               />
             </div>
 
-            <SportQuickSelector
-              value={formData.sport || null}
-              onChange={(sport) => setFormData({ ...formData, sport: sport || "" })}
-              label={t('form.sport')}
-              lang={lang}
-              required
-            />
+            <div className="-mx-4 sm:-mx-6 px-4 sm:px-6">
+              <Label className="mb-2 block">{t('form.sport')} *</Label>
+              <SportQuickSelector
+                value={formData.sport || null}
+                onChange={(sport) => setFormData({ ...formData, sport: sport || "" })}
+                lang={lang}
+                required
+              />
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="description">{t('form.description')}</Label>

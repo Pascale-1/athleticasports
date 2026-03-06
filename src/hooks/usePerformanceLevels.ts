@@ -82,13 +82,16 @@ export const usePerformanceLevels = (teamId: string | null) => {
 
       const { error } = await supabase
         .from("player_performance_levels")
-        .upsert({
-          team_id: teamId,
-          user_id: userId,
-          level,
-          assigned_by: user.id,
-          notes: notes || null,
-        });
+        .upsert(
+          {
+            team_id: teamId,
+            user_id: userId,
+            level,
+            assigned_by: user.id,
+            notes: notes || null,
+          },
+          { onConflict: 'team_id,user_id' }
+        );
 
       if (error) throw error;
 
