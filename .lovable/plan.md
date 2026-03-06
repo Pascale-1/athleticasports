@@ -1,34 +1,28 @@
 
 
-# Redesign "Who's Coming" Section — Compact & Scalable
+# Fix: Stale session after background on Android
 
 ## Problem
-The current layout has redundant information (status counts shown twice — once as text, once as avatar row summary), the detailed attendee list takes excessive vertical space with large rows, and the avatar stack preview duplicates the summary line.
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-## Changes — `src/components/events/EventAttendees.tsx`
+## Fix
 
-### 1. Merge summary into a single compact row
-Remove the duplicate: currently there's a status-count row (lines 168-185) AND an avatar-stack row with the same counts (lines 187-208). Merge into one row: avatar stack on the left, compact pill counts on the right.
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-### 2. Compact attendee rows
-- Reduce `AttendeeRow` padding from `py-2 gap-3` to `py-1 gap-2`
-- Reduce avatar from `h-6 w-6` to `h-5 w-5`
-- Use `text-xs` instead of `text-sm` for names in the expanded list
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-### 3. Scrollable expanded list
-When expanded with many attendees, cap the detail list at `max-h-48 overflow-y-auto` so it doesn't push everything down.
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
+```
 
-### 4. Always collapse by default
-Remove `autoExpand` logic (currently auto-expands for ≤5). Always start collapsed — show just the compact summary row with a "See all" toggle. This keeps the card consistently small.
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
 
-### 5. StatusSection compactness
-- Reduce section header from `text-sm` to `text-xs`
-- Reduce indent from `pl-7` to `pl-6`
-- Reduce vertical spacing from `space-y-3` to `space-y-2`
-
-## File changes
-
-| File | Change |
-|------|--------|
-| `src/components/events/EventAttendees.tsx` | Merge summary rows, compact attendee sizing, add scroll cap, always-collapsed default |
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 
