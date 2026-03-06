@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useExternalLink } from "@/hooks/useExternalLink";
 import { Copy, RefreshCw, Share2, MessageCircle, Settings } from "lucide-react";
+import { copyToClipboard } from "@/lib/clipboard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,12 +43,14 @@ export const EventInviteLink = ({
 
   const inviteLink = `${getAppBaseUrl()}/events/join/${inviteCode}`;
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(inviteLink);
-    toast({
-      title: t('common:actions.copied'),
-      description: t('events:invite.linkCopied'),
-    });
+  const handleCopyToClipboard = async () => {
+    const copied = await copyToClipboard(inviteLink);
+    if (copied) {
+      toast({
+        title: t('common:actions.copied'),
+        description: t('events:invite.linkCopied'),
+      });
+    }
   };
 
   const regenerateCode = async () => {
@@ -175,7 +178,7 @@ export const EventInviteLink = ({
           size="sm"
           variant="outline"
           className="h-9 px-3"
-          onClick={copyToClipboard}
+          onClick={handleCopyToClipboard}
         >
           <Copy className="h-4 w-4" />
         </Button>

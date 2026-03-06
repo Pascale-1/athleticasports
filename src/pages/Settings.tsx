@@ -13,8 +13,9 @@ import { ProfileTabs } from "@/components/settings/ProfileTabs";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
 import { FoundingMemberBadge } from "@/components/profile/FoundingMemberBadge";
-import { LogoutButton } from "@/components/settings/LogoutButton";
 import { AccountDangerZone } from "@/components/settings/AccountDangerZone";
+import { getAppBaseUrl } from "@/lib/appUrl";
+import { copyToClipboard } from "@/lib/clipboard";
 
 interface Profile {
   id: string;
@@ -147,7 +148,8 @@ const Settings = () => {
         return;
       }
 
-      const filePath = `${profile?.user_id}-${Math.random()}.${fileExt}`;
+      // Upload inside a folder named after the user ID to match storage RLS policy
+      const filePath = `${profile?.user_id}/${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
@@ -177,21 +179,27 @@ const Settings = () => {
   };
 
   const handleShare = async () => {
+    const shareUrl = `${getAppBaseUrl()}/users?user=${profile?.user_id}`;
     const shareData = {
       title: `${profile?.display_name || profile?.username}`,
       text: `Athletica`,
-      url: window.location.href,
+      url: shareUrl,
     };
 
     try {
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        await navigator.clipboard.writeText(window.location.href);
-        toast.success(t("profileToasts.linkCopied"));
+        const copied = await copyToClipboard(shareUrl);
+        if (copied) {
+          toast.success(t("profileToasts.linkCopied"));
+        }
       }
     } catch (error) {
-      console.error('Error sharing:', error);
+      // User cancelled share dialog — not an error
+      if ((error as DOMException)?.name !== 'AbortError') {
+        console.error('Error sharing:', error);
+      }
     }
   };
 
@@ -301,10 +309,6 @@ const Settings = () => {
           tempValues={tempValues}
           setTempValues={setTempValues}
         />
-
-        <Card className="p-4">
-          <LogoutButton variant="settings" />
-        </Card>
 
         <AccountDangerZone />
       </div>
