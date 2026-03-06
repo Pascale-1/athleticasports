@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.80.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 interface Player {
@@ -52,29 +52,33 @@ Deno.serve(async (req) => {
       throw new Error('Invalid request: sessionId required and numTeams must be between 2-6');
     }
 
-    // Fetch training session
-    const { data: session, error: sessionError } = await supabaseClient
-      .from('training_sessions')
-      .select('team_id')
+    // Fetch event (sessionId is actually an event ID)
+    const { data: event, error: eventError } = await supabaseClient
+      .from('events')
+      .select('id, team_id')
       .eq('id', sessionId)
-      .single();
+      .maybeSingle();
 
-    if (sessionError || !session) {
-      throw new Error('Training session not found');
+    if (eventError || !event) {
+      throw new Error('Event not found');
+    }
+
+    if (!event.team_id) {
+      throw new Error('Event is not associated with a team');
     }
 
     // Verify user is coach or admin
-    const { data: roleData, error: roleError } = await supabaseClient.rpc('get_user_team_role', {
+    const { data: roleData } = await supabaseClient.rpc('get_user_team_role', {
       _user_id: user.id,
-      _team_id: session.team_id,
+      _team_id: event.team_id,
     });
 
-    const canManage = await supabaseClient.rpc('can_manage_team', {
+    const { data: canManageData } = await supabaseClient.rpc('can_manage_team', {
       _user_id: user.id,
-      _team_id: session.team_id,
+      _team_id: event.team_id,
     });
 
-    if (roleError || (!canManage.data && roleData !== 'coach')) {
+    if (!canManageData && roleData !== 'coach') {
       throw new Error('Only coaches and admins can generate teams');
     }
 
@@ -82,7 +86,7 @@ Deno.serve(async (req) => {
     const { data: members, error: membersError } = await supabaseClient
       .from('team_members')
       .select('user_id')
-      .eq('team_id', session.team_id)
+      .eq('team_id', event.team_id)
       .eq('status', 'active');
 
     if (membersError || !members || members.length === 0) {
@@ -90,26 +94,18 @@ Deno.serve(async (req) => {
     }
 
     // Fetch profiles for these members
-    const { data: profiles, error: profilesError } = await supabaseClient
+    const { data: profiles } = await supabaseClient
       .from('profiles')
       .select('user_id, username, display_name')
       .in('user_id', members.map(m => m.user_id));
 
-    if (profilesError) {
-      console.error('Error fetching profiles:', profilesError);
-    }
-
     const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
 
     // Fetch performance levels for these members
-    const { data: levels, error: levelsError } = await supabaseClient
+    const { data: levels } = await supabaseClient
       .from('player_performance_levels')
       .select('user_id, level')
-      .eq('team_id', session.team_id);
-
-    if (levelsError) {
-      console.error('Error fetching levels:', levelsError);
-    }
+      .eq('team_id', event.team_id);
 
     const levelMap = new Map(levels?.map(l => [l.user_id, l.level]) || []);
 
@@ -137,7 +133,6 @@ Deno.serve(async (req) => {
 
     // Balanced distribution algorithm
     for (const player of players) {
-      // Find team with lowest current average
       let minAvg = Infinity;
       let targetTeam = 0;
       
@@ -162,11 +157,11 @@ Deno.serve(async (req) => {
         : team.members.reduce((sum, p) => sum + p.level, 0) / team.members.length;
     });
 
-    // Delete existing teams for this session
+    // Delete existing event teams for this event
     const { error: deleteError } = await supabaseServiceRole
-      .from('training_session_teams')
+      .from('event_teams')
       .delete()
-      .eq('training_session_id', sessionId);
+      .eq('event_id', sessionId);
 
     if (deleteError) {
       console.error('Error deleting old teams:', deleteError);
@@ -175,9 +170,9 @@ Deno.serve(async (req) => {
     // Insert new teams
     for (const team of teams) {
       const { data: teamRecord, error: teamError } = await supabaseServiceRole
-        .from('training_session_teams')
+        .from('event_teams')
         .insert({
-          training_session_id: sessionId,
+          event_id: sessionId,
           team_name: team.teamName,
           team_number: team.teamNumber,
           average_level: team.averageLevel,
@@ -192,13 +187,13 @@ Deno.serve(async (req) => {
 
       // Insert team members
       const memberInserts = team.members.map(member => ({
-        session_team_id: teamRecord.id,
+        event_team_id: teamRecord.id,
         user_id: member.userId,
         performance_level: member.level,
       }));
 
       const { error: membersInsertError } = await supabaseServiceRole
-        .from('training_session_team_members')
+        .from('event_team_members')
         .insert(memberInserts);
 
       if (membersInsertError) {
