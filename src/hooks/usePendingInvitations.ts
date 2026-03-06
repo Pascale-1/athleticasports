@@ -70,12 +70,18 @@ export const usePendingInvitations = () => {
       const teamIds = [...new Set(rawInvitations.map(i => i.team_id))];
       const inviterIds = [...new Set(rawInvitations.map(i => i.invited_by))];
 
-      const [teamsResult, invitersResult] = await Promise.all([
-        supabase.from("teams").select("id, name, sport, avatar_url").in("id", teamIds),
+      const [teamDetails, invitersResult] = await Promise.all([
+        Promise.all(
+          teamIds.map(tid =>
+            supabase.rpc('get_team_info_for_invitation', { _team_id: tid, _user_id: user.id }).single()
+          )
+        ),
         supabase.from("profiles").select("user_id, display_name, username").in("user_id", inviterIds),
       ]);
 
-      const teamsMap = new Map((teamsResult.data || []).map(t => [t.id, t]));
+      const teamsMap = new Map(
+        teamDetails.filter(r => r.data).map(r => [r.data!.id, r.data!])
+      );
       const invitersMap = new Map((invitersResult.data || []).map(p => [p.user_id, p]));
 
       const enriched: PendingInvitation[] = rawInvitations.map(inv => {
