@@ -76,7 +76,7 @@ export const createTeam = async (data: {
 
 export const updateTeam = async (
   teamId: string,
-  data: Partial<Pick<Team, "name" | "description" | "is_private" | "avatar_url" | "default_venue" | "default_venue_url" | "default_training_time" | "default_training_day">>
+  data: Partial<Pick<Team, "name" | "description" | "is_private" | "avatar_url" | "default_venue" | "default_venue_url" | "default_training_time" | "default_training_day"> & { announcement_permission: string; chat_permission: string }>
 ) => {
   const { data: team, error } = await supabase
     .from("teams")
