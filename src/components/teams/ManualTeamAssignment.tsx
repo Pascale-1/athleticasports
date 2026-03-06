@@ -74,14 +74,16 @@ export const ManualTeamAssignment = ({
     <div className="space-y-4">
       {/* Unassigned Players */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            {t("practiceTeams.unassigned", "Unassigned Players")}
-            <Badge variant="secondary" className="ml-auto">
+        <CardContent className="p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-semibold flex items-center gap-1.5">
+              <Users className="h-3.5 w-3.5" />
+              {t("practiceTeams.unassigned", "Unassigned Players")}
+            </p>
+            <Badge variant="secondary" className="text-xs">
               {unassignedPlayers.length}
             </Badge>
-          </CardTitle>
+          </div>
           {selectedPlayer && (
             <p className="text-sm text-primary font-medium animate-pulse">
               {t("practiceTeams.tapGroup", "Tap a group below to assign")}
@@ -139,9 +141,9 @@ export const ManualTeamAssignment = ({
                 : ""
             )}
           >
-            <CardHeader className="pb-2">
+            <CardContent className="p-3 pt-0 space-y-1.5">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">{team.team_name}</CardTitle>
+                <p className="text-sm font-semibold">{team.team_name}</p>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="text-xs">
                     {team.members.length} {team.members.length === 1 ? "player" : "players"}
@@ -167,8 +169,6 @@ export const ManualTeamAssignment = ({
                   )}
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className="pt-0">
               {team.members.length === 0 ? (
                 <p className="text-xs text-muted-foreground py-2">
                   {selectedPlayer
@@ -209,7 +209,6 @@ export const ManualTeamAssignment = ({
                     </div>
                   ))}
                 </div>
-              )}
             </CardContent>
           </Card>
         ))}
