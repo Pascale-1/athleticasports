@@ -39,21 +39,21 @@ const AttendeeRow = ({
   const isCurrentUser = attendee.user_id === currentUserId;
   
   return (
-    <div className="flex items-center gap-3 py-2">
-      <Avatar className="h-6 w-6">
+    <div className="flex items-center gap-2 py-1">
+      <Avatar className="h-5 w-5">
         <AvatarImage src={attendee.profiles?.avatar_url || ''} />
-        <AvatarFallback className="text-xs bg-muted">
+        <AvatarFallback className="text-[9px] bg-muted">
           {displayName[0]?.toUpperCase() || '?'}
         </AvatarFallback>
       </Avatar>
-      <span className="text-sm flex-1">
+      <span className="text-xs flex-1">
         {displayName}
         {isCurrentUser && (
           <span className="text-muted-foreground ml-1">{youLabel}</span>
         )}
       </span>
       {attendee.is_committed && (
-        <Badge variant="secondary" className="text-xs bg-primary/20 text-primary">
+        <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-primary/20 text-primary">
           ⭐ {committedLabel}
         </Badge>
       )}
@@ -99,15 +99,15 @@ const StatusSection = ({
   if (attendees.length === 0) return null;
 
   return (
-    <div className="space-y-1">
-      <div className="flex items-center gap-2 py-1">
-        <div className={cn("p-1 rounded-full", cfg.bgColor)}>
-          <StatusIcon className={cn("h-3.5 w-3.5", cfg.color)} />
+    <div className="space-y-0.5">
+      <div className="flex items-center gap-1.5 py-0.5">
+        <div className={cn("p-0.5 rounded-full", cfg.bgColor)}>
+          <StatusIcon className={cn("h-3 w-3", cfg.color)} />
         </div>
-        <span className="text-sm font-medium text-muted-foreground">{cfg.label}</span>
-        <span className="text-xs text-muted-foreground">({attendees.length})</span>
+        <span className="text-xs font-medium text-muted-foreground">{cfg.label}</span>
+        <span className="text-[10px] text-muted-foreground">({attendees.length})</span>
       </div>
-      <div className="pl-7 space-y-0.5">
+      <div className="pl-6 space-y-0">
         {attendees.map((attendee) => (
           <AttendeeRow 
             key={attendee.user_id} 
@@ -142,105 +142,75 @@ export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps
 
   const previewAttendees = [...grouped.attending, ...grouped.maybe].slice(0, 5);
   const totalResponses = attendees.length;
-  const autoExpand = totalResponses <= 5;
 
   if (attendees.length === 0) {
     return (
-      <div className="text-center py-6 text-muted-foreground text-sm">
+      <div className="text-center py-4 text-muted-foreground text-xs">
         {t('attendees.noResponses')}
       </div>
     );
   }
 
-  const previewNames = previewAttendees
-    .slice(0, 3)
-    .map(a => {
-      const raw = a.profiles?.display_name || a.profiles?.username || '';
-      const name = raw.startsWith('user_') ? 'Player' : raw;
-      return name.split(' ')[0];
-    })
-    .filter(Boolean);
-
-  const othersCount = totalResponses - previewNames.length;
-
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-1.5">
-          <CheckCircle2 className="h-4 w-4 text-success" />
-          <span className="text-sm font-medium">{grouped.attending.length} {labels.going.toLowerCase()}</span>
+    <div className="space-y-2">
+      {/* Single merged summary row: avatars left, counts right */}
+      <div className="flex items-center justify-between">
+        <div className="flex -space-x-1.5">
+          {previewAttendees.map((attendee) => (
+            <Avatar key={attendee.user_id} className="h-5 w-5 border-2 border-background ring-1 ring-border/50">
+              <AvatarImage src={attendee.profiles?.avatar_url || ''} />
+              <AvatarFallback className="text-[8px] bg-muted">
+                {(attendee.profiles?.display_name?.[0] || attendee.profiles?.username?.[0] || '?').toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          ))}
+          {totalResponses > 5 && (
+            <div className="h-5 w-5 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[8px] font-medium ring-1 ring-border/50">
+              +{totalResponses - 5}
+            </div>
+          )}
         </div>
-        {grouped.maybe.length > 0 && (
-          <div className="flex items-center gap-1.5">
-            <HelpCircle className="h-4 w-4 text-primary" />
-            <span className="text-sm text-muted-foreground">{grouped.maybe.length} {labels.maybe.toLowerCase()}</span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <CheckCircle2 className="h-3 w-3 text-success" />
+            <span className="text-xs font-medium">{grouped.attending.length}</span>
           </div>
-        )}
-        {grouped.not_attending.length > 0 && (
-          <div className="flex items-center gap-1.5">
-            <XCircle className="h-4 w-4 text-destructive" />
-            <span className="text-sm text-muted-foreground">{grouped.not_attending.length}</span>
-          </div>
-        )}
+          {grouped.maybe.length > 0 && (
+            <div className="flex items-center gap-1">
+              <HelpCircle className="h-3 w-3 text-primary" />
+              <span className="text-xs text-muted-foreground">{grouped.maybe.length}</span>
+            </div>
+          )}
+          {grouped.not_attending.length > 0 && (
+            <div className="flex items-center gap-1">
+              <XCircle className="h-3 w-3 text-destructive" />
+              <span className="text-xs text-muted-foreground">{grouped.not_attending.length}</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {previewAttendees.length > 0 && (
-        <div className="flex items-center gap-3">
-          <div className="flex -space-x-2">
-            {previewAttendees.map((attendee) => (
-              <Avatar key={attendee.user_id} className="h-6 w-6 border-2 border-background ring-1 ring-border/50">
-                <AvatarImage src={attendee.profiles?.avatar_url || ''} />
-                <AvatarFallback className="text-[10px] bg-muted">
-                  {(attendee.profiles?.display_name?.[0] || attendee.profiles?.username?.[0] || '?').toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            ))}
-            {totalResponses > 5 && (
-              <div className="h-6 w-6 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[9px] font-medium ring-1 ring-border/50">
-                +{totalResponses - 5}
-              </div>
-            )}
-          </div>
-          <span className="text-[13px] text-muted-foreground">
-            {grouped.attending.length} {labels.going.toLowerCase()} · {grouped.maybe.length} {labels.maybe.toLowerCase()}
-          </span>
+      {/* Always-collapsed toggle */}
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        className="w-full justify-between hover:bg-muted/50 -mx-2 px-2 h-7"
+        onClick={() => setShowAll(!showAll)}
+      >
+        <span className="text-xs">
+          {showAll 
+            ? t('attendees.hideDetails') 
+            : t('attendees.seeAll', { count: totalResponses })}
+        </span>
+        {showAll ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+      </Button>
+
+      {showAll && (
+        <div className="space-y-2 pt-1 border-t max-h-48 overflow-y-auto">
+          <StatusSection status="attending" attendees={grouped.attending} currentUserId={currentUserId} labels={labels} />
+          <StatusSection status="maybe" attendees={grouped.maybe} currentUserId={currentUserId} labels={labels} />
+          <StatusSection status="not_attending" attendees={grouped.not_attending} currentUserId={currentUserId} labels={labels} />
         </div>
-      )}
-
-      {totalResponses > 0 && (
-        <>
-          {autoExpand ? (
-            <div className="space-y-3 pt-2 border-t">
-              <StatusSection status="attending" attendees={grouped.attending} currentUserId={currentUserId} labels={labels} />
-              <StatusSection status="maybe" attendees={grouped.maybe} currentUserId={currentUserId} labels={labels} />
-              <StatusSection status="not_attending" attendees={grouped.not_attending} currentUserId={currentUserId} labels={labels} />
-            </div>
-          ) : (
-            <>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="w-full justify-between hover:bg-muted/50 -mx-2 px-2"
-                onClick={() => setShowAll(!showAll)}
-              >
-                <span className="text-sm">
-                  {showAll 
-                    ? t('attendees.hideDetails') 
-                    : t('attendees.seeAll', { count: totalResponses })}
-                </span>
-                {showAll ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </Button>
-
-              {showAll && (
-                <div className="space-y-3 pt-2 border-t">
-                  <StatusSection status="attending" attendees={grouped.attending} currentUserId={currentUserId} labels={labels} />
-                  <StatusSection status="maybe" attendees={grouped.maybe} currentUserId={currentUserId} labels={labels} />
-                  <StatusSection status="not_attending" attendees={grouped.not_attending} currentUserId={currentUserId} labels={labels} />
-                </div>
-              )}
-            </>
-          )}
-        </>
       )}
     </div>
   );
