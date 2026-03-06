@@ -39,7 +39,7 @@ import { useEventAttendance } from "@/hooks/useEventAttendance";
 import { useEventJoinRequests } from "@/hooks/useEventJoinRequests";
 import { useExternalLink } from "@/hooks/useExternalLink";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { format, isSameDay } from "date-fns";
 import { EVENT_CONFIG, getEventTypeKey } from "@/lib/eventConfig";
