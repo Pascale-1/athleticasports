@@ -1,28 +1,32 @@
 
 
-# Fix: Stale session after background on Android
+# Add Practice Teams Section to Event Detail Page
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+The "Practice Teams" (manual group assignment) feature currently only exists inside `TrainingSessionDetail`, which is rendered on the Training tab of a team page. The `EventDetail` page (`/events/:eventId`) has no reference to it at all.
 
-## Fix
+## Plan
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+### 1. Add a Practice Teams card to `EventDetail.tsx`
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+Insert a new card section (after "Who's Coming" card, ~line 544) that:
+- Only shows for **team events** where the current user `canEdit` (is admin/coach)
+- Imports and uses `useTeamGeneration(eventId)`, `useTeamMembers(event.team_id)`, and `usePerformanceLevels(event.team_id)`
+- Renders the existing `ManualTeamAssignment` component for manual mode
+- Renders `GeneratedTeamCard` cards for view mode
+- Includes the "Manual" / "Auto Generate" / "Regenerate" buttons (same pattern as `TrainingSessionDetail`)
+- Includes the `GenerateTeamsDialog`
 
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
-```
+### 2. Files to change
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+| File | Change |
+|------|--------|
+| `src/pages/EventDetail.tsx` | Import `useTeamGeneration`, `useTeamMembers`, `usePerformanceLevels`, `ManualTeamAssignment`, `GeneratedTeamCard`, `GenerateTeamsDialog`. Add state for `manualMode`, `showGenerateDialog`, `saving`. Add the Practice Teams card section after "Who's Coming". |
 
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+No new files, no DB changes. All hooks and components already exist.
+
+### 3. Visibility rules
+
+- The entire section is visible to **all team members** (read-only view of generated groups)
+- The "Manual" and "Generate" buttons only appear when `canEdit` is true
+- Non-team events don't show this section at all (`event.team_id` must exist)
 
