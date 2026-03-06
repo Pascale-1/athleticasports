@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useExternalLink } from "@/hooks/useExternalLink";
-import { Copy, RefreshCw, Share2, MessageCircle, Settings } from "lucide-react";
+import { Copy, RefreshCw, Share2, MessageCircle, Settings, Upload } from "lucide-react";
 import { copyToClipboard } from "@/lib/clipboard";
 import {
   DropdownMenu,
@@ -109,6 +109,23 @@ export const EventInviteLink = ({
     }
   };
 
+  const handleNativeShare = async () => {
+    const message = t('events:invite.joinMessage', { title: eventTitle });
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: eventTitle, text: message, url: inviteLink });
+        return;
+      }
+    } catch (error) {
+      if ((error as DOMException)?.name === 'AbortError') return;
+    }
+    // Fallback to clipboard
+    const copied = await copyToClipboard(inviteLink);
+    if (copied) {
+      toast({ title: t('common:actions.copied'), description: t('events:invite.linkCopied') });
+    }
+  };
+
   const shareViaWhatsApp = async () => {
     const message = t('events:invite.joinMessage', { title: eventTitle }) + ' ' + inviteLink;
     await openExternalUrl(`https://wa.me/?text=${encodeURIComponent(message)}`);
@@ -116,7 +133,6 @@ export const EventInviteLink = ({
 
   const shareViaSMS = () => {
     const message = t('events:invite.joinMessage', { title: eventTitle }) + ' ' + inviteLink;
-    // SMS uses native URL scheme, handled directly by the OS
     window.location.href = `sms:?body=${encodeURIComponent(message)}`;
   };
 
@@ -189,6 +205,10 @@ export const EventInviteLink = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={handleNativeShare}>
+              <Upload className="h-4 w-4 mr-2" />
+              {t('common:actions.share', { defaultValue: 'Share' })}
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={shareViaWhatsApp}>
               <MessageCircle className="h-4 w-4 mr-2" />
               WhatsApp
