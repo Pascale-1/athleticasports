@@ -283,7 +283,7 @@ const TeamDetail = () => {
                   <TabsTrigger value="chat">{t('communication.chat')}</TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="announcements" className="mt-4">
+                <TabsContent value="announcements" className="mt-4 max-h-[500px] overflow-y-auto">
                   <TeamAnnouncements
                     announcements={announcements}
                     canPost={isMember}

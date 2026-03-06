@@ -67,7 +67,7 @@ export const TeamChat = ({ teamId }: TeamChatProps) => {
 
   return (
     <div className="space-y-4">
-      <ScrollArea className="min-h-[200px] max-h-[400px] pr-4">
+      <ScrollArea className="h-[400px] pr-4">
         {messages.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <p>{t("chat.noMessages")}</p>
