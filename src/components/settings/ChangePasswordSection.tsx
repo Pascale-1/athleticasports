@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { KeyRound } from "lucide-react";
+import { getAppBaseUrl } from "@/lib/appUrl";
 import { useToast } from "@/hooks/use-toast";
 
 interface ChangePasswordSectionProps {
