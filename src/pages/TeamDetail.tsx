@@ -126,7 +126,8 @@ const TeamDetail = () => {
       if (roleError) throw roleError;
 
       toast({ title: t('toast.joinSuccess', { name: team?.name }) });
-      window.location.reload();
+      // Smooth refresh instead of full page reload
+      window.location.replace(window.location.href);
     } catch (error) {
       toast({ title: t('toast.joinError'), variant: "destructive" });
     }

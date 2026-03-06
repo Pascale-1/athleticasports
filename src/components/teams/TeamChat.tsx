@@ -29,7 +29,7 @@ export const TeamChat = ({ teamId }: TeamChatProps) => {
   const [input, setInput] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const getUser = async () => {
@@ -39,10 +39,9 @@ export const TeamChat = ({ teamId }: TeamChatProps) => {
     getUser();
   }, []);
 
+  // Scroll to bottom when messages change
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    bottomRef.current?.scrollIntoView({ behavior: "auto" });
   }, [messages]);
 
   const handleSend = () => {
@@ -68,7 +67,7 @@ export const TeamChat = ({ teamId }: TeamChatProps) => {
 
   return (
     <div className="space-y-4">
-      <ScrollArea className="min-h-[200px] max-h-[400px] pr-4" ref={scrollRef}>
+      <ScrollArea className="min-h-[200px] max-h-[400px] pr-4">
         {messages.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <p>{t("chat.noMessages")}</p>
@@ -120,6 +119,7 @@ export const TeamChat = ({ teamId }: TeamChatProps) => {
                 )}
               </div>
             ))}
+            <div ref={bottomRef} />
           </div>
         )}
       </ScrollArea>

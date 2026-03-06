@@ -47,7 +47,8 @@ export const createTeam = async (data: {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
-  const { data: team, error } = await supabase
+  // Step 1: Insert without .select() to avoid RLS race condition with private teams
+  const { data: insertData, error: insertError } = await supabase
     .from("teams")
     .insert({
       name: data.name,
@@ -57,16 +58,25 @@ export const createTeam = async (data: {
       sport: data.sport,
       created_by: user.id,
     })
-    .select()
+    .select('id')
     .single();
 
-  if (error) throw error;
+  if (insertError) throw insertError;
+
+  // Step 2: Fetch the team separately (trigger has now created the membership)
+  const { data: team, error: fetchError } = await supabase
+    .from("teams")
+    .select("*")
+    .eq("id", insertData.id)
+    .single();
+
+  if (fetchError) throw fetchError;
   return team;
 };
 
 export const updateTeam = async (
   teamId: string,
-  data: Partial<Pick<Team, "name" | "description" | "is_private" | "avatar_url" | "default_venue" | "default_venue_url" | "default_training_time" | "default_training_day">>
+  data: Partial<Pick<Team, "name" | "description" | "is_private" | "avatar_url" | "default_venue" | "default_venue_url" | "default_training_time" | "default_training_day"> & { announcement_permission: string; chat_permission: string }>
 ) => {
   const { data: team, error } = await supabase
     .from("teams")

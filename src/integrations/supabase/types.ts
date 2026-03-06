@@ -769,6 +769,7 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          event_id: string | null
           id: string
           is_pinned: boolean
           posted_by: string
@@ -778,6 +779,7 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string
+          event_id?: string | null
           id?: string
           is_pinned?: boolean
           posted_by: string
@@ -787,6 +789,7 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          event_id?: string | null
           id?: string
           is_pinned?: boolean
           posted_by?: string
@@ -794,6 +797,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "team_announcements_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "team_announcements_posted_by_fkey"
             columns: ["posted_by"]
@@ -1013,7 +1023,9 @@ export type Database = {
       teams: {
         Row: {
           allow_link_joining: boolean | null
+          announcement_permission: string
           avatar_url: string | null
+          chat_permission: string
           created_at: string
           created_by: string
           created_invite_code_at: string | null
@@ -1031,7 +1043,9 @@ export type Database = {
         }
         Insert: {
           allow_link_joining?: boolean | null
+          announcement_permission?: string
           avatar_url?: string | null
+          chat_permission?: string
           created_at?: string
           created_by: string
           created_invite_code_at?: string | null
@@ -1049,7 +1063,9 @@ export type Database = {
         }
         Update: {
           allow_link_joining?: boolean | null
+          announcement_permission?: string
           avatar_url?: string | null
+          chat_permission?: string
           created_at?: string
           created_by?: string
           created_invite_code_at?: string | null

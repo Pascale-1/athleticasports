@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { Trophy, CalendarCheck } from "lucide-react";
+import { Trophy, CalendarCheck, Flame } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { startOfMonth } from "date-fns";
 
 interface ProfileStatsProps {
   userId: string;
@@ -15,6 +16,7 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
   const [stats, setStats] = useState({
     teams: 0,
     eventsAttended: 0,
+    eventsThisMonth: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -24,7 +26,9 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
 
   const fetchStats = async () => {
     try {
-      const [teamsRes, eventsRes] = await Promise.all([
+      const monthStart = startOfMonth(new Date()).toISOString();
+
+      const [teamsRes, eventsRes, monthRes] = await Promise.all([
         supabase
           .from('team_members')
           .select('*', { count: 'exact', head: true })
@@ -36,14 +40,23 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
           .eq('user_id', userId)
           .eq('status', 'attending')
           .lt('events.start_time', new Date().toISOString()),
+        supabase
+          .from('event_attendance')
+          .select('id, events!inner(start_time)', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('status', 'attending')
+          .gte('events.start_time', monthStart)
+          .lt('events.start_time', new Date().toISOString()),
       ]);
 
       if (teamsRes.error) console.error('Error fetching team stats:', teamsRes.error);
       if (eventsRes.error) console.error('Error fetching event stats:', eventsRes.error);
+      if (monthRes.error) console.error('Error fetching month stats:', monthRes.error);
 
       setStats({
         teams: teamsRes.error ? 0 : (teamsRes.count ?? 0),
         eventsAttended: eventsRes.error ? 0 : (eventsRes.count ?? 0),
+        eventsThisMonth: monthRes.error ? 0 : (monthRes.count ?? 0),
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -65,12 +78,18 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
       label: t('profile.eventsLabel'),
       onClick: () => navigate("/events?tab=my")
     },
+    { 
+      icon: Flame, 
+      value: stats.eventsThisMonth, 
+      label: t('profile.thisMonth', 'This month'),
+      onClick: () => navigate("/events?tab=my")
+    },
   ];
 
   if (loading) {
     return (
       <div className="flex gap-4 justify-center py-4 mt-4 border-t border-border animate-pulse">
-        {[1, 2].map((i) => (
+        {[1, 2, 3].map((i) => (
           <div key={i} className="flex flex-col items-center gap-1">
             <div className="h-10 w-10 bg-muted rounded-full" />
             <div className="h-5 w-8 bg-muted rounded" />
