@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Copy, RefreshCw, Share2 } from "lucide-react";
+import { Copy, RefreshCw, Share2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useExternalLink } from "@/hooks/useExternalLink";
 import { supabase } from "@/integrations/supabase/client";
 import { getAppBaseUrl } from "@/lib/appUrl";
+import { copyToClipboard } from "@/lib/clipboard";
 
 interface TeamInviteLinkProps {
   teamId: string;
@@ -32,12 +33,14 @@ export const TeamInviteLink = ({
   
   const inviteLink = `${getAppBaseUrl()}/teams/join/${inviteCode}`;
 
-  const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      title: t('invite.copied'),
-      description: t('invite.copiedToClipboard', { label }),
-    });
+  const handleCopy = async (text: string, label: string) => {
+    const copied = await copyToClipboard(text);
+    if (copied) {
+      toast({
+        title: t('invite.copied'),
+        description: t('invite.copiedToClipboard', { label }),
+      });
+    }
   };
 
   const handleRegenerateCode = async () => {
@@ -101,6 +104,19 @@ export const TeamInviteLink = ({
     }
   };
 
+  const handleNativeShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: t('invite.title'), url: inviteLink });
+        return;
+      }
+    } catch (error) {
+      if ((error as DOMException)?.name === 'AbortError') return;
+    }
+    // Fallback to clipboard
+    await handleCopy(inviteLink, t('invite.shareLink'));
+  };
+
   const shareViaWhatsApp = async () => {
     const text = `Join my team! ${inviteLink}`;
     await openExternalUrl(`https://wa.me/?text=${encodeURIComponent(text)}`);
@@ -108,7 +124,6 @@ export const TeamInviteLink = ({
 
   const shareViaSMS = () => {
     const text = `Join my team! ${inviteLink}`;
-    // SMS uses native URL scheme, handled directly by the OS
     window.location.href = `sms:?body=${encodeURIComponent(text)}`;
   };
 
@@ -136,7 +151,7 @@ export const TeamInviteLink = ({
             <Button
               variant="outline"
               size="icon"
-              onClick={() => copyToClipboard(inviteLink, t('invite.shareLink'))}
+              onClick={() => handleCopy(inviteLink, t('invite.shareLink'))}
             >
               <Copy className="h-4 w-4" />
             </Button>
@@ -155,12 +170,20 @@ export const TeamInviteLink = ({
             <Button
               variant="outline"
               size="icon"
-              onClick={() => copyToClipboard(inviteCode, t('invite.code'))}
+              onClick={() => handleCopy(inviteCode, t('invite.code'))}
             >
               <Copy className="h-4 w-4" />
             </Button>
           </div>
         </div>
+
+        <Button
+          onClick={handleNativeShare}
+          className="w-full"
+        >
+          <Upload className="h-4 w-4 mr-2" />
+          {t('invite.shareLink')}
+        </Button>
 
         <div className="flex gap-2">
           <Button
