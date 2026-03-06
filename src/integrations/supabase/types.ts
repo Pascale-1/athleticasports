@@ -1279,6 +1279,15 @@ export type Database = {
         Args: { _session_id: string; _status?: string }
         Returns: number
       }
+      get_team_info_for_invitation: {
+        Args: { _team_id: string; _user_id: string }
+        Returns: {
+          avatar_url: string
+          id: string
+          name: string
+          sport: string
+        }[]
+      }
       get_team_member_count: { Args: { _team_id: string }; Returns: number }
       get_unread_count: { Args: { _user_id: string }; Returns: number }
       get_user_attendance_status: {
