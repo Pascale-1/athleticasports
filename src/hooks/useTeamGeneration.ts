@@ -171,11 +171,109 @@ export const useTeamGeneration = (sessionId: string | null) => {
     }
   };
 
+  // Manual assignment methods
+  const createGroup = async (): Promise<string | undefined> => {
+    if (!sessionId) return;
+
+    try {
+      const nextNumber = teams.length + 1;
+      const teamName = `Group ${String.fromCharCode(64 + nextNumber)}`;
+
+      const { data, error } = await supabase
+        .from("event_teams")
+        .insert({
+          event_id: sessionId,
+          team_name: teamName,
+          team_number: nextNumber,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      await fetchTeams();
+      return data?.id;
+    } catch (error: any) {
+      console.error("Error creating group:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create group",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteGroup = async (teamId: string) => {
+    try {
+      const { error } = await supabase
+        .from("event_teams")
+        .delete()
+        .eq("id", teamId);
+
+      if (error) throw error;
+      await fetchTeams();
+    } catch (error: any) {
+      console.error("Error deleting group:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete group",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const assignPlayer = async (
+    teamId: string,
+    player: { user_id: string; performance_level: number | null }
+  ) => {
+    try {
+      const { error } = await supabase
+        .from("event_team_members")
+        .insert({
+          event_team_id: teamId,
+          user_id: player.user_id,
+          performance_level: player.performance_level,
+        });
+
+      if (error) throw error;
+      await fetchTeams();
+    } catch (error: any) {
+      console.error("Error assigning player:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to assign player",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const removePlayer = async (memberId: string) => {
+    try {
+      const { error } = await supabase
+        .from("event_team_members")
+        .delete()
+        .eq("id", memberId);
+
+      if (error) throw error;
+      await fetchTeams();
+    } catch (error: any) {
+      console.error("Error removing player:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to remove player",
+        variant: "destructive",
+      });
+    }
+  };
+
   return {
     teams,
     loading,
     generating,
     generateTeams,
     deleteTeams,
+    createGroup,
+    deleteGroup,
+    assignPlayer,
+    removePlayer,
   };
 };

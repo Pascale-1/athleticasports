@@ -464,9 +464,18 @@
     "none": "No teams generated yet",
     "noTeams": "No teams generated",
     "noTeamsDesc": "Generate balanced practice teams based on player performance levels",
-    "generateTeams": "Generate Teams",
+    "generateTeams": "Auto Generate",
     "regenerate": "Regenerate",
-    "loadingTeams": "Loading teams..."
+    "loadingTeams": "Loading teams...",
+    "manualAssign": "Manual",
+    "viewMode": "View Mode",
+    "unassigned": "Unassigned Players",
+    "tapGroup": "Tap a group below to assign",
+    "allAssigned": "All players assigned!",
+    "tapToAdd": "Tap to add selected player",
+    "emptyGroup": "No players yet",
+    "addGroup": "Add Group",
+    "newGroupWithPlayer": "New group + assign"
   },
   "profileToasts": {
     "updated": "Profile updated",
