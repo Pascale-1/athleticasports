@@ -416,7 +416,7 @@ const EventDetail = () => {
                 </span>
               </div>
               <div className="min-w-0">
-                <p className="font-medium">{format(startDate, "EEEE")}</p>
+                <p className="text-sm font-medium">{format(startDate, "EEEE")}</p>
                 <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                   <Clock className="h-3.5 w-3.5" />
                   <span>{timeStr}</span>
@@ -504,7 +504,7 @@ const EventDetail = () => {
                   <Users className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[20px] font-bold text-foreground">
+                  <span className="text-sm font-semibold text-foreground">
                     {stats.attending} / {event.max_participants}
                   </span>
               {event.looking_for_players && (event.max_participants ?? Infinity) > stats.attending && (
@@ -538,14 +538,14 @@ const EventDetail = () => {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">{t('game.opponent', 'Opponent')}</p>
-                    <p className="font-medium">{event.opponent_name}</p>
+                    <p className="text-sm font-medium">{event.opponent_name}</p>
                   </div>
                 </div>
               )}
               
                 <div className="flex flex-wrap gap-2">
                 {event.home_away && (
-                  <Badge variant="outline" className="bg-muted rounded-full text-[13px] text-muted-foreground px-3 py-1">
+                  <Badge variant="outline" className="bg-muted rounded-full text-xs text-muted-foreground px-3 py-1">
                     {event.home_away === 'home' && <Home className="h-3 w-3 mr-1" />}
                     {event.home_away === 'away' && <Plane className="h-3 w-3 mr-1" />}
                     Terrain : {t(`game.${event.home_away}`)}
