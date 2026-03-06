@@ -29,7 +29,7 @@ export const InlineInvitationCards = ({ invitations, onRemove, onRefresh }: Inli
       if (!session) throw new Error("Not authenticated");
 
       const res = await supabase.functions.invoke("accept-team-invitation", {
-        body: { invitation_id: invitation.id },
+        body: { invitationId: invitation.id },
       });
 
       const errorMessage = res.data?.error || res.error?.message;
