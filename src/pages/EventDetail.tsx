@@ -13,6 +13,12 @@ import { LookingForPlayersBanner } from "@/components/events/LookingForPlayersBa
 import { RSVPDeadlineDisplay } from "@/components/events/RSVPDeadlineDisplay";
 import { EventJoinRequests } from "@/components/events/EventJoinRequests";
 import { MatchProposalInlineCard } from "@/components/matching/MatchProposalInlineCard";
+import { ManualTeamAssignment } from "@/components/teams/ManualTeamAssignment";
+import { GeneratedTeamCard, accentColors } from "@/components/teams/GeneratedTeamCard";
+import { GenerateTeamsDialog } from "@/components/teams/GenerateTeamsDialog";
+import { useTeamGeneration } from "@/hooks/useTeamGeneration";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { usePerformanceLevels } from "@/hooks/usePerformanceLevels";
 import { 
   ArrowLeft, 
   Clock, 
@@ -39,7 +45,7 @@ import { useEventAttendance } from "@/hooks/useEventAttendance";
 import { useEventJoinRequests } from "@/hooks/useEventJoinRequests";
 import { useExternalLink } from "@/hooks/useExternalLink";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { format, isSameDay } from "date-fns";
 import { EVENT_CONFIG, getEventTypeKey } from "@/lib/eventConfig";
@@ -79,6 +85,9 @@ const EventDetail = () => {
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [isTeamMember, setIsTeamMember] = useState(false);
   const [userProposal, setUserProposal] = useState<{ id: string; status: string } | null>(null);
+  const [manualMode, setManualMode] = useState(false);
+  const [showGenerateDialog, setShowGenerateDialog] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const { events, loading, deleteEvent, updateEvent } = useEvents();
   const event = events.find(e => e.id === eventId);
@@ -91,6 +100,27 @@ const EventDetail = () => {
     rejectRequest, 
     loading: joinRequestsLoading 
   } = useEventJoinRequests(eventId || '');
+
+  // Practice Teams hooks
+  const { teams: generatedTeams, loading: teamsLoading, generating, generateTeams, deleteTeams, createGroup, deleteGroup, assignPlayer, removePlayer } = useTeamGeneration(event?.team_id ? eventId || null : null);
+  const { members: teamMembers } = useTeamMembers(event?.team_id || null);
+  const { getLevelForUser } = usePerformanceLevels(event?.team_id || null);
+
+  // Build player list for manual assignment
+  const allPlayers = useMemo(() => {
+    if (!teamMembers) return [];
+    return teamMembers.map((m: any) => ({
+      user_id: m.user_id,
+      username: m.profiles?.username || "Unknown",
+      display_name: m.profiles?.display_name || null,
+      avatar_url: m.profiles?.avatar_url || null,
+      performance_level: getLevelForUser(m.user_id),
+    }));
+  }, [teamMembers, getLevelForUser]);
+
+  const handleGenerate = useCallback(async (numTeams: number) => {
+    await generateTeams(numTeams);
+  }, [generateTeams]);
 
   // Fetch user's match proposal for this event
   useEffect(() => {
@@ -542,6 +572,120 @@ const EventDetail = () => {
             <EventAttendees attendees={attendees} currentUserId={currentUserId} />
           </CardContent>
         </Card>
+
+        {/* Practice Teams Section - Team events only */}
+        {event.team_id && isTeamMember && (
+          <Card>
+            <CardContent className="p-3 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-[11px] uppercase tracking-[0.8px] text-hint">
+                  <Users className="h-3.5 w-3.5 inline mr-1.5" />
+                  {t('common:practiceTeams.title', 'Practice Teams')}
+                </h3>
+                {canEdit && (
+                  <div className="flex gap-1.5">
+                    {generatedTeams.length > 0 && !manualMode && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setManualMode(true)}
+                      >
+                        {t('common:practiceTeams.manual', 'Manual')}
+                      </Button>
+                    )}
+                    {manualMode && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setManualMode(false)}
+                      >
+                        {t('common:actions.done', 'Done')}
+                      </Button>
+                    )}
+                    {generatedTeams.length === 0 && !manualMode && (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-xs"
+                          onClick={() => setManualMode(true)}
+                        >
+                          {t('common:practiceTeams.manual', 'Manual')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="h-7 text-xs"
+                          onClick={() => setShowGenerateDialog(true)}
+                          disabled={allPlayers.length < 2}
+                        >
+                          {t('common:practiceTeams.autoGenerate', 'Auto Generate')}
+                        </Button>
+                      </>
+                    )}
+                    {generatedTeams.length > 0 && !manualMode && (
+                      <Button
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setShowGenerateDialog(true)}
+                      >
+                        {t('common:practiceTeams.regenerate', 'Regenerate')}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {teamsLoading ? (
+                <div className="flex justify-center py-4">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                </div>
+              ) : manualMode && canEdit ? (
+                <ManualTeamAssignment
+                  allPlayers={allPlayers}
+                  teams={generatedTeams}
+                  onCreateGroup={createGroup}
+                  onDeleteGroup={deleteGroup}
+                  onAssignPlayer={async (teamId, player) => {
+                    setSaving(true);
+                    await assignPlayer(teamId, player);
+                    setSaving(false);
+                  }}
+                  onRemovePlayer={async (memberId) => {
+                    setSaving(true);
+                    await removePlayer(memberId);
+                    setSaving(false);
+                  }}
+                  saving={saving}
+                />
+              ) : generatedTeams.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {generatedTeams.map((team, idx) => (
+                    <GeneratedTeamCard
+                      key={team.id}
+                      team={team}
+                      accentColor={accentColors[idx % accentColors.length]}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  {t('common:practiceTeams.noTeams', 'No teams created yet')}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Generate Teams Dialog */}
+        <GenerateTeamsDialog
+          open={showGenerateDialog}
+          onOpenChange={setShowGenerateDialog}
+          onGenerate={handleGenerate}
+          totalPlayers={allPlayers.length}
+          generating={generating}
+        />
 
         {/* About / Description Card */}
         {event.description && (
