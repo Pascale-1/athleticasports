@@ -1,28 +1,26 @@
 
 
-# Fix: Stale session after background on Android
+# Fix Automatic Announcement CTA Text
 
 ## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+Automatic event announcements contain the text `_Check the Events tab to RSVP!_` but clicking the announcement card navigates directly to the event detail page. The CTA is misleading — users don't need to go to the Events tab, they just tap the card.
 
-## Fix
+## Changes
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+### 1. Database trigger — update CTA text
+**Migration SQL**: Replace all instances of `_Check the Events tab to RSVP!_` with `_Tap to view details and RSVP_` in the `notify_team_event_created` trigger function. This affects:
+- Home team announcement (line 85)
+- Opponent team announcement (line 109)
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+The trigger function needs to be replaced via `CREATE OR REPLACE FUNCTION`.
 
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
-```
+### 2. AnnouncementCard — add subtle "View Event" link
+In `src/components/teams/AnnouncementCard.tsx`, add a small inline "View Event →" link below the content for event-linked announcements, making the clickability more discoverable than just the tiny ExternalLink icon.
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+### Files
 
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+| File | Change |
+|------|--------|
+| New migration SQL | `CREATE OR REPLACE FUNCTION` to update the CTA text in the trigger |
+| `src/components/teams/AnnouncementCard.tsx` | Add compact "View Event" link for event-linked cards |
 
