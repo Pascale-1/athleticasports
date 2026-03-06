@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { KeyRound } from "lucide-react";
+import { getAppBaseUrl } from "@/lib/appUrl";
 import { useToast } from "@/hooks/use-toast";
 
 interface ChangePasswordSectionProps {
@@ -20,7 +21,7 @@ export const ChangePasswordSection = ({ email }: ChangePasswordSectionProps) => 
     if (!email) return;
     setLoading(true);
     try {
-      const redirectTo = 'https://athleticasports.app/reset-password';
+      const redirectTo = `${getAppBaseUrl()}/reset-password`;
       const response = await supabase.functions.invoke('send-password-reset', {
         body: { email, redirectTo },
       });
