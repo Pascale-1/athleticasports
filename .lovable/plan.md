@@ -1,14 +1,28 @@
 
 
-## Apply: Restrict Practice Teams to Training Events Only
+# Fix: Stale session after background on Android
 
-Two small edits in `src/pages/EventDetail.tsx`:
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-1. **Line 112** — Only load team generation for training events:
-   - Change `event?.team_id ? eventId || null : null` to `event?.team_id && event?.type === 'training' ? eventId || null : null`
+## Fix
 
-2. **Line 672** — Only render Practice Teams section for training events:
-   - Change `event.team_id && isTeamMember &&` to `event.team_id && isTeamMember && event.type === 'training' &&`
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-Match results are already correctly guarded to `event.type === 'match'` — no change needed there.
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
+```
+
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 
