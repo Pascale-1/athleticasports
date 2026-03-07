@@ -43,6 +43,9 @@ export interface Event {
   cost_type?: string | null;
   payment_link?: string | null;
   payment_method?: string | null;
+  // Match result
+  match_result?: string | null;
+  match_outcome?: 'win' | 'loss' | 'draw' | null;
 }
 
 export interface EventWithAttendance extends Event {
