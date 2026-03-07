@@ -4,6 +4,9 @@ import { Separator } from "@/components/ui/separator";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useIsMobile } from "@/hooks/useBreakpoint";
 import { MobileLayout } from "@/components/mobile/MobileLayout";
+import { useTheme } from "next-themes";
+import { Sun, Moon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -11,6 +14,7 @@ interface AppLayoutProps {
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const isMobile = useIsMobile();
+  const { theme, setTheme } = useTheme();
 
   // Use mobile layout for mobile/tablet devices
   if (isMobile) {
@@ -29,7 +33,15 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             <h1 className="text-lg font-heading font-bold text-primary">
               Athletica Sports
             </h1>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-muted-foreground"
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              >
+                {theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+              </Button>
               <NotificationBell />
             </div>
           </header>

@@ -1,18 +1,28 @@
 
 
-## Add Subtle Theme Toggle to Headers
+# Fix: Stale session after background on Android
 
-Add a small sun/moon icon button next to the notification bell in both mobile and desktop headers.
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-### Changes
+## Fix
 
-**`src/components/mobile/MobileLayout.tsx`**:
-- Import `useTheme` from `next-themes` and `Sun`/`Moon` from lucide
-- Add a small ghost icon button (just the icon, no label) before the `NotificationBell` in the `ml-auto` div
-- Clicking toggles between light/dark (skip system — just toggle)
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-**`src/components/AppLayout.tsx`**:
-- Same pattern: add the toggle button before `NotificationBell` in the desktop header
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-The button will be a `Button variant="ghost" size="icon"` with reduced dimensions (`h-7 w-7`) showing `Sun` in dark mode and `Moon` in light mode, with `text-muted-foreground` for subtlety.
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
+```
+
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 

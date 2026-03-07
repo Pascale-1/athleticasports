@@ -2,6 +2,9 @@ import { BottomNavigation } from "./BottomNavigation";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
+import { Sun, Moon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface MobileLayoutProps {
   children: React.ReactNode;
@@ -9,6 +12,7 @@ interface MobileLayoutProps {
 
 export const MobileLayout = ({ children }: MobileLayoutProps) => {
   const scrollDirection = useScrollDirection(10);
+  const { theme, setTheme } = useTheme();
 
   return (
     <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-hidden pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
@@ -27,7 +31,15 @@ export const MobileLayout = ({ children }: MobileLayoutProps) => {
           </h1>
         </div>
         
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-muted-foreground"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          >
+            {theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+          </Button>
           <NotificationBell />
         </div>
       </header>
