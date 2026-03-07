@@ -514,5 +514,18 @@
     "title": "Nouvelle version disponible",
     "description": "Mettez à jour pour les dernières fonctionnalités",
     "button": "Mettre à jour"
+  },
+  "pushNotifications": {
+    "promptTitle": "Restez informée !",
+    "promptDescription": "Recevez des notifications pour les nouveaux événements, invitations d'équipe et mises à jour — même quand l'app est fermée.",
+    "enable": "Activer les notifications",
+    "later": "Plus tard",
+    "title": "Notifications push",
+    "description": "Recevez des alertes sur votre écran d'accueil pour les nouveaux événements, invitations et plus.",
+    "enabled": "Notifications activées",
+    "disabled": "Notifications désactivées",
+    "denied": "Les notifications sont bloquées. Activez-les dans les paramètres de votre navigateur.",
+    "unsupported": "Les notifications push ne sont pas prises en charge par ce navigateur.",
+    "toggle": "Notifications push"
   }
 }
