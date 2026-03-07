@@ -431,7 +431,7 @@ const EventDetail = () => {
                   <div 
                     role="button"
                     tabIndex={0}
-                    className="flex items-center gap-3 p-3 -mx-1 rounded-lg hover:bg-muted/50 transition-colors group cursor-pointer"
+                    className="flex items-center gap-3 rounded-lg hover:bg-muted/50 transition-colors group cursor-pointer"
                   >
                     <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0 group-hover:bg-muted/80">
                       <MapPin className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
