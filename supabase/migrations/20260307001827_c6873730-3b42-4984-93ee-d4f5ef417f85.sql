@@ -1,0 +1,1 @@
+ALTER TABLE public.event_attendance ADD COLUMN has_paid boolean DEFAULT false;
