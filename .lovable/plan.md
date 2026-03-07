@@ -1,28 +1,31 @@
 
 
-# Fix: Stale session after background on Android
+## Override Username & Delete Duplicate Profile
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+### Current State
+- **Hotmail account** (`pascale_assi@hotmail.com`, user `245bc703`): username = `lola`
+- **Gmail account** (`pascale9a@gmail.com`, user `97d3df92`): username = `pascale`, display_name = `Pascale`
 
-## Fix
+The gmail account has some data: 2 team memberships, 7 event attendances, 4 created events, 21 activity logs.
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+### Plan
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+**Step 1: Free the username from the gmail profile**
+- Update gmail profile username to a throwaway like `pascale_deleted`
 
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
-```
+**Step 2: Assign username to hotmail profile**
+- Update hotmail profile: `username = 'pascale'`, `display_name = 'Pascale'`
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+**Step 3: Clean up gmail account data**
+- Delete team_members, event_attendance, user_activity_log, events for user `97d3df92`
+- Delete the gmail profile row
 
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+**Step 4: Delete the gmail auth user**
+- Use the admin API via an edge function or direct auth deletion
+
+### Important Note
+The gmail account has **4 created events** — deleting this user will orphan those events. I'll reassign them to your hotmail account before deletion so nothing is lost.
+
+### Data operations (via insert tool)
+All done as SQL UPDATE/DELETE statements — no schema changes needed.
 
