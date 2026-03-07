@@ -92,7 +92,9 @@ const Index = () => {
     if (!loading && profile) {
       if (shouldTrigger()) {
         clearTrigger();
-        startFullWalkthrough(navigate);
+        // Set full walkthrough flag and immediately start chained walkthrough from home
+        localStorage.setItem('athletica_full_walkthrough_active', 'true');
+        continueFullWalkthrough('home', navigate);
         return;
       }
       if (isFullWalkthroughActive()) {
@@ -101,7 +103,7 @@ const Index = () => {
         startWalkthrough('home');
       }
     }
-  }, [loading, profile, shouldTrigger, clearTrigger, startWalkthrough, startFullWalkthrough, continueFullWalkthrough, hasCompleted, navigate]);
+  }, [loading, profile, shouldTrigger, clearTrigger, startWalkthrough, continueFullWalkthrough, hasCompleted, navigate]);
 
   const fetchProfile = async (userId: string) => {
     try {
