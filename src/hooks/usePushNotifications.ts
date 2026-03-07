@@ -1,20 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
-
-// This will be replaced with the actual VAPID public key after generation
-const VAPID_PUBLIC_KEY = "__VAPID_PUBLIC_KEY_PLACEHOLDER__";
-
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const rawData = atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-}
+import { Capacitor } from "@capacitor/core";
+import { PushNotifications } from "@capacitor/push-notifications";
 
 export type PushPermissionState = "granted" | "denied" | "default" | "unsupported";
 
@@ -24,11 +12,7 @@ export function usePushNotifications() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const isSupported =
-    typeof window !== "undefined" &&
-    "serviceWorker" in navigator &&
-    "PushManager" in window &&
-    "Notification" in window;
+  const isSupported = Capacitor.isNativePlatform();
 
   // Check current state
   useEffect(() => {
@@ -36,65 +20,105 @@ export function usePushNotifications() {
       setPermissionState("unsupported");
       return;
     }
-    setPermissionState(Notification.permission as PushPermissionState);
 
-    // Check if already subscribed
-    if (user && Notification.permission === "granted") {
-      navigator.serviceWorker.ready.then((registration) => {
-        registration.pushManager.getSubscription().then((sub) => {
-          setIsSubscribed(!!sub);
-        });
+    PushNotifications.checkPermissions().then(({ receive }) => {
+      if (receive === "granted") setPermissionState("granted");
+      else if (receive === "denied") setPermissionState("denied");
+      else setPermissionState("default");
+    });
+  }, [isSupported]);
+
+  // Check if already subscribed in DB
+  useEffect(() => {
+    if (!user || !isSupported) return;
+
+    (supabase as any)
+      .from("push_subscriptions")
+      .select("id")
+      .eq("user_id", user.id)
+      .limit(1)
+      .then(({ data }: any) => {
+        setIsSubscribed(!!(data && data.length > 0));
       });
-    }
+  }, [user, isSupported]);
+
+  // Set up listeners
+  useEffect(() => {
+    if (!isSupported) return;
+
+    const registrationListener = PushNotifications.addListener(
+      "registration",
+      async (token) => {
+        if (!user) return;
+        const platform = Capacitor.getPlatform();
+
+        const { error } = await (supabase as any)
+          .from("push_subscriptions")
+          .upsert(
+            {
+              user_id: user.id,
+              device_token: token.value,
+              platform,
+            },
+            { onConflict: "device_token" }
+          );
+
+        if (!error) {
+          setIsSubscribed(true);
+          setLoading(false);
+        } else {
+          console.error("Failed to save push token:", error);
+          setLoading(false);
+        }
+      }
+    );
+
+    const errorListener = PushNotifications.addListener(
+      "registrationError",
+      (error) => {
+        console.error("Push registration error:", error);
+        setLoading(false);
+      }
+    );
+
+    // Handle notification tap
+    const actionListener = PushNotifications.addListener(
+      "pushNotificationActionPerformed",
+      (action) => {
+        const data = action.notification.data;
+        if (data?.url) {
+          window.location.href = data.url;
+        }
+      }
+    );
+
+    return () => {
+      registrationListener.then((l) => l.remove());
+      errorListener.then((l) => l.remove());
+      actionListener.then((l) => l.remove());
+    };
   }, [isSupported, user]);
 
   const subscribe = useCallback(async () => {
-    if (!isSupported || !user || VAPID_PUBLIC_KEY.startsWith("__VAPID")) {
-      console.warn("Push notifications not configured yet");
-      return false;
-    }
+    if (!isSupported || !user) return false;
 
     setLoading(true);
     try {
-      // Request permission
-      const permission = await Notification.requestPermission();
-      setPermissionState(permission as PushPermissionState);
+      const { receive } = await PushNotifications.requestPermissions();
+      setPermissionState(receive === "granted" ? "granted" : "denied");
 
-      if (permission !== "granted") {
+      if (receive !== "granted") {
+        setLoading(false);
         return false;
       }
 
-      // Get SW registration
-      const registration = await navigator.serviceWorker.ready;
-
-      // Subscribe to push
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
-      });
-
-      const subJson = subscription.toJSON();
-
-      // Save to database (using any cast since table may not be in generated types yet)
-      const { error } = await (supabase as any).from("push_subscriptions").upsert(
-        {
-          user_id: user.id,
-          endpoint: subJson.endpoint!,
-          p256dh: subJson.keys!.p256dh,
-          auth: subJson.keys!.auth,
-        },
-        { onConflict: "endpoint" }
-      );
-
-      if (error) throw error;
-
-      setIsSubscribed(true);
+      // This triggers the 'registration' listener which saves the token
+      await PushNotifications.register();
       return true;
     } catch (err) {
       console.error("Push subscription failed:", err);
-      return false;
-    } finally {
       setLoading(false);
+      return false;
     }
   }, [isSupported, user]);
 
@@ -103,19 +127,10 @@ export function usePushNotifications() {
 
     setLoading(true);
     try {
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
-
-      if (subscription) {
-        // Remove from database
-        await (supabase as any)
-          .from("push_subscriptions")
-          .delete()
-          .eq("endpoint", subscription.endpoint);
-
-        // Unsubscribe from push
-        await subscription.unsubscribe();
-      }
+      await (supabase as any)
+        .from("push_subscriptions")
+        .delete()
+        .eq("user_id", user.id);
 
       setIsSubscribed(false);
       return true;

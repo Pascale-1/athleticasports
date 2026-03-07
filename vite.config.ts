@@ -123,7 +123,7 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         navigateFallbackDenylist: [/^\/~oauth/, /^\/reset-password/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"],
-        importScripts: ['/sw-push.js'],
+        // Push notifications handled natively via Capacitor
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
