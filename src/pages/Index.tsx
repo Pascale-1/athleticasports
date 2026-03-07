@@ -362,7 +362,7 @@ const Index = () => {
                       variant="ghost"
                       size="sm"
                       className="h-8 px-2 text-[11px] text-muted-foreground"
-                      onClick={() => navigate("/events?tab=open")}
+                      onClick={() => navigate("/events?tab=discover")}
                     >
                       {t('actions.viewAll')}
                       <ChevronRight className="h-3 w-3 ml-0.5" />
