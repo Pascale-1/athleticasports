@@ -72,7 +72,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MAP_PROVIDERS, getDefaultMapUrl, getNativeMapUrl } from "@/lib/mapProviders";
+import { MAP_PROVIDERS, getDefaultMapUrl, getNativeMapUrl, getBestMapUrl } from "@/lib/mapProviders";
 import { Capacitor } from "@capacitor/core";
 
 const EventDetail = () => {
