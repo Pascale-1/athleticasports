@@ -87,7 +87,6 @@ export const AddressAutocomplete = ({
         format: "json",
         addressdetails: "1",
         limit: "5",
-        countrycodes: "fr", // Limit to France
         "accept-language": lang,
       });
 
