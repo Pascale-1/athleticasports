@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Shield } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Loader2, Shield, BarChart3 } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
 
 interface Profile {
   id: string;
@@ -150,12 +150,20 @@ const Admin = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-fade-in">
-      <div className="flex items-center gap-2">
-        <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">Manage user roles and permissions</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Manage user roles and permissions</p>
+          </div>
         </div>
+        <Link to="/admin/analytics">
+          <Button variant="outline" size="sm" className="gap-1.5">
+            <BarChart3 className="h-4 w-4" />
+            <span className="hidden sm:inline">Analytics</span>
+          </Button>
+        </Link>
       </div>
 
       <Card>

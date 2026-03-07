@@ -7,6 +7,7 @@ import { MobileLayout } from "@/components/mobile/MobileLayout";
 import { useTheme } from "next-themes";
 import { Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ interface AppLayoutProps {
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const isMobile = useIsMobile();
   const { theme, setTheme } = useTheme();
+  useAnalytics(); // Auto-tracks page views
 
   // Use mobile layout for mobile/tablet devices
   if (isMobile) {

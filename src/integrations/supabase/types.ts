@@ -92,6 +92,36 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_category: string
+          event_name: string
+          id: string
+          metadata: Json | null
+          page_url: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_category?: string
+          event_name: string
+          id?: string
+          metadata?: Json | null
+          page_url?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_category?: string
+          event_name?: string
+          id?: string
+          metadata?: Json | null
+          page_url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       event_attendance: {
         Row: {
           event_id: string
