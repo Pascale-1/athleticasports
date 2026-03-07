@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { Trophy, CalendarCheck, Flame, Medal } from "lucide-react";
+import { Trophy, CalendarCheck, Dumbbell, Medal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { startOfMonth } from "date-fns";
+
 
 interface ProfileStatsProps {
   userId: string;
@@ -16,7 +16,7 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
   const [stats, setStats] = useState({
     teams: 0,
     eventsAttended: 0,
-    eventsThisMonth: 0,
+    trainings: 0,
     wins: 0,
     winStreak: 0,
   });
@@ -28,9 +28,7 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
 
   const fetchStats = async () => {
     try {
-      const monthStart = startOfMonth(new Date()).toISOString();
-
-      const [teamsRes, eventsRes, monthRes, winsRes] = await Promise.all([
+      const [teamsRes, eventsRes, trainingsRes, winsRes] = await Promise.all([
         supabase
           .from('team_members')
           .select('*', { count: 'exact', head: true })
@@ -48,8 +46,7 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
           .select('id, events!inner(start_time, type)', { count: 'exact', head: true })
           .eq('user_id', userId)
           .eq('status', 'attending')
-          .eq('events.type', 'match')
-          .gte('events.start_time', monthStart)
+          .eq('events.type', 'training')
           .lt('events.start_time', new Date().toISOString()),
         // Get wins: events user attended that are match type with win outcome
         supabase
@@ -63,7 +60,7 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
 
       if (teamsRes.error) console.error('Error fetching team stats:', teamsRes.error);
       if (eventsRes.error) console.error('Error fetching event stats:', eventsRes.error);
-      if (monthRes.error) console.error('Error fetching month stats:', monthRes.error);
+      if (trainingsRes.error) console.error('Error fetching training stats:', trainingsRes.error);
 
       const winsCount = winsRes.error ? 0 : (winsRes.data?.length ?? 0);
 
@@ -93,7 +90,7 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
       setStats({
         teams: teamsRes.error ? 0 : (teamsRes.count ?? 0),
         eventsAttended: eventsRes.error ? 0 : (eventsRes.count ?? 0),
-        eventsThisMonth: monthRes.error ? 0 : (monthRes.count ?? 0),
+        trainings: trainingsRes.error ? 0 : (trainingsRes.count ?? 0),
         wins: winsCount,
         winStreak: streak,
       });
@@ -118,9 +115,9 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
       onClick: () => navigate("/events?tab=my")
     },
     { 
-      icon: Flame, 
-      value: stats.eventsThisMonth, 
-      label: t('profile.thisMonth', 'This month'),
+      icon: Dumbbell, 
+      value: stats.trainings, 
+      label: t('profile.trainingsLabel', 'Trainings'),
       onClick: () => navigate("/events?tab=my")
     },
     { 
