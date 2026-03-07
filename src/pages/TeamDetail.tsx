@@ -37,7 +37,7 @@ const TeamDetail = () => {
   const [memberCount, setMemberCount] = useState(0);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
-  const { team, userRole, isLoading, isMember, canManage } = useTeam(teamId || null);
+  const { team, userRole, isLoading, isMember, canManage, canViewPerformance } = useTeam(teamId || null);
   const { members, loading: membersLoading } = useTeamMembers(teamId || null);
   const { sendInvitation } = useTeamInvitations(teamId || null);
   const {
