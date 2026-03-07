@@ -220,14 +220,47 @@ export const useEventAttendance = (eventId: string) => {
     }
   };
 
+  const markAsPaid = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { error } = await supabase
+        .from("event_attendance" as any)
+        .update({ has_paid: true })
+        .eq("event_id", eventId)
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      setHasPaid(true);
+      toast({
+        title: "Success",
+        description: "Payment marked successfully",
+      });
+      fetchAttendance();
+      return true;
+    } catch (error: any) {
+      console.error("Error marking as paid:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to mark as paid",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   return {
     stats,
     attendees,
     userStatus,
     isCommitted,
+    hasPaid,
     loading,
     updateAttendance,
     removeAttendance,
+    markAsPaid,
     refetch: fetchAttendance,
   };
 };

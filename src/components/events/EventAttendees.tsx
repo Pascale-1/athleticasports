@@ -10,6 +10,7 @@ interface Attendee {
   user_id: string;
   status: string;
   is_committed?: boolean | null;
+  has_paid?: boolean | null;
   responded_at?: string | null;
   profiles?: {
     avatar_url: string | null;
@@ -21,6 +22,7 @@ interface Attendee {
 interface EventAttendeesProps {
   attendees: Attendee[];
   currentUserId: string | null;
+  isPaidEvent?: boolean;
 }
 
 const AttendeeRow = ({ 
@@ -55,6 +57,11 @@ const AttendeeRow = ({
       {attendee.is_committed && (
         <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-primary/20 text-primary">
           ⭐ {committedLabel}
+        </Badge>
+      )}
+      {attendee.has_paid && (
+        <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-success/20 text-success">
+          ✓ Paid
         </Badge>
       )}
     </div>
@@ -122,7 +129,7 @@ const StatusSection = ({
   );
 };
 
-export const EventAttendees = ({ attendees, currentUserId }: EventAttendeesProps) => {
+export const EventAttendees = ({ attendees, currentUserId, isPaidEvent }: EventAttendeesProps) => {
   const { t } = useTranslation('events');
   const [showAll, setShowAll] = useState(false);
   
