@@ -144,42 +144,23 @@ export const TeamInviteLink = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="invite-link">{t('invite.shareLink')}</Label>
-          <div className="flex gap-2">
-            <Input
-              id="invite-link"
-              value={inviteLink}
-              readOnly
-              className="font-mono text-sm"
-            />
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => handleCopy(inviteLink, t('invite.shareLink'))}
-            >
-              <Copy className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="invite-code">{t('invite.code')}</Label>
-          <div className="flex gap-2">
-            <Input
-              id="invite-code"
-              value={inviteCode}
-              readOnly
-              className="font-mono text-sm text-center text-lg font-bold tracking-wider"
-            />
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => handleCopy(inviteCode, t('invite.code'))}
-            >
-              <Copy className="h-4 w-4" />
-            </Button>
-          </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => handleCopy(inviteLink, t('invite.shareLink'))}
+            className="flex-1"
+          >
+            <Copy className="h-4 w-4 mr-2" />
+            {t('invite.shareLink')}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => handleCopy(inviteCode, t('invite.code'))}
+            className="flex-1"
+          >
+            <Copy className="h-4 w-4 mr-2" />
+            {t('invite.code')}
+          </Button>
         </div>
 
         <Button
@@ -187,7 +168,7 @@ export const TeamInviteLink = ({
           className="w-full"
         >
           <Upload className="h-4 w-4 mr-2" />
-          {t('invite.shareLink')}
+          {t('common:actions.share', { defaultValue: 'Share' })}
         </Button>
 
         <div className="flex gap-2">

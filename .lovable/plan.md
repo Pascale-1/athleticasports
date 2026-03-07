@@ -1,19 +1,28 @@
 
 
-## Hide Raw URLs — Show Only Copy & Share Buttons
+# Fix: Stale session after background on Android
 
-Two components expose raw URLs/codes to users via readonly Input fields. The fix is to remove those inputs and replace them with clean action buttons.
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-### Changes
+## Fix
 
-**1. `src/components/events/EventInviteLink.tsx`** (lines 199-204)
-- Remove the `<Input value={inviteLink} readOnly />` field
-- Keep only the Copy and Share buttons side by side, styled as full-width action buttons with labels (e.g. "Copy Link" and "Share")
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-**2. `src/components/teams/TeamInviteLink.tsx`** (lines 146-183)
-- Remove the invite link `<Input>` section (lines 147-163) showing the full URL
-- Remove the invite code `<Input>` section (lines 166-183) showing the raw code
-- Replace with two clean action buttons: "Copy Link" and "Copy Code", plus keep the existing Share/WhatsApp/SMS buttons below
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-Both components already have all the copy/share logic wired up — this is purely a UI cleanup removing the visible Input fields.
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
+```
+
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 

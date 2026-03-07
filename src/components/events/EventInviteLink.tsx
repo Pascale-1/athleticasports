@@ -197,23 +197,20 @@ export const EventInviteLink = ({
       </div>
 
       <div className="flex gap-2">
-        <Input 
-          value={inviteLink} 
-          readOnly 
-          className="font-mono text-xs h-9 flex-1" 
-        />
         <Button
           size="sm"
           variant="outline"
-          className="h-9 px-3"
+          className="h-9 flex-1"
           onClick={handleCopyToClipboard}
         >
-          <Copy className="h-4 w-4" />
+          <Copy className="h-4 w-4 mr-2" />
+          {t('common:actions.copied', { defaultValue: 'Copy Link' })}
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button size="sm" variant="outline" className="h-9 px-3">
-              <Share2 className="h-4 w-4" />
+            <Button size="sm" className="h-9 flex-1">
+              <Share2 className="h-4 w-4 mr-2" />
+              {t('common:actions.share', { defaultValue: 'Share' })}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
