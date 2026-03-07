@@ -25,30 +25,32 @@ export const EventCalendar = ({ events }: EventCalendarProps) => {
 
   return (
     <div className="space-y-3">
-      <Card className="p-3">
-        <Calendar
-          mode="single"
-          selected={selectedDate}
-          onSelect={setSelectedDate}
-          locale={locale}
-          className="pointer-events-auto mx-auto"
-          modifiers={{
-            hasEvent: (date) => eventDates.some(eventDate => isSameDay(eventDate, date))
-          }}
-          modifiersClassNames={{
-            hasEvent: "has-event-indicator"
-          }}
-        />
-        <div className="mt-3 pt-3 border-t">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <div className="h-2 w-2 rounded-full bg-primary" />
-            <span>{t('calendar.hasEvents')}</span>
+      <Card className="p-4">
+        <div className="flex flex-col items-center">
+          <Calendar
+            mode="single"
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            locale={locale}
+            className="pointer-events-auto"
+            modifiers={{
+              hasEvent: (date) => eventDates.some(eventDate => isSameDay(eventDate, date))
+            }}
+            modifiersClassNames={{
+              hasEvent: "has-event-indicator"
+            }}
+          />
+          <div className="mt-3 pt-3 border-t w-full">
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <div className="h-2 w-2 rounded-full bg-primary" />
+              <span>{t('calendar.hasEvents')}</span>
+            </div>
           </div>
         </div>
       </Card>
 
       <div>
-        <div className="mb-3">
+        <div className="mb-3 text-center">
           <h3 className="text-base font-semibold">
             {selectedDate ? format(selectedDate, 'PPP', { locale }) : t('calendar.selectDate')}
           </h3>
