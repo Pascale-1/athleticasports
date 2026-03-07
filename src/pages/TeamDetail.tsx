@@ -205,6 +205,24 @@ const TeamDetail = () => {
   const upcomingSessions = sessions.filter(s => new Date(s.start_time) > new Date());
   const weeklyPosts = announcements.filter(a => isThisWeek(new Date(a.created_at))).length;
 
+  // Compute W-L-D record from match events
+  const matchEvents = sessions.filter(s => s.type === 'match' && (s as any).match_outcome);
+  const record = {
+    wins: matchEvents.filter(e => (e as any).match_outcome === 'win').length,
+    losses: matchEvents.filter(e => (e as any).match_outcome === 'loss').length,
+    draws: matchEvents.filter(e => (e as any).match_outcome === 'draw').length,
+  };
+
+  // Win streak
+  const sortedMatches = [...matchEvents].sort(
+    (a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime()
+  );
+  let winStreak = 0;
+  for (const m of sortedMatches) {
+    if ((m as any).match_outcome === 'win') winStreak++;
+    else break;
+  }
+
   return (
     <motion.div 
       className="min-h-screen bg-background"
@@ -230,11 +248,20 @@ const TeamDetail = () => {
 
       <PageContainer>
         <div className="space-y-6 animate-fade-in">
+          {/* Win Streak Banner */}
+          {winStreak >= 2 && (
+            <div className="rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 px-4 py-3 text-center">
+              <p className="text-sm font-semibold text-primary">
+                🔥 {t('stats.winStreak', '{{count}}-game win streak!', { count: winStreak })}
+              </p>
+            </div>
+          )}
+
           {/* 1. Quick Stats - First impression */}
           <TeamQuickStats
             eventCount={upcomingSessions.length}
             activeMemberCount={activeMemberCount}
-            weeklyPosts={weeklyPosts}
+            record={record}
             loading={membersLoading || sessionsLoading || announcementsLoading}
           />
 

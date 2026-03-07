@@ -14,7 +14,9 @@
   "stats": {
     "events": "Events",
     "members": "Members",
-    "posts": "Posts"
+    "posts": "Posts",
+    "record": "Record",
+    "winStreak": "{{count}}-game win streak!"
   },
   "pendingInvites": "You have {{count}} pending invitation",
   "pendingInvites_plural": "You have {{count}} pending invitations",

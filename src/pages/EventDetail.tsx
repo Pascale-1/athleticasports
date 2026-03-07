@@ -14,6 +14,7 @@ import { RSVPDeadlineDisplay } from "@/components/events/RSVPDeadlineDisplay";
 import { EventJoinRequests } from "@/components/events/EventJoinRequests";
 import { MatchProposalInlineCard } from "@/components/matching/MatchProposalInlineCard";
 import { InterestedPlayersCard } from "@/components/events/InterestedPlayersCard";
+import { MatchResultEntry } from "@/components/events/MatchResultEntry";
 import { useEventInterestedPlayers } from "@/hooks/useEventInterestedPlayers";
 import { ManualTeamAssignment } from "@/components/teams/ManualTeamAssignment";
 import { GeneratedTeamCard, accentColors } from "@/components/teams/GeneratedTeamCard";
@@ -628,39 +629,16 @@ const EventDetail = () => {
               </div>
 
               {/* Match Result */}
-              {event.type === 'match' && (isPastEvent || (event as any).match_result) && (
-                <div className="flex items-center gap-3 pt-1">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Trophy className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-muted-foreground">{t('details.matchResult', 'Result')}</p>
-                    {(event as any).match_result ? (
-                      <p className="text-lg font-bold text-foreground">{(event as any).match_result}</p>
-                    ) : canEdit ? (
-                      <input
-                        placeholder={t('details.enterResult', 'e.g. 3 - 1')}
-                        className="bg-transparent border-b border-border/40 focus:border-primary outline-none text-sm placeholder:text-muted-foreground/50 text-foreground w-full pb-1"
-                        onBlur={async (e) => {
-                          const val = e.target.value.trim();
-                          if (val) {
-                            await updateEvent(event.id, { match_result: val } as any);
-                          }
-                        }}
-                        onKeyDown={async (e) => {
-                          if (e.key === 'Enter') {
-                            const val = (e.target as HTMLInputElement).value.trim();
-                            if (val) {
-                              await updateEvent(event.id, { match_result: val } as any);
-                            }
-                          }
-                        }}
-                      />
-                    ) : (
-                      <p className="text-sm text-muted-foreground">{t('details.noResult', 'No result yet')}</p>
-                    )}
-                  </div>
-                </div>
+              {event.type === 'match' && (isPastEvent || event.match_result) && (
+                <MatchResultEntry
+                  eventId={event.id}
+                  matchResult={event.match_result || null}
+                  matchOutcome={(event.match_outcome as 'win' | 'loss' | 'draw' | null) || null}
+                  homeAway={event.home_away}
+                  canEdit={canEdit}
+                  opponentName={event.opponent_name || undefined}
+                  onSave={async (id, data) => updateEvent(id, data as any)}
+                />
               )}
             </CardContent>
           </Card>
