@@ -8,6 +8,7 @@ export interface EventAttendanceStats {
   maybe: number;
   not_attending: number;
   total: number;
+  paid: number;
 }
 
 export interface EventAttendee {
@@ -16,6 +17,7 @@ export interface EventAttendee {
   status: 'attending' | 'maybe' | 'not_attending';
   responded_at: string;
   is_committed?: boolean;
+  has_paid?: boolean;
   profiles?: {
     username: string;
     display_name: string | null;
@@ -29,10 +31,12 @@ export const useEventAttendance = (eventId: string) => {
     maybe: 0,
     not_attending: 0,
     total: 0,
+    paid: 0,
   });
   const [attendees, setAttendees] = useState<EventAttendee[]>([]);
   const [userStatus, setUserStatus] = useState<string | null>(null);
   const [isCommitted, setIsCommitted] = useState(false);
+  const [hasPaid, setHasPaid] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -62,12 +66,14 @@ export const useEventAttendance = (eventId: string) => {
       const attending = typedData.filter(a => a.status === 'attending').length || 0;
       const maybe = typedData.filter(a => a.status === 'maybe').length || 0;
       const not_attending = typedData.filter(a => a.status === 'not_attending').length || 0;
+      const paid = typedData.filter(a => a.has_paid === true).length || 0;
 
       setStats({
         attending,
         maybe,
         not_attending,
         total: attending + maybe + not_attending,
+        paid,
       });
 
       setAttendees(typedData);
@@ -77,6 +83,7 @@ export const useEventAttendance = (eventId: string) => {
         const userAttendance = typedData.find(a => a.user_id === user.id);
         setUserStatus(userAttendance?.status || null);
         setIsCommitted(userAttendance?.is_committed || false);
+        setHasPaid(userAttendance?.has_paid || false);
       }
     } catch (error) {
       console.error("[Attendance] Error fetching:", error);
@@ -213,14 +220,47 @@ export const useEventAttendance = (eventId: string) => {
     }
   };
 
+  const markAsPaid = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { error } = await supabase
+        .from("event_attendance" as any)
+        .update({ has_paid: true })
+        .eq("event_id", eventId)
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      setHasPaid(true);
+      toast({
+        title: "Success",
+        description: "Payment marked successfully",
+      });
+      fetchAttendance();
+      return true;
+    } catch (error: any) {
+      console.error("Error marking as paid:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to mark as paid",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   return {
     stats,
     attendees,
     userStatus,
     isCommitted,
+    hasPaid,
     loading,
     updateAttendance,
     removeAttendance,
+    markAsPaid,
     refetch: fetchAttendance,
   };
 };

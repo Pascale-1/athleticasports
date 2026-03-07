@@ -411,6 +411,10 @@
     "amount": "Montant",
     "paymentLink": "Lien de paiement",
     "paymentLinkPlaceholder": "https://...",
-    "openPaymentLink": "Payer / Réserver"
+    "openPaymentLink": "Payer / Réserver",
+    "paid": "payé",
+    "markAsPaid": "Marquer comme payé",
+    "markAsPaidDesc": "Confirmez que vous avez payé pour cet événement",
+    "iPaid": "J'ai payé"
   }
 }

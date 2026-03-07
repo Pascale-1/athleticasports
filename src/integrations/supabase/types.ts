@@ -95,6 +95,7 @@ export type Database = {
       event_attendance: {
         Row: {
           event_id: string
+          has_paid: boolean | null
           id: string
           is_committed: boolean | null
           responded_at: string | null
@@ -104,6 +105,7 @@ export type Database = {
         }
         Insert: {
           event_id: string
+          has_paid?: boolean | null
           id?: string
           is_committed?: boolean | null
           responded_at?: string | null
@@ -113,6 +115,7 @@ export type Database = {
         }
         Update: {
           event_id?: string
+          has_paid?: boolean | null
           id?: string
           is_committed?: boolean | null
           responded_at?: string | null

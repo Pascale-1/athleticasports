@@ -406,6 +406,10 @@
     "amount": "Amount",
     "paymentLink": "Payment link",
     "paymentLinkPlaceholder": "https://...",
-    "openPaymentLink": "Pay / Book"
+    "openPaymentLink": "Pay / Book",
+    "paid": "paid",
+    "markAsPaid": "Mark as paid",
+    "markAsPaidDesc": "Confirm you've paid for this event",
+    "iPaid": "I paid"
   }
 }
