@@ -461,7 +461,11 @@
     "signInDifferent": "Sign in with Different Email",
     "redirecting": "Redirecting to your team...",
     "needHelp": "Need help with invitations?",
-    "goToTeams": "Go to Teams"
+    "goToTeams": "Go to Teams",
+    "youreInvited": "You've been invited to join a team!",
+    "signInToAccept": "Sign in or create an account to accept this invitation.",
+    "signIn": "Sign In",
+    "createAccount": "Create Account"
   },
   "practiceTeams": {
     "title": "Practice Teams",
