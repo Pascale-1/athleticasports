@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { Capacitor } from "@capacitor/core";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -135,7 +136,11 @@ export const EventInviteLink = ({
 
   const shareViaWhatsApp = async () => {
     const message = t('events:invite.joinMessage', { title: eventTitle }) + ' ' + inviteLink;
-    await openExternalUrl(`https://wa.me/?text=${encodeURIComponent(message)}`);
+    if (Capacitor.isNativePlatform()) {
+      window.location.href = `whatsapp://send?text=${encodeURIComponent(message)}`;
+    } else {
+      await openExternalUrl(`https://wa.me/?text=${encodeURIComponent(message)}`);
+    }
   };
 
   const shareViaSMS = () => {
