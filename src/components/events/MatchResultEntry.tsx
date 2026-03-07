@@ -84,15 +84,27 @@ export const MatchResultEntry = ({
 
   // Display existing result
   if (matchResult) {
+    const scores = matchResult.split(' - ');
+    const homeLabel = homeAway === 'away' ? (opponentName || t('result.opponent', 'Opponent')) : (teamName || t('result.yourTeam', 'Your Team'));
+    const awayLabel = homeAway === 'away' ? (teamName || t('result.yourTeam', 'Your Team')) : (opponentName || t('result.opponent', 'Opponent'));
+
     return (
       <div className="flex items-center gap-3 pt-1">
         <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
           <Trophy className="h-5 w-5 text-primary" />
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 space-y-1">
           <p className="text-xs text-muted-foreground">{t('details.matchResult', 'Result')}</p>
           <div className="flex items-center gap-2">
-            <p className="text-lg font-bold text-foreground">{matchResult}</p>
+            <div className="flex-1 text-center">
+              <p className="text-[10px] text-muted-foreground truncate">{homeLabel}</p>
+              <p className="text-lg font-bold text-foreground">{scores[0]?.trim()}</p>
+            </div>
+            <span className="text-muted-foreground font-bold text-lg">-</span>
+            <div className="flex-1 text-center">
+              <p className="text-[10px] text-muted-foreground truncate">{awayLabel}</p>
+              <p className="text-lg font-bold text-foreground">{scores[1]?.trim()}</p>
+            </div>
             {outcomeBadge}
           </div>
         </div>
