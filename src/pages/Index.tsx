@@ -282,6 +282,7 @@ const Index = () => {
               </button>
             </div>
           </AnimatedCard>
+          </div>
 
           {/* Welcome Hint */}
           <OnboardingHint
