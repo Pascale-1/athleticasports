@@ -598,6 +598,11 @@ export const UnifiedEventForm = ({
               ) : null}
             </div>
           )}
+          {!selectedTeamId && !teamId && (
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {lang === 'fr' ? 'Optionnel — passez cette étape pour créer un match ouvert' : 'Optional — skip to create a public pickup game'}
+            </p>
+          )}
         </FieldRow>
       )}
 
