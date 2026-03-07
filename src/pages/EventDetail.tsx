@@ -511,8 +511,50 @@ const EventDetail = () => {
                 </div>
               </div>
             )}
+
+            {/* RSVP Deadline — inline */}
+            {event.rsvp_deadline && (
+              <div className="flex items-center gap-3 pt-1">
+                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                  <Clock className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">{t('form.rsvpDeadline', 'RSVP Deadline')}</p>
+                  <p className="text-sm font-medium">
+                    {format(new Date(event.rsvp_deadline), "EEE d MMM, HH:mm")}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Looking for Players — inline */}
+            {event.looking_for_players && event.players_needed && (
+              <div className="flex items-center gap-3 pt-1">
+                <div className="h-10 w-10 rounded-lg bg-[rgba(167,139,250,0.10)] flex items-center justify-center shrink-0">
+                  <Users className="h-5 w-5 text-[#A78BFA]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-[#A78BFA]">
+                    🔍 {t('details.lookingForPlayers', 'Looking for players')}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {Math.max(0, event.players_needed - stats.attending)} {t('details.spotsLeft', 'spots left')}
+                  </p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
+
+        {/* Join Requests for Organizers */}
+        {canEdit && pendingRequests.length > 0 && (
+          <EventJoinRequests
+            requests={pendingRequests}
+            onApprove={handleApproveRequest}
+            onReject={handleRejectRequest}
+            isLoading={joinRequestsLoading}
+          />
+        )}
 
         {/* Match Details Card */}
         {hasMatchDetails && (
