@@ -28,6 +28,7 @@ interface EventInviteLinkProps {
   inviteCode: string;
   allowPublicJoin: boolean;
   eventTitle: string;
+  isOrganizer?: boolean;
 }
 
 export const EventInviteLink = ({
@@ -35,6 +36,7 @@ export const EventInviteLink = ({
   inviteCode,
   allowPublicJoin,
   eventTitle,
+  isOrganizer = false,
 }: EventInviteLinkProps) => {
   const { t } = useTranslation(['events', 'common']);
   const { toast } = useToast();
@@ -161,39 +163,41 @@ export const EventInviteLink = ({
           )}
         </div>
         
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <Settings className="h-4 w-4" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="end" className="w-64">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label className="text-sm">{t('events:invite.allowJoining')}</Label>
-                  <p className="text-xs text-muted-foreground">
-                    {t('events:invite.anyoneCanRsvp')}
-                  </p>
-                </div>
-                <Switch
-                  checked={localAllowPublicJoin}
-                  onCheckedChange={togglePublicJoin}
-                />
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={regenerateCode}
-                disabled={isRegenerating}
-              >
-                <RefreshCw className={`h-4 w-4 mr-2 ${isRegenerating ? 'animate-spin' : ''}`} />
-                {t('events:invite.regenerateCode')}
+        {isOrganizer && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Settings className="h-4 w-4" />
               </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-64">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm">{t('events:invite.allowJoining')}</Label>
+                    <p className="text-xs text-muted-foreground">
+                      {t('events:invite.anyoneCanRsvp')}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={localAllowPublicJoin}
+                    onCheckedChange={togglePublicJoin}
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={regenerateCode}
+                  disabled={isRegenerating}
+                >
+                  <RefreshCw className={`h-4 w-4 mr-2 ${isRegenerating ? 'animate-spin' : ''}`} />
+                  {t('events:invite.regenerateCode')}
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
 
       <div className="flex gap-2">
@@ -204,7 +208,7 @@ export const EventInviteLink = ({
           onClick={handleCopyToClipboard}
         >
           <Copy className="h-4 w-4 mr-2" />
-          {t('common:actions.copied', { defaultValue: 'Copy Link' })}
+          {t('common:actions.copy', { defaultValue: 'Copy' })}
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
