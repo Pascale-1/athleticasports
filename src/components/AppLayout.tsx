@@ -16,6 +16,7 @@ interface AppLayoutProps {
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const isMobile = useIsMobile();
   const { theme, setTheme } = useTheme();
+  useAnalytics(); // Auto-tracks page views
 
   // Use mobile layout for mobile/tablet devices
   if (isMobile) {
