@@ -132,10 +132,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, []);
 
   const markAllAsRead = useCallback(async () => {
+    if (!user) return;
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const { error } = await supabase.rpc("mark_all_notifications_read", {
         _user_id: user.id,
       });
@@ -147,7 +145,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
     }
-  }, []);
+  }, [user]);
 
   return (
     <NotificationContext.Provider
