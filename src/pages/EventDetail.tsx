@@ -104,6 +104,9 @@ const EventDetail = () => {
     loading: joinRequestsLoading 
   } = useEventJoinRequests(eventId || '');
 
+  const isCreator = currentUserId === event?.created_by;
+  const { players: interestedPlayers, invitePlayer } = useEventInterestedPlayers(eventId, isCreator && canEdit);
+
   // Practice Teams hooks
   const { teams: generatedTeams, loading: teamsLoading, generating, generateTeams, deleteTeams, createGroup, deleteGroup, assignPlayer, removePlayer } = useTeamGeneration(event?.team_id ? eventId || null : null);
   const { members: teamMembers } = useTeamMembers(event?.team_id || null);
