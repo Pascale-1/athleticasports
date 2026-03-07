@@ -122,7 +122,7 @@ const FieldRow = ({
 
 // Step progress header — "Step 2 of 4 · When & Where"
 const StepHeader = ({ current, total, labels }: { current: number; total: number; labels: string[] }) => (
-  <div className="px-4 pt-4 pb-3 space-y-2.5">
+  <div className="px-4 pr-10 pt-4 pb-3 space-y-2.5">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2.5">
         <span className="text-xs font-bold text-primary-foreground bg-primary rounded-full h-6 w-6 flex items-center justify-center">
