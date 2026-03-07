@@ -69,7 +69,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MAP_PROVIDERS, getDefaultMapUrl } from "@/lib/mapProviders";
+import { MAP_PROVIDERS, getDefaultMapUrl, getNativeMapUrl } from "@/lib/mapProviders";
+import { Capacitor } from "@capacitor/core";
 
 const EventDetail = () => {
   const { eventId } = useParams();
@@ -283,12 +284,13 @@ const EventDetail = () => {
   const hasMatchDetails = event.type === 'match' && (event.opponent_name || event.match_format || event.home_away);
 
   return (
-    <PageContainer className="pb-48 lg:pb-8">
+    <PageContainer className="pb-56 lg:pb-8">
       <motion.div 
         className="space-y-2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
+        style={{ touchAction: 'pan-y' }}
       >
         {/* Hero Header with Color Accent */}
         <div className="relative -mx-4 -mt-4">
@@ -374,30 +376,7 @@ const EventDetail = () => {
           />
         )}
 
-        {/* Looking for Players Banner - Now purely informational with dynamic spots */}
-        {event.looking_for_players && event.players_needed && (
-          <LookingForPlayersBanner
-            playersNeeded={event.players_needed}
-            currentAttending={stats.attending}
-            maxParticipants={event.max_participants || undefined}
-            isUserAttending={userStatus === 'attending'}
-          />
-        )}
-
-        {/* Join Requests for Organizers */}
-        {canEdit && pendingRequests.length > 0 && (
-          <EventJoinRequests
-            requests={pendingRequests}
-            onApprove={handleApproveRequest}
-            onReject={handleRejectRequest}
-            isLoading={joinRequestsLoading}
-          />
-        )}
-
-        {/* RSVP Deadline */}
-        {event.rsvp_deadline && (
-          <RSVPDeadlineDisplay deadline={event.rsvp_deadline} />
-        )}
+        {/* Looking for Players and RSVP Deadline are now shown inline in When & Where card */}
 
         {/* When & Where Card */}
         <Card className="overflow-hidden">
@@ -457,6 +436,18 @@ const EventDetail = () => {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                     </>
+                  )}
+                  {/* Native maps option — opens device maps app */}
+                  {Capacitor.isNativePlatform() && (
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        const nativeUrl = getNativeMapUrl(event.location!);
+                        window.location.href = nativeUrl;
+                      }}
+                    >
+                      <Map className="h-4 w-4 mr-2" />
+                      {t('details.openInMaps', 'Open in Maps')}
+                    </DropdownMenuItem>
                   )}
                   {/* Map providers */}
                   {MAP_PROVIDERS.map((provider) => (
