@@ -1,36 +1,28 @@
 
 
-## Match Result Visibility — Analysis
+# Fix: Stale session after background on Android
 
-### What's happening
-The event you're viewing (`Leb Test vs Tina Corner`, March 10 at 18:00) is a **future match** — it hasn't happened yet. The match result card only appears when:
-1. The event is **past** (end time has passed), OR
-2. A result has **already been saved**
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-This is the correct behavior — you can't enter a score before the game is played.
+## Fix
 
-### What to change?
-Two options:
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-**Option A: Keep current behavior (recommended)**
-No changes. The score entry form will automatically appear once March 10 at 19:30 passes. This prevents accidental premature score entry.
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-**Option B: Show score entry for all match events regardless of time**
-Change line 596 in `EventDetail.tsx` from:
 ```tsx
-{event.type === 'match' && (isPastEvent || event.match_result) && (
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
 ```
-to:
-```tsx
-{event.type === 'match' && (
-```
-This would let organizers enter scores early (e.g., if they want to pre-fill or the game ended before the scheduled end time).
 
-### Recommendation
-**Option B** is more practical — games often end before the scheduled `end_time`, and organizers may want to record the score right after the match. The `canEdit` guard already ensures only the creator/admin can enter scores.
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
 
-### Changes
-| File | Change |
-|------|--------|
-| `src/pages/EventDetail.tsx` line 596 | Remove `isPastEvent` guard, show match result card for all match events |
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 
