@@ -306,17 +306,19 @@ const Settings = () => {
         </Card>
 
         <div data-walkthrough="profile-tabs">
-          profile={profile}
-          email={email}
-          stats={stats}
-          onEditField={handleSaveField}
-          onSaveField={handleSaveField}
-          onSaveAllFields={handleSaveAllFields}
-          editingField={editingField}
-          setEditingField={setEditingField}
-          tempValues={tempValues}
-          setTempValues={setTempValues}
-        />
+          <ProfileTabs
+            profile={profile}
+            email={email}
+            stats={stats}
+            onEditField={handleSaveField}
+            onSaveField={handleSaveField}
+            onSaveAllFields={handleSaveAllFields}
+            editingField={editingField}
+            setEditingField={setEditingField}
+            tempValues={tempValues}
+            setTempValues={setTempValues}
+          />
+        </div>
 
         <AccountDangerZone />
       </div>
