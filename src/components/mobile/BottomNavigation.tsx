@@ -134,7 +134,7 @@ export const BottomNavigation = () => {
                 "relative flex flex-col items-center justify-center gap-0 px-3 py-1 rounded-lg transition-all duration-150 active:scale-[0.92] min-w-[56px] min-h-[38px]",
                 isActive
                   ? "text-primary"
-                  : "text-muted hover:text-muted-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               <div className="relative">
