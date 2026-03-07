@@ -16,6 +16,7 @@ import { FoundingMemberBadge } from "@/components/profile/FoundingMemberBadge";
 import { AccountDangerZone } from "@/components/settings/AccountDangerZone";
 import { getAppBaseUrl } from "@/lib/appUrl";
 import { copyToClipboard } from "@/lib/clipboard";
+import { LogoutButton } from "@/components/settings/LogoutButton";
 
 interface Profile {
   id: string;
@@ -232,7 +233,7 @@ const Settings = () => {
           title={t("profile.title")}
           showBackButton
           backPath="/"
-          rightAction={undefined}
+          rightAction={<LogoutButton variant="header" />}
         />
 
         <Card className="p-4">
