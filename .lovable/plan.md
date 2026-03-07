@@ -1,28 +1,28 @@
 
 
-# Fix: Stale session after background on Android
+## Plan: Move Logout Button to Profile Page Header
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+### Change
 
-## Fix
+Use the `PageHeader`'s `rightAction` prop to place the `LogoutButton` in the top-right corner of the profile page, next to the title.
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+### File
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+| File | Change |
+|------|--------|
+| `src/pages/Settings.tsx` | Import `LogoutButton`, pass it as `rightAction` to `PageHeader` instead of `undefined` |
+
+### Code Change
 
 ```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
+// In Settings.tsx, line ~231-236
+<PageHeader
+  title={t("profile.title")}
+  showBackButton
+  backPath="/"
+  rightAction={<LogoutButton variant="header" />}
+/>
 ```
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
-
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+The `LogoutButton` with `variant="header"` already renders a compact ghost button with red text — fits naturally in the header corner. No other files need changes.
 
