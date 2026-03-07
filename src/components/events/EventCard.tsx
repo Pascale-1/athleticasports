@@ -262,6 +262,24 @@ export const EventCard = memo(({
                 {event.title}
               </h3>
 
+              {/* ROW 2.5: Match result badge (past matches only) */}
+              {isPast && event.type === 'match' && event.match_result && (
+                <div className="flex items-center gap-1.5">
+                  <Trophy className="h-3 w-3 text-primary" />
+                  <span className="text-[13px] font-bold text-foreground">{event.match_result}</span>
+                  {event.match_outcome && (
+                    <span className={cn(
+                      "inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase",
+                      event.match_outcome === 'win' && "bg-success/10 text-success",
+                      event.match_outcome === 'loss' && "bg-destructive/10 text-destructive",
+                      event.match_outcome === 'draw' && "bg-primary/10 text-primary",
+                    )}>
+                      {event.match_outcome === 'win' ? '✓ W' : event.match_outcome === 'loss' ? '✗ L' : '= D'}
+                    </span>
+                  )}
+                </div>
+              )}
+
               {/* ROW 3: Date in event type color */}
               <p className={cn("text-[11px] font-semibold uppercase", typeColors.text)}>
                 {dateBlock} · {timeStr}
