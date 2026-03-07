@@ -579,6 +579,18 @@ const EventDetail = () => {
           />
         )}
 
+        {/* Interested Players from Matching */}
+        {canEdit && interestedPlayers.length > 0 && (
+          <InterestedPlayersCard
+            players={interestedPlayers}
+            onInvite={async (proposalId, playerId) => {
+              const success = await invitePlayer(proposalId, playerId);
+              if (success) refetchAttendance();
+              return success;
+            }}
+          />
+        )}
+
         {/* Match Details Card */}
         {(hasMatchDetails || (event.type === 'match' && isPastEvent)) && (
           <Card>
