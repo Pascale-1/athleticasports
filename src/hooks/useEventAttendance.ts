@@ -43,8 +43,8 @@ export const useEventAttendance = (eventId: string) => {
   // Declare fetchAttendance BEFORE it's used
   const fetchAttendance = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log('[Attendance] Current user:', user?.id);
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user ?? null;
 
       // Fetch attendance stats
       const { data: attendanceData, error: attendanceError } = await supabase
