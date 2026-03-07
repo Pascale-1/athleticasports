@@ -95,13 +95,20 @@ const Events = () => {
     ]);
   }, [refetchAttending, refetchDeclined, refetchDiscover, refetchCreatedEvents]);
   
-  // Read tab from URL params
+  // Read tab and type from URL params
   useEffect(() => {
     const tabParam = searchParams.get('tab');
+    const typeParam = searchParams.get('type');
     if (tabParam === 'discover') {
       setActiveTab('discover');
     } else if (tabParam === 'organized') {
       setActiveTab('organized');
+    } else if (tabParam === 'my') {
+      setActiveTab('my');
+    }
+    if (typeParam && ['training', 'meetup', 'match'].includes(typeParam)) {
+      setActiveEventType(typeParam as any);
+      setTypeFilter(typeParam as any);
     }
   }, [searchParams]);
   
