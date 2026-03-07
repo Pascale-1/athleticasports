@@ -1,25 +1,28 @@
 
 
-## Merge "Games to Join" with Discover Events
+# Fix: Stale session after background on Android
 
-Currently the home page shows "Games to Join" (only `looking_for_players` events). We'll broaden this section to also include public discoverable events, creating a unified "Events near you" / "Events to discover" section.
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-### Approach
+## Fix
 
-Use `useDiscoverEvents` instead of `useAvailableGames` for the home page section, since discover events is a superset (all public upcoming events not created by or RSVP'd to by the user). Events with `looking_for_players` will naturally appear in this list too.
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-### Changes
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-**`src/pages/Index.tsx`**:
-1. Replace the `useAvailableGames` import/hook with `useDiscoverEvents`
-2. Rename `topAvailableGames` to use discover events data (still sliced to 3)
-3. Update the section header from "Games to Join" / `matching:gamesToJoin` to a broader label like "Discover Events"
-4. Replace `AvailableGameCard` with a simpler event row (same style as "Your Upcoming Events" rows -- emoji, title, date, location) since discover events don't all have match-scoring data
-5. Keep the "View All" button linking to `/events?tab=discover`
-6. Update the empty state condition at line 476 to account for the new data source
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
+```
 
-**`src/i18n/locales/en/common.json`** and **`fr/common.json`**:
-- Add `home.discoverEvents`: "Discover" (EN) / "Découvrir" (FR)
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
 
-**No other files changed.** The `useAvailableGames` hook stays intact for use on the Events discover tab. We just stop using it on the home page.
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 

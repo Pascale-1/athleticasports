@@ -129,7 +129,8 @@
     "browseTeams": "Parcourir les équipes",
     "lookingFor": "Recherche de parties {{sport}}",
     "anyLocation": "N'importe quel lieu",
-    "open": "Ouvert"
+    "open": "Ouvert",
+    "discoverEvents": "Découvrir"
   },
   "activity": {
     "title": "Activité",

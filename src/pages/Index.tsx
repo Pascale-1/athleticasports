@@ -23,8 +23,7 @@ import { usePlayerAvailability } from "@/hooks/usePlayerAvailability";
 import { formatDateTimeShort } from "@/lib/dateUtils";
 import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
 import { useAppWalkthrough, isFullWalkthroughActive } from "@/hooks/useAppWalkthrough";
-import { useAvailableGames } from "@/hooks/useAvailableGames";
-import { AvailableGameCard } from "@/components/matching/AvailableGameCard";
+import { useDiscoverEvents } from "@/hooks/useDiscoverEvents";
 import { isToday, isTomorrow } from "date-fns";
 import { LanguageToggle } from "@/components/settings/LanguageToggle";
 import { FeedbackForm } from "@/components/feedback/FeedbackForm";
@@ -67,9 +66,9 @@ const Index = () => {
   });
   const upcomingEvents = userEvents.slice(0, 3);
   
-  // Fetch available games (looking for players)
-  const { games: availableGames, loading: gamesLoading } = useAvailableGames();
-  const topAvailableGames = availableGames.slice(0, 3);
+  // Fetch discoverable events (public events not created/joined by user)
+  const { events: discoverEvents, loading: discoverLoading } = useDiscoverEvents();
+  const topDiscoverEvents = discoverEvents.slice(0, 3);
   
   // Fetch match status (proposals & availability)
   const { availability } = usePlayerAvailability();
@@ -318,19 +317,19 @@ const Index = () => {
           {/* Games Section - Clear Separation */}
           <AnimatedCard delay={0.25}>
             <div data-walkthrough="home-games" className="space-y-3">
-              {/* Games to Join */}
-              {!gamesLoading && topAvailableGames.length > 0 && (
+              {/* Discover Events */}
+              {!discoverLoading && topDiscoverEvents.length > 0 && (
                 <Card className="p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <div className="p-1.5 rounded-lg bg-muted">
-                        <UserPlus className="h-4 w-4 text-muted-foreground" />
+                        <Sparkles className="h-4 w-4 text-muted-foreground" />
                       </div>
                       <h2 className="text-[13px] font-semibold text-muted-foreground">
-                        {t('matching:gamesToJoin')}
+                        {t('home.discoverEvents')}
                       </h2>
                       <Badge variant="secondary" className="text-[10px] border-0">
-                        {topAvailableGames.length}
+                        {discoverEvents.length}
                       </Badge>
                     </div>
                     <Button
@@ -344,14 +343,41 @@ const Index = () => {
                     </Button>
                   </div>
                   <div className="space-y-2">
-                    {topAvailableGames.map((game) => (
-                      <AvailableGameCard 
-                        key={game.id} 
-                        game={game} 
-                        compact
-                        showJoinBadge
-                      />
-                    ))}
+                    {topDiscoverEvents.map((event) => {
+                      const eventDate = new Date(event.start_time);
+                      const dateLabel = isToday(eventDate) ? t('time.today') : isTomorrow(eventDate) ? t('time.tomorrow') : null;
+                      return (
+                        <div
+                          key={event.id}
+                          onClick={() => navigate(`/events/${event.id}`)}
+                          className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted cursor-pointer transition-colors active:scale-[0.99]"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 text-lg">
+                            {getEventTypeEmoji(event.type, event.sport)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-sm line-clamp-2">{event.title}</p>
+                              {dateLabel && (
+                                <Badge variant="secondary" className="text-[9px] px-1.5 py-0 shrink-0 bg-primary/15 text-primary">
+                                  {dateLabel.toUpperCase()}
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {formatDateTimeShort(event.start_time)}
+                              {event.location ? ` · 📍 ${event.location}` : ''}
+                            </p>
+                          </div>
+                          {event.looking_for_players && (
+                            <Badge variant="secondary" className="text-[9px] px-1.5 py-0 shrink-0 bg-green-500/15 text-green-500">
+                              <UserPlus className="h-3 w-3 mr-0.5" />
+                              {t('status.available')}
+                            </Badge>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </Card>
               )}
@@ -473,7 +499,7 @@ const Index = () => {
                     })}
                   </div>
                 </Card>
-              ) : !gamesLoading && topAvailableGames.length === 0 && !availability ? (
+              ) : !discoverLoading && topDiscoverEvents.length === 0 && !availability ? (
                 <Card className="p-6 text-center">
                   <span className="text-4xl mb-2 block">📅</span>
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-muted flex items-center justify-center">
