@@ -460,7 +460,14 @@ const EventDetail = () => {
                   {MAP_PROVIDERS.map((provider) => (
                     <DropdownMenuItem 
                       key={provider.id}
-                      onClick={() => openExternalUrl(provider.getUrl(event.location!))}
+                      onClick={() => {
+                        const url = getBestMapUrl(provider, event.location!);
+                        if (url.startsWith('http')) {
+                          openExternalUrl(url);
+                        } else {
+                          window.location.href = url;
+                        }
+                      }}
                     >
                       <Map className="h-4 w-4 mr-2" />
                       {provider.name}

@@ -119,7 +119,11 @@ export const TeamInviteLink = ({
 
   const shareViaWhatsApp = async () => {
     const text = `Join my team! ${inviteLink}`;
-    await openExternalUrl(`https://wa.me/?text=${encodeURIComponent(text)}`);
+    if (Capacitor.isNativePlatform()) {
+      window.location.href = `whatsapp://send?text=${encodeURIComponent(text)}`;
+    } else {
+      await openExternalUrl(`https://wa.me/?text=${encodeURIComponent(text)}`);
+    }
   };
 
   const shareViaSMS = () => {

@@ -13,11 +13,13 @@ import {
   generateGoogleCalendarUrl,
   generateOutlookUrl,
   generateOffice365Url,
+  generateICSFile,
   downloadICS,
   type CalendarEvent,
 } from "@/lib/calendarExport";
 import { useToast } from "@/hooks/use-toast";
 import { useExternalLink } from "@/hooks/useExternalLink";
+import { Capacitor } from "@capacitor/core";
 
 interface AddToCalendarButtonProps {
   event: {
@@ -40,6 +42,7 @@ export const AddToCalendarButton = ({
   const { toast } = useToast();
   const { openExternalUrl } = useExternalLink();
   const [isOpen, setIsOpen] = useState(false);
+  const isNative = Capacitor.isNativePlatform();
 
   const calendarEvent: CalendarEvent = {
     title: event.title,
@@ -47,6 +50,36 @@ export const AddToCalendarButton = ({
     location: event.location || undefined,
     start: new Date(event.start_time),
     end: new Date(event.end_time),
+  };
+
+  const handleNativeCalendar = async () => {
+    try {
+      const icsContent = generateICSFile(calendarEvent);
+      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+      const file = new File([blob], `${calendarEvent.title.replace(/[^a-z0-9]/gi, '_')}.ics`, {
+        type: 'text/calendar',
+      });
+
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: calendarEvent.title });
+      } else {
+        // Fallback: download the file which triggers native calendar on most devices
+        downloadICS(calendarEvent);
+      }
+      toast({
+        title: t("calendar.downloaded"),
+        description: t("calendar.downloadedDesc"),
+      });
+    } catch (error) {
+      if ((error as DOMException)?.name === 'AbortError') return;
+      // Fallback to download
+      downloadICS(calendarEvent);
+      toast({
+        title: t("calendar.downloaded"),
+        description: t("calendar.downloadedDesc"),
+      });
+    }
+    setIsOpen(false);
   };
 
   const handleDownloadICS = () => {
@@ -73,6 +106,17 @@ export const AddToCalendarButton = ({
     setIsOpen(false);
   };
 
+  // On native: single button that shares/downloads ICS → triggers native calendar picker
+  if (isNative) {
+    return (
+      <Button variant={variant} size={size} className="gap-2" onClick={handleNativeCalendar}>
+        <CalendarPlus className="h-4 w-4" />
+        <span>{t("calendar.addToCalendar")}</span>
+      </Button>
+    );
+  }
+
+  // On web: dropdown with all calendar provider options
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>

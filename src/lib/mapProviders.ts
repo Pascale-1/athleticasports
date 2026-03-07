@@ -7,6 +7,8 @@ export interface MapProviderOption {
   id: MapProvider;
   name: string;
   getUrl: (address: string) => string;
+  /** Returns a native URI scheme URL if on a native platform, or null to use web URL */
+  getNativeUrl?: (address: string) => string | null;
 }
 
 export const MAP_PROVIDERS: MapProviderOption[] = [
@@ -21,24 +23,57 @@ export const MAP_PROVIDERS: MapProviderOption[] = [
     name: 'Google Maps',
     getUrl: (address: string) => 
       `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
+    getNativeUrl: (address: string) => {
+      if (!Capacitor.isNativePlatform()) return null;
+      const platform = Capacitor.getPlatform();
+      if (platform === 'ios') {
+        return `comgooglemaps://?q=${encodeURIComponent(address)}`;
+      }
+      if (platform === 'android') {
+        return `geo:0,0?q=${encodeURIComponent(address)}`;
+      }
+      return null;
+    },
   },
   {
     id: 'apple',
     name: 'Apple Maps',
     getUrl: (address: string) => 
       `https://maps.apple.com/?q=${encodeURIComponent(address)}`,
+    getNativeUrl: (address: string) => {
+      if (!Capacitor.isNativePlatform()) return null;
+      if (Capacitor.getPlatform() === 'ios') {
+        return `maps://maps.apple.com/?q=${encodeURIComponent(address)}`;
+      }
+      return null;
+    },
   },
   {
     id: 'waze',
     name: 'Waze',
     getUrl: (address: string) => 
       `https://waze.com/ul?q=${encodeURIComponent(address)}&navigate=yes`,
+    getNativeUrl: (address: string) => {
+      if (!Capacitor.isNativePlatform()) return null;
+      return `waze://?q=${encodeURIComponent(address)}&navigate=yes`;
+    },
   },
 ];
 
 export const getMapProviderUrl = (provider: MapProvider, address: string): string => {
   const providerConfig = MAP_PROVIDERS.find(p => p.id === provider);
   return providerConfig ? providerConfig.getUrl(address) : MAP_PROVIDERS[0].getUrl(address);
+};
+
+/**
+ * Returns the best URL for a map provider — native URI scheme if available, otherwise web URL.
+ */
+export const getBestMapUrl = (provider: MapProviderOption, address: string): string => {
+  if (Capacitor.isNativePlatform() && provider.getNativeUrl) {
+    const nativeUrl = provider.getNativeUrl(address);
+    if (nativeUrl) return nativeUrl;
+  }
+  return provider.getUrl(address);
 };
 
 // Default provider is OpenStreetMap (doesn't get blocked like Google)
