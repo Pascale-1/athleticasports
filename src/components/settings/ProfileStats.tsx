@@ -28,9 +28,7 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
 
   const fetchStats = async () => {
     try {
-      const monthStart = startOfMonth(new Date()).toISOString();
-
-      const [teamsRes, eventsRes, monthRes, winsRes] = await Promise.all([
+      const [teamsRes, eventsRes, trainingsRes, winsRes] = await Promise.all([
         supabase
           .from('team_members')
           .select('*', { count: 'exact', head: true })
