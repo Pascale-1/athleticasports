@@ -310,7 +310,7 @@ const TeamDetail = () => {
                   <TabsTrigger value="chat">{t('communication.chat')}</TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="announcements" className="mt-4 max-h-[500px] overflow-y-auto">
+                <TabsContent value="announcements" className="mt-4 max-h-[500px] overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
                   <TeamAnnouncements
                     announcements={announcements}
                     canPost={isMember}

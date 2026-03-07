@@ -1,31 +1,28 @@
 
 
-## Fix Plan: 3 Issues
+# Fix: Stale session after background on Android
 
-### Issue 1: Home page "Games to Join" vs "Upcoming Events"
-**Resolution:** Both sections are intentional and show different data. No changes needed per your confirmation.
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
----
+## Fix
 
-### Issue 2: Chat & Announcements not scrollable in Team Detail
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-**Root cause:** The `TeamChat` component uses Radix `ScrollArea` with `h-[400px]`, which has known issues with touch scrolling on mobile. The Radix ScrollArea viewport intercepts touch events in a way that conflicts with mobile native scroll.
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-**Fix — `src/components/teams/TeamChat.tsx`:**
-- Replace `<ScrollArea className="h-[400px]">` with a plain `<div>` that uses native overflow scrolling: `className="h-[400px] overflow-y-auto overscroll-contain"`. This works reliably on mobile touch.
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
+```
 
-**Fix — `src/pages/TeamDetail.tsx`:**
-- The announcements tab already has `max-h-[500px] overflow-y-auto` (line 313), but it needs `overscroll-contain` added to prevent scroll chaining (page scrolls instead of the announcements list). Update to `max-h-[500px] overflow-y-auto overscroll-contain`.
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
 
----
-
-### Issue 3: Sport horizontal selector not scrollable when creating a team
-
-**Root cause:** The `SportQuickSelector` uses `overflow-x-auto` for horizontal scrolling, but on mobile touch devices this requires explicit `touch-action: pan-x` to prevent vertical page scroll from capturing the horizontal swipe gesture. Also, the parent `PageContainer` applies `overflow-x-hidden` which can clip touch scroll interactions.
-
-**Fix — `src/components/events/SportQuickSelector.tsx`:**
-- Add `-webkit-overflow-scrolling: touch` and `touch-action: pan-x` via a style prop on the container div to enable proper horizontal touch scrolling.
-
-**Fix — `src/pages/TeamCreate.tsx`:**
-- On the wrapper div (line 103), add `overflow-x-auto` so the horizontal scroll isn't clipped by parent constraints.
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 
