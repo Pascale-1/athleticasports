@@ -1,34 +1,28 @@
 
 
-## Fix Resend Invitation + Browser Verification
+# Fix: Stale session after background on Android
 
-### Problem
-The `team_invitations` table UPDATE policy only permits the **invited user** to update records (for accept/decline). When a team admin resends an invitation, the email is sent but the `created_at` timestamp update silently fails, so the "invited X ago" text never refreshes.
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-### Fix
+## Fix
 
-**Database migration** -- Add an UPDATE policy for team admins:
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-```sql
-CREATE POLICY "Team admins can update invitations"
-ON public.team_invitations
-FOR UPDATE
-USING (can_manage_team(auth.uid(), team_id) OR (auth.uid() = invited_by))
-WITH CHECK (can_manage_team(auth.uid(), team_id) OR (auth.uid() = invited_by));
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
 ```
 
-This allows the inviter or any team admin to update invitation records (e.g. refreshing `created_at` on resend).
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
 
-### Browser Testing
-After the migration, test the full invite member flow end-to-end:
-1. Navigate to a team detail page
-2. Open the invite member dialog
-3. Search for a user and send an invitation
-4. Verify the pending invitation appears in the list
-5. Test the resend button and confirm the timestamp updates
-6. Test the cancel button
-
-### Files Changed
-- Database migration only (one new RLS policy)
-- No code file changes needed
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 
