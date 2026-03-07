@@ -152,11 +152,12 @@ export const BottomNavigation = () => {
                 )}
               </div>
               
-              {isActive && (
-                <span className="text-[10px] font-semibold transition-all duration-150">
-                  {t(item.titleKey)}
-                </span>
-              )}
+              <span className={cn(
+                "text-[10px] transition-all duration-150",
+                isActive ? "font-semibold text-primary" : "font-normal text-muted-foreground"
+              )}>
+                {t(item.titleKey)}
+              </span>
             </NavLink>
           );
         })}

@@ -1,22 +1,28 @@
 
+
+# Fix: Stale session after background on Android
+
 ## Problem
-In the mobile bottom navigation (`BottomNavigation.tsx`), the section labels (Home, Events, Teams, Profile) only display when a nav item is active (lines 155-159). The user wants these labels visible at all times for better UX clarity.
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-## Solution
-Modify `src/components/mobile/BottomNavigation.tsx` to always show the section labels, not just on active items. This improves discoverability and makes the navigation clearer, especially on first use.
+## Fix
 
-### Changes
-**File:** `src/components/mobile/BottomNavigation.tsx`
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-1. **Remove the conditional render** (line 155: `{isActive && (...)}`): Always render the label below the icon
-2. **Adjust label styling** to be visible even when inactive:
-   - Keep current styling for active state (primary color, bold)
-   - Add styling for inactive state: smaller text, muted-foreground color, reduced opacity
-3. **Fine-tune spacing**: Ensure the label doesn't overflow; consider reducing font size or using text truncation if needed
-4. **Maintain badge visibility**: Keep notification badges visible in both active and inactive states
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-### Expected Result
-- All four nav items (Home, Events, Teams, Profile) will always show their labels
-- Active items remain highlighted with bold text and primary color
-- Inactive items display in muted color with normal weight for visual hierarchy
-- No layout breaks; height remains within the nav bar constraints
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
+```
+
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+
