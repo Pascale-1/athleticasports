@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { isToday, isTomorrow, isThisWeek, isFuture } from "date-fns";
 import type { Event } from "@/lib/events";
 import { Badge } from "@/components/ui/badge";
-import { FAB } from "@/components/mobile/FAB";
+
 import { EmptyState } from "@/components/EmptyState";
 import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
 import { PullToRefresh } from "@/components/animations/PullToRefresh";
@@ -253,7 +253,7 @@ const Events = () => {
           title={t('title')}
           subtitle={getTabSubtitle()}
           rightAction={
-            <Button onClick={() => setCreateDialogOpen(true)} size="sm" className="gap-1.5 h-9 hidden md:flex">
+            <Button onClick={() => setCreateDialogOpen(true)} size="sm" className="gap-1.5 h-9">
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">{t('createEvent')}</span>
             </Button>
@@ -629,14 +629,6 @@ const Events = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Mobile FAB */}
-      <div data-walkthrough="events-fab">
-        <FAB
-          icon={<Plus className="h-5 w-5" />}
-          label={t('createEvent')}
-          onClick={() => setCreateDialogOpen(true)}
-        />
-      </div>
     </PageContainer>
   );
 };
