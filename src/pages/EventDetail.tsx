@@ -273,6 +273,7 @@ const EventDetail = () => {
   const now = new Date();
   const isPastEvent = endDate < now;
   const isOngoing = startDate <= now && endDate >= now;
+  const isPaidEvent = !!(event.cost && event.cost.trim() !== '' && parseFloat(event.cost) > 0);
 
   // Use 24h format and en-dash for time display
   const timeStr = isSameDay(startDate, endDate)
