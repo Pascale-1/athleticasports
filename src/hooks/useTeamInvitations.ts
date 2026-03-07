@@ -90,7 +90,7 @@ export const useTeamInvitations = (teamId: string | null) => {
         if (!profile) throw new Error("User not found");
         email = profile.email || profile.username;
       } else {
-        // Try to find existing user by exact username match first (parametrized query - safe from SQL injection)
+        // Try to find existing user by exact username match first
         const { data: exactMatch } = await supabase
           .from("profiles")
           .select("user_id, username")
@@ -99,20 +99,16 @@ export const useTeamInvitations = (teamId: string | null) => {
 
         if (exactMatch) {
           invitedUserId = exactMatch.user_id;
-        } else {
-          // If no exact match and input looks like email, try prefix match
-          const usernamePrefix = emailOrUserId.includes('@') ? emailOrUserId.split('@')[0] : null;
+        } else if (emailOrUserId.includes('@')) {
+          // Input is an email — check if a user with this email already exists
+          const { data: emailMatch } = await supabase
+            .from("profiles")
+            .select("user_id")
+            .eq("email", emailOrUserId)
+            .maybeSingle();
 
-          if (usernamePrefix) {
-            const { data: prefixMatch } = await supabase
-              .from("profiles")
-              .select("user_id, username")
-              .ilike("username", usernamePrefix)
-              .maybeSingle();
-
-            if (prefixMatch) {
-              invitedUserId = prefixMatch.user_id;
-            }
+          if (emailMatch) {
+            invitedUserId = emailMatch.user_id;
           }
         }
       }
@@ -149,39 +145,48 @@ export const useTeamInvitations = (teamId: string | null) => {
 
       if (error) throw error;
 
-      // Send email via edge function
-      try {
-        const { error: emailError } = await supabase.functions.invoke(
-          'send-team-invitation',
-          {
-            body: {
-              invitationId: newInvitation.id,
-              teamId: teamId,
-              recipientEmail: email,
-              role: role,
-              appOrigin: getAppBaseUrl(), // Pass production URL for link generation
-            },
-          }
-        );
+      // If user exists in app, they get an in-app notification (via DB trigger).
+      // Only send email if user doesn't exist (no invited_user_id).
+      if (invitedUserId) {
+        toast({
+          title: "Success",
+          description: "Invitation sent — they'll see it in their notifications",
+        });
+      } else {
+        // Send email via edge function for new users
+        try {
+          const { error: emailError } = await supabase.functions.invoke(
+            'send-team-invitation',
+            {
+              body: {
+                invitationId: newInvitation.id,
+                teamId: teamId,
+                recipientEmail: email,
+                role: role,
+                appOrigin: getAppBaseUrl(),
+              },
+            }
+          );
 
-        if (emailError) {
-          console.error("Error sending invitation email:", emailError);
+          if (emailError) {
+            console.error("Error sending invitation email:", emailError);
+            toast({
+              title: "Success",
+              description: "Invitation created (email failed to send)",
+            });
+          } else {
+            toast({
+              title: "Success",
+              description: "Invitation email sent successfully",
+            });
+          }
+        } catch (emailError) {
+          console.error("Error calling email function:", emailError);
           toast({
             title: "Success",
             description: "Invitation created (email failed to send)",
           });
-        } else {
-          toast({
-            title: "Success",
-            description: "Invitation sent successfully",
-          });
         }
-      } catch (emailError) {
-        console.error("Error calling email function:", emailError);
-        toast({
-          title: "Success",
-          description: "Invitation created (email failed to send)",
-        });
       }
     } catch (error: any) {
       console.error("Error sending invitation:", error);

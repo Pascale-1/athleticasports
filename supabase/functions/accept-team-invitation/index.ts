@@ -179,13 +179,19 @@ Deno.serve(async (req) => {
       console.log("Role already exists for member:", memberId);
     }
 
+    // Backfill invited_user_id if it was null (email-only invitation accepted by matching email)
+    const updatePayload: Record<string, unknown> = {
+      status: "accepted",
+      accepted_at: new Date().toISOString(),
+    };
+    if (!invitation.invited_user_id && reason === "email match") {
+      updatePayload.invited_user_id = user.id;
+    }
+
     // Update invitation status
     const { error: updateError } = await supabaseServiceRole
       .from("team_invitations")
-      .update({
-        status: "accepted",
-        accepted_at: new Date().toISOString(),
-      })
+      .update(updatePayload)
       .eq("id", invitationId);
 
     if (updateError) {
