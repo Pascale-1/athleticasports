@@ -54,6 +54,7 @@ const TAB_CONFIG = [
 ] as const;
 
 const Events = () => {
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation('events');
   
   const { t: tCommon } = useTranslation('common');
@@ -92,14 +93,13 @@ const Events = () => {
   
   useEffect(() => {
     if (!attendingLoading) {
-      const { isFullWalkthroughActive } = require('@/hooks/useAppWalkthrough');
       if (isFullWalkthroughActive()) {
-        continueFullWalkthrough('events', (path: string) => window.location.assign(path));
+        continueFullWalkthrough('events', navigate);
       } else if (!hasCompleted('events')) {
         startWalkthrough('events');
       }
     }
-  }, [attendingLoading, startWalkthrough, continueFullWalkthrough, hasCompleted]);
+  }, [attendingLoading, startWalkthrough, continueFullWalkthrough, hasCompleted, navigate]);
 
   // Unified refresh handler
   const handleRefresh = useCallback(async () => {
