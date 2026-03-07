@@ -1,28 +1,41 @@
 
 
-# Fix: Stale session after background on Android
+## Fix Calendar View Layout
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+### Problem
+The EventCalendar component's calendar widget is not properly centered and the overall layout feels outdated — the `Calendar` component renders left-aligned within its card, and the design lacks visual polish.
 
-## Fix
+### Changes
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+**1. `src/components/events/EventCalendar.tsx`** — Improve layout and centering
+- Wrap the calendar card content with `flex flex-col items-center` to properly center the calendar widget
+- Add slightly more padding and a cleaner visual structure
+- Center the legend indicator below the calendar
+- Improve the selected date header section with centered text and better spacing
+- Add a subtle empty state with an icon instead of plain text
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+**2. `src/components/ui/calendar.tsx`** — Ensure calendar cells are centered
+- The calendar grid cells (`head_cell`, `cell`) use fixed `w-9` widths. Add `justify-center` to `head_row` and `row` classes so the grid is centered within any parent container.
 
+### Specific changes
+
+**`EventCalendar.tsx`:**
 ```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
+<Card className="p-4">
+  <div className="flex flex-col items-center">
+    <Calendar ... className="pointer-events-auto" />
+    <div className="mt-3 pt-3 border-t w-full">
+      <div className="flex items-center justify-center gap-2 ...">
+        ...
+      </div>
+    </div>
+  </div>
+</Card>
 ```
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+**`calendar.tsx`:**
+- Change `head_row: "flex"` → `head_row: "flex justify-center"`
+- Change `row: "flex w-full mt-2"` → `row: "flex w-full mt-2 justify-center"`
 
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+This ensures the day grid is always centered regardless of container width, fixing the left-tilt issue.
 
