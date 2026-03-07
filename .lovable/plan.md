@@ -1,28 +1,27 @@
 
 
-# Fix: Stale session after background on Android
+## Fixes: Event Card Stats + Light Mode Contrast
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+### Problem 1: Match result not showing on EventCard
+The EventCard already has the result display code (lines 266-281) using `event.match_result` and `event.match_outcome`. The data flows through correctly from `select("*")` queries. If no result appears, it's because no match results have been entered yet for any events — the feature works but there's no data. **However**, the user may be confused about *where* to enter results. The score entry form is buried inside the Match Details card on EventDetail, only visible for past matches when you're the organizer.
 
-## Fix
+**Fix:** Make the MatchResultEntry more prominent on EventDetail — move it to a standalone card outside the Match Details section so it's clearly visible and not collapsed inside another card.
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+### Problem 2: Light mode text contrast issues
+The root cause: in `.light` mode, `--accent-foreground` is set to `0 0% 100%` (pure white). Components using `text-accent-foreground` render invisible white text on white backgrounds. This affects:
+- EventCard: "looking for players" indicator (`text-accent-foreground`)
+- EventCard: meetup type chip colors
+- LookingForPlayersBanner: title text uses inherited foreground (fine), but the `font-medium text-sm` without explicit dark color can appear thin
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+**Fix in `src/index.css`:** Change light mode `--accent-foreground` from white (`0 0% 100%`) to a dark readable color like `220 31% 9%` (same as `--foreground`). This makes `text-accent-foreground` readable on light backgrounds.
 
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
-```
+Additionally, in `LookingForPlayersBanner.tsx`, add explicit `text-foreground` to the title span to ensure it's always readable regardless of theme.
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+### Files to modify
 
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+| File | Change |
+|------|--------|
+| `src/index.css` | Fix `--accent-foreground` in `.light` to `220 31% 9%` |
+| `src/components/events/LookingForPlayersBanner.tsx` | Add `text-foreground` to title text |
+| `src/pages/EventDetail.tsx` | Pull MatchResultEntry out of the Match Details card into its own prominent card for past matches |
 
