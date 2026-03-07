@@ -1,28 +1,31 @@
 
 
-# Fix: Stale session after background on Android
+## Make Match Result Readable With Team Names
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+### Problem
+When a result is saved (e.g. "3 - 1"), the display only shows the raw score with a Win/Loss/Draw badge. There's no indication of which number belongs to which team. Users can't tell if "3 - 1" means their team scored 3 or 1.
 
-## Fix
+### Solution
+Update the saved result display in `MatchResultEntry` to show team names alongside the score, matching the same layout used in the score entry form.
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+### Changes
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+**File: `src/components/events/MatchResultEntry.tsx`**
 
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
+Replace the simple `matchResult` text display (lines 86-100) with a structured layout:
+
+```text
+Before:  "3 - 1"  [Win]
+
+After:   Your Team    Opponent
+           3     -      1      [Win]
 ```
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+Specifically:
+- Parse the saved `matchResult` string ("3 - 1") into home/away scores
+- Use the same `homeAway` logic to determine which label goes where (team name vs opponent name)
+- Display team names above each score, mirroring the entry form layout
+- Keep the outcome badge (Win/Loss/Draw)
 
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+This is a single component change -- roughly 15 lines replacing the current plain text display with a two-column score layout that includes team name labels.
 
