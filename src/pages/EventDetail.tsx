@@ -92,7 +92,7 @@ const EventDetail = () => {
 
   const { events, loading, deleteEvent, updateEvent } = useEvents();
   const event = events.find(e => e.id === eventId);
-  const { stats, attendees, userStatus, isCommitted, updateAttendance, removeAttendance, refetch: refetchAttendance, loading: attendanceLoading } = useEventAttendance(eventId || '');
+  const { stats, attendees, userStatus, isCommitted, hasPaid, updateAttendance, removeAttendance, markAsPaid, refetch: refetchAttendance, loading: attendanceLoading } = useEventAttendance(eventId || '');
   const { 
     pendingRequests, 
     userRequest, 
@@ -634,13 +634,47 @@ const EventDetail = () => {
         {/* Who's Coming Card */}
         <Card>
           <CardContent className="p-3">
-            <h3 className="font-semibold text-[11px] uppercase tracking-[0.8px] text-hint mb-2">
-              <Users2 className="h-3.5 w-3.5 inline mr-1.5" />
-              {t('details.whoComing')}
-            </h3>
-            <EventAttendees attendees={attendees} currentUserId={currentUserId} />
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold text-[11px] uppercase tracking-[0.8px] text-hint">
+                <Users2 className="h-3.5 w-3.5 inline mr-1.5" />
+                {t('details.whoComing')}
+              </h3>
+              {isPaidEvent && (
+                <span className="text-[10px] text-muted-foreground">
+                  💰 {stats.paid}/{stats.attending} {t('cost.paid', 'paid')}
+                </span>
+              )}
+            </div>
+            <EventAttendees attendees={attendees} currentUserId={currentUserId} isPaidEvent={isPaidEvent} />
           </CardContent>
         </Card>
+
+        {/* Mark as Paid - for attending users on paid events */}
+        {isPaidEvent && userStatus === 'attending' && !hasPaid && (
+          <Card className="border-primary/20">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Euro className="h-4 w-4 text-primary" />
+                  <div>
+                    <p className="text-sm font-medium">{t('cost.markAsPaid', 'Mark as paid')}</p>
+                    <p className="text-xs text-muted-foreground">{t('cost.markAsPaidDesc', 'Confirm you\'ve paid for this event')}</p>
+                  </div>
+                </div>
+                <Button size="sm" className="h-8" onClick={markAsPaid}>
+                  {t('cost.iPaid', 'I paid')} ✓
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        {isPaidEvent && userStatus === 'attending' && hasPaid && (
+          <div className="flex items-center gap-2 px-1">
+            <Badge variant="success" className="text-xs">
+              ✓ {t('cost.paid', 'Paid')}
+            </Badge>
+          </div>
+        )}
 
         {/* Practice Teams Section - Team events only */}
         {event.team_id && isTeamMember && (
