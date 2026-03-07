@@ -2,7 +2,7 @@
   "applinks": {
     "apps": [],
     "details": [{
-      "appID": "TEAM_ID.com.athletica.sports",
+      "appID": "KDZ4HYGYSX.com.athletica.sports",
       "paths": ["/events/*", "/teams/*", "/account/*", "/*"]
     }]
   }

@@ -3,6 +3,6 @@
   "target": {
     "namespace": "android_app",
     "package_name": "com.athletica.sports",
-    "sha256_cert_fingerprints": ["YOUR_SIGNING_KEY_FINGERPRINT"]
+    "sha256_cert_fingerprints": ["E1:82:82:FD:88:A9:BD:E6:46:EA:1A:94:36:46:9E:B9:A0:AF:B9:23:09:B8:51:81:1F:BC:6B:17:E8:41:3B:B4"]
   }
 }]
