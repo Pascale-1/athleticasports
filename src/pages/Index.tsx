@@ -214,8 +214,9 @@ const Index = () => {
           </div>
 
           {/* Greeting Section - Clean typographic */}
+          <div data-walkthrough="profile">
           <AnimatedCard delay={0.1}>
-            <div data-walkthrough="profile" className="space-y-0.5">
+            <div className="space-y-0.5">
               <h1 className="text-[18px] font-bold tracking-tight">
                 {t('home.greeting', { name: profile.display_name || profile.username })}
               </h1>

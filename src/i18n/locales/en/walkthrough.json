@@ -1,20 +1,20 @@
 {
   "steps": {
     "profile": {
-      "title": "Your Profile",
-      "description": "See your teams, games, and followers at a glance. Tap any stat to explore more."
+      "title": "Welcome Home",
+      "description": "Here you'll see your name and your stats at a glance — how many teams you're in, upcoming games, and total events."
     },
     "quickActions": {
       "title": "Quick Actions",
-      "description": "Find a game, organize one, or create your own team - all in one tap."
+      "description": "Set your availability to find a game, create a new event (training, game, or social), or browse and join a team."
     },
     "eventTypes": {
       "title": "3 Types of Events",
-      "description": "Training — practice with your team. Game — competitive matches against opponents. Social — casual meetups, watch parties, and team bonding."
+      "description": "Training — practice sessions with your team. Game — competitive matches against opponents. Social — casual meetups, watch parties, and team bonding."
     },
     "games": {
-      "title": "Your Games",
-      "description": "View upcoming games, respond to match proposals, and set your availability."
+      "title": "Your Events & Games",
+      "description": "See your upcoming events of all types, games looking for players you can join, and match proposals waiting for your response."
     },
     "feed": {
       "title": "Activity Feed",
@@ -22,7 +22,7 @@
     },
     "navigation": {
       "title": "Navigate the App",
-      "description": "Switch between Home, Events, Teams, and your Profile using the bottom bar."
+      "description": "Use the bottom bar to switch between Home, Events, Teams, and your Profile."
     }
   },
   "buttons": {
