@@ -474,18 +474,35 @@ const EventDetail = () => {
                   <p className="text-sm font-medium">
                     {event.cost}€ {event.cost_type === 'per_person' ? t('cost.perPerson') : t('cost.total')}
                   </p>
+                  {isCreator && isPaidEvent && stats.attending > 0 && (
+                    <p className="text-[11px] text-muted-foreground">
+                      💰 {stats.paid}/{stats.attending} {t('cost.paid', 'paid')}
+                    </p>
+                  )}
                 </div>
-                {event.payment_link && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8 text-xs gap-1.5 shrink-0"
-                    onClick={() => openExternalUrl(event.payment_link!)}
-                  >
-                    <CreditCard className="h-3.5 w-3.5" />
-                    {t('cost.openPaymentLink')}
-                  </Button>
-                )}
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {isPaidEvent && userStatus === 'attending' && !hasPaid && (
+                    <Button size="sm" className="h-8 text-xs" onClick={markAsPaid}>
+                      {t('cost.iPaid', 'I paid')} ✓
+                    </Button>
+                  )}
+                  {isPaidEvent && userStatus === 'attending' && hasPaid && (
+                    <Badge variant="success" className="text-xs">
+                      ✓ {t('cost.paid', 'Paid')}
+                    </Badge>
+                  )}
+                  {event.payment_link && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs gap-1.5"
+                      onClick={() => openExternalUrl(event.payment_link!)}
+                    >
+                      <CreditCard className="h-3.5 w-3.5" />
+                      {t('cost.openPaymentLink')}
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
 
@@ -650,32 +667,6 @@ const EventDetail = () => {
           </CardContent>
         </Card>
 
-        {/* Mark as Paid - for attending users on paid events */}
-        {isPaidEvent && userStatus === 'attending' && !hasPaid && (
-          <Card className="border-primary/20">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Euro className="h-4 w-4 text-primary" />
-                  <div>
-                    <p className="text-sm font-medium">{t('cost.markAsPaid', 'Mark as paid')}</p>
-                    <p className="text-xs text-muted-foreground">{t('cost.markAsPaidDesc', 'Confirm you\'ve paid for this event')}</p>
-                  </div>
-                </div>
-                <Button size="sm" className="h-8" onClick={markAsPaid}>
-                  {t('cost.iPaid', 'I paid')} ✓
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-        {isPaidEvent && userStatus === 'attending' && hasPaid && (
-          <div className="flex items-center gap-2 px-1">
-            <Badge variant="success" className="text-xs">
-              ✓ {t('cost.paid', 'Paid')}
-            </Badge>
-          </div>
-        )}
 
         {/* Practice Teams Section - Team events only */}
         {event.team_id && isTeamMember && (
