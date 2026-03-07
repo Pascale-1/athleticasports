@@ -67,7 +67,7 @@ export const TeamChat = ({ teamId }: TeamChatProps) => {
 
   return (
     <div className="space-y-4">
-      <ScrollArea className="h-[400px] pr-4">
+      <div className="h-[400px] overflow-y-auto overscroll-contain pr-4" style={{ WebkitOverflowScrolling: 'touch' }}>
         {messages.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <p>{t("chat.noMessages")}</p>
@@ -122,7 +122,7 @@ export const TeamChat = ({ teamId }: TeamChatProps) => {
             <div ref={bottomRef} />
           </div>
         )}
-      </ScrollArea>
+      </div>
 
       <div className="flex gap-2">
         <Input
