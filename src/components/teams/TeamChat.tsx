@@ -4,7 +4,6 @@ import { useTeamChat } from "@/hooks/useTeamChat";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Loader2, Trash2 } from "lucide-react";
 import { formatAbsoluteTimestamp } from "@/lib/dateUtils";
 import { supabase } from "@/integrations/supabase/client";
