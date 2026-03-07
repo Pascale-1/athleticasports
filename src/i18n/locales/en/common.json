@@ -500,5 +500,10 @@
     "taken": "Username already taken",
     "available": "Available",
     "checking": "Checking..."
+  },
+  "update": {
+    "title": "New version available",
+    "description": "Update now for the latest features & fixes",
+    "button": "Update"
   }
 }

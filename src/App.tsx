@@ -10,6 +10,7 @@ import { useDeepLink } from "./hooks/useDeepLink";
 import { AppLayout } from "./components/AppLayout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { InstallPrompt } from "./components/InstallPrompt";
+import { UpdatePrompt } from "./components/UpdatePrompt";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { ThemeProvider } from "next-themes";
@@ -245,6 +246,7 @@ const App = () => {
             <Toaster />
             <Sonner />
             <InstallPrompt />
+            <UpdatePrompt />
             <Router>
               <AppRoutes />
             </Router>

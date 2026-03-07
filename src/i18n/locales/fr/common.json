@@ -500,5 +500,10 @@
     "taken": "Ce pseudo est déjà pris",
     "available": "Disponible",
     "checking": "Vérification..."
+  },
+  "update": {
+    "title": "Nouvelle version disponible",
+    "description": "Mettez à jour pour les dernières fonctionnalités",
+    "button": "Mettre à jour"
   }
 }

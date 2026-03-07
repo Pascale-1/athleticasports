@@ -1,33 +1,28 @@
 
 
-# App Update Notification
+# Fix: Stale session after background on Android
 
-The PWA is configured with `registerType: "autoUpdate"` (VitePWA), which silently updates the service worker in the background. But users are never informed — they might be running stale code until they close all tabs.
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-## Approach
+## Fix
 
-Use VitePWA's `registerSW` virtual module to detect when a new service worker is waiting, then show a dismissable banner prompting users to reload.
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-## Changes
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-### 1. Create `src/components/UpdatePrompt.tsx`
-A banner component (similar style to `InstallPrompt`) that:
-- Imports `useRegisterSW` from `virtual:pwa-register/react`
-- Detects `needRefresh` state (new content available)
-- Shows a fixed banner: "A new version is available" with a **"Update now"** button
-- Calls `updateServiceWorker(true)` on click → reloads with the new SW
-- Dismiss button that hides until next update cycle
-- Positioned as a top banner (not bottom, to avoid conflict with InstallPrompt and bottom nav)
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
+```
 
-### 2. Update `src/App.tsx`
-- Import and render `<UpdatePrompt />` alongside `<InstallPrompt />`
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
 
-### 3. Add i18n keys
-**`en/common.json`** — add `update.title`, `update.description`, `update.button`
-**`fr/common.json`** — French equivalents
-
-### 4. Add type declaration for virtual module
-**`src/vite-env.d.ts`** — add `declare module 'virtual:pwa-register/react'` with `useRegisterSW` types
-
-No database changes needed. Single UI component + wiring.
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 
