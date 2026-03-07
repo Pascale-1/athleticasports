@@ -27,6 +27,17 @@ export const SPORTS: Sport[] = [
   { id: 'swimming', label: { en: 'Swimming', fr: 'Natation' }, emoji: '🏊', priority: 10, featured: false },
   { id: 'cycling', label: { en: 'Cycling', fr: 'Cyclisme' }, emoji: '🚴', priority: 11, featured: false },
   { id: 'boxing', label: { en: 'Boxing', fr: 'Boxe' }, emoji: '🥊', priority: 12, featured: false },
+  { id: 'table-tennis', label: { en: 'Table Tennis', fr: 'Tennis de table' }, emoji: '🏓', priority: 13, featured: false },
+  { id: 'pickleball', label: { en: 'Pickleball', fr: 'Pickleball' }, emoji: '🏓', priority: 14, featured: false },
+  { id: 'handball', label: { en: 'Handball', fr: 'Handball' }, emoji: '🤾', priority: 15, featured: false },
+  { id: 'futsal', label: { en: 'Futsal', fr: 'Futsal' }, emoji: '⚽', priority: 16, featured: false },
+  { id: 'cricket', label: { en: 'Cricket', fr: 'Cricket' }, emoji: '🏏', priority: 17, featured: false },
+  { id: 'hockey', label: { en: 'Hockey', fr: 'Hockey' }, emoji: '🏑', priority: 18, featured: false },
+  { id: 'golf', label: { en: 'Golf', fr: 'Golf' }, emoji: '⛳', priority: 19, featured: false },
+  { id: 'climbing', label: { en: 'Climbing', fr: 'Escalade' }, emoji: '🧗', priority: 20, featured: false },
+  { id: 'martial-arts', label: { en: 'Martial Arts', fr: 'Arts martiaux' }, emoji: '🥋', priority: 21, featured: false },
+  { id: 'yoga', label: { en: 'Yoga', fr: 'Yoga' }, emoji: '🧘', priority: 22, featured: false },
+  { id: 'hiking', label: { en: 'Hiking', fr: 'Randonnée' }, emoji: '🥾', priority: 23, featured: false },
   { id: 'other', label: { en: 'Other', fr: 'Autre' }, emoji: '🏅', priority: 99, featured: false },
 ];
 
