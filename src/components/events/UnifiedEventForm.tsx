@@ -1004,7 +1004,7 @@ export const UnifiedEventForm = ({
                   min="2"
                   max="100"
                   placeholder="--"
-                  className="w-20 h-9 text-xs text-right bg-[#1A1E26] border-[1.5px] border-muted rounded-[14px] px-4"
+                  className="w-20 h-9 text-xs text-right bg-popover border-[1.5px] border-muted rounded-[14px] px-4"
                 />
               </FormControl>
             </div>
@@ -1188,7 +1188,7 @@ export const UnifiedEventForm = ({
                 {lookingForPlayers && (
                   <div className="mt-3">
                     <Select value={playersNeeded} onValueChange={setPlayersNeeded}>
-                      <SelectTrigger className="h-9 text-xs bg-[#1A1E26] border-[1.5px] border-muted rounded-[14px] px-4">
+                      <SelectTrigger className="h-9 text-xs bg-popover border-[1.5px] border-muted rounded-[14px] px-4">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-popover border border-border shadow-lg z-50">

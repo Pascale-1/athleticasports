@@ -37,9 +37,9 @@ import { getLocale } from "@/lib/dateUtils";
 import { getEventTypeKey, EventType } from "@/lib/eventConfig";
 
 const TYPE_COLORS: Record<string, { border: string; text: string; chipBg: string; chipText: string; emoji: string }> = {
-  match: { border: 'border-l-primary', text: 'text-primary', chipBg: 'bg-[rgba(56,189,248,0.10)]', chipText: 'text-primary', emoji: '⚽' },
-  training: { border: 'border-l-[#CBD5E1]', text: 'text-[#CBD5E1]', chipBg: 'bg-[rgba(203,213,225,0.10)]', chipText: 'text-[#CBD5E1]', emoji: '🏃' },
-  meetup: { border: 'border-l-[#A78BFA]', text: 'text-[#A78BFA]', chipBg: 'bg-[rgba(167,139,250,0.10)]', chipText: 'text-[#A78BFA]', emoji: '🤝' },
+  match: { border: 'border-l-primary', text: 'text-primary', chipBg: 'bg-primary/10', chipText: 'text-primary', emoji: '⚽' },
+  training: { border: 'border-l-muted-foreground', text: 'text-muted-foreground', chipBg: 'bg-muted', chipText: 'text-muted-foreground', emoji: '🏃' },
+  meetup: { border: 'border-l-accent-foreground', text: 'text-accent-foreground', chipBg: 'bg-accent/10', chipText: 'text-accent-foreground', emoji: '🤝' },
 };
 
 interface EventCardProps {
@@ -101,7 +101,7 @@ export const EventCard = memo(({
     // Status chip logic per spec
     let chip: { emoji: string; label: string; className: string };
     if (isLive) {
-      chip = { emoji: '●', label: t('status.liveNow', 'Live'), className: 'bg-[rgba(22,163,74,0.12)] text-[#16A34A]' };
+      chip = { emoji: '●', label: t('status.liveNow', 'Live'), className: 'bg-green-500/10 text-green-600 dark:text-green-400' };
     } else if (isPast) {
       chip = { emoji: '✓', label: t('status.past', 'Done'), className: 'bg-popover text-muted-foreground' };
     } else {
@@ -287,7 +287,7 @@ export const EventCard = memo(({
                   </span>
                 )}
                 {event.looking_for_players && event.players_needed && event.players_needed > attendeeCount && (
-                  <span className="text-[12px] text-[#A78BFA]">
+                  <span className="text-[12px] text-accent-foreground">
                     · 🔍 {event.players_needed - attendeeCount}
                   </span>
                 )}

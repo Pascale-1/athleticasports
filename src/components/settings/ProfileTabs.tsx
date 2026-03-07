@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trophy, Users, User, AtSign, Mail, Calendar, Globe, MessageSquare, PlayCircle, Pencil, Settings, Activity, KeyRound } from "lucide-react";
+import { Trophy, Users, User, AtSign, Mail, Calendar, Globe, MessageSquare, PlayCircle, Pencil, Settings, Activity, KeyRound, Sun } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getDisplayUsername } from "@/lib/usernameUtils";
 import { Label } from "@/components/ui/label";
@@ -20,7 +20,7 @@ import { ProfileActivityTab } from "./ProfileActivityTab";
 import { ChangePasswordSection } from "./ChangePasswordSection";
 import { ProfileCompletionCard } from "./ProfileCompletionCard";
 import { NextEventCard } from "./NextEventCard";
-// Light mode token system to be implemented in next sprint
+import { ThemeToggle } from "./ThemeToggle";
 import { LogoutButton } from "./LogoutButton";
 
 interface ProfileTabsProps {
@@ -293,6 +293,13 @@ export const ProfileTabs = ({
                 {t('profile.language')}
               </Label>
               <LanguageSwitcher />
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Sun className="h-4 w-4" />
+                {t('settings.theme', 'Theme')}
+              </Label>
+              <ThemeToggle />
             </div>
           </CardContent>
         </Card>

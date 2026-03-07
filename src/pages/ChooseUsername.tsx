@@ -132,7 +132,7 @@ const ChooseUsername = () => {
               value={input}
               onChange={(e) => setInput(e.target.value.replace(/[^a-zA-Z0-9_]/g, "").slice(0, 20))}
               placeholder={t("usernameSelection.placeholder")}
-              className="flex-1 bg-transparent border-none outline-none text-foreground text-base placeholder:text-[#64748B]"
+              className="flex-1 bg-transparent border-none outline-none text-foreground text-base placeholder:text-muted-foreground"
               autoFocus
               autoCapitalize="off"
               autoCorrect="off"

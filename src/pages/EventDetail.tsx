@@ -517,7 +517,7 @@ const EventDetail = () => {
                     {stats.attending} / {event.max_participants}
                   </span>
               {event.looking_for_players && (event.max_participants ?? Infinity) > stats.attending && (
-                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold bg-[rgba(167,139,250,0.10)] text-[#A78BFA]">
+                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold bg-accent/10 text-accent-foreground">
                       🔍 {(event.max_participants ?? event.players_needed ?? 0) - stats.attending} {t('details.maxParticipants')}
                     </span>
                   )}
@@ -548,11 +548,11 @@ const EventDetail = () => {
             {/* Looking for Players — inline */}
             {event.looking_for_players && event.players_needed && (
               <div className="flex items-center gap-3 pt-1">
-                <div className="h-10 w-10 rounded-lg bg-[rgba(167,139,250,0.10)] flex items-center justify-center shrink-0">
-                  <Users className="h-5 w-5 text-[#A78BFA]" />
+                <div className="h-10 w-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+                  <Users className="h-5 w-5 text-accent-foreground" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-[#A78BFA]">
+                  <p className="text-sm font-medium text-accent-foreground">
                     🔍 {t('details.lookingForPlayers', 'Looking for players')}
                   </p>
                   <p className="text-xs text-muted-foreground">

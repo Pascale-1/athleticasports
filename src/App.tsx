@@ -239,7 +239,7 @@ const App = () => {
 
   return (
   <ErrorBoundary>
-    <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
+    <ThemeProvider attribute="class" defaultTheme="dark" storageKey="vite-ui-theme">
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <NotificationProvider>

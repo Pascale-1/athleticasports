@@ -235,7 +235,11 @@
     "changePassword": "Change Password",
     "changePasswordDesc": "We'll send a password reset link to your email address.",
     "changePasswordSuccess": "Reset email sent",
-    "changePasswordSuccessDesc": "Check your inbox for the password reset link."
+    "changePasswordSuccessDesc": "Check your inbox for the password reset link.",
+    "theme": "Theme",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark"
   },
   "onboarding": {
     "welcome": {
