@@ -60,7 +60,7 @@ const Events = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [activeEventType, setActiveEventType] = useState<'all' | 'training' | 'meetup' | 'match' | 'declined'>('all');
-  const [activeSport, setActiveSport] = useState<string>('all');
+  const [activeSports, setActiveSports] = useState<string[]>([]);
   const [sportPopoverOpen, setSportPopoverOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'my' | 'organized' | 'discover'>('my');
   const [showSearch, setShowSearch] = useState(false);
@@ -236,7 +236,7 @@ const Events = () => {
           title={t('title')}
           subtitle={getTabSubtitle()}
           rightAction={
-            <Button onClick={() => setCreateDialogOpen(true)} size="sm" className="gap-1.5 h-9">
+            <Button onClick={() => setCreateDialogOpen(true)} size="sm" className="gap-1.5 h-9 hidden md:flex">
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">{t('createEvent')}</span>
             </Button>

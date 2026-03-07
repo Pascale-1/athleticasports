@@ -557,7 +557,7 @@ const EventDetail = () => {
         )}
 
         {/* Match Details Card */}
-        {hasMatchDetails && (
+        {(hasMatchDetails || (event.type === 'match' && isPastEvent)) && (
           <Card>
             <CardContent className="p-3 space-y-3">
               <h3 className="font-semibold text-[11px] uppercase tracking-[0.8px] text-hint">
@@ -591,6 +591,42 @@ const EventDetail = () => {
                   </Badge>
                 )}
               </div>
+
+              {/* Match Result */}
+              {event.type === 'match' && (isPastEvent || (event as any).match_result) && (
+                <div className="flex items-center gap-3 pt-1">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Trophy className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-muted-foreground">{t('details.matchResult', 'Result')}</p>
+                    {(event as any).match_result ? (
+                      <p className="text-lg font-bold text-foreground">{(event as any).match_result}</p>
+                    ) : canEdit ? (
+                      <input
+                        placeholder={t('details.enterResult', 'e.g. 3 - 1')}
+                        className="bg-transparent border-b border-border/40 focus:border-primary outline-none text-sm placeholder:text-muted-foreground/50 text-foreground w-full pb-1"
+                        onBlur={async (e) => {
+                          const val = e.target.value.trim();
+                          if (val) {
+                            await updateEvent(event.id, { match_result: val } as any);
+                          }
+                        }}
+                        onKeyDown={async (e) => {
+                          if (e.key === 'Enter') {
+                            const val = (e.target as HTMLInputElement).value.trim();
+                            if (val) {
+                              await updateEvent(event.id, { match_result: val } as any);
+                            }
+                          }
+                        }}
+                      />
+                    ) : (
+                      <p className="text-sm text-muted-foreground">{t('details.noResult', 'No result yet')}</p>
+                    )}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
