@@ -116,7 +116,7 @@ const Events = () => {
   // Filter created events by type and sport
   const filteredCreatedEvents = createdEvents.filter(event => {
     if (activeEventType !== 'all' && activeEventType !== 'declined' && event.type !== activeEventType) return false;
-    if (activeSport !== 'all' && event.sport?.toLowerCase() !== activeSport.toLowerCase()) return false;
+    if (activeSports.length > 0 && !activeSports.some(s => event.sport?.toLowerCase() === s.toLowerCase())) return false;
     return true;
   });
 
@@ -124,10 +124,10 @@ const Events = () => {
   const filteredDiscoverEvents = useMemo(() => {
     return discoverEvents.filter(event => {
       if (activeEventType !== 'all' && activeEventType !== 'declined' && event.type !== activeEventType) return false;
-      if (activeSport !== 'all' && event.sport?.toLowerCase() !== activeSport.toLowerCase()) return false;
+      if (activeSports.length > 0 && !activeSports.some(s => event.sport?.toLowerCase() === s.toLowerCase())) return false;
       return true;
     });
-  }, [discoverEvents, activeEventType, activeSport]);
+  }, [discoverEvents, activeEventType, activeSports]);
 
   // Only declined events from the full list
   const onlyDeclinedEvents = declinedEvents.filter(e => e.userStatus === 'not_attending');
@@ -135,7 +135,7 @@ const Events = () => {
   const handleResetFilters = () => {
     setSearchQuery('');
     setActiveEventType('all');
-    setActiveSport('all');
+    setActiveSports([]);
     setTypeFilter('all');
     setSportFilter('all');
   };
@@ -226,7 +226,7 @@ const Events = () => {
     }
   };
 
-  const hasActiveFilters = activeEventType !== 'all' || activeSport !== 'all' || filters.searchQuery;
+  const hasActiveFilters = activeEventType !== 'all' || activeSports.length > 0 || filters.searchQuery;
 
   return (
     <PageContainer>
