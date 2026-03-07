@@ -38,15 +38,17 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
           .eq('status', 'active'),
         supabase
           .from('event_attendance')
-          .select('id, events!inner(start_time)', { count: 'exact', head: true })
+          .select('id, events!inner(start_time, type)', { count: 'exact', head: true })
           .eq('user_id', userId)
           .eq('status', 'attending')
+          .eq('events.type', 'match')
           .lt('events.start_time', new Date().toISOString()),
         supabase
           .from('event_attendance')
-          .select('id, events!inner(start_time)', { count: 'exact', head: true })
+          .select('id, events!inner(start_time, type)', { count: 'exact', head: true })
           .eq('user_id', userId)
           .eq('status', 'attending')
+          .eq('events.type', 'match')
           .gte('events.start_time', monthStart)
           .lt('events.start_time', new Date().toISOString()),
         // Get wins: events user attended that are match type with win outcome
