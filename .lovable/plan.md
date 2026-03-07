@@ -1,28 +1,18 @@
 
 
-# Fix: Stale session after background on Android
+## Fix Share Button Visibility & "Copied!" Label
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+### Issues Found
 
-## Fix
+1. **Share section only visible to organizers**: In `EventDetail.tsx` line 833, `{canEdit && event.invite_code && (` restricts the entire share/invite section to event organizers only. All attendees should be able to share the event.
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+2. **Button says "Copied!" instead of "Copy"**: In `EventInviteLink.tsx` line 207, the translation key `t('common:actions.copied')` resolves to "Copied!" — should be `t('common:actions.copy')` which resolves to "Copy".
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+### Changes
 
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
-```
-
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
-
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+| File | Change |
+|------|--------|
+| `src/pages/EventDetail.tsx` (line 833) | Change condition from `canEdit && event.invite_code` to just `event.invite_code` so all users see the share section. Keep the settings popover (regenerate code, toggle public join) gated behind `canEdit` inside `EventInviteLink`. |
+| `src/components/events/EventInviteLink.tsx` (line 207) | Fix translation key from `t('common:actions.copied')` to `t('common:actions.copy')` |
+| `src/components/events/EventInviteLink.tsx` | Accept new `isOrganizer` prop to conditionally show the Settings gear (regenerate code, toggle public join) only for organizers. Copy/Share buttons remain visible for everyone. |
 
