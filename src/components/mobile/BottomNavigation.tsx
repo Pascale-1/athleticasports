@@ -49,7 +49,6 @@ export const BottomNavigation = () => {
   });
 
   const pendingInvites = badges?.pendingInvites ?? 0;
-  const todayEvents = location.pathname.startsWith('/events') ? 0 : (badges?.unansweredCount ?? 0);
 
   // Invalidate badges on realtime changes
   const invalidateBadges = useCallback(() => {
