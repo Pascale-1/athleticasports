@@ -1,28 +1,54 @@
 
 
-# Fix: Stale session after background on Android
+## Verification: Team Invitation Flow
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+I reviewed all the key files involved in the invitation flow. The RLS fix from the last migration (`get_current_user_email()`) resolves the original "permission denied for table users" error. Here's what I found:
 
-## Fix
+### What Works
+1. **Sending invitations** — `useTeamInvitations.sendInvitation()` correctly handles both user-ID-based and email-based invitations, checks for duplicates, and triggers email sending for new users.
+2. **RLS policies** — The SELECT and UPDATE policies on `team_invitations` now use `get_current_user_email()` instead of directly querying `auth.users`. This should work.
+3. **Accepting invitations** — Both the edge function (`accept-team-invitation`) and the `AcceptInvitation` page handle auth checks, membership creation, and role assignment correctly.
+4. **Cancel/Decline/Resend** — All paths look correct with proper RLS coverage.
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+### Potential Issue: Profile Search Visibility
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+The `InviteMemberDialog` searches the `profiles` table, but the profiles SELECT RLS policy is restrictive — it only allows viewing profiles of:
+- Yourself
+- Users you follow
+- Users in the same team
+- Users in the same public event
 
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
+This means **an admin trying to invite a user they have no prior connection to will not find them in search results**. The search will silently return empty. This is a real usability problem for team admins.
+
+### Fix Plan
+
+**Database migration** — Add a new RLS policy on `profiles` that allows authenticated users to search profiles by username/display_name (read-only, limited columns aren't enforced by RLS but the row visibility is):
+
+```sql
+CREATE POLICY "Authenticated users can search profiles"
+ON public.profiles
+FOR SELECT
+TO authenticated
+USING (true);
 ```
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+However, this opens all profile data. A more targeted approach: create a **security definer function** that returns search results without exposing the full profiles table:
 
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+Actually, the simplest and most practical fix is to just add a permissive SELECT policy that allows all authenticated users to see profiles. Profile data (username, display_name, avatar) is not sensitive — it's standard social app data. The current restrictive policy is overly cautious and breaks core functionality like inviting users.
+
+**Migration:**
+```sql
+-- Drop the overly restrictive policy
+DROP POLICY IF EXISTS "Users can view accessible profiles" ON public.profiles;
+
+-- Replace with a simpler policy: all authenticated users can view profiles
+CREATE POLICY "Authenticated users can view profiles"
+ON public.profiles
+FOR SELECT
+TO authenticated
+USING (true);
+```
+
+### Files Changed
+- Database migration only (one new migration to fix profiles SELECT policy)
 
