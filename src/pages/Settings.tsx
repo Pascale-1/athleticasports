@@ -17,7 +17,7 @@ import { AccountDangerZone } from "@/components/settings/AccountDangerZone";
 import { getAppBaseUrl } from "@/lib/appUrl";
 import { copyToClipboard } from "@/lib/clipboard";
 import { LogoutButton } from "@/components/settings/LogoutButton";
-import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
+import { useAppWalkthrough, isFullWalkthroughActive } from "@/hooks/useAppWalkthrough";
 
 interface Profile {
   id: string;
@@ -48,13 +48,17 @@ const Settings = () => {
   }, []);
 
   // Walkthrough
-  const { startWalkthrough, hasCompleted } = useAppWalkthrough();
+  const { startWalkthrough, continueFullWalkthrough, hasCompleted } = useAppWalkthrough();
 
   useEffect(() => {
-    if (!loading && profile && !hasCompleted('profile')) {
-      startWalkthrough('profile');
+    if (!loading && profile) {
+      if (isFullWalkthroughActive()) {
+        continueFullWalkthrough('profile', navigate);
+      } else if (!hasCompleted('profile')) {
+        startWalkthrough('profile');
+      }
     }
-  }, [loading, profile, startWalkthrough, hasCompleted]);
+  }, [loading, profile, startWalkthrough, continueFullWalkthrough, hasCompleted, navigate]);
 
   const fetchProfile = async () => {
     try {

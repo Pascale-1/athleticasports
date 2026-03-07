@@ -26,7 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getActiveSports } from "@/lib/sports";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
+import { useAppWalkthrough, isFullWalkthroughActive } from "@/hooks/useAppWalkthrough";
 
 const Teams = () => {
   const navigate = useNavigate();
@@ -128,17 +128,21 @@ const Teams = () => {
   }, [location]);
 
   // Walkthrough
-  const { startWalkthrough, hasCompleted } = useAppWalkthrough();
+  const { startWalkthrough, continueFullWalkthrough, hasCompleted } = useAppWalkthrough();
 
   useEffect(() => {
     fetchTeams();
   }, []);
 
   useEffect(() => {
-    if (!loading && !hasCompleted('teams')) {
-      startWalkthrough('teams');
+    if (!loading) {
+      if (isFullWalkthroughActive()) {
+        continueFullWalkthrough('teams', navigate);
+      } else if (!hasCompleted('teams')) {
+        startWalkthrough('teams');
+      }
     }
-  }, [loading, startWalkthrough, hasCompleted]);
+  }, [loading, startWalkthrough, continueFullWalkthrough, hasCompleted, navigate]);
 
   const fetchTeamsRef = useRef(fetchTeams);
   fetchTeamsRef.current = fetchTeams;

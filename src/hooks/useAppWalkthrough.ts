@@ -1,14 +1,26 @@
 import { useCallback } from "react";
 import { driver, type DriveStep } from "driver.js";
 import { useTranslation } from "react-i18next";
+import type { NavigateFunction } from "react-router-dom";
 import "driver.js/dist/driver.css";
 
 type WalkthroughPage = 'home' | 'events' | 'teams' | 'profile';
 
 const WALKTHROUGH_PREFIX = 'athletica_walkthrough_';
 const WALKTHROUGH_TRIGGER_KEY = 'athletica_trigger_walkthrough';
+const FULL_WALKTHROUGH_KEY = 'athletica_full_walkthrough_active';
+
+const WALKTHROUGH_SEQUENCE: { page: WalkthroughPage; route: string }[] = [
+  { page: 'home', route: '/' },
+  { page: 'events', route: '/events' },
+  { page: 'teams', route: '/teams' },
+  { page: 'profile', route: '/settings' },
+];
 
 const getCompletedKey = (page: WalkthroughPage) => `${WALKTHROUGH_PREFIX}${page}_done`;
+
+export const isFullWalkthroughActive = () =>
+  localStorage.getItem(FULL_WALKTHROUGH_KEY) === 'true';
 
 export const useAppWalkthrough = () => {
   const { t } = useTranslation('walkthrough');
@@ -208,18 +220,20 @@ export const useAppWalkthrough = () => {
     }
   }, [t]);
 
-  const startWalkthrough = useCallback((page: WalkthroughPage = 'home') => {
-    if (hasCompleted(page)) return;
-
+  const runPageWalkthrough = useCallback((page: WalkthroughPage, onComplete?: () => void) => {
     const steps = getSteps(page);
 
-    // Filter out steps whose elements don't exist in DOM
     const availableSteps = steps.filter(step => {
       if (!step.element) return true;
       return document.querySelector(step.element as string) !== null;
     });
 
-    if (availableSteps.length === 0) return;
+    if (availableSteps.length === 0) {
+      // Mark complete even if no elements found, then proceed
+      localStorage.setItem(getCompletedKey(page), 'true');
+      onComplete?.();
+      return;
+    }
 
     const driverObj = driver({
       showProgress: true,
@@ -235,21 +249,56 @@ export const useAppWalkthrough = () => {
       steps: availableSteps,
       onDestroyed: () => {
         localStorage.setItem(getCompletedKey(page), 'true');
+        onComplete?.();
       }
     });
 
     setTimeout(() => {
       driverObj.drive();
     }, 800);
-  }, [t, getSteps, hasCompleted]);
+  }, [t, getSteps]);
+
+  /** Start a single-page walkthrough (legacy, fallback for independent visits) */
+  const startWalkthrough = useCallback((page: WalkthroughPage = 'home') => {
+    if (hasCompleted(page)) return;
+    runPageWalkthrough(page);
+  }, [hasCompleted, runPageWalkthrough]);
+
+  /** Start the full chained walkthrough across all sections */
+  const startFullWalkthrough = useCallback((navigate: NavigateFunction) => {
+    localStorage.setItem(FULL_WALKTHROUGH_KEY, 'true');
+    // Navigate to home and the home page will pick up the full walkthrough
+    navigate('/');
+  }, []);
+
+  /** Continue the full walkthrough from a given page (called by each page on mount) */
+  const continueFullWalkthrough = useCallback((currentPage: WalkthroughPage, navigate: NavigateFunction) => {
+    if (!isFullWalkthroughActive()) return;
+
+    const currentIndex = WALKTHROUGH_SEQUENCE.findIndex(s => s.page === currentPage);
+    const nextStep = WALKTHROUGH_SEQUENCE[currentIndex + 1];
+
+    runPageWalkthrough(currentPage, () => {
+      if (nextStep) {
+        // Navigate to next section
+        navigate(nextStep.route);
+      } else {
+        // All done — clear the full walkthrough flag
+        localStorage.removeItem(FULL_WALKTHROUGH_KEY);
+      }
+    });
+  }, [runPageWalkthrough]);
 
   const resetWalkthrough = useCallback(() => {
     const pages: WalkthroughPage[] = ['home', 'events', 'teams', 'profile'];
     pages.forEach(page => localStorage.removeItem(getCompletedKey(page)));
+    localStorage.removeItem(FULL_WALKTHROUGH_KEY);
   }, []);
 
   return {
     startWalkthrough,
+    startFullWalkthrough,
+    continueFullWalkthrough,
     resetWalkthrough,
     hasCompleted,
     shouldTrigger,

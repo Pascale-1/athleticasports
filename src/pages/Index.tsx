@@ -22,7 +22,7 @@ import { FindMatchSheet } from "@/components/matching/FindMatchSheet";
 import { usePlayerAvailability } from "@/hooks/usePlayerAvailability";
 import { formatDateTimeShort } from "@/lib/dateUtils";
 import { OnboardingHint } from "@/components/onboarding/OnboardingHint";
-import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
+import { useAppWalkthrough, isFullWalkthroughActive } from "@/hooks/useAppWalkthrough";
 import { useAvailableGames } from "@/hooks/useAvailableGames";
 import { AvailableGameCard } from "@/components/matching/AvailableGameCard";
 import { isToday, isTomorrow } from "date-fns";
@@ -76,7 +76,7 @@ const Index = () => {
   const { proposals: matchProposals, loading: proposalsLoading, refetch: refetchProposals } = useMatchProposals();
   
   // Walkthrough
-  const { startWalkthrough, shouldTrigger, clearTrigger, hasCompleted } = useAppWalkthrough();
+  const { startWalkthrough, startFullWalkthrough, continueFullWalkthrough, shouldTrigger, clearTrigger, hasCompleted } = useAppWalkthrough();
 
   useEffect(() => {
     if (user) {
@@ -92,12 +92,18 @@ const Index = () => {
     if (!loading && profile) {
       if (shouldTrigger()) {
         clearTrigger();
-        startWalkthrough('home');
+        // Set full walkthrough flag and immediately start chained walkthrough from home
+        localStorage.setItem('athletica_full_walkthrough_active', 'true');
+        continueFullWalkthrough('home', navigate);
+        return;
+      }
+      if (isFullWalkthroughActive()) {
+        continueFullWalkthrough('home', navigate);
       } else if (!hasCompleted('home')) {
         startWalkthrough('home');
       }
     }
-  }, [loading, profile, shouldTrigger, clearTrigger, startWalkthrough, hasCompleted]);
+  }, [loading, profile, shouldTrigger, clearTrigger, startWalkthrough, continueFullWalkthrough, hasCompleted, navigate]);
 
   const fetchProfile = async (userId: string) => {
     try {
