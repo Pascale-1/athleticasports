@@ -28,6 +28,8 @@ import { AvailableGameCard } from "@/components/matching/AvailableGameCard";
 import { isToday, isTomorrow } from "date-fns";
 import { LanguageToggle } from "@/components/settings/LanguageToggle";
 import { FeedbackForm } from "@/components/feedback/FeedbackForm";
+import { useMatchProposals } from "@/hooks/useMatchProposals";
+import { MatchProposalInlineCard } from "@/components/matching/MatchProposalInlineCard";
 
 
 
@@ -71,6 +73,7 @@ const Index = () => {
   
   // Fetch match status (proposals & availability)
   const { availability } = usePlayerAvailability();
+  const { proposals: matchProposals, loading: proposalsLoading, refetch: refetchProposals } = useMatchProposals();
   
   // Walkthrough
   const { startWalkthrough, shouldTrigger, clearTrigger } = useAppWalkthrough();
@@ -262,7 +265,7 @@ const Index = () => {
               </button>
               <div className="w-px bg-muted self-stretch my-2" />
               <button
-                onClick={() => navigate("/events?type=match")}
+                onClick={() => navigate("/events?tab=my&type=match")}
                 className="flex-1 flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[52px]"
               >
                 <span className="text-[28px] font-bold text-foreground leading-none tabular-nums">{stats.upcomingMatches}</span>
@@ -319,7 +322,7 @@ const Index = () => {
               
               {/* Team row */}
               <div 
-                onClick={() => navigate("/teams")}
+                onClick={() => navigate("/teams?filter=discover")}
                 className="rounded-xl bg-card border border-border h-11 px-4 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform"
               >
                 <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -385,6 +388,20 @@ const Index = () => {
                     </div>
                   </div>
                 </Card>
+              )}
+
+              {/* Match Proposals */}
+              {!proposalsLoading && matchProposals.length > 0 && (
+                <div className="space-y-2">
+                  {matchProposals.map((proposal) => (
+                    <MatchProposalInlineCard
+                      key={proposal.id}
+                      proposalId={proposal.id}
+                      onAccepted={refetchProposals}
+                      onDeclined={refetchProposals}
+                    />
+                  ))}
+                </div>
               )}
               
               {/* Your Upcoming Events */}
@@ -508,7 +525,7 @@ const Index = () => {
               <FeedSkeleton />
             ) : activities.length > 0 ? (
               <div className="space-y-2">
-                {activities.slice(0, 5).map((activity, index) => (
+                {activities.map((activity, index) => (
                   <AnimatedCard key={activity.id} delay={0.35 + index * 0.05} hover={false}>
                     <ActivityCard {...activity} />
                   </AnimatedCard>

@@ -120,6 +120,9 @@ const Teams = () => {
     if (filter === 'my-teams') {
       setShowAllTeams(false);
       window.history.replaceState({}, '', location.pathname);
+    } else if (filter === 'discover') {
+      setShowAllTeams(true);
+      window.history.replaceState({}, '', location.pathname);
     }
   }, [location]);
 
