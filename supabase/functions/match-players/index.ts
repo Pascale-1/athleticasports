@@ -156,7 +156,6 @@ Deno.serve(async (req) => {
     let eventsQuery = supabase
       .from("events")
       .select("*")
-      .eq("type", "match")
       .eq("looking_for_players", true)
       .gte("start_time", new Date().toISOString());
 

@@ -13,6 +13,8 @@ import { LookingForPlayersBanner } from "@/components/events/LookingForPlayersBa
 import { RSVPDeadlineDisplay } from "@/components/events/RSVPDeadlineDisplay";
 import { EventJoinRequests } from "@/components/events/EventJoinRequests";
 import { MatchProposalInlineCard } from "@/components/matching/MatchProposalInlineCard";
+import { InterestedPlayersCard } from "@/components/events/InterestedPlayersCard";
+import { useEventInterestedPlayers } from "@/hooks/useEventInterestedPlayers";
 import { ManualTeamAssignment } from "@/components/teams/ManualTeamAssignment";
 import { GeneratedTeamCard, accentColors } from "@/components/teams/GeneratedTeamCard";
 import { GenerateTeamsDialog } from "@/components/teams/GenerateTeamsDialog";
@@ -101,6 +103,9 @@ const EventDetail = () => {
     rejectRequest, 
     loading: joinRequestsLoading 
   } = useEventJoinRequests(eventId || '');
+
+  const isCreator = currentUserId === event?.created_by;
+  const { players: interestedPlayers, invitePlayer } = useEventInterestedPlayers(eventId, isCreator && canEdit);
 
   // Practice Teams hooks
   const { teams: generatedTeams, loading: teamsLoading, generating, generateTeams, deleteTeams, createGroup, deleteGroup, assignPlayer, removePlayer } = useTeamGeneration(event?.team_id ? eventId || null : null);
@@ -571,6 +576,18 @@ const EventDetail = () => {
             onApprove={handleApproveRequest}
             onReject={handleRejectRequest}
             isLoading={joinRequestsLoading}
+          />
+        )}
+
+        {/* Interested Players from Matching */}
+        {canEdit && interestedPlayers.length > 0 && (
+          <InterestedPlayersCard
+            players={interestedPlayers}
+            onInvite={async (proposalId, playerId) => {
+              const success = await invitePlayer(proposalId, playerId);
+              if (success) refetchAttendance();
+              return success;
+            }}
           />
         )}
 

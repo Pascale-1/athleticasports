@@ -1,51 +1,28 @@
 
 
-# Matching System Improvements
+# Fix: Stale session after background on Android
 
-Four improvements to make the matching engine more effective and drive user growth.
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-## 1. Fix Edge Function: Match ALL Event Types
+## Fix
 
-**File:** `supabase/functions/match-players/index.ts`
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-Currently line 159 filters `.eq("type", "match")`, excluding training and meetup events that also have `looking_for_players = true`. Remove this filter so all event types are matched.
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-## 2. Set Up Periodic Re-Matching (Cron)
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
+```
 
-Create a cron job using `pg_cron` + `pg_net` to invoke the `match-players` edge function every 30 minutes. This ensures new events created after a player sets availability still get matched, rather than only triggering on availability creation.
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
 
-**Requires:** Enable `pg_cron` and `pg_net` extensions via migration, then insert the cron schedule via the insert tool.
-
-## 3. Availability Expiry Reminder Notification
-
-**New edge function:** `supabase/functions/availability-expiry-reminder/index.ts`
-
-A scheduled function (daily cron) that:
-- Queries `player_availability` where `is_active = true` AND `expires_at` is within the next 24 hours
-- Inserts a notification for each user: "Your availability expires tomorrow. Extend it to keep finding matches."
-- Adds a `reminder_sent` column to `player_availability` to avoid duplicate reminders
-
-**Database migration:** Add `reminder_sent boolean DEFAULT false` to `player_availability`.
-
-## 4. Surface "Express Interest" to Organizers
-
-Currently, match proposals with `interest_level = 'maybe'` are stored but never shown to event organizers.
-
-**File:** `src/pages/EventDetail.tsx`
-
-Add a section visible to the event creator showing interested players from `match_proposals` where `interest_level` is `'maybe'` or `'interested'`. Display player name, match score badge, and an "Invite" button that auto-adds them as attending.
-
-**File:** `src/hooks/useMatchProposals.ts` — Add a query for organizer-facing proposals (proposals where the user created the event).
-
-## Summary of Changes
-
-| Change | Files |
-|--------|-------|
-| Remove `type = match` filter | `supabase/functions/match-players/index.ts` (line 159) |
-| Enable pg_cron/pg_net + schedule | DB migration + insert |
-| Expiry reminder function | New edge function + cron + migration (`reminder_sent` column) |
-| Surface interested players | `src/pages/EventDetail.tsx`, `src/hooks/useMatchProposals.ts` |
-| i18n keys | `en/matching.json`, `fr/matching.json` |
-
-No breaking changes. All improvements are additive.
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 

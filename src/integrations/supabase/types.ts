@@ -639,6 +639,7 @@ export type Database = {
           is_active: boolean | null
           location: string | null
           location_district: string | null
+          reminder_sent: boolean | null
           skill_level: number | null
           sport: string
           user_id: string
@@ -652,6 +653,7 @@ export type Database = {
           is_active?: boolean | null
           location?: string | null
           location_district?: string | null
+          reminder_sent?: boolean | null
           skill_level?: number | null
           sport: string
           user_id: string
@@ -665,6 +667,7 @@ export type Database = {
           is_active?: boolean | null
           location?: string | null
           location_district?: string | null
+          reminder_sent?: boolean | null
           skill_level?: number | null
           sport?: string
           user_id?: string
