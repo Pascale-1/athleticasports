@@ -76,7 +76,7 @@ const Index = () => {
   const { proposals: matchProposals, loading: proposalsLoading, refetch: refetchProposals } = useMatchProposals();
   
   // Walkthrough
-  const { startWalkthrough, shouldTrigger, clearTrigger } = useAppWalkthrough();
+  const { startWalkthrough, shouldTrigger, clearTrigger, hasCompleted } = useAppWalkthrough();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -101,13 +101,17 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Auto-trigger walkthrough after onboarding
+  // Auto-trigger walkthrough after onboarding or on first visit
   useEffect(() => {
-    if (!loading && profile && shouldTrigger()) {
-      clearTrigger();
-      startWalkthrough();
+    if (!loading && profile) {
+      if (shouldTrigger()) {
+        clearTrigger();
+        startWalkthrough('home');
+      } else if (!hasCompleted('home')) {
+        startWalkthrough('home');
+      }
     }
-  }, [loading, profile, shouldTrigger, clearTrigger, startWalkthrough]);
+  }, [loading, profile, shouldTrigger, clearTrigger, startWalkthrough, hasCompleted]);
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -214,7 +218,7 @@ const Index = () => {
           </div>
 
           {/* Greeting Section - Clean typographic */}
-          <div data-walkthrough="profile">
+          <div data-walkthrough="home-next-event">
           <AnimatedCard delay={0.1}>
             <div className="space-y-0.5">
               <h1 className="text-[18px] font-bold tracking-tight">
@@ -256,7 +260,7 @@ const Index = () => {
 
           {/* Stats Grid — standalone section */}
           <AnimatedCard delay={0.15}>
-            <div className="flex items-stretch justify-center">
+            <div data-walkthrough="home-stats" className="flex items-stretch justify-center">
               <button 
                 onClick={() => navigate("/teams?filter=my-teams")}
                 className="flex-1 flex flex-col items-center gap-1 py-3 rounded-xl transition-all hover:bg-muted active:scale-95 min-h-[52px]"
@@ -295,7 +299,7 @@ const Index = () => {
 
           {/* Quick Actions - 2x2 Grid Primary + Secondary */}
           <AnimatedCard delay={0.2}>
-            <div data-walkthrough="quick-actions" className="space-y-2">
+            <div data-walkthrough="home-quick-actions" className="space-y-2">
               <div className="flex gap-2">
                 <Button 
                   variant="outline"
@@ -338,7 +342,7 @@ const Index = () => {
 
           {/* Games Section - Clear Separation */}
           <AnimatedCard delay={0.25}>
-            <div data-walkthrough="games" className="space-y-3">
+            <div data-walkthrough="home-games" className="space-y-3">
               {/* Games to Join */}
               {!gamesLoading && topAvailableGames.length > 0 && (
                 <Card className="p-3">
@@ -513,7 +517,7 @@ const Index = () => {
 
           {/* Activity Feed */}
           <motion.div 
-            data-walkthrough="feed"
+            data-walkthrough="home-feed"
             className="space-y-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

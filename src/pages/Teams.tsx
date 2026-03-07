@@ -26,6 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getActiveSports } from "@/lib/sports";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
 
 const Teams = () => {
   const navigate = useNavigate();
@@ -126,9 +127,18 @@ const Teams = () => {
     }
   }, [location]);
 
+  // Walkthrough
+  const { startWalkthrough, hasCompleted } = useAppWalkthrough();
+
   useEffect(() => {
     fetchTeams();
   }, []);
+
+  useEffect(() => {
+    if (!loading && !hasCompleted('teams')) {
+      startWalkthrough('teams');
+    }
+  }, [loading, startWalkthrough, hasCompleted]);
 
   const fetchTeamsRef = useRef(fetchTeams);
   fetchTeamsRef.current = fetchTeams;
@@ -184,10 +194,12 @@ const Teams = () => {
             title={t('title')}
             subtitle={`${myTeams.length} ${t('myTeams').toLowerCase()} • ${publicTeams.length} ${t('discover').toLowerCase()}`}
             rightAction={
-              <Button onClick={() => navigate("/teams/create")} size="sm" className="gap-1.5 h-9">
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">{t('createTeam')}</span>
-              </Button>
+              <div data-walkthrough="teams-create">
+                <Button onClick={() => navigate("/teams/create")} size="sm" className="gap-1.5 h-9">
+                  <Plus className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t('createTeam')}</span>
+                </Button>
+              </div>
             }
           />
 
@@ -209,6 +221,7 @@ const Teams = () => {
           {/* Pending Invitations Inline */}
           {!invitesLoading && pendingInvitations.length > 0 && (
             <motion.div
+              data-walkthrough="teams-invitations"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -250,6 +263,7 @@ const Teams = () => {
 
           {/* View Toggle - Compact */}
           <motion.div
+            data-walkthrough="teams-tabs"
             className="flex items-center gap-1 bg-muted/50 p-1 rounded-xl"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -294,7 +308,7 @@ const Teams = () => {
               transition={{ delay: 0.2 }}
             >
               {filteredMyTeams.length > 0 ? (
-                <div className="grid grid-cols-1 gap-1">
+                <div data-walkthrough="teams-card" className="grid grid-cols-1 gap-1">
                   {filteredMyTeams.map((team, index) => (
                     <AnimatedCard key={team.id} delay={0.25 + index * 0.05} hover={false}>
                       <TeamCard

@@ -1,28 +1,82 @@
 {
-  "steps": {
-    "profile": {
-      "title": "Bienvenue",
-      "description": "Ici tu verras ton nom et tes stats en un coup d'œil — nombre d'équipes, matchs à venir et événements au total."
+  "home": {
+    "nextEvent": {
+      "title": "Ton Prochain Événement",
+      "description": "Ton prochain événement apparaît ici. Appuie dessus pour voir les détails, confirmer ta présence ou voir qui vient."
+    },
+    "stats": {
+      "title": "Tes Stats",
+      "description": "Tes chiffres clés en un coup d'œil — équipes, matchs à venir et événements au total. Appuie sur un chiffre pour y accéder."
     },
     "quickActions": {
       "title": "Actions Rapides",
-      "description": "Définis ta disponibilité pour trouver un match, crée un événement (entraînement, match ou social), ou rejoins une équipe."
-    },
-    "eventTypes": {
-      "title": "3 Types d'Événements",
-      "description": "Entraînement — séances de pratique avec ton équipe. Match — compétitions contre des adversaires. Social — sorties, soirées et moments d'équipe."
+      "description": "Trouve un match à proximité, crée ton propre événement (entraînement, match ou social), ou rejoins une équipe — tout depuis ici."
     },
     "games": {
-      "title": "Tes Événements & Matchs",
-      "description": "Consulte tes prochains événements, les matchs qui cherchent des joueurs et les propositions de match en attente de ta réponse."
+      "title": "Matchs & Événements",
+      "description": "Les matchs qui cherchent des joueurs, les propositions de match et tes prochains événements apparaissent ici. Rejoins un match en un tap."
     },
     "feed": {
       "title": "Fil d'Activité",
-      "description": "Reste informé de l'actualité de tes équipes et de la communauté."
+      "description": "L'activité récente de tes équipes : nouveaux événements créés, résultats de matchs et annonces d'équipe."
+    }
+  },
+  "events": {
+    "tabs": {
+      "title": "Onglets Événements",
+      "description": "Bascule entre les événements auxquels tu participes, ceux que tu as organisés, et les nouveaux à découvrir et rejoindre."
     },
-    "navigation": {
-      "title": "Navigation",
-      "description": "Utilise la barre du bas pour naviguer entre Accueil, Événements, Équipes et Profil."
+    "filters": {
+      "title": "Filtrer par Type",
+      "description": "Filtre par Entraînement, Match ou Social. Tu peux aussi filtrer par sport pour trouver exactement ce que tu cherches."
+    },
+    "viewToggle": {
+      "title": "Liste ou Calendrier",
+      "description": "Bascule entre la vue liste et calendrier pour planifier ta semaine en un coup d'œil."
+    },
+    "eventList": {
+      "title": "Cartes d'Événements",
+      "description": "Chaque carte affiche le type d'événement, la date, le lieu et les places restantes. Appuie pour voir les détails et confirmer."
+    },
+    "createButton": {
+      "title": "Créer un Événement",
+      "description": "Appuie sur + pour créer un événement : séance d'entraînement, match compétitif ou sortie sociale."
+    }
+  },
+  "teams": {
+    "tabs": {
+      "title": "Mes Équipes & Découvrir",
+      "description": "Consulte tes équipes ou découvre-en de nouvelles à rejoindre. Bascule entre les deux onglets."
+    },
+    "invitations": {
+      "title": "Invitations d'Équipe",
+      "description": "Les invitations en attente apparaissent ici. Accepte ou refuse en un tap."
+    },
+    "teamCard": {
+      "title": "Carte d'Équipe",
+      "description": "Chaque carte affiche le sport, le nombre de membres et la description. Appuie pour entrer dans l'équipe."
+    },
+    "createTeam": {
+      "title": "Créer une Équipe",
+      "description": "Crée ta propre équipe et invite tes amis par email, lien ou nom d'utilisateur."
+    }
+  },
+  "profile": {
+    "header": {
+      "title": "Ton Profil",
+      "description": "Ton avatar, nom d'utilisateur et badge de membre fondateur. Appuie sur l'icône caméra pour changer ta photo."
+    },
+    "stats": {
+      "title": "Tes Stats",
+      "description": "Équipes, matchs joués, matchs ce mois-ci et victoires — tout sur une ligne."
+    },
+    "tabs": {
+      "title": "Onglets Profil",
+      "description": "Modifie tes infos personnelles, consulte ton historique d'activité ou ajuste les paramètres comme la langue et le thème."
+    },
+    "share": {
+      "title": "Partager ton Profil",
+      "description": "Partage ton lien de profil avec tes amis pour qu'ils te trouvent sur Athletica."
     }
   },
   "buttons": {

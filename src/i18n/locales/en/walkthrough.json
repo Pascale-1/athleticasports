@@ -1,28 +1,82 @@
 {
-  "steps": {
-    "profile": {
-      "title": "Welcome Home",
-      "description": "Here you'll see your name and your stats at a glance — how many teams you're in, upcoming games, and total events."
+  "home": {
+    "nextEvent": {
+      "title": "Your Next Event",
+      "description": "Your next upcoming event appears here. Tap it to see details, RSVP, or check who's coming."
+    },
+    "stats": {
+      "title": "Your Stats",
+      "description": "Your key numbers at a glance — teams, upcoming games, and total events. Tap any stat to jump to that section."
     },
     "quickActions": {
       "title": "Quick Actions",
-      "description": "Set your availability to find a game, create a new event (training, game, or social), or browse and join a team."
-    },
-    "eventTypes": {
-      "title": "3 Types of Events",
-      "description": "Training — practice sessions with your team. Game — competitive matches against opponents. Social — casual meetups, watch parties, and team bonding."
+      "description": "Find a game nearby, create your own event (training, game, or social), or browse teams to join — all from here."
     },
     "games": {
-      "title": "Your Events & Games",
-      "description": "See your upcoming events of all types, games looking for players you can join, and match proposals waiting for your response."
+      "title": "Games & Events",
+      "description": "Games looking for players, match proposals, and your upcoming events all show up here. Join a game with one tap."
     },
     "feed": {
       "title": "Activity Feed",
-      "description": "Stay updated with your teams and community activities."
+      "description": "Recent activity from your teams: new events created, match results, and team announcements."
+    }
+  },
+  "events": {
+    "tabs": {
+      "title": "Event Tabs",
+      "description": "Switch between events you're attending, events you organized, and new events to discover and join."
     },
-    "navigation": {
-      "title": "Navigate the App",
-      "description": "Use the bottom bar to switch between Home, Events, Teams, and your Profile."
+    "filters": {
+      "title": "Filter by Type",
+      "description": "Filter by Training, Game, or Social. You can also filter by sport to find exactly what you're looking for."
+    },
+    "viewToggle": {
+      "title": "List or Calendar",
+      "description": "Switch between list and calendar views to plan your week at a glance."
+    },
+    "eventList": {
+      "title": "Event Cards",
+      "description": "Each card shows the event type, date, location, and spots left. Tap any event to see details and RSVP."
+    },
+    "createButton": {
+      "title": "Create an Event",
+      "description": "Tap + to create a new event: training session, competitive game, or social meetup."
+    }
+  },
+  "teams": {
+    "tabs": {
+      "title": "My Teams & Discover",
+      "description": "See your teams or discover new ones to join. Switch between the two tabs."
+    },
+    "invitations": {
+      "title": "Team Invitations",
+      "description": "Pending team invitations appear here. Accept or decline with one tap."
+    },
+    "teamCard": {
+      "title": "Team Card",
+      "description": "Each card shows the team sport, member count, and description. Tap to enter the team."
+    },
+    "createTeam": {
+      "title": "Create a Team",
+      "description": "Start your own team and invite friends by email, link, or username."
+    }
+  },
+  "profile": {
+    "header": {
+      "title": "Your Profile",
+      "description": "Your avatar, username, and founding member badge. Tap the camera icon to change your photo."
+    },
+    "stats": {
+      "title": "Your Stats",
+      "description": "Teams, games played, games this month, and wins — all in one row."
+    },
+    "tabs": {
+      "title": "Profile Tabs",
+      "description": "Edit your personal info, check your activity history, or adjust app settings like language and theme."
+    },
+    "share": {
+      "title": "Share Profile",
+      "description": "Share your profile link with friends so they can find you on Athletica."
     }
   },
   "buttons": {
