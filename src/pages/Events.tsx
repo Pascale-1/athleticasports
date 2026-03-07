@@ -414,6 +414,7 @@ const Events = () => {
           </div>
         )}
 
+        <div data-walkthrough="events-list">
         {activeTab === 'discover' ? (
           // Discover Tab
           <div className="space-y-2">
@@ -590,6 +591,7 @@ const Events = () => {
           </>
         )}
         </div>
+      </div>
       </PullToRefresh>
       <CreateEventDialog
         open={createDialogOpen}
@@ -628,11 +630,13 @@ const Events = () => {
       </AlertDialog>
 
       {/* Mobile FAB */}
-      <FAB
-        icon={<Plus className="h-5 w-5" />}
-        label={t('createEvent')}
-        onClick={() => setCreateDialogOpen(true)}
-      />
+      <div data-walkthrough="events-fab">
+        <FAB
+          icon={<Plus className="h-5 w-5" />}
+          label={t('createEvent')}
+          onClick={() => setCreateDialogOpen(true)}
+        />
+      </div>
     </PageContainer>
   );
 };

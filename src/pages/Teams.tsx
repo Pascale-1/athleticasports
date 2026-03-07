@@ -26,6 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getActiveSports } from "@/lib/sports";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
 
 const Teams = () => {
   const navigate = useNavigate();
@@ -126,9 +127,18 @@ const Teams = () => {
     }
   }, [location]);
 
+  // Walkthrough
+  const { startWalkthrough, hasCompleted } = useAppWalkthrough();
+
   useEffect(() => {
     fetchTeams();
   }, []);
+
+  useEffect(() => {
+    if (!loading && !hasCompleted('teams')) {
+      startWalkthrough('teams');
+    }
+  }, [loading, startWalkthrough, hasCompleted]);
 
   const fetchTeamsRef = useRef(fetchTeams);
   fetchTeamsRef.current = fetchTeams;
@@ -184,10 +194,12 @@ const Teams = () => {
             title={t('title')}
             subtitle={`${myTeams.length} ${t('myTeams').toLowerCase()} • ${publicTeams.length} ${t('discover').toLowerCase()}`}
             rightAction={
-              <Button onClick={() => navigate("/teams/create")} size="sm" className="gap-1.5 h-9">
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">{t('createTeam')}</span>
-              </Button>
+              <div data-walkthrough="teams-create">
+                <Button onClick={() => navigate("/teams/create")} size="sm" className="gap-1.5 h-9">
+                  <Plus className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t('createTeam')}</span>
+                </Button>
+              </div>
             }
           />
 
