@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback, use
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
+import { useAuth } from "@/hooks/useAuth";
 
 export interface Notification {
   id: string;
@@ -39,19 +40,19 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
   const notificationsRef = useRef(notifications);
   notificationsRef.current = notifications;
 
   const fetchNotifications = useCallback(async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setNotifications([]);
-        setUnreadCount(0);
-        setLoading(false);
-        return;
-      }
+    if (!user) {
+      setNotifications([]);
+      setUnreadCount(0);
+      setLoading(false);
+      return;
+    }
 
+    try {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -71,7 +72,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     fetchNotifications();
@@ -131,10 +132,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, []);
 
   const markAllAsRead = useCallback(async () => {
+    if (!user) return;
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const { error } = await supabase.rpc("mark_all_notifications_read", {
         _user_id: user.id,
       });
@@ -146,7 +145,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
     }
-  }, []);
+  }, [user]);
 
   return (
     <NotificationContext.Provider

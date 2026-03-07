@@ -3,101 +3,102 @@ import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { useAuth } from "@/hooks/useAuth";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+
+const fetchBadgeCounts = async (userId: string) => {
+  // Get pending team invitations
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('username, email')
+    .eq('user_id', userId)
+    .single();
+
+  let pendingInvites = 0;
+  if (profile) {
+    const { count: inviteCount } = await supabase
+      .from('team_invitations')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'pending')
+      .gt('expires_at', new Date().toISOString())
+      .or(`invited_user_id.eq.${userId},email.eq.${profile.username},email.eq.${profile.email || ''}`);
+
+    pendingInvites = inviteCount || 0;
+  }
+
+  // Get unanswered RSVP count
+  const now = new Date().toISOString();
+  const { data: userTeamIds } = await supabase
+    .from('team_members')
+    .select('team_id')
+    .eq('user_id', userId)
+    .eq('status', 'active');
+
+  const teamIds = userTeamIds?.map(t => t.team_id) || [];
+  let unansweredCount = 0;
+
+  if (teamIds.length > 0) {
+    const { data: teamEvents } = await supabase
+      .from('events')
+      .select('id')
+      .in('team_id', teamIds)
+      .gte('start_time', now)
+      .limit(50);
+
+    if (teamEvents && teamEvents.length > 0) {
+      const eventIds = teamEvents.map(e => e.id);
+      const { data: responded } = await supabase
+        .from('event_attendance')
+        .select('event_id')
+        .eq('user_id', userId)
+        .in('event_id', eventIds);
+
+      const respondedIds = new Set(responded?.map(r => r.event_id) || []);
+      unansweredCount = eventIds.filter(id => !respondedIds.has(id)).length;
+    }
+  }
+
+  return { pendingInvites, unansweredCount };
+};
 
 export const BottomNavigation = () => {
   const location = useLocation();
   const { t } = useTranslation();
-  const [pendingInvites, setPendingInvites] = useState(0);
-  const [todayEvents, setTodayEvents] = useState(0);
-  const [userId, setUserId] = useState<string | null>(null);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const userId = user?.id ?? null;
 
-  // Fetch notification badges
-  const fetchBadges = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    setUserId(user.id);
+  const { data: badges } = useQuery({
+    queryKey: ['navigation-badges', userId],
+    queryFn: () => fetchBadgeCounts(userId!),
+    enabled: !!userId,
+    staleTime: 30_000, // Cache for 30s — prevents re-fetch on every route change
+    refetchInterval: 60_000, // Background refresh every 60s
+  });
 
-    // Get pending team invitations - match by user_id OR email
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('username, email')
-      .eq('user_id', user.id)
-      .single();
+  const pendingInvites = badges?.pendingInvites ?? 0;
+  const todayEvents = location.pathname.startsWith('/events') ? 0 : (badges?.unansweredCount ?? 0);
 
-    if (profile) {
-      const { count: inviteCount } = await supabase
-        .from('team_invitations')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending')
-        .gt('expires_at', new Date().toISOString())
-        .or(`invited_user_id.eq.${user.id},email.eq.${profile.username},email.eq.${profile.email || ''}`);
+  // Invalidate badges on realtime changes
+  const invalidateBadges = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['navigation-badges', userId] });
+  }, [queryClient, userId]);
 
-      setPendingInvites(inviteCount || 0);
-    }
-
-    // Get upcoming events where user has NO attendance record (unanswered RSVP)
-    const now = new Date().toISOString();
-
-    // First get events user is part of (via team membership or public) that are upcoming
-    // and where user has NO attendance record at all
-    const { data: userTeamIds } = await supabase
-      .from('team_members')
-      .select('team_id')
-      .eq('user_id', user.id)
-      .eq('status', 'active');
-
-    const teamIds = userTeamIds?.map(t => t.team_id) || [];
-
-    // Get upcoming events for user's teams that user hasn't responded to
-    let unansweredCount = 0;
-
-    if (teamIds.length > 0) {
-      // Get upcoming team events
-      const { data: teamEvents } = await supabase
-        .from('events')
-        .select('id')
-        .in('team_id', teamIds)
-        .gte('start_time', now)
-        .limit(50);
-
-      if (teamEvents && teamEvents.length > 0) {
-        const eventIds = teamEvents.map(e => e.id);
-        
-        // Get events user HAS responded to
-        const { data: responded } = await supabase
-          .from('event_attendance')
-          .select('event_id')
-          .eq('user_id', user.id)
-          .in('event_id', eventIds);
-
-        const respondedIds = new Set(responded?.map(r => r.event_id) || []);
-        unansweredCount = eventIds.filter(id => !respondedIds.has(id)).length;
-      }
-    }
-
-    setTodayEvents(location.pathname.startsWith('/events') ? 0 : unansweredCount);
-  }, []);
-
-  useEffect(() => {
-    fetchBadges();
-  }, [location.pathname, fetchBadges]);
-
-  // Realtime subscription for badge updates
   useRealtimeSubscription(
     `nav-badges-invitations-${userId}`,
     [{ table: "team_invitations", event: "*" }],
-    fetchBadges,
+    invalidateBadges,
     !!userId
   );
 
   useRealtimeSubscription(
     `nav-badges-attendance-${userId}`,
     [{ table: "event_attendance", event: "*" }],
-    fetchBadges,
+    invalidateBadges,
     !!userId
   );
 
