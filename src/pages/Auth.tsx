@@ -304,9 +304,9 @@ const Auth = () => {
                   tabIndex={-1}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-[#38BDF8]" />
+                    <EyeOff className="h-4 w-4 text-primary" />
                   ) : (
-                    <Eye className="h-4 w-4 text-[#64748B]" />
+                    <Eye className="h-4 w-4 text-muted-foreground" />
                   )}
                 </button>
               </div>
@@ -325,8 +325,8 @@ const Auth = () => {
                 <span
                   className={`flex items-center justify-center w-[18px] h-[18px] rounded-[6px] border-[1.5px] transition-all duration-150 ease-in-out ${
                     rememberMe
-                      ? "bg-[#38BDF8] border-[#38BDF8]"
-                      : "bg-transparent border-[#334155]"
+                      ? "bg-primary border-primary"
+                      : "bg-transparent border-muted-foreground/30"
                   }`}
                 >
                   {rememberMe && (
@@ -342,7 +342,7 @@ const Auth = () => {
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                 />
-                <span className="text-[14px] font-normal text-[#F1F5F9]">
+                <span className="text-[14px] font-normal text-foreground">
                   {t('rememberMe')}
                 </span>
               </label>
