@@ -1,28 +1,17 @@
 
 
-# Fix: Stale session after background on Android
+## Replace "This Month" Stat with Training Count
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+The "This month" counter is redundant next to the total "Games" count. Replace it with a count of training-type events the user has attended.
 
-## Fix
+### Changes
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+**`src/components/settings/ProfileStats.tsx`**:
+1. Replace the `monthRes` query: instead of filtering `events.type = 'match'` with a date range, filter `events.type = 'training'` for all past events (same pattern as `eventsRes` but for trainings).
+2. Rename `eventsThisMonth` state field to `trainings`.
+3. Update the stat item: change icon from `Flame` to a training-relevant icon (e.g., `Dumbbell` from lucide-react), update label to `t('profile.trainingsLabel', 'Trainings')`, and point value to `stats.trainings`.
+4. Remove the `startOfMonth` import (no longer needed).
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
-
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
-```
-
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
-
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+**Translation files** (`en/common.json`, `fr/common.json`):
+- Add `profile.trainingsLabel`: `"Trainings"` (EN) / `"Entraînements"` (FR)
 
