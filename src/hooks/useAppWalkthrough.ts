@@ -46,6 +46,14 @@ export const useAppWalkthrough = () => {
         }
       },
       {
+        popover: {
+          title: t('steps.eventTypes.title'),
+          description: t('steps.eventTypes.description'),
+          side: "bottom",
+          align: "center"
+        }
+      },
+      {
         element: '[data-walkthrough="games"]',
         popover: {
           title: t('steps.games.title'),
@@ -77,7 +85,7 @@ export const useAppWalkthrough = () => {
     const driverObj = driver({
       showProgress: true,
       animate: true,
-      allowClose: true,
+      allowClose: false,
       overlayColor: 'rgba(0, 0, 0, 0.75)',
       stagePadding: 8,
       stageRadius: 8,

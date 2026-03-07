@@ -8,6 +8,10 @@
       "title": "Quick Actions",
       "description": "Find a game, organize one, or create your own team - all in one tap."
     },
+    "eventTypes": {
+      "title": "3 Types of Events",
+      "description": "Training — practice with your team. Game — competitive matches against opponents. Social — casual meetups, watch parties, and team bonding."
+    },
     "games": {
       "title": "Your Games",
       "description": "View upcoming games, respond to match proposals, and set your availability."
