@@ -17,7 +17,7 @@ import { AccountDangerZone } from "@/components/settings/AccountDangerZone";
 import { getAppBaseUrl } from "@/lib/appUrl";
 import { copyToClipboard } from "@/lib/clipboard";
 import { LogoutButton } from "@/components/settings/LogoutButton";
-import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
+import { useAppWalkthrough, isFullWalkthroughActive } from "@/hooks/useAppWalkthrough";
 
 interface Profile {
   id: string;
@@ -52,7 +52,6 @@ const Settings = () => {
 
   useEffect(() => {
     if (!loading && profile) {
-      const { isFullWalkthroughActive } = require('@/hooks/useAppWalkthrough');
       if (isFullWalkthroughActive()) {
         continueFullWalkthrough('profile', navigate);
       } else if (!hasCompleted('profile')) {
