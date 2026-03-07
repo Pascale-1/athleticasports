@@ -1,28 +1,43 @@
 
 
-# Fix: Stale session after background on Android
+## Plan: Fix Events Badge + Event Type Education
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+### 1. Fix persistent "1" badge on Events tab
 
-## Fix
+**File:** `src/components/mobile/BottomNavigation.tsx`
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+Add `.neq('created_by', userId)` to the events query in `fetchBadgeCounts` (around line 46). This excludes events the user created from the unanswered RSVP count, fixing the persistent badge caused by recurring child events where the auto-attendance trigger skips children.
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+### 2. Add event type descriptions in EventTypeSelector
 
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
-```
+**File:** `src/components/events/EventTypeSelector.tsx`
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+Add a subtle animated description line below the type selector that shows the description for the currently selected type. Reuse existing translation keys: `create.trainingDesc`, `create.gameDesc`, `create.meetupDesc`.
 
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+### 3. Add event types step to the walkthrough
+
+The current walkthrough has 5 steps (profile, quick actions, games, feed, navigation). Add a new step between "quick actions" and "games" that introduces the 3 event types (Training, Game, Social) with a brief explanation.
+
+**Files:**
+- `src/i18n/locales/en/walkthrough.json` -- Add `steps.eventTypes` with title and description
+- `src/i18n/locales/fr/walkthrough.json` -- French equivalent
+- `src/hooks/useAppWalkthrough.ts` -- Add the new step targeting the event type selector or a dedicated element
+
+### 4. Make walkthrough mandatory (non-dismissible)
+
+**File:** `src/hooks/useAppWalkthrough.ts`
+
+Set `allowClose: false` in the driver.js config so users must complete all steps. The walkthrough already only triggers once after onboarding via the `setTrigger`/`shouldTrigger` mechanism, so this just prevents skipping it.
+
+---
+
+### Summary
+
+| File | Change |
+|------|--------|
+| `src/components/mobile/BottomNavigation.tsx` | Exclude user's own events from unanswered RSVP count |
+| `src/components/events/EventTypeSelector.tsx` | Show description text below selector for selected type |
+| `src/i18n/locales/en/walkthrough.json` | Add `eventTypes` step |
+| `src/i18n/locales/fr/walkthrough.json` | Add French `eventTypes` step |
+| `src/hooks/useAppWalkthrough.ts` | Add event types step, set `allowClose: false` |
 
