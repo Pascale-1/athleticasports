@@ -26,7 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getActiveSports } from "@/lib/sports";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
+import { useAppWalkthrough, isFullWalkthroughActive } from "@/hooks/useAppWalkthrough";
 
 const Teams = () => {
   const navigate = useNavigate();
