@@ -129,7 +129,8 @@
     "browseTeams": "Browse Teams",
     "lookingFor": "Looking for {{sport}} games",
     "anyLocation": "Any location",
-    "open": "Open"
+    "open": "Open",
+    "discoverEvents": "Discover"
   },
   "activity": {
     "title": "Activity",
