@@ -593,7 +593,7 @@ const EventDetail = () => {
         )}
 
         {/* Match Result — Standalone prominent card for past matches */}
-        {event.type === 'match' && (isPastEvent || event.match_result) && (
+        {event.type === 'match' && (
           <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
             <CardContent className="p-3">
               <MatchResultEntry
