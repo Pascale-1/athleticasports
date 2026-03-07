@@ -461,7 +461,11 @@
     "signInDifferent": "Se connecter avec un autre email",
     "redirecting": "Redirection vers votre équipe...",
     "needHelp": "Besoin d'aide avec les invitations ?",
-    "goToTeams": "Aller aux équipes"
+    "goToTeams": "Aller aux équipes",
+    "youreInvited": "Vous êtes invité(e) à rejoindre une équipe !",
+    "signInToAccept": "Connectez-vous ou créez un compte pour accepter cette invitation.",
+    "signIn": "Se connecter",
+    "createAccount": "Créer un compte"
   },
   "practiceTeams": {
     "title": "Équipes d'entraînement",

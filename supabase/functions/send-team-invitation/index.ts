@@ -56,8 +56,8 @@ function generateEmailHTML(teamName: string, inviterName: string, role: string, 
       </p>
       <ol style="color: #666; font-size: 13px; line-height: 20px; margin: 0; padding-left: 20px;">
         <li style="margin-bottom: 8px;">Click the "Accept Invitation" button above</li>
-        <li style="margin-bottom: 8px;">If you don't have an account, create one using <strong>${recipientEmail}</strong></li>
-        <li style="margin-bottom: 8px;">You can sign up with email/password or use Google Sign-in (make sure to use ${recipientEmail})</li>
+        <li style="margin-bottom: 8px;">If you don't have an account yet, create one using <strong>${recipientEmail}</strong> — you'll pick a username during signup</li>
+        <li style="margin-bottom: 8px;">If you already have an account, just sign in with <strong>${recipientEmail}</strong></li>
         <li>Once signed in, you'll automatically join the team</li>
       </ol>
     </div>
