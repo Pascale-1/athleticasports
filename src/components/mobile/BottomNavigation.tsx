@@ -30,40 +30,7 @@ const fetchBadgeCounts = async (userId: string) => {
     pendingInvites = inviteCount || 0;
   }
 
-  // Get unanswered RSVP count
-  const now = new Date().toISOString();
-  const { data: userTeamIds } = await supabase
-    .from('team_members')
-    .select('team_id')
-    .eq('user_id', userId)
-    .eq('status', 'active');
-
-  const teamIds = userTeamIds?.map(t => t.team_id) || [];
-  let unansweredCount = 0;
-
-  if (teamIds.length > 0) {
-    const { data: teamEvents } = await supabase
-      .from('events')
-      .select('id')
-      .in('team_id', teamIds)
-      .neq('created_by', userId)
-      .gte('start_time', now)
-      .limit(50);
-
-    if (teamEvents && teamEvents.length > 0) {
-      const eventIds = teamEvents.map(e => e.id);
-      const { data: responded } = await supabase
-        .from('event_attendance')
-        .select('event_id')
-        .eq('user_id', userId)
-        .in('event_id', eventIds);
-
-      const respondedIds = new Set(responded?.map(r => r.event_id) || []);
-      unansweredCount = eventIds.filter(id => !respondedIds.has(id)).length;
-    }
-  }
-
-  return { pendingInvites, unansweredCount };
+  return { pendingInvites };
 };
 
 export const BottomNavigation = () => {
