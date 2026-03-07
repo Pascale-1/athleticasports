@@ -51,12 +51,12 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
           .lt('events.start_time', new Date().toISOString()),
         // Get wins: events user attended that are match type with win outcome
         supabase
-          .from('event_attendance')
+          .from('event_attendance' as any)
           .select('id, events!inner(start_time, type, match_outcome)')
           .eq('user_id', userId)
           .eq('status', 'attending')
-          .eq('events.type' as any, 'match')
-          .eq('events.match_outcome' as any, 'win'),
+          .eq('events.type', 'match')
+          .eq('events.match_outcome', 'win'),
       ]);
 
       if (teamsRes.error) console.error('Error fetching team stats:', teamsRes.error);
@@ -69,13 +69,13 @@ export const ProfileStats = ({ userId }: ProfileStatsProps) => {
       let streak = 0;
       try {
         const { data: recentMatches } = await supabase
-          .from('event_attendance')
+          .from('event_attendance' as any)
           .select('events!inner(start_time, type, match_outcome)')
           .eq('user_id', userId)
           .eq('status', 'attending')
-          .eq('events.type' as any, 'match')
-          .not('events.match_outcome' as any, 'is', null)
-          .order('events(start_time)' as any, { ascending: false })
+          .eq('events.type', 'match')
+          .not('events.match_outcome', 'is', null)
+          .order('events(start_time)', { ascending: false })
           .limit(20);
 
         if (recentMatches) {
