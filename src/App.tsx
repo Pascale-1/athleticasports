@@ -128,6 +128,13 @@ const AppRoutes = () => (
           </AppLayout>
         </ProtectedRoute>
       } />
+      <Route path="/admin/analytics" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <AdminAnalytics />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
       <Route path="/events" element={
         <ProtectedRoute>
           <AppLayout>

@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Shield } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Loader2, Shield, BarChart3 } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
 
 interface Profile {
   id: string;
