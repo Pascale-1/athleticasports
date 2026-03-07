@@ -514,5 +514,18 @@
     "title": "New version available",
     "description": "Update now for the latest features & fixes",
     "button": "Update"
+  },
+  "pushNotifications": {
+    "promptTitle": "Stay in the loop!",
+    "promptDescription": "Get notified about new events, team invitations, and game updates — even when the app is closed.",
+    "enable": "Enable Notifications",
+    "later": "Maybe Later",
+    "title": "Push Notifications",
+    "description": "Receive alerts on your home screen for new events, team invitations, and more.",
+    "enabled": "Notifications enabled",
+    "disabled": "Notifications disabled",
+    "denied": "Notifications are blocked. Enable them in your browser settings.",
+    "unsupported": "Push notifications are not supported in this browser.",
+    "toggle": "Push Notifications"
   }
 }

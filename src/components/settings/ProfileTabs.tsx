@@ -22,6 +22,7 @@ import { ProfileCompletionCard } from "./ProfileCompletionCard";
 import { NextEventCard } from "./NextEventCard";
 import { ThemeToggle } from "./ThemeToggle";
 import { LogoutButton } from "./LogoutButton";
+import { PushNotificationToggle } from "./PushNotificationToggle";
 
 interface ProfileTabsProps {
   profile: any;
@@ -303,6 +304,9 @@ export const ProfileTabs = ({
             </div>
           </CardContent>
         </Card>
+
+        {/* Push Notifications */}
+        <PushNotificationToggle />
 
         {/* Walkthrough Section */}
         <Card>
