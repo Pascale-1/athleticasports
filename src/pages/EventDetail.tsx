@@ -474,7 +474,7 @@ const EventDetail = () => {
                   <p className="text-sm font-medium">
                     {event.cost}€ {event.cost_type === 'per_person' ? t('cost.perPerson') : t('cost.total')}
                   </p>
-                  {isCreator && isPaidEvent && stats.attending > 0 && (
+                  {canEdit && isPaidEvent && stats.attending > 0 && (
                     <p className="text-[11px] text-muted-foreground">
                       💰 {stats.paid}/{stats.attending} {t('cost.paid', 'paid')}
                     </p>
