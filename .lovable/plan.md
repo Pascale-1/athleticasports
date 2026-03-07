@@ -1,27 +1,28 @@
 
 
-## Hide Performance Levels from Regular Members
+# Fix: Stale session after background on Android
 
-Currently, the performance levels page and related UI elements are visible to all team members. The change will restrict visibility to admins and coaches only.
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-### Changes
+## Fix
 
-**1. `src/components/teams/PerformancePreview.tsx`**
-- Wrap the component to return `null` if the user is not an admin or coach (use `canManage` or check role against `coach`)
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-**2. `src/pages/TeamPerformance.tsx`**
-- Add access guard: if user is not admin/coach, redirect back to team detail page
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-**3. `src/components/teams/PerformanceLevelBadge.tsx` usage in member lists**
-- Check if badges are shown in other contexts (e.g., team member lists, team generation) — hide them for non-admin/coach users where appropriate
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
+```
 
-**4. `src/hooks/useTeam.ts`**
-- Already exposes `canManage` (admin check) and `userRole`. Need to also check for `coach` role since coaches should see levels too. Will add a `canViewPerformance` flag that's true for admin/owner/coach.
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
 
-### Implementation Detail
-
-The `canManage` flag covers admin/owner. For coaches, I'll check `userRole === 'coach'`. A new derived boolean `canViewPerformance = canManage || userRole === 'coach'` will be returned from `useTeam` and used to gate:
-- The PerformancePreview card on the team detail page
-- Access to the `/teams/:teamId/performance` route
-- Any performance badges shown in member lists to non-privileged users
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 
