@@ -221,6 +221,7 @@ const Teams = () => {
           {/* Pending Invitations Inline */}
           {!invitesLoading && pendingInvitations.length > 0 && (
             <motion.div
+              data-walkthrough="teams-invitations"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -262,6 +263,7 @@ const Teams = () => {
 
           {/* View Toggle - Compact */}
           <motion.div
+            data-walkthrough="teams-tabs"
             className="flex items-center gap-1 bg-muted/50 p-1 rounded-xl"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -306,7 +308,7 @@ const Teams = () => {
               transition={{ delay: 0.2 }}
             >
               {filteredMyTeams.length > 0 ? (
-                <div className="grid grid-cols-1 gap-1">
+                <div data-walkthrough="teams-card" className="grid grid-cols-1 gap-1">
                   {filteredMyTeams.map((team, index) => (
                     <AnimatedCard key={team.id} delay={0.25 + index * 0.05} hover={false}>
                       <TeamCard

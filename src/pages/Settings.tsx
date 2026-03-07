@@ -17,6 +17,7 @@ import { AccountDangerZone } from "@/components/settings/AccountDangerZone";
 import { getAppBaseUrl } from "@/lib/appUrl";
 import { copyToClipboard } from "@/lib/clipboard";
 import { LogoutButton } from "@/components/settings/LogoutButton";
+import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
 
 interface Profile {
   id: string;
@@ -45,6 +46,15 @@ const Settings = () => {
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  // Walkthrough
+  const { startWalkthrough, hasCompleted } = useAppWalkthrough();
+
+  useEffect(() => {
+    if (!loading && profile && !hasCompleted('profile')) {
+      startWalkthrough('profile');
+    }
+  }, [loading, profile, startWalkthrough, hasCompleted]);
 
   const fetchProfile = async () => {
     try {
@@ -236,7 +246,7 @@ const Settings = () => {
           rightAction={<LogoutButton variant="header" />}
         />
 
-        <Card className="p-4">
+        <Card className="p-4" data-walkthrough="profile-header">
           <div className="flex items-start gap-4">
             <div className="relative shrink-0">
               <Avatar className="h-20 w-20 ring-2 ring-primary ring-offset-2 ring-offset-background">
@@ -283,17 +293,19 @@ const Settings = () => {
             </div>
           </div>
 
-          <div className="mt-4">
+          <div data-walkthrough="profile-share" className="mt-4">
             <Button variant="outline" size="sm" onClick={handleShare} className="w-full h-9">
               <Share2 className="h-4 w-4 mr-2" />
               {t('profile.shareProfile')}
             </Button>
           </div>
 
-          <ProfileStats userId={profile.user_id} />
+          <div data-walkthrough="profile-stats">
+            <ProfileStats userId={profile.user_id} />
+          </div>
         </Card>
 
-        <ProfileTabs
+        <div data-walkthrough="profile-tabs">
           profile={profile}
           email={email}
           stats={stats}
