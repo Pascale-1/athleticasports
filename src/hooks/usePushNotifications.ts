@@ -70,13 +70,13 @@ export function usePushNotifications() {
       // Subscribe to push
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
       });
 
       const subJson = subscription.toJSON();
 
-      // Save to database
-      const { error } = await supabase.from("push_subscriptions").upsert(
+      // Save to database (using any cast since table may not be in generated types yet)
+      const { error } = await (supabase as any).from("push_subscriptions").upsert(
         {
           user_id: user.id,
           endpoint: subJson.endpoint!,
@@ -108,7 +108,7 @@ export function usePushNotifications() {
 
       if (subscription) {
         // Remove from database
-        await supabase
+        await (supabase as any)
           .from("push_subscriptions")
           .delete()
           .eq("endpoint", subscription.endpoint);
