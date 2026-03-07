@@ -1306,6 +1306,7 @@ export type Database = {
         Returns: boolean
       }
       generate_random_username: { Args: never; Returns: string }
+      get_current_user_email: { Args: never; Returns: string }
       get_follower_count: { Args: { profile_user_id: string }; Returns: number }
       get_following_count: {
         Args: { profile_user_id: string }
