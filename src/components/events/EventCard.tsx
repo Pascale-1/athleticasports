@@ -27,6 +27,7 @@ import {
   Lock,
   MapPin,
   Users,
+  Trophy,
 } from "lucide-react";
 import { Event, isPastEvent } from "@/lib/events";
 import { Link } from "react-router-dom";
