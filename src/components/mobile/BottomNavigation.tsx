@@ -46,6 +46,7 @@ const fetchBadgeCounts = async (userId: string) => {
       .from('events')
       .select('id')
       .in('team_id', teamIds)
+      .neq('created_by', userId)
       .gte('start_time', now)
       .limit(50);
 

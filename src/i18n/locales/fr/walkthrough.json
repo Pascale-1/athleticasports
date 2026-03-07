@@ -8,6 +8,10 @@
       "title": "Actions Rapides",
       "description": "Trouve un match, organise-en un ou crée ton équipe - tout en un seul geste."
     },
+    "eventTypes": {
+      "title": "3 Types d'Événements",
+      "description": "Entraînement — pratique avec ton équipe. Match — compétitions contre des adversaires. Social — sorties, soirées, et moments d'équipe."
+    },
     "games": {
       "title": "Tes Matchs",
       "description": "Vois les matchs à venir, réponds aux propositions et définis ta disponibilité."
