@@ -1,28 +1,27 @@
 
 
-# Fix: Stale session after background on Android
+## Fix W-L-D Layout + Show Match Result on Event Card
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+### Issue 1: W-L-D record breaks layout in TeamQuickStats
+The record string "0-0-0" uses `text-2xl font-bold` which is too large for a 3-column grid on mobile, especially with wider numbers like "12-3-5". 
 
-## Fix
+**Fix in `TeamQuickStats.tsx`:**
+- Reduce record font size from `text-2xl` to `text-lg`
+- Display as styled W/L/D with color-coded numbers instead of plain string: `<span class="text-green-600">3</span>-<span class="text-red-500">1</span>-<span class="text-yellow-500">0</span>`
+- Reduce icon size from `h-8 w-8` to `h-6 w-6` and padding from `p-4` to `p-3` across all three cards for a tighter, mobile-friendly layout
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+### Issue 2: Match result not visible on EventCard
+The result entry is only in EventDetail (the detail page). On the card list view, past matches show no score. Users expect to see the final score at a glance.
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+**Fix in `EventCard.tsx`:**
+- For past match events that have a `match_result`, show it inline on the card
+- Add a small result badge between the title and the date row, e.g.: `"3 - 1"` with a trophy icon and a colored outcome badge (green/red/yellow)
+- Requires the `EventCard` props to accept `match_result` and `match_outcome` (both already on the `Event` type from the DB)
+- Only display when `isPast && event.type === 'match' && event.match_result`
 
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
-```
-
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
-
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+### Files to modify
+| File | Change |
+|------|--------|
+| `src/components/teams/TeamQuickStats.tsx` | Smaller sizing, color-coded W-L-D display |
+| `src/components/events/EventCard.tsx` | Show match result + outcome badge on past match cards |
 
