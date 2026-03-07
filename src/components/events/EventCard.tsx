@@ -52,6 +52,8 @@ interface EventCardProps {
     recurrence_rule?: string | null;
     pendingRequestsCount?: number;
     sport?: string | null;
+    match_result?: string | null;
+    match_outcome?: string | null;
   };
   onAttendanceClick?: () => void;
   attendeeCount?: number;
