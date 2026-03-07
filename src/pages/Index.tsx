@@ -52,7 +52,7 @@ interface Stats {
 const Index = () => {
   const navigate = useNavigate();
   const { t } = useTranslation(['common', 'matching']);
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState<Stats>({ teams: 0, upcomingMatches: 0, eventsAttended: 0 });
   const [loading, setLoading] = useState(true);
