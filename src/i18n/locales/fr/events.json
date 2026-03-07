@@ -82,7 +82,10 @@
     "deleteWarning": "Cette action est irréversible. Toutes les participantes seront notifiées.",
     "deleteEvent": "Supprimer",
     "deleteSuccess": "Événement supprimé",
-    "eventDeleted": "L'événement a été définitivement supprimé"
+    "eventDeleted": "L'événement a été définitivement supprimé",
+    "matchResult": "Résultat",
+    "noResult": "Pas encore de résultat",
+    "enterResult": "ex: 3 - 1"
   },
   "detail": {
     "notFound": {
@@ -416,5 +419,15 @@
     "markAsPaid": "Marquer comme payé",
     "markAsPaidDesc": "Confirmez que vous avez payé pour cet événement",
     "iPaid": "J'ai payé"
+  },
+  "result": {
+    "win": "Victoire",
+    "loss": "Défaite",
+    "draw": "Nul",
+    "winToast": "Belle victoire ! 🎉",
+    "lossToast": "On continue ! 💪",
+    "drawToast": "Match serré !",
+    "opponent": "Adversaire",
+    "yourTeam": "Votre équipe"
   }
 }

@@ -14,7 +14,9 @@
   "stats": {
     "events": "Événements",
     "members": "Membres",
-    "posts": "Messages"
+    "posts": "Messages",
+    "record": "Bilan",
+    "winStreak": "Série de {{count}} victoires !"
   },
   "pendingInvites": "Vous avez {{count}} invitation en attente",
   "pendingInvites_plural": "Vous avez {{count}} invitations en attente",

@@ -82,7 +82,10 @@
     "deleteWarning": "This action cannot be undone. All attendees will be notified.",
     "deleteEvent": "Delete",
     "deleteSuccess": "Event deleted",
-    "eventDeleted": "The event has been permanently removed"
+    "eventDeleted": "The event has been permanently removed",
+    "matchResult": "Result",
+    "noResult": "No result yet",
+    "enterResult": "e.g. 3 - 1"
   },
   "detail": {
     "notFound": {
@@ -411,5 +414,15 @@
     "markAsPaid": "Mark as paid",
     "markAsPaidDesc": "Confirm you've paid for this event",
     "iPaid": "I paid"
+  },
+  "result": {
+    "win": "Win",
+    "loss": "Loss",
+    "draw": "Draw",
+    "winToast": "Great win! 🎉",
+    "lossToast": "Keep going! 💪",
+    "drawToast": "Close game!",
+    "opponent": "Opponent",
+    "yourTeam": "Your Team"
   }
 }
