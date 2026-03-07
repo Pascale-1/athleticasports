@@ -1,28 +1,27 @@
 
 
-# Fix: Stale session after background on Android
+# Show "Free" indicator on EventCard
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+## Change
 
-## Fix
+**File**: `src/components/events/EventCard.tsx` (line 294-298)
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+Currently the cost line only renders when `event.cost` is non-empty, showing `💰 {cost}€`. When there's no cost, nothing is shown. 
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+Change the conditional to always show a cost indicator:
+- If `event.cost` exists and is non-empty → show `💰 {cost}€` (existing)
+- Otherwise → show `Free` in a subtle green/success color
+
+Replace the current ternary (lines 294-298) with:
 
 ```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
+<span className="flex items-center gap-0.5">
+  {event.cost && event.cost.trim() !== '' 
+    ? <>💰 {event.cost}€</>
+    : <span className="text-success">Free</span>
   }
-};
+</span>
 ```
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
-
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+Single file, single change.
 
