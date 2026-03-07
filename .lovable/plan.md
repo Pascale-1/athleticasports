@@ -1,28 +1,17 @@
 
 
-# Fix: Stale session after background on Android
+## Fix: Step Counter Overlapped by Dialog Close Button
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+### Problem
+The `StepHeader` component in `UnifiedEventForm.tsx` renders the step counter (e.g., "1 / 4") in the top-right corner with `px-4 pt-4`. The `DialogContent` component automatically renders a close button (X) in the same top-right area, causing the two elements to overlap.
 
-## Fix
+### Fix
+Add right padding to the `StepHeader`'s top row to leave room for the dialog close button. The close button is typically `24px` wide with some padding, so adding `pr-8` (2rem) to the header's top-level div will prevent the overlap.
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+### Change
+**`src/components/events/UnifiedEventForm.tsx`** (line 125)
+- Change `<div className="px-4 pt-4 pb-3 space-y-2.5">` to `<div className="px-4 pr-10 pt-4 pb-3 space-y-2.5">` to give extra right padding for the close button.
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
-
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
-```
-
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
-
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+### Files Changed
+- `src/components/events/UnifiedEventForm.tsx` — one line change in the `StepHeader` component
 
