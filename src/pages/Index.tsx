@@ -153,29 +153,12 @@ const Index = () => {
     }
   };
 
-  if (loading) {
+  if (loading || authLoading || !profile) {
     return (
       <PageContainer>
         <div className="flex items-center justify-center py-12">
           <div className="text-muted-foreground">{t('actions.loading')}</div>
         </div>
-      </PageContainer>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <PageContainer>
-        <Card className="max-w-md mx-auto p-6 text-center space-y-4">
-          <Trophy className="h-12 w-12 mx-auto text-primary" />
-          <h2 className="text-xl font-bold">{t('home.completeProfile')}</h2>
-          <p className="text-muted-foreground text-sm">
-            {t('home.completeProfileDesc')}
-          </p>
-          <Button onClick={() => navigate("/settings")} className="w-full">
-            {t('home.createProfile')}
-          </Button>
-        </Card>
       </PageContainer>
     );
   }
