@@ -523,7 +523,7 @@ const EventDetail = () => {
                     {stats.attending} / {event.max_participants}
                   </span>
               {event.looking_for_players && (event.max_participants ?? Infinity) > stats.attending && (
-                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold bg-accent/10 text-accent-foreground">
+                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold bg-accent/10 text-foreground">
                       🔍 {(event.max_participants ?? event.players_needed ?? 0) - stats.attending} {t('details.maxParticipants')}
                     </span>
                   )}
@@ -555,10 +555,10 @@ const EventDetail = () => {
             {event.looking_for_players && event.players_needed && (
               <div className="flex items-center gap-3 pt-1">
                 <div className="h-10 w-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                  <Users className="h-5 w-5 text-accent-foreground" />
+                  <Users className="h-5 w-5 text-primary" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-accent-foreground">
+                  <p className="text-sm font-medium text-foreground">
                     🔍 {t('details.lookingForPlayers', 'Looking for players')}
                   </p>
                   <p className="text-xs text-muted-foreground">
@@ -592,8 +592,26 @@ const EventDetail = () => {
           />
         )}
 
+        {/* Match Result — Standalone prominent card for past matches */}
+        {event.type === 'match' && (isPastEvent || event.match_result) && (
+          <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+            <CardContent className="p-3">
+              <MatchResultEntry
+                eventId={event.id}
+                matchResult={event.match_result || null}
+                matchOutcome={(event.match_outcome as 'win' | 'loss' | 'draw' | null) || null}
+                homeAway={event.home_away}
+                canEdit={canEdit}
+                teamName={teamName || undefined}
+                opponentName={event.opponent_name || undefined}
+                onSave={async (id, data) => updateEvent(id, data as any)}
+              />
+            </CardContent>
+          </Card>
+        )}
+
         {/* Match Details Card */}
-        {(hasMatchDetails || (event.type === 'match' && isPastEvent)) && (
+        {hasMatchDetails && (
           <Card>
             <CardContent className="p-3 space-y-3">
               <h3 className="font-semibold text-[11px] uppercase tracking-[0.8px] text-hint">
@@ -627,19 +645,6 @@ const EventDetail = () => {
                   </Badge>
                 )}
               </div>
-
-              {/* Match Result */}
-              {event.type === 'match' && (isPastEvent || event.match_result) && (
-                <MatchResultEntry
-                  eventId={event.id}
-                  matchResult={event.match_result || null}
-                  matchOutcome={(event.match_outcome as 'win' | 'loss' | 'draw' | null) || null}
-                  homeAway={event.home_away}
-                  canEdit={canEdit}
-                  opponentName={event.opponent_name || undefined}
-                  onSave={async (id, data) => updateEvent(id, data as any)}
-                />
-              )}
             </CardContent>
           </Card>
         )}

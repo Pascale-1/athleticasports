@@ -48,7 +48,7 @@ export const LookingForPlayersBanner = ({
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-medium text-sm">
+          <span className="font-medium text-sm text-foreground">
             {t("lookingForPlayers.title")}
           </span>
           <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
