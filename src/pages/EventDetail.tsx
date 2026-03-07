@@ -109,7 +109,7 @@ const EventDetail = () => {
   const { players: interestedPlayers, invitePlayer } = useEventInterestedPlayers(eventId, isCreator && canEdit);
 
   // Practice Teams hooks
-  const { teams: generatedTeams, loading: teamsLoading, generating, generateTeams, deleteTeams, createGroup, deleteGroup, assignPlayer, removePlayer } = useTeamGeneration(event?.team_id ? eventId || null : null);
+  const { teams: generatedTeams, loading: teamsLoading, generating, generateTeams, deleteTeams, createGroup, deleteGroup, assignPlayer, removePlayer } = useTeamGeneration(event?.team_id && event?.type === 'training' ? eventId || null : null);
   const { members: teamMembers } = useTeamMembers(event?.team_id || null);
   const { getLevelForUser } = usePerformanceLevels(event?.team_id || null);
 
@@ -669,7 +669,7 @@ const EventDetail = () => {
 
 
         {/* Practice Teams Section - Team events only */}
-        {event.team_id && isTeamMember && (
+        {event.team_id && isTeamMember && event.type === 'training' && (
           <Card>
             <CardContent className="p-3 space-y-3">
               <div className="flex items-center justify-between">
