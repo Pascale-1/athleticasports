@@ -1,37 +1,28 @@
 
 
-## Walkthrough Review: Issues Found
+# Fix: Stale session after background on Android
 
-After cross-referencing each walkthrough step with the actual UI elements and their `data-walkthrough` targets, here are the mismatches:
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-### Issues
+## Fix
 
-| Step | Problem |
-|------|---------|
-| **Profile** | Highlights only the greeting ("Hello [name] 👋") but description mentions "teams, games, and followers." There are **no followers** shown anywhere. The stats grid (Teams/Games/Events) is a separate element below, not highlighted. |
-| **Quick Actions** | Description says "create your own team" but the actual button says **"Join a team"** — it navigates to team discovery, not team creation. |
-| **Event Types** | Floating popover with no element target. Works but feels disconnected. Content is good. |
-| **Games** | Called "Your Games" but the section contains **all upcoming events** (training, social, games), games to join, match proposals, and availability status. Description only mentions "games" and "match proposals." |
-| **Feed** | Accurate. No changes needed. |
-| **Navigation** | Accurate. Minor improvement possible. |
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-### Proposed Changes
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-**1. Profile step** — Expand highlight to include the stats grid, update description to match what's actually shown (teams, games, events — not followers).
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
+```
 
-**2. Quick Actions step** — Fix description: "Find a Game" (set availability), "Create Event" (game, training, social), and "Join a Team."
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
 
-**3. Event Types step** — Keep as floating popover (it's not on the home page). Refine wording slightly.
-
-**4. Games step → rename to "Your Events & Games"** — Update title and description to reflect that this section shows upcoming events of all types, games to join, and match proposals.
-
-**5. Navigation step** — Minor wording polish.
-
-### Files to Change
-
-| File | Change |
-|------|--------|
-| `src/i18n/locales/en/walkthrough.json` | Update all step titles and descriptions to match actual UI |
-| `src/i18n/locales/fr/walkthrough.json` | French equivalents |
-| `src/pages/Index.tsx` | Move `data-walkthrough="profile"` to wrap both the greeting AND the stats grid |
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 
