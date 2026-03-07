@@ -124,6 +124,9 @@
   "yourUpcomingEvents": "Tes prochains événements",
   "joinedSuccess": "Tu es inscrite à ce match !",
   "actions": {
-    "join": "Rejoindre"
-  }
+    "join": "Rejoindre",
+    "invite": "Inviter"
+  },
+  "interestedPlayers": "Joueurs intéressés",
+  "availabilityExpiring": "Ta disponibilité expire demain. Prolonge-la pour continuer à trouver des matchs !"
 }

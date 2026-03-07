@@ -124,6 +124,9 @@
   "yourUpcomingEvents": "Your Upcoming Events",
   "joinedSuccess": "You've joined this game!",
   "actions": {
-    "join": "Join"
-  }
+    "join": "Join",
+    "invite": "Invite"
+  },
+  "interestedPlayers": "Interested Players",
+  "availabilityExpiring": "Your availability expires tomorrow. Extend it to keep finding matches!"
 }

@@ -13,6 +13,8 @@ import { LookingForPlayersBanner } from "@/components/events/LookingForPlayersBa
 import { RSVPDeadlineDisplay } from "@/components/events/RSVPDeadlineDisplay";
 import { EventJoinRequests } from "@/components/events/EventJoinRequests";
 import { MatchProposalInlineCard } from "@/components/matching/MatchProposalInlineCard";
+import { InterestedPlayersCard } from "@/components/events/InterestedPlayersCard";
+import { useEventInterestedPlayers } from "@/hooks/useEventInterestedPlayers";
 import { ManualTeamAssignment } from "@/components/teams/ManualTeamAssignment";
 import { GeneratedTeamCard, accentColors } from "@/components/teams/GeneratedTeamCard";
 import { GenerateTeamsDialog } from "@/components/teams/GenerateTeamsDialog";
