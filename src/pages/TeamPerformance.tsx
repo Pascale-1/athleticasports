@@ -11,10 +11,16 @@ const TeamPerformance = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation("common");
-  const { team, canManage } = useTeam(teamId || null);
+  const { team, canManage, canViewPerformance, isLoading: teamLoading } = useTeam(teamId || null);
   const { members, loading: membersLoading } = useTeamMembers(teamId || null);
 
-  if (membersLoading) {
+  // Redirect non-admin/coach users
+  if (!teamLoading && !canViewPerformance) {
+    navigate(`/teams/${teamId}`, { replace: true });
+    return null;
+  }
+
+  if (membersLoading || teamLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

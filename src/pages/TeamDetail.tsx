@@ -329,11 +329,13 @@ const TeamDetail = () => {
             </CardContent>
           </Card>
 
-          {/* 6. Performance Preview - Advanced feature */}
-          <PerformancePreview
-            teamId={teamId || ""}
-            memberCount={memberCount}
-          />
+          {/* 6. Performance Preview - Advanced feature (admin/coach only) */}
+          {canViewPerformance && (
+            <PerformancePreview
+              teamId={teamId || ""}
+              memberCount={memberCount}
+            />
+          )}
         </div>
       </PageContainer>
 

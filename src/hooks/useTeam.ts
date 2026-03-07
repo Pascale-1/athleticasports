@@ -69,11 +69,14 @@ export const useTeam = (teamId: string | null) => {
     !!teamId
   );
 
+  const canViewPerformance = canManage || userRole === 'coach';
+
   return {
     team,
     userRole,
     isLoading,
     isMember,
     canManage,
+    canViewPerformance,
   };
 };
