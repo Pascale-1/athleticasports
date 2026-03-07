@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback, use
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
+import { useAuth } from "@/hooks/useAuth";
 
 export interface Notification {
   id: string;
