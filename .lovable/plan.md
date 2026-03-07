@@ -1,28 +1,45 @@
 
 
-# Fix: Stale session after background on Android
+## Fix: "Complete Your Profile" Page Flashing on Navigation
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+### Root Cause
 
-## Fix
+In `src/pages/Index.tsx`, there's a race condition between auth resolution and profile fetching:
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+1. `useAuth()` briefly returns `user=null` while the session loads
+2. The Index useEffect (line 84-86) runs with `user=null` → sets `loading=false`
+3. Then auth resolves with a real user → `fetchProfile` starts
+4. But `loading` was already set to `false`, so lines 166-181 render the "Complete Your Profile" fallback card while the profile is being fetched
+5. Profile arrives → page re-renders correctly as the home dashboard
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+### Fix (1 file)
 
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
-```
+**`src/pages/Index.tsx`**
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+1. Use the `loading` state from `useAuth()`:
+   ```tsx
+   const { user, loading: authLoading } = useAuth();
+   ```
 
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+2. Include `authLoading` in the loading check (line 156):
+   ```tsx
+   if (loading || authLoading) {
+     return <PageContainer>...</PageContainer>;
+   }
+   ```
+
+3. Change the `!profile` fallback (lines 166-181) from the "Complete Your Profile" card to a simple loading spinner. If ProtectedRoute already verified the user has a profile, this state only appears transiently during data fetching — it should never show a "complete profile" CTA. Replace with:
+   ```tsx
+   if (!profile) {
+     return (
+       <PageContainer>
+         <div className="flex items-center justify-center py-12">
+           <Loader2 className="h-8 w-8 animate-spin text-primary" />
+         </div>
+       </PageContainer>
+     );
+   }
+   ```
+
+This eliminates the flash by ensuring nothing renders until both auth AND profile data are resolved.
 
