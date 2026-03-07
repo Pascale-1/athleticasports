@@ -5,8 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User } from "@supabase/supabase-js";
 import { Trophy, Users, Swords, UserPlus, Search, Sparkles, Plus, CalendarCheck, ChevronRight, Camera, Megaphone } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import { getEventTypeEmoji } from "@/lib/eventIcons";
 import { ActivityCard } from "@/components/feed/ActivityCard";
 import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
@@ -52,7 +52,7 @@ interface Stats {
 const Index = () => {
   const navigate = useNavigate();
   const { t } = useTranslation(['common', 'matching']);
-  const [user, setUser] = useState<User | null>(null);
+  const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState<Stats>({ teams: 0, upcomingMatches: 0, eventsAttended: 0 });
   const [loading, setLoading] = useState(true);
@@ -79,27 +79,13 @@ const Index = () => {
   const { startWalkthrough, shouldTrigger, clearTrigger, hasCompleted } = useAppWalkthrough();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        setTimeout(() => fetchProfile(session.user.id), 0);
-      } else {
-        setProfile(null);
-        setLoading(false);
-      }
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    if (user) {
+      fetchProfile(user.id);
+    } else {
+      setProfile(null);
+      setLoading(false);
+    }
+  }, [user]);
 
   // Auto-trigger walkthrough after onboarding or on first visit
   useEffect(() => {
