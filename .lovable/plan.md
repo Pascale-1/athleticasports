@@ -1,32 +1,28 @@
 
 
-# Move "I Paid" Button to Cost & Payment Row
+# Fix: Stale session after background on Android
 
-Currently the "I paid" button sits in its own standalone Card below the attendees list — easy to miss. The most strategic placement is **inline with the cost info** inside the "When & Where" card (lines 467-490), where the user already sees the price. This keeps payment context together.
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-## Changes — `src/pages/EventDetail.tsx`
+## Fix
 
-**1. Enhance the existing Cost & Payment row (lines 467-490)**
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-Replace the current cost row with an expanded version that includes:
-- Cost amount (existing)
-- Payment link button if available (existing)  
-- "I paid ✓" button when user is attending + hasn't paid → replaces with a green "✓ Paid" badge once confirmed
-- Organizer summary: `3/5 paid` shown as a subtle counter
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-**2. Remove the standalone "Mark as Paid" card (lines 653-678)**
-
-Delete the separate Card + the `hasPaid` badge below it — all consolidated into the cost row.
-
-### Result
-
-The cost row will look like:
-
-```
-💶  5€ per person          [I paid ✓]    ← attending, unpaid
-💶  5€ per person    ✓ Paid              ← attending, paid  
-💶  5€ per person                        ← not attending (no button)
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
 ```
 
-Single file change, moving existing logic ~30 lines up into the cost section.
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 
