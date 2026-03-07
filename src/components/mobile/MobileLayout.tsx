@@ -12,6 +12,7 @@ interface MobileLayoutProps {
 
 export const MobileLayout = ({ children }: MobileLayoutProps) => {
   const scrollDirection = useScrollDirection(10);
+  const { theme, setTheme } = useTheme();
 
   return (
     <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-hidden pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
