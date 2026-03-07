@@ -1,28 +1,31 @@
 
 
-# Fix: Stale session after background on Android
+## Bug Audit Results
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+After reviewing console logs (no errors), network requests (no failures), session replay, and key source files, here is what I found:
 
-## Fix
+### Bugs Found
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+**1. Unused `Input` imports (minor, no runtime impact)**
+- `src/components/events/EventInviteLink.tsx` line 6: imports `Input` from `@/components/ui/input` but never uses it (the input field was removed in the earlier refactor).
+- `src/components/teams/TeamInviteLink.tsx` line 6: same — `Input` is imported but no longer used.
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+These won't cause runtime errors but are dead code that should be cleaned up.
 
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
-```
+**2. No other bugs detected**
+- The share section on EventDetail is now correctly ungated (visible to all users, not just organizers).
+- The performance levels are properly gated behind `canViewPerformance` on both the TeamDetail page and the TeamPerformance route.
+- Translation keys (`copy`, `copied`, `share`) all exist in both EN and FR locale files.
+- The `EventInviteLink` component properly accepts and uses the `isOrganizer` prop.
+- Route protection and auth flows appear correct.
+- No console errors or failed network requests.
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+### Proposed Fix
 
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+| File | Change |
+|------|--------|
+| `src/components/events/EventInviteLink.tsx` (line 6) | Remove unused `Input` import |
+| `src/components/teams/TeamInviteLink.tsx` (line 6) | Remove unused `Input` import |
+
+This is a minor cleanup — two lines total. No functional or behavioral changes.
 
