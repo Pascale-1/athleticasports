@@ -128,17 +128,21 @@ const Teams = () => {
   }, [location]);
 
   // Walkthrough
-  const { startWalkthrough, hasCompleted } = useAppWalkthrough();
+  const { startWalkthrough, continueFullWalkthrough, hasCompleted } = useAppWalkthrough();
 
   useEffect(() => {
     fetchTeams();
   }, []);
 
   useEffect(() => {
-    if (!loading && !hasCompleted('teams')) {
-      startWalkthrough('teams');
+    if (!loading) {
+      if (isFullWalkthroughActive()) {
+        continueFullWalkthrough('teams', navigate);
+      } else if (!hasCompleted('teams')) {
+        startWalkthrough('teams');
+      }
     }
-  }, [loading, startWalkthrough, hasCompleted]);
+  }, [loading, startWalkthrough, continueFullWalkthrough, hasCompleted, navigate]);
 
   const fetchTeamsRef = useRef(fetchTeams);
   fetchTeamsRef.current = fetchTeams;
