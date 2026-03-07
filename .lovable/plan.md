@@ -1,24 +1,28 @@
 
 
-# Add New Sports to the Sports List
+# Fix: Stale session after background on Android
 
-**File:** `src/lib/sports.ts`
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-Add the following sports to the `SPORTS` array, after the existing entries and before `other`:
+## Fix
 
-| ID | EN | FR | Emoji | Priority |
-|----|----|----|-------|----------|
-| `table-tennis` | Table Tennis | Tennis de table | 🏓 | 13 |
-| `pickleball` | Pickleball | Pickleball | 🏓 | 14 |
-| `handball` | Handball | Handball | 🤾 | 15 |
-| `futsal` | Futsal | Futsal | ⚽ | 16 |
-| `cricket` | Cricket | Cricket | 🏏 | 17 |
-| `hockey` | Hockey | Hockey | 🏑 | 18 |
-| `golf` | Golf | Golf | ⛳ | 19 |
-| `climbing` | Climbing | Escalade | 🧗 | 20 |
-| `martial-arts` | Martial Arts | Arts martiaux | 🥋 | 21 |
-| `yoga` | Yoga | Yoga | 🧘 | 22 |
-| `hiking` | Hiking | Randonnée | 🥾 | 23 |
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-Update `other` priority to `99` (already set). No other files need changes — all components (`TeamFilters`, `SportSelector`, `SportQuickSelector`, event forms) dynamically read from `getActiveSports()` so they'll pick up the new entries automatically.
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
+```
+
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 
