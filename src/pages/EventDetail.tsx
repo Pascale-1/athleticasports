@@ -829,8 +829,8 @@ const EventDetail = () => {
           </div>
         )}
 
-        {/* Share Section (Admin only) */}
-        {canEdit && event.invite_code && (
+        {/* Share Section */}
+        {event.invite_code && (
           <Card>
             <CardContent className="p-3">
               <EventInviteLink
@@ -838,6 +838,7 @@ const EventDetail = () => {
                 inviteCode={event.invite_code}
                 allowPublicJoin={event.allow_public_join ?? true}
                 eventTitle={event.title}
+                isOrganizer={canEdit}
               />
             </CardContent>
           </Card>
