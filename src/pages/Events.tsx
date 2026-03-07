@@ -38,6 +38,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
+import { useAppWalkthrough } from "@/hooks/useAppWalkthrough";
 
 const EVENT_TYPE_LEGEND = [
   { type: 'training', labelKey: 'types.training', icon: Dumbbell, color: 'text-primary' },
@@ -84,6 +85,15 @@ const Events = () => {
   
   // Hook for updating/deleting events
   const { updateEvent, deleteEvent } = useEvents();
+  
+  // Walkthrough
+  const { startWalkthrough, hasCompleted } = useAppWalkthrough();
+  
+  useEffect(() => {
+    if (!attendingLoading && !hasCompleted('events')) {
+      startWalkthrough('events');
+    }
+  }, [attendingLoading, startWalkthrough, hasCompleted]);
 
   // Unified refresh handler
   const handleRefresh = useCallback(async () => {
@@ -260,7 +270,7 @@ const Events = () => {
         />
 
         {/* Row 1: Underline tabs + view/search icons */}
-        <div className="flex items-center h-10 border-b border-border">
+        <div data-walkthrough="events-tabs" className="flex items-center h-10 border-b border-border">
           <div className="flex-1 flex">
             {TAB_CONFIG.map(({ key, labelKey }) => (
               <button
@@ -278,7 +288,7 @@ const Events = () => {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-1 shrink-0 pr-1">
+          <div data-walkthrough="events-view-toggle" className="flex items-center gap-1 shrink-0 pr-1">
             {activeTab === 'my' && (
               <>
                 <Button size="icon" variant={viewMode === 'list' ? "default" : "ghost"} className="h-8 w-8" onClick={() => setViewMode('list')}>
@@ -296,7 +306,7 @@ const Events = () => {
         </div>
 
         {/* Row 2: Sport filter chips (shared across all tabs) */}
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1">
+        <div data-walkthrough="events-filters" className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1">
           <Button
             size="sm"
             variant="ghost"
