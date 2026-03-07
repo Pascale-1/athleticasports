@@ -16,21 +16,16 @@ export const EventCalendar = ({ events }: EventCalendarProps) => {
   const { t, i18n } = useTranslation('events');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
-  // Get locale for date formatting
   const locale = i18n.language === 'fr' ? fr : enUS;
-
-  // Get dates that have events
   const eventDates = events.map(event => new Date(event.start_time));
 
-  // Filter events for selected date
   const eventsForSelectedDate = selectedDate
     ? events.filter(event => isSameDay(new Date(event.start_time), selectedDate))
     : [];
 
   return (
-    <div className="space-y-4 lg:grid lg:grid-cols-[350px,1fr] lg:gap-6 lg:space-y-0">
-      {/* Calendar - Full width on mobile */}
-      <Card className="p-4">
+    <div className="space-y-3">
+      <Card className="p-3">
         <Calendar
           mode="single"
           selected={selectedDate}
@@ -44,7 +39,7 @@ export const EventCalendar = ({ events }: EventCalendarProps) => {
             hasEvent: "has-event-indicator"
           }}
         />
-        <div className="mt-4 pt-4 border-t">
+        <div className="mt-3 pt-3 border-t">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <div className="h-2 w-2 rounded-full bg-primary" />
             <span>{t('calendar.hasEvents')}</span>
@@ -52,22 +47,21 @@ export const EventCalendar = ({ events }: EventCalendarProps) => {
         </div>
       </Card>
 
-      {/* Events List for Selected Date */}
       <div>
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold">
+        <div className="mb-3">
+          <h3 className="text-base font-semibold">
             {selectedDate ? format(selectedDate, 'PPP', { locale }) : t('calendar.selectDate')}
           </h3>
           {eventsForSelectedDate.length > 0 && (
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-0.5">
               {t('calendar.eventCount', { count: eventsForSelectedDate.length })}
             </p>
           )}
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           {eventsForSelectedDate.length === 0 ? (
-            <Card className="p-8 text-center">
+            <Card className="p-6 text-center">
               <p className="text-muted-foreground">{t('calendar.noEventsOnDate')}</p>
             </Card>
           ) : (

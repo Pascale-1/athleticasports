@@ -1,4 +1,5 @@
 // Map provider utilities for opening locations in various map applications
+import { Capacitor } from '@capacitor/core';
 
 export type MapProvider = 'openstreetmap' | 'google' | 'apple' | 'waze';
 
@@ -43,4 +44,24 @@ export const getMapProviderUrl = (provider: MapProvider, address: string): strin
 // Default provider is OpenStreetMap (doesn't get blocked like Google)
 export const getDefaultMapUrl = (address: string): string => {
   return getMapProviderUrl('openstreetmap', address);
+};
+
+/**
+ * Returns a native-friendly map URL that opens the device's maps app.
+ * - iOS: maps:// scheme opens Apple Maps natively
+ * - Android: geo: intent opens the default maps app
+ * - Web: Falls back to Google Maps web URL
+ */
+export const getNativeMapUrl = (address: string): string => {
+  if (Capacitor.isNativePlatform()) {
+    const platform = Capacitor.getPlatform();
+    if (platform === 'ios') {
+      return `maps://maps.apple.com/?q=${encodeURIComponent(address)}`;
+    }
+    if (platform === 'android') {
+      return `geo:0,0?q=${encodeURIComponent(address)}`;
+    }
+  }
+  // Web fallback — use Google Maps which handles redirect well
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 };

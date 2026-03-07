@@ -60,7 +60,7 @@ const Events = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const [activeEventType, setActiveEventType] = useState<'all' | 'training' | 'meetup' | 'match' | 'declined'>('all');
-  const [activeSport, setActiveSport] = useState<string>('all');
+  const [activeSports, setActiveSports] = useState<string[]>([]);
   const [sportPopoverOpen, setSportPopoverOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'my' | 'organized' | 'discover'>('my');
   const [showSearch, setShowSearch] = useState(false);
@@ -116,7 +116,7 @@ const Events = () => {
   // Filter created events by type and sport
   const filteredCreatedEvents = createdEvents.filter(event => {
     if (activeEventType !== 'all' && activeEventType !== 'declined' && event.type !== activeEventType) return false;
-    if (activeSport !== 'all' && event.sport?.toLowerCase() !== activeSport.toLowerCase()) return false;
+    if (activeSports.length > 0 && !activeSports.some(s => event.sport?.toLowerCase() === s.toLowerCase())) return false;
     return true;
   });
 
@@ -124,10 +124,10 @@ const Events = () => {
   const filteredDiscoverEvents = useMemo(() => {
     return discoverEvents.filter(event => {
       if (activeEventType !== 'all' && activeEventType !== 'declined' && event.type !== activeEventType) return false;
-      if (activeSport !== 'all' && event.sport?.toLowerCase() !== activeSport.toLowerCase()) return false;
+      if (activeSports.length > 0 && !activeSports.some(s => event.sport?.toLowerCase() === s.toLowerCase())) return false;
       return true;
     });
-  }, [discoverEvents, activeEventType, activeSport]);
+  }, [discoverEvents, activeEventType, activeSports]);
 
   // Only declined events from the full list
   const onlyDeclinedEvents = declinedEvents.filter(e => e.userStatus === 'not_attending');
@@ -135,7 +135,7 @@ const Events = () => {
   const handleResetFilters = () => {
     setSearchQuery('');
     setActiveEventType('all');
-    setActiveSport('all');
+    setActiveSports([]);
     setTypeFilter('all');
     setSportFilter('all');
   };
@@ -226,7 +226,7 @@ const Events = () => {
     }
   };
 
-  const hasActiveFilters = activeEventType !== 'all' || activeSport !== 'all' || filters.searchQuery;
+  const hasActiveFilters = activeEventType !== 'all' || activeSports.length > 0 || filters.searchQuery;
 
   return (
     <PageContainer>
@@ -236,7 +236,7 @@ const Events = () => {
           title={t('title')}
           subtitle={getTabSubtitle()}
           rightAction={
-            <Button onClick={() => setCreateDialogOpen(true)} size="sm" className="gap-1.5 h-9">
+            <Button onClick={() => setCreateDialogOpen(true)} size="sm" className="gap-1.5 h-9 hidden md:flex">
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">{t('createEvent')}</span>
             </Button>
@@ -296,7 +296,7 @@ const Events = () => {
             className={cn("h-7 px-2.5 text-[10px] rounded-full shrink-0",
               activeEventType === 'all' ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-card border text-foreground"
             )}
-            onClick={() => { setActiveEventType('all'); setTypeFilter('all'); setActiveSport('all'); setSportFilter('all'); }}
+            onClick={() => { setActiveEventType('all'); setTypeFilter('all'); setActiveSports([]); setSportFilter('all'); }}
           >
             {t('types.all')}
           </Button>
@@ -314,17 +314,19 @@ const Events = () => {
               {t(labelKey)}
             </Button>
           ))}
-          {/* Sport dropdown chip */}
+          {/* Sport dropdown chip — multi-select */}
           <Popover open={sportPopoverOpen} onOpenChange={setSportPopoverOpen}>
             <PopoverTrigger asChild>
               <Button
                 size="sm"
                 variant="ghost"
                 className={cn("h-7 px-2.5 text-[10px] rounded-full shrink-0 gap-1",
-                  activeSport !== 'all' ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-card border text-foreground"
+                  activeSports.length > 0 ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-card border text-foreground"
                 )}
               >
-                {activeSport !== 'all' ? `${getSportEmoji(activeSport)} ${getSportLabel(activeSport, i18n.language?.startsWith('fr') ? 'fr' : 'en')}` : `🏅 ${t('filters.sport')}`}
+                {activeSports.length > 0
+                  ? activeSports.map(s => getSportEmoji(s)).join(' ') + ` (${activeSports.length})`
+                  : `🏅 ${t('filters.sport')}`}
                 <ChevronDown className="h-3 w-3" />
               </Button>
             </PopoverTrigger>
@@ -332,24 +334,34 @@ const Events = () => {
               <button
                 className={cn(
                   "w-full text-left px-3 py-2 rounded-md text-sm transition-colors",
-                  activeSport === 'all' ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
+                  activeSports.length === 0 ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
                 )}
-                onClick={() => { setActiveSport('all'); setSportFilter('all'); setSportPopoverOpen(false); }}
+                onClick={() => { setActiveSports([]); setSportFilter('all'); }}
               >
                 {t('filters.allSports')}
               </button>
-              {getActiveSports().map(sport => (
-                <button
-                  key={sport.id}
-                  className={cn(
-                    "w-full text-left px-3 py-2 rounded-md text-sm transition-colors",
-                    activeSport === sport.id ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
-                  )}
-                  onClick={() => { setActiveSport(sport.id); setSportFilter(sport.id); setSportPopoverOpen(false); }}
-                >
-                  {sport.emoji} {sport.label[i18n.language?.startsWith('fr') ? 'fr' : 'en']}
-                </button>
-              ))}
+              {getActiveSports().map(sport => {
+                const isSelected = activeSports.includes(sport.id);
+                return (
+                  <button
+                    key={sport.id}
+                    className={cn(
+                      "w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center gap-2",
+                      isSelected ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
+                    )}
+                    onClick={() => {
+                      const newSports = isSelected
+                        ? activeSports.filter(s => s !== sport.id)
+                        : [...activeSports, sport.id];
+                      setActiveSports(newSports);
+                      setSportFilter(newSports.length === 1 ? newSports[0] : 'all');
+                    }}
+                  >
+                    {isSelected && <span className="text-primary">✓</span>}
+                    {sport.emoji} {sport.label[i18n.language?.startsWith('fr') ? 'fr' : 'en']}
+                  </button>
+                );
+              })}
             </PopoverContent>
           </Popover>
           {/* Declined filter chip */}

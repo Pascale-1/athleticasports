@@ -192,7 +192,7 @@ export const EditEventDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto p-4 sm:p-5">
+      <DialogContent className="max-w-md max-h-[90dvh] overflow-y-auto p-4 sm:p-5">
         <DialogHeader className="pb-1">
           <DialogTitle>{t('edit.title')}</DialogTitle>
         </DialogHeader>
@@ -529,7 +529,7 @@ export const EditEventDialog = ({
           </div>
 
           {/* Submit */}
-          <div className="pt-2">
+          <div className="pt-2 pb-6">
             <Button
               type="submit"
               disabled={isSubmitting}

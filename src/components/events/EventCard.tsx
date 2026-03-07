@@ -291,6 +291,11 @@ export const EventCard = memo(({
                     · 🔍 {event.players_needed - attendeeCount}
                   </span>
                 )}
+                {event.cost && event.cost.trim() !== '' ? (
+                  <span className="flex items-center gap-0.5">
+                    💰 {event.cost}€
+                  </span>
+                ) : null}
               </div>
             </div>
           </CardContent>

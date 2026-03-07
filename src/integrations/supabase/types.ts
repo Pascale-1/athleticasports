@@ -337,6 +337,7 @@ export type Database = {
           location_url: string | null
           looking_for_players: boolean | null
           match_format: string | null
+          match_result: string | null
           max_participants: number | null
           meetup_category: string | null
           occurrence_index: number | null
@@ -378,6 +379,7 @@ export type Database = {
           location_url?: string | null
           looking_for_players?: boolean | null
           match_format?: string | null
+          match_result?: string | null
           max_participants?: number | null
           meetup_category?: string | null
           occurrence_index?: number | null
@@ -419,6 +421,7 @@ export type Database = {
           location_url?: string | null
           looking_for_players?: boolean | null
           match_format?: string | null
+          match_result?: string | null
           max_participants?: number | null
           meetup_category?: string | null
           occurrence_index?: number | null

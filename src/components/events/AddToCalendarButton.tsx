@@ -6,6 +6,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -48,6 +49,15 @@ export const AddToCalendarButton = ({
     end: new Date(event.end_time),
   };
 
+  const handleDownloadICS = () => {
+    downloadICS(calendarEvent);
+    toast({
+      title: t("calendar.downloaded"),
+      description: t("calendar.downloadedDesc"),
+    });
+    setIsOpen(false);
+  };
+
   const handleGoogleCalendar = async () => {
     await openExternalUrl(generateGoogleCalendarUrl(calendarEvent));
     setIsOpen(false);
@@ -63,15 +73,6 @@ export const AddToCalendarButton = ({
     setIsOpen(false);
   };
 
-  const handleDownloadICS = () => {
-    downloadICS(calendarEvent);
-    toast({
-      title: t("calendar.downloaded"),
-      description: t("calendar.downloadedDesc"),
-    });
-    setIsOpen(false);
-  };
-
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
@@ -82,6 +83,11 @@ export const AddToCalendarButton = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuItem onClick={handleDownloadICS} className="gap-2 cursor-pointer">
+          <Download className="h-4 w-4" />
+          {t("calendar.downloadICS")}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleGoogleCalendar} className="gap-2 cursor-pointer">
           <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
             <path d="M19.6 3.5H4.4C3.1 3.5 2 4.6 2 5.9v12.2c0 1.3 1.1 2.4 2.4 2.4h15.2c1.3 0 2.4-1.1 2.4-2.4V5.9c0-1.3-1.1-2.4-2.4-2.4zM4.4 5.5h15.2c.2 0 .4.2.4.4v1.6H4V5.9c0-.2.2-.4.4-.4zM19.6 18.5H4.4c-.2 0-.4-.2-.4-.4V9.5h16v8.6c0 .2-.2.4-.4.4z" />
@@ -102,10 +108,6 @@ export const AddToCalendarButton = ({
           </svg>
           Office 365
           <ExternalLink className="h-3 w-3 ml-auto opacity-50" />
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleDownloadICS} className="gap-2 cursor-pointer">
-          <Download className="h-4 w-4" />
-          {t("calendar.downloadICS")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

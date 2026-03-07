@@ -69,7 +69,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MAP_PROVIDERS, getDefaultMapUrl } from "@/lib/mapProviders";
+import { MAP_PROVIDERS, getDefaultMapUrl, getNativeMapUrl } from "@/lib/mapProviders";
+import { Capacitor } from "@capacitor/core";
 
 const EventDetail = () => {
   const { eventId } = useParams();
@@ -283,12 +284,13 @@ const EventDetail = () => {
   const hasMatchDetails = event.type === 'match' && (event.opponent_name || event.match_format || event.home_away);
 
   return (
-    <PageContainer className="pb-48 lg:pb-8">
+    <PageContainer className="pb-56 lg:pb-8">
       <motion.div 
         className="space-y-2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
+        style={{ touchAction: 'pan-y' }}
       >
         {/* Hero Header with Color Accent */}
         <div className="relative -mx-4 -mt-4">
@@ -374,30 +376,7 @@ const EventDetail = () => {
           />
         )}
 
-        {/* Looking for Players Banner - Now purely informational with dynamic spots */}
-        {event.looking_for_players && event.players_needed && (
-          <LookingForPlayersBanner
-            playersNeeded={event.players_needed}
-            currentAttending={stats.attending}
-            maxParticipants={event.max_participants || undefined}
-            isUserAttending={userStatus === 'attending'}
-          />
-        )}
-
-        {/* Join Requests for Organizers */}
-        {canEdit && pendingRequests.length > 0 && (
-          <EventJoinRequests
-            requests={pendingRequests}
-            onApprove={handleApproveRequest}
-            onReject={handleRejectRequest}
-            isLoading={joinRequestsLoading}
-          />
-        )}
-
-        {/* RSVP Deadline */}
-        {event.rsvp_deadline && (
-          <RSVPDeadlineDisplay deadline={event.rsvp_deadline} />
-        )}
+        {/* Looking for Players and RSVP Deadline are now shown inline in When & Where card */}
 
         {/* When & Where Card */}
         <Card className="overflow-hidden">
@@ -457,6 +436,18 @@ const EventDetail = () => {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                     </>
+                  )}
+                  {/* Native maps option — opens device maps app */}
+                  {Capacitor.isNativePlatform() && (
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        const nativeUrl = getNativeMapUrl(event.location!);
+                        window.location.href = nativeUrl;
+                      }}
+                    >
+                      <Map className="h-4 w-4 mr-2" />
+                      {t('details.openInMaps', 'Open in Maps')}
+                    </DropdownMenuItem>
                   )}
                   {/* Map providers */}
                   {MAP_PROVIDERS.map((provider) => (
@@ -520,11 +511,53 @@ const EventDetail = () => {
                 </div>
               </div>
             )}
+
+            {/* RSVP Deadline — inline */}
+            {event.rsvp_deadline && (
+              <div className="flex items-center gap-3 pt-1">
+                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                  <Clock className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">{t('form.rsvpDeadline', 'RSVP Deadline')}</p>
+                  <p className="text-sm font-medium">
+                    {format(new Date(event.rsvp_deadline), "EEE d MMM, HH:mm")}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Looking for Players — inline */}
+            {event.looking_for_players && event.players_needed && (
+              <div className="flex items-center gap-3 pt-1">
+                <div className="h-10 w-10 rounded-lg bg-[rgba(167,139,250,0.10)] flex items-center justify-center shrink-0">
+                  <Users className="h-5 w-5 text-[#A78BFA]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-[#A78BFA]">
+                    🔍 {t('details.lookingForPlayers', 'Looking for players')}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {Math.max(0, event.players_needed - stats.attending)} {t('details.spotsLeft', 'spots left')}
+                  </p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
+        {/* Join Requests for Organizers */}
+        {canEdit && pendingRequests.length > 0 && (
+          <EventJoinRequests
+            requests={pendingRequests}
+            onApprove={handleApproveRequest}
+            onReject={handleRejectRequest}
+            isLoading={joinRequestsLoading}
+          />
+        )}
+
         {/* Match Details Card */}
-        {hasMatchDetails && (
+        {(hasMatchDetails || (event.type === 'match' && isPastEvent)) && (
           <Card>
             <CardContent className="p-3 space-y-3">
               <h3 className="font-semibold text-[11px] uppercase tracking-[0.8px] text-hint">
@@ -558,6 +591,42 @@ const EventDetail = () => {
                   </Badge>
                 )}
               </div>
+
+              {/* Match Result */}
+              {event.type === 'match' && (isPastEvent || (event as any).match_result) && (
+                <div className="flex items-center gap-3 pt-1">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Trophy className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-muted-foreground">{t('details.matchResult', 'Result')}</p>
+                    {(event as any).match_result ? (
+                      <p className="text-lg font-bold text-foreground">{(event as any).match_result}</p>
+                    ) : canEdit ? (
+                      <input
+                        placeholder={t('details.enterResult', 'e.g. 3 - 1')}
+                        className="bg-transparent border-b border-border/40 focus:border-primary outline-none text-sm placeholder:text-muted-foreground/50 text-foreground w-full pb-1"
+                        onBlur={async (e) => {
+                          const val = e.target.value.trim();
+                          if (val) {
+                            await updateEvent(event.id, { match_result: val } as any);
+                          }
+                        }}
+                        onKeyDown={async (e) => {
+                          if (e.key === 'Enter') {
+                            const val = (e.target as HTMLInputElement).value.trim();
+                            if (val) {
+                              await updateEvent(event.id, { match_result: val } as any);
+                            }
+                          }
+                        }}
+                      />
+                    ) : (
+                      <p className="text-sm text-muted-foreground">{t('details.noResult', 'No result yet')}</p>
+                    )}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}

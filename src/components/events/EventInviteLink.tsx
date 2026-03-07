@@ -118,11 +118,18 @@ export const EventInviteLink = ({
       }
     } catch (error) {
       if ((error as DOMException)?.name === 'AbortError') return;
+      console.warn('Share failed:', error);
     }
     // Fallback to clipboard
-    const copied = await copyToClipboard(inviteLink);
-    if (copied) {
-      toast({ title: t('common:actions.copied'), description: t('events:invite.linkCopied') });
+    try {
+      const copied = await copyToClipboard(inviteLink);
+      if (copied) {
+        toast({ title: t('common:actions.copied'), description: t('events:invite.linkCopied') });
+      } else {
+        toast({ title: t('common:errors.generic', 'Error'), description: t('events:invite.shareFailed', 'Could not share link'), variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: t('common:errors.generic', 'Error'), description: t('events:invite.shareFailed', 'Could not share link'), variant: 'destructive' });
     }
   };
 
