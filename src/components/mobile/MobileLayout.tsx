@@ -11,7 +11,7 @@ export const MobileLayout = ({ children }: MobileLayoutProps) => {
   const scrollDirection = useScrollDirection(10);
 
   return (
-    <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-hidden">
+    <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-hidden pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
       {/* Mobile Header - Slimmer design */}
       <header className={cn(
         "sticky top-0 z-40 flex shrink-0 items-center gap-3 border-b border-border/50 bg-background/95 backdrop-blur-lg px-4 shadow-sm max-w-full overflow-hidden transition-transform duration-300 ease-in-out",
@@ -33,7 +33,7 @@ export const MobileLayout = ({ children }: MobileLayoutProps) => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 lg:pb-0 overflow-x-hidden max-w-full">
+      <main className="flex-1 overflow-x-hidden max-w-full pb-[calc(50px+env(safe-area-inset-bottom))]">
         <div className="mx-auto w-full max-w-[100vw] overflow-x-hidden">
           {children}
         </div>

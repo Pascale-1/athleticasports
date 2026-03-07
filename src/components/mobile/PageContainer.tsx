@@ -32,7 +32,7 @@ export const PageContainer = ({
       className={cn(
         "w-full max-w-full overflow-x-hidden",
         paddingClasses[resolvedPadding],
-        bottomPadding && "pb-14",
+        bottomPadding && "pb-2",
         className
       )}
     >
