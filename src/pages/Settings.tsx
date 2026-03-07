@@ -48,13 +48,18 @@ const Settings = () => {
   }, []);
 
   // Walkthrough
-  const { startWalkthrough, hasCompleted } = useAppWalkthrough();
+  const { startWalkthrough, continueFullWalkthrough, hasCompleted } = useAppWalkthrough();
 
   useEffect(() => {
-    if (!loading && profile && !hasCompleted('profile')) {
-      startWalkthrough('profile');
+    if (!loading && profile) {
+      const { isFullWalkthroughActive } = require('@/hooks/useAppWalkthrough');
+      if (isFullWalkthroughActive()) {
+        continueFullWalkthrough('profile', navigate);
+      } else if (!hasCompleted('profile')) {
+        startWalkthrough('profile');
+      }
     }
-  }, [loading, profile, startWalkthrough, hasCompleted]);
+  }, [loading, profile, startWalkthrough, continueFullWalkthrough, hasCompleted, navigate]);
 
   const fetchProfile = async () => {
     try {

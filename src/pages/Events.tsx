@@ -87,13 +87,18 @@ const Events = () => {
   const { updateEvent, deleteEvent } = useEvents();
   
   // Walkthrough
-  const { startWalkthrough, hasCompleted } = useAppWalkthrough();
+  const { startWalkthrough, continueFullWalkthrough, hasCompleted } = useAppWalkthrough();
   
   useEffect(() => {
-    if (!attendingLoading && !hasCompleted('events')) {
-      startWalkthrough('events');
+    if (!attendingLoading) {
+      const { isFullWalkthroughActive } = require('@/hooks/useAppWalkthrough');
+      if (isFullWalkthroughActive()) {
+        continueFullWalkthrough('events', (path: string) => window.location.assign(path));
+      } else if (!hasCompleted('events')) {
+        startWalkthrough('events');
+      }
     }
-  }, [attendingLoading, startWalkthrough, hasCompleted]);
+  }, [attendingLoading, startWalkthrough, continueFullWalkthrough, hasCompleted]);
 
   // Unified refresh handler
   const handleRefresh = useCallback(async () => {

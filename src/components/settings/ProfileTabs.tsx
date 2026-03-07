@@ -57,7 +57,7 @@ export const ProfileTabs = ({
   const { t } = useTranslation();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const { resetWalkthrough, setTrigger } = useAppWalkthrough();
+  const { resetWalkthrough, setTrigger, startFullWalkthrough } = useAppWalkthrough();
 
   const handleRestartWalkthrough = () => {
     resetWalkthrough();
