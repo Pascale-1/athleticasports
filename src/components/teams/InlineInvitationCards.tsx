@@ -45,6 +45,7 @@ export const InlineInvitationCards = ({ invitations, onRemove, onRefresh }: Inli
       }
 
       onRemove(invitation.id);
+      queryClient.invalidateQueries({ queryKey: ['navigation-badges'] });
       toast.success(t("invitationAccepted", "You joined {{team}}!", { team: invitation.team_name }));
       onRefresh();
     } catch (err: any) {
