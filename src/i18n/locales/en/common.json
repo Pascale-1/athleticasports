@@ -27,7 +27,11 @@
     "home": "Home",
     "teams": "Teams",
     "events": "Events",
-    "profile": "Profile"
+    "profile": "Profile",
+    "notifications": "Notifications"
+  },
+  "notifications": {
+    "markAllRead": "Mark all as read"
   },
   "actions": {
     "save": "Save",
