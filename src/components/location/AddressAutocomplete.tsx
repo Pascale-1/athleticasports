@@ -2,8 +2,23 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MapPin, Loader2, X } from "lucide-react";
+import { MapPin, Loader2, X, Globe } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+
+const COUNTRIES = [
+  { code: "fr", label: "🇫🇷", name: "France" },
+  { code: "gb", label: "🇬🇧", name: "UK" },
+  { code: "us", label: "🇺🇸", name: "USA" },
+  { code: "de", label: "🇩🇪", name: "Germany" },
+  { code: "es", label: "🇪🇸", name: "Spain" },
+  { code: "it", label: "🇮🇹", name: "Italy" },
+  { code: "be", label: "🇧🇪", name: "Belgium" },
+  { code: "ch", label: "🇨🇭", name: "Switzerland" },
+  { code: "nl", label: "🇳🇱", name: "Netherlands" },
+  { code: "pt", label: "🇵🇹", name: "Portugal" },
+  { code: "", label: "🌍", name: "All" },
+] as const;
 
 interface AddressSuggestion {
   place_id: number;
