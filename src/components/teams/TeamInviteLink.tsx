@@ -25,7 +25,7 @@ export const TeamInviteLink = ({
   allowLinkJoining,
   canManage 
 }: TeamInviteLinkProps) => {
-  const { toast } = useToast();
+  
   const { t } = useTranslation('teams');
   const { openExternalUrl } = useExternalLink();
   const [isRegenerating, setIsRegenerating] = useState(false);
