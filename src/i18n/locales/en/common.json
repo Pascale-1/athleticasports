@@ -529,5 +529,10 @@
     "denied": "Notifications are blocked. Enable them in your browser settings.",
     "unsupported": "Push notifications are not supported in this browser.",
     "toggle": "Push Notifications"
+  },
+  "nativeUpdate": {
+    "title": "Update Available",
+    "description": "A new version of Athletica is available.",
+    "button": "Update"
   }
 }

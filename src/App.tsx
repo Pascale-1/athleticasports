@@ -256,6 +256,7 @@ const App = () => {
             <Sonner />
             <InstallPrompt />
             <UpdatePrompt />
+            <NativeUpdatePrompt />
             <Router>
               <AppRoutes />
             </Router>

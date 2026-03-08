@@ -529,5 +529,10 @@
     "denied": "Les notifications sont bloquées. Activez-les dans les paramètres de votre navigateur.",
     "unsupported": "Les notifications push ne sont pas prises en charge par ce navigateur.",
     "toggle": "Notifications push"
+  },
+  "nativeUpdate": {
+    "title": "Mise à jour disponible",
+    "description": "Une nouvelle version d'Athletica est disponible.",
+    "button": "Mettre à jour"
   }
 }
