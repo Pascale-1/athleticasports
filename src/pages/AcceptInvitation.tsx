@@ -22,7 +22,7 @@ interface TeamInfo {
 const AcceptInvitation = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { toast } = useToast();
+  
   const { t } = useTranslation('common');
   const { t: tTeams } = useTranslation('teams');
   const [pageState, setPageState] = useState<PageState>("loading");
