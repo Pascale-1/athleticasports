@@ -25,7 +25,7 @@ interface TeamInfo {
 export default function JoinTeam() {
   const { code } = useParams<{ code: string }>();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
   const { t } = useTranslation('common');
   const { t: tTeams } = useTranslation('teams');
   const [team, setTeam] = useState<TeamInfo | null>(null);
