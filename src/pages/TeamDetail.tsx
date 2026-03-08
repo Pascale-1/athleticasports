@@ -79,17 +79,10 @@ const TeamDetail = () => {
     
     try {
       await leaveTeam(teamId);
-      toast({
-        title: t('toast.leaveSuccess'),
-        description: t('toast.leaveSuccess'),
-      });
+      toast.success(t('toast.leaveSuccess'));
       navigate("/teams");
     } catch (error) {
-      toast({
-        title: t('toast.leaveError'),
-        description: t('toast.leaveError'),
-        variant: "destructive",
-      });
+      toast.error(t('toast.leaveError'));
     }
   };
 
