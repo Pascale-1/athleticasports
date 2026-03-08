@@ -113,15 +113,9 @@ const AcceptInvitation = () => {
       setPageState("success");
 
       if (data.alreadyAccepted) {
-        toast({
-          title: tTeams('toast.alreadyMember'),
-          description: tTeams('toast.alreadyMemberDesc'),
-        });
+        toast(tTeams('toast.alreadyMember'), { description: tTeams('toast.alreadyMemberDesc') });
       } else {
-        toast({
-          title: t('status.success'),
-          description: tTeams('toast.joinSuccess', { name: '' }),
-        });
+        toast.success(t('status.success'), { description: tTeams('toast.joinSuccess', { name: '' }) });
       }
 
       setTimeout(() => navigate(`/teams/${data.teamId}`), 1500);
