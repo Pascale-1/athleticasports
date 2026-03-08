@@ -69,7 +69,6 @@ export const ProfileTabs = ({
   const handleEnterEditMode = () => {
     setIsEditMode(true);
     setTempValues({
-      fullName: profile?.full_name || '',
       displayName: profile?.display_name || '',
       primarySport: profile?.primary_sport || '',
       teamName: profile?.team_name || '',
@@ -128,7 +127,7 @@ export const ProfileTabs = ({
                 <div className="flex items-center gap-3">
                   <AtSign className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">{t('profile.username')}:</span>
-                  <span className="text-sm font-medium">{getDisplayUsername(profile.username, profile.display_name, profile.full_name)}</span>
+                  <span className="text-sm font-medium">{getDisplayUsername(profile.username, profile.display_name)}</span>
                 </div>
               )}
 
@@ -185,20 +184,6 @@ export const ProfileTabs = ({
             </div>
 
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>{t('profile.fullName')}</Label>
-                {isEditMode ? (
-                  <Input
-                    value={tempValues.fullName}
-                    onChange={(e) => setTempValues({ ...tempValues, fullName: e.target.value })}
-                    placeholder={t('profile.fullName')}
-                  />
-                ) : (
-                  <p className="text-sm py-2 px-3 bg-muted/50 rounded-md min-h-[40px] flex items-center">
-                    {profile?.full_name || <span className="text-muted-foreground">{t('empty.description')}</span>}
-                  </p>
-                )}
-              </div>
 
               <div className="space-y-2">
                 <Label>{t('profile.displayName')}</Label>

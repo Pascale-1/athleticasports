@@ -26,7 +26,6 @@ interface Profile {
   display_name: string | null;
   avatar_url: string | null;
   bio: string | null;
-  full_name: string | null;
   primary_sport: string | null;
   team_name: string | null;
   created_at: string;
@@ -89,7 +88,6 @@ const Settings = () => {
     try {
       const updateData: any = {};
       
-      if (editingField === 'fullName') updateData.full_name = tempValues.fullName || null;
       if (editingField === 'displayName') updateData.display_name = tempValues.displayName || null;
       if (editingField === 'primarySport') updateData.primary_sport = tempValues.primarySport || null;
       if (editingField === 'teamName') updateData.team_name = tempValues.teamName || null;
@@ -117,7 +115,6 @@ const Settings = () => {
       const { error } = await supabase
         .from('profiles')
         .update({
-          full_name: values.fullName || null,
           display_name: values.displayName || null,
           primary_sport: values.primarySport || null,
           team_name: values.teamName || null,
@@ -284,7 +281,7 @@ const Settings = () => {
                 {profile.display_name || profile.username}
               </h1>
               <p className="text-sm text-muted-foreground">
-                {getDisplayUsername(profile.username, profile.display_name, profile.full_name)}
+                {getDisplayUsername(profile.username, profile.display_name)}
               </p>
               {profile.is_founding_member && (
                 <FoundingMemberBadge size="sm" />

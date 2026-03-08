@@ -74,14 +74,13 @@ const ChooseUsername = () => {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("display_name, full_name")
+      .select("display_name")
       .eq("user_id", user.id)
       .maybeSingle();
 
     const base = getFriendlyUsername(
       "user_placeholder",
       profile?.display_name,
-      profile?.full_name
     );
     const fallback = `${base}_${user.id.substring(0, 4)}`;
 

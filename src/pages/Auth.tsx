@@ -34,7 +34,7 @@ const Auth = () => {
   const returnUrl = searchParams.get("returnUrl");
 
   const emailSchema = z.object({
-    fullName: isSignUp ? z.string().min(1, t('fullNameRequired')).max(100) : z.string().optional(),
+    displayName: isSignUp ? z.string().min(1, t('fullNameRequired')).max(100) : z.string().optional(),
     email: z.string().email(t('invalidEmail')).max(255),
     password: z.string().min(6, t('passwordMin')).max(72),
   });
@@ -137,7 +137,7 @@ const Auth = () => {
           options: {
             emailRedirectTo: `${getAppBaseUrl()}/`,
             data: {
-              full_name: data.fullName,
+              full_name: data.displayName,
             },
           },
         });
@@ -246,16 +246,16 @@ const Auth = () => {
           >
             {isSignUp && (
               <div className="space-y-2">
-                <Label htmlFor="fullName">{t('fullName')}</Label>
+                <Label htmlFor="displayName">{t('displayName', t('fullName'))}</Label>
                 <Input
-                  id="fullName"
+                  id="displayName"
                   type="text"
                   placeholder={t('fullNamePlaceholder')}
-                  {...emailForm.register("fullName")}
+                  {...emailForm.register("displayName")}
                 />
-                {emailForm.formState.errors.fullName && (
+                {emailForm.formState.errors.displayName && (
                   <p className="text-sm text-destructive">
-                    {emailForm.formState.errors.fullName.message}
+                    {emailForm.formState.errors.displayName.message}
                   </p>
                 )}
               </div>
