@@ -15,7 +15,7 @@ interface TeamGeneralSettingsProps {
 
 export const TeamGeneralSettings = ({ team }: TeamGeneralSettingsProps) => {
   const { t } = useTranslation('teams');
-  const { toast } = useToast();
+  
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: team.name,
