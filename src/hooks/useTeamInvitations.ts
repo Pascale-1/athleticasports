@@ -92,7 +92,7 @@ export const useTeamInvitations = (teamId: string | null) => {
       } else {
         // Try to find existing user by exact username match first
         const { data: exactMatch } = await supabase
-          .from("profiles")
+          .from("profiles_public")
           .select("user_id, username")
           .eq("username", emailOrUserId)
           .maybeSingle();
