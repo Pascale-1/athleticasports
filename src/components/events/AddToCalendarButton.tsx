@@ -66,10 +66,7 @@ export const AddToCalendarButton = ({
         // Fallback: download the file which triggers native calendar on most devices
         downloadICS(calendarEvent);
       }
-      toast({
-        title: t("calendar.downloaded"),
-        description: t("calendar.downloadedDesc"),
-      });
+      toast.success(t("calendar.downloaded"), { description: t("calendar.downloadedDesc") });
     } catch (error) {
       if ((error as DOMException)?.name === 'AbortError') return;
       // Fallback to download
