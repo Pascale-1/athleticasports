@@ -100,7 +100,7 @@ const PendingInvitations = () => {
         if (errorMessage?.toLowerCase().includes("expired")) {
           // Remove expired invitation from list
           setInvitations((prev) => prev.filter((i) => i.id !== invitationId));
-          toast({ title: t("common.error", "Error"), description: t("teams.invitationExpired", "This invitation has expired. Ask the team admin for a new one."), variant: "destructive" });
+          toast.error(t("common.error", "Error"), { description: t("teams.invitationExpired", "This invitation has expired. Ask the team admin for a new one.") });
           return;
         }
         throw new Error(errorMessage || "Failed to accept invitation");
