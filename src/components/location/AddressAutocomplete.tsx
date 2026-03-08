@@ -270,9 +270,9 @@ export const AddressAutocomplete = ({
         </Label>
       )}
 
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-1.5 items-center">
         <Select value={selectedCountry || "__all__"} onValueChange={(val) => setSelectedCountry(val === "__all__" ? "" : val)}>
-          <SelectTrigger className="w-[72px] shrink-0 h-9 px-2">
+          <SelectTrigger className="w-[52px] shrink-0 h-9 px-1.5">
             <SelectValue>
               {COUNTRIES.find(c => c.code === selectedCountry)?.label || "🌍"}
             </SelectValue>

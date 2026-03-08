@@ -745,7 +745,7 @@ export const UnifiedEventForm = ({
       {/* Time + Duration */}
       {watchedDate && (
         <FieldRow icon={Clock} separator={true} iconAlign="center">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-nowrap overflow-hidden">
             <FormField
               control={form.control}
               name="startTime"
