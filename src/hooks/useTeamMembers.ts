@@ -41,9 +41,12 @@ export const useTeamMembers = (teamId: string | null) => {
         const roles = member.team_member_roles as { role: string }[] | null;
         const role = roles && roles.length > 0 ? roles[0].role : "member";
 
+        const rawProfile = Array.isArray(member.profiles_public) ? member.profiles_public[0] : member.profiles_public;
+        const profile = rawProfile || { username: "unknown", display_name: null, avatar_url: null };
+
         return {
           ...member,
-          profile: Array.isArray(member.profiles_public) ? member.profiles_public[0] : member.profiles_public,
+          profile,
           role,
         };
       });

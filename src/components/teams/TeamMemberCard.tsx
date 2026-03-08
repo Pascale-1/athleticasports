@@ -47,14 +47,14 @@ export const TeamMemberCard = ({
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-0 sm:justify-between">
         <div className="flex items-center gap-3 w-full sm:flex-1 min-w-0">
           <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
-            <AvatarImage src={member.profile.avatar_url || undefined} />
+            <AvatarImage src={member.profile?.avatar_url || undefined} />
             <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-              {member.profile.username.substring(0, 2).toUpperCase()}
+              {(member.profile?.username || "??").substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
             <p className="font-medium text-sm sm:text-base truncate">
-              {member.profile.display_name || member.profile.username}
+              {member.profile?.display_name || member.profile?.username || "Unknown"}
             </p>
           </div>
         </div>

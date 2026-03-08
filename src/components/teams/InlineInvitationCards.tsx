@@ -8,6 +8,7 @@ import { Check, X, Loader2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { PendingInvitation } from "@/hooks/usePendingInvitations";
 import { getActiveSports } from "@/lib/sports";
 
@@ -22,6 +23,7 @@ export const InlineInvitationCards = ({ invitations, onRemove, onRefresh }: Inli
   const lang = (i18n.language?.split("-")[0] || "fr") as "en" | "fr";
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const sports = getActiveSports();
 
   const handleAccept = async (invitation: PendingInvitation) => {
@@ -48,6 +50,11 @@ export const InlineInvitationCards = ({ invitations, onRemove, onRefresh }: Inli
       queryClient.invalidateQueries({ queryKey: ['navigation-badges'] });
       toast.success(t("invitationAccepted", "You joined {{team}}!", { team: invitation.team_name }));
       onRefresh();
+      
+      const teamId = res.data?.teamId || invitation.team_id;
+      if (teamId) {
+        navigate(`/teams/${teamId}`);
+      }
     } catch (err: any) {
       toast.error(err.message || "Error");
     } finally {
