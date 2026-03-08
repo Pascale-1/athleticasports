@@ -137,7 +137,7 @@ const Auth = () => {
           options: {
             emailRedirectTo: `${getAppBaseUrl()}/`,
             data: {
-              full_name: data.fullName,
+              full_name: data.displayName,
             },
           },
         });
