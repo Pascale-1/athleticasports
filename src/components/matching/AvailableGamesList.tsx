@@ -22,7 +22,7 @@ interface AvailableGamesListProps {
 
 export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListProps) => {
   const { t, i18n } = useTranslation(['common', 'matching']);
-  const { toast } = useToast();
+  
   const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
   
   const [filters, setFilters] = useState<AvailableGamesFilters>({});
