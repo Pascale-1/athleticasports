@@ -66,10 +66,7 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
 
       if (error) throw error;
 
-      toast({
-        title: t('matching:interestExpressed'),
-        description: t('matching:interestDesc'),
-      });
+      toast.success(t('matching:interestExpressed'), { description: t('matching:interestDesc') });
 
       refetch();
     } catch (error: any) {
