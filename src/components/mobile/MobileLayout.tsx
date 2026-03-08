@@ -45,6 +45,8 @@ export const MobileLayout = ({ children }: MobileLayoutProps) => {
         </div>
       </header>
 
+      <PushNotificationPrompt />
+
       {/* Main Content */}
       <main className="flex-1 overflow-x-hidden max-w-full pb-[calc(50px+env(safe-area-inset-bottom))]">
         <div className="mx-auto w-full max-w-[100vw] overflow-x-hidden">

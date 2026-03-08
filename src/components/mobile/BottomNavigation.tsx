@@ -90,6 +90,7 @@ export const BottomNavigation = () => {
     { titleKey: "nav.home", url: "/", icon: Home, badge: 0 },
     { titleKey: "nav.events", url: "/events", icon: Calendar, badge: 0 },
     { titleKey: "nav.teams", url: "/teams", icon: Users, badge: pendingInvites },
+    { titleKey: "nav.notifications", url: "/notifications", icon: Bell, badge: unreadCount },
     { titleKey: "nav.profile", url: "/settings", icon: User, badge: 0 },
   ];
 

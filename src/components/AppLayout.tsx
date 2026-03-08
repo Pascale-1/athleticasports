@@ -48,6 +48,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               <NotificationBell />
             </div>
           </header>
+          <PushNotificationPrompt />
           <main className="flex-1 p-6 md:p-8 bg-background min-h-screen">
             <div className="mx-auto max-w-7xl">
               {children}
