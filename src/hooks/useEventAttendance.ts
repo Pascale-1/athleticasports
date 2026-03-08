@@ -18,7 +18,7 @@ export interface EventAttendee {
   responded_at: string;
   is_committed?: boolean;
   has_paid?: boolean;
-  profiles?: {
+  profiles_public?: {
     username: string;
     display_name: string | null;
     avatar_url: string | null;
