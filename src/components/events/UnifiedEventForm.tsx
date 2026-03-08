@@ -27,8 +27,8 @@ import { getActiveSports, getSportLabel } from "@/lib/sports";
 
 import { EventTypeSelector } from "./EventTypeSelector";
 import { DurationPicker } from "./DurationPicker";
+import { InlineTeamPills, useInlineTeams } from "./InlineTeamPills";
 import { DistrictSelector } from "@/components/location/DistrictSelector";
-import { MyTeamSelector } from "@/components/teams/MyTeamSelector";
 import { TeamSelector } from "@/components/teams/TeamSelector";
 
 // Recurrence types
@@ -198,6 +198,8 @@ export const UnifiedEventForm = ({
   const [duration, setDuration] = useState(DEFAULT_DURATIONS[defaultType]);
   const [locationValue, setLocationValue] = useState<{ district: string; venueName?: string }>({ district: '' });
 
+  // Inline teams for pill selector
+  const { teams: inlineTeams, loading: inlineTeamsLoading } = useInlineTeams(selectedSport || undefined, true);
   // Match-specific states
   const [homeAway, setHomeAway] = useState<'home' | 'away' | 'neutral'>('home');
   const [opponentTeamId, setOpponentTeamId] = useState<string | null>(null);
@@ -566,18 +568,19 @@ export const UnifiedEventForm = ({
         </FieldRow>
       )}
 
-      {/* Team */}
+      {/* Team — inline pill selector */}
       {showTeamSelector && (
         <FieldRow icon={Users} separator={showOpponentSection} iconAlign="center">
-          <MyTeamSelector
-            value={selectedTeamId}
-            onChange={handleTeamSelect}
-            sportFilter={selectedSport || undefined}
-            hideLabel={true}
-            placeholder={eventType === 'match' ? t('form.game.pickupOrTeam') : t('form.game.selectTeam')}
-            forEventCreation={true}
-            showCreateButton={true}
+          <InlineTeamPills
+            teams={inlineTeams}
+            loading={inlineTeamsLoading}
+            selectedTeamId={selectedTeamId}
+            onSelect={handleTeamSelect}
             showPickupOption={eventType === 'match'}
+            isPickupGame={isPickupGame}
+            lang={lang}
+            sportFilter={selectedSport || undefined}
+            forEventCreation={true}
             onTeamCreated={(teamId, teamName) => {
               setSelectedTeamId(teamId);
               setSelectedTeamName(teamName);
