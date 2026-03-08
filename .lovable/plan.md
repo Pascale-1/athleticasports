@@ -1,28 +1,44 @@
 
 
-# Fix: Stale session after background on Android
+## iOS Touch Issue with SportQuickSelector
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+### Root Cause
 
-## Fix
+The `SportQuickSelector` container has `touchAction: 'pan-x'` and `overflow-x: auto`, creating a horizontally scrollable area. On iOS (WebKit), this causes a conflict: the browser interprets taps on buttons inside a scrollable container as potential scroll gestures, swallowing the `click` event — especially on small touch targets like these pill buttons.
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+Additionally, the parent `<div>` in `TeamCreate.tsx` (line 103) adds *another* `overflow-x-auto` wrapper, doubling the scroll conflict.
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+### Fix
 
+1. **`src/components/events/SportQuickSelector.tsx`**
+   - Remove `touchAction: 'pan-x'` from the inline style — this restricts touch to horizontal only, which can prevent taps from registering on iOS
+   - Add `onTouchEnd` handlers alongside `onClick` on the sport buttons to ensure iOS registers taps reliably
+   - Use `touch-action: manipulation` via Tailwind (`touch-manipulation`) instead — this tells the browser "no double-tap zoom, but allow both taps and scrolling"
+
+2. **`src/pages/TeamCreate.tsx`**
+   - Remove the redundant `overflow-x-auto` on the parent wrapper div (line 103) — the `SportQuickSelector` already handles its own scrolling. The double overflow nesting causes iOS to mishandle touch events.
+
+### Details
+
+**SportQuickSelector.tsx** — change the container:
 ```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
+// Before
+<div className={cn("flex flex-nowrap overflow-x-auto gap-1.5 pb-0.5 scrollbar-hide", className)} 
+     style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x' }}>
+
+// After  
+<div className={cn("flex flex-nowrap overflow-x-auto gap-1.5 pb-0.5 scrollbar-hide touch-manipulation", className)}
+     style={{ WebkitOverflowScrolling: 'touch' }}>
 ```
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+**TeamCreate.tsx** — remove double overflow:
+```tsx
+// Before
+<div className="-mx-4 sm:-mx-6 px-4 sm:px-6 overflow-x-auto">
 
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+// After
+<div className="-mx-4 sm:-mx-6 px-4 sm:px-6">
+```
+
+These are small CSS/touch-handling fixes — no logic changes needed.
 
