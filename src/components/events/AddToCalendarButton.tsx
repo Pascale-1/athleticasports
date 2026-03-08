@@ -39,7 +39,7 @@ export const AddToCalendarButton = ({
   size = "sm",
 }: AddToCalendarButtonProps) => {
   const { t } = useTranslation("events");
-  const { toast } = useToast();
+  
   const { openExternalUrl } = useExternalLink();
   const [isOpen, setIsOpen] = useState(false);
   const isNative = Capacitor.isNativePlatform();
