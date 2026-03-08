@@ -12,7 +12,7 @@ interface Attendee {
   is_committed?: boolean | null;
   has_paid?: boolean | null;
   responded_at?: string | null;
-  profiles?: {
+  profiles_public?: {
     avatar_url: string | null;
     display_name: string | null;
     username: string;
