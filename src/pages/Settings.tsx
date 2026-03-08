@@ -26,7 +26,6 @@ interface Profile {
   display_name: string | null;
   avatar_url: string | null;
   bio: string | null;
-  full_name: string | null;
   primary_sport: string | null;
   team_name: string | null;
   created_at: string;
