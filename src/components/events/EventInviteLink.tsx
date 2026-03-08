@@ -48,10 +48,7 @@ export const EventInviteLink = ({
   const handleCopyToClipboard = async () => {
     const copied = await copyToClipboard(inviteLink);
     if (copied) {
-      toast({
-        title: t('common:actions.copied'),
-        description: t('events:invite.linkCopied'),
-      });
+      toast(t('common:actions.copied'), { description: t('events:invite.linkCopied') });
     }
   };
 
