@@ -38,7 +38,7 @@ export const EventInviteLink = ({
   isOrganizer = false,
 }: EventInviteLinkProps) => {
   const { t } = useTranslation(['events', 'common']);
-  const { toast } = useToast();
+  
   const { openExternalUrl } = useExternalLink();
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [localAllowPublicJoin, setLocalAllowPublicJoin] = useState(allowPublicJoin);
