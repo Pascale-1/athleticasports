@@ -42,11 +42,7 @@ const JoinEvent = () => {
 
       setEvent(eventData);
     } catch (error: any) {
-      toast({
-        title: t('status.error', { ns: 'common' }),
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(t('status.error', { ns: 'common' }), { description: error.message });
       setTimeout(() => navigate("/events"), 2000);
     } finally {
       setLoading(false);
