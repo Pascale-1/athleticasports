@@ -87,6 +87,13 @@ export const AddressAutocomplete = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+  // Re-search when country changes
+  useEffect(() => {
+    if (inputValue.length >= 3) {
+      searchAddress(inputValue);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCountry]);
 
   const searchAddress = useCallback(async (query: string) => {
     if (query.length < 3) {
