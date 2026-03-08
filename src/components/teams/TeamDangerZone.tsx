@@ -47,29 +47,18 @@ export const TeamDangerZone = ({ team }: TeamDangerZoneProps) => {
 
   const handleDeleteTeam = async () => {
     if (deleteConfirmation !== team.name) {
-      toast({
-        title: t('toast.nameError'),
-        description: t('toast.nameError'),
-        variant: "destructive",
-      });
+      toast.error(t('toast.nameError'));
       return;
     }
 
     setIsDeleting(true);
     try {
       await deleteTeam(team.id);
-      toast({
-        title: t('toast.deleteSuccess'),
-        description: t('toast.deleteSuccess'),
-      });
+      toast.success(t('toast.deleteSuccess'));
       navigate("/teams");
     } catch (error) {
       console.error("Error deleting team:", error);
-      toast({
-        title: t('toast.deleteError'),
-        description: t('toast.deleteError'),
-        variant: "destructive",
-      });
+      toast.error(t('toast.deleteError'));
     } finally {
       setIsDeleting(false);
     }
