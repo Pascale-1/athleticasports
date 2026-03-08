@@ -32,7 +32,7 @@ const TeamDetail = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation('teams');
-  const { toast } = useToast();
+  
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [memberCount, setMemberCount] = useState(0);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
