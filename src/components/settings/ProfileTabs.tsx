@@ -69,7 +69,6 @@ export const ProfileTabs = ({
   const handleEnterEditMode = () => {
     setIsEditMode(true);
     setTempValues({
-      fullName: profile?.full_name || '',
       displayName: profile?.display_name || '',
       primarySport: profile?.primary_sport || '',
       teamName: profile?.team_name || '',
