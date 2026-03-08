@@ -22,7 +22,7 @@ export const useTeamMembers = (teamId: string | null) => {
         .from("team_members")
         .select(`
           *,
-          profiles:user_id (
+          profiles_public:user_id (
             username,
             display_name,
             avatar_url
