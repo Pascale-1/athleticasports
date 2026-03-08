@@ -91,7 +91,7 @@ const AdminAnalytics = () => {
 
     // Fetch counts and growth data in parallel
     const [profilesRes, eventsRes, teamsRes, analyticsRes] = await Promise.all([
-      supabase.from("profiles").select("created_at", { count: "exact" }),
+      supabase.from("profiles_public" as any).select("created_at", { count: "exact" }),
       supabase.from("events").select("created_at", { count: "exact" }),
       supabase.from("teams").select("created_at", { count: "exact" }),
       supabase.from("analytics_events" as any).select("*").gte("created_at", days30Str),

@@ -30,10 +30,10 @@ export const usePendingInvitations = () => {
       }
 
       const { data: profile } = await supabase
-        .from("profiles")
-        .select("username, email")
+        .from("profiles_public" as any)
+        .select("username")
         .eq("user_id", user.id)
-        .single();
+        .single() as { data: { username: string } | null };
 
       if (!profile) {
         setInvitations([]);
@@ -41,9 +41,10 @@ export const usePendingInvitations = () => {
         return;
       }
 
+      const userEmail = user.email;
       const filters = [`invited_user_id.eq.${user.id}`];
       if (profile.username) filters.push(`email.eq.${profile.username}`);
-      if (profile.email) filters.push(`email.eq.${profile.email}`);
+      if (userEmail) filters.push(`email.eq.${userEmail}`);
 
       const { data: rawInvitations, error } = await supabase
         .from("team_invitations")
@@ -76,7 +77,7 @@ export const usePendingInvitations = () => {
             supabase.rpc('get_team_info_for_invitation' as any, { _team_id: tid, _user_id: user.id }).single()
           )
         ),
-        supabase.from("profiles").select("user_id, display_name, username").in("user_id", inviterIds),
+        supabase.from("profiles_public" as any).select("user_id, display_name, username").in("user_id", inviterIds) as unknown as Promise<{ data: { user_id: string; display_name: string | null; username: string }[] | null }>,
       ]);
 
       const teamsMap = new Map<string, { id: string; name: string; sport: string | null; avatar_url: string | null }>(

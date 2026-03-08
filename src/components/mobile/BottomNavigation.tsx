@@ -12,20 +12,26 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const fetchBadgeCounts = async (userId: string) => {
   // Get pending team invitations
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('username, email')
-    .eq('user_id', userId)
-    .single();
+  const [profileRes, authRes] = await Promise.all([
+    supabase.from('profiles_public' as any).select('username').eq('user_id', userId).single() as unknown as Promise<{ data: { username: string } | null }>,
+    supabase.auth.getUser(),
+  ]);
+
+  const profile = profileRes.data;
+  const userEmail = authRes.data?.user?.email;
 
   let pendingInvites = 0;
   if (profile) {
+    const orFilters = [`invited_user_id.eq.${userId}`];
+    if (profile.username) orFilters.push(`email.eq.${profile.username}`);
+    if (userEmail) orFilters.push(`email.eq.${userEmail}`);
+
     const { count: inviteCount } = await supabase
       .from('team_invitations')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'pending')
       .gt('expires_at', new Date().toISOString())
-      .or(`invited_user_id.eq.${userId},email.eq.${profile.username},email.eq.${profile.email || ''}`);
+      .or(orFilters.join(','));
 
     pendingInvites = inviteCount || 0;
   }

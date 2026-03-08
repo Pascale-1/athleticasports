@@ -73,9 +73,9 @@ const Admin = () => {
   const fetchProfiles = async () => {
     try {
       const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
+        .from('profiles_public' as any)
         .select('*')
-        .order('username');
+        .order('username') as { data: Profile[] | null; error: any };
 
       if (profilesError) throw profilesError;
 

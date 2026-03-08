@@ -38,17 +38,18 @@ const PendingInvitations = () => {
       if (!user) return;
 
       const { data: profile } = await supabase
-        .from("profiles")
-        .select("username, email")
+        .from("profiles_public" as any)
+        .select("username")
         .eq("user_id", user.id)
-        .single();
+        .single() as { data: { username: string } | null };
 
       if (!profile) return;
 
+      const userEmail = user.email;
       // Build OR filter for matching invitations
       const filters = [`invited_user_id.eq.${user.id}`];
       if (profile.username) filters.push(`email.eq.${profile.username}`);
-      if (profile.email) filters.push(`email.eq.${profile.email}`);
+      if (userEmail) filters.push(`email.eq.${userEmail}`);
 
       const { data, error } = await supabase
         .from("team_invitations")
@@ -65,7 +66,7 @@ const PendingInvitations = () => {
         (data || []).map(async (inv) => {
           const [teamRes, inviterRes] = await Promise.all([
             supabase.from("teams").select("name, avatar_url, sport").eq("id", inv.team_id).single(),
-            supabase.from("profiles").select("display_name, username").eq("user_id", inv.invited_by).single(),
+            supabase.from("profiles_public" as any).select("display_name, username").eq("user_id", inv.invited_by).single() as unknown as Promise<{ data: { display_name: string | null; username: string } | null }>,
           ]);
           return {
             ...inv,
