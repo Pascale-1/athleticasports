@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Check, X, Loader2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { useQueryClient } from "@tanstack/react-query";
 import { PendingInvitation } from "@/hooks/usePendingInvitations";
 import { getActiveSports } from "@/lib/sports";
 
@@ -20,6 +21,7 @@ export const InlineInvitationCards = ({ invitations, onRemove, onRefresh }: Inli
   const { t, i18n } = useTranslation("teams");
   const lang = (i18n.language?.split("-")[0] || "fr") as "en" | "fr";
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const sports = getActiveSports();
 
   const handleAccept = async (invitation: PendingInvitation) => {
@@ -43,6 +45,7 @@ export const InlineInvitationCards = ({ invitations, onRemove, onRefresh }: Inli
       }
 
       onRemove(invitation.id);
+      queryClient.invalidateQueries({ queryKey: ['navigation-badges'] });
       toast.success(t("invitationAccepted", "You joined {{team}}!", { team: invitation.team_name }));
       onRefresh();
     } catch (err: any) {
@@ -62,6 +65,7 @@ export const InlineInvitationCards = ({ invitations, onRemove, onRefresh }: Inli
 
       if (error) throw error;
       onRemove(invitation.id);
+      queryClient.invalidateQueries({ queryKey: ['navigation-badges'] });
       toast.info(t("invitationDeclined", "Invitation declined"));
     } catch (err: any) {
       toast.error(err.message || "Error");

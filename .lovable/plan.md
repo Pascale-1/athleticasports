@@ -1,18 +1,28 @@
 
 
-## Fix: Team badge "1" persists after treating invitation
+# Fix: Stale session after background on Android
 
-### Root Cause
-The badge count in `BottomNavigation` uses a React Query with `staleTime: 30_000` (30s cache). When an invitation is accepted/declined in `InlineInvitationCards`, the component removes the card from local state but never invalidates the `['navigation-badges', userId]` query. The realtime subscription exists but the invitation status update happens via a service-role edge function, which may not reliably trigger client-visible realtime events.
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-### Fix
-Explicitly invalidate the `navigation-badges` query from `InlineInvitationCards` after accept or decline.
+## Fix
 
-**`src/components/events/InlineTeamPills.tsx`** — no changes needed (different component).
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-**`src/components/teams/InlineInvitationCards.tsx`**:
-- Import `useQueryClient` from `@tanstack/react-query`
-- After `onRemove(invitation.id)` in both `handleAccept` and `handleDecline`, call `queryClient.invalidateQueries({ queryKey: ['navigation-badges'] })` to force an immediate badge refresh.
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-This is a one-file, ~5-line change.
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
+```
+
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 
