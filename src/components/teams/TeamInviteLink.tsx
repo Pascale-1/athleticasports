@@ -56,19 +56,10 @@ export const TeamInviteLink = ({
 
       if (error) throw error;
 
-      toast({
-        title: t('invite.codeRegenerated'),
-        description: t('invite.oldLinksInvalid'),
-      });
-      
-      // Refresh page to show new code
+      toast.success(t('invite.codeRegenerated'), { description: t('invite.oldLinksInvalid') });
       window.location.reload();
     } catch (error) {
-      toast({
-        title: t('status.error', { ns: 'common' }),
-        description: t('invite.regenerateError'),
-        variant: "destructive",
-      });
+      toast.error(t('status.error', { ns: 'common' }), { description: t('invite.regenerateError') });
     } finally {
       setIsRegenerating(false);
     }
