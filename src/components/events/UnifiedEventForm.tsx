@@ -819,13 +819,13 @@ export const UnifiedEventForm = ({
                     setLocationValue(val);
                     field.onChange(val.venueName || '');
                   }}
+                  onValidChange={setIsLocationValid}
                   placeholder={t('form.locationPlaceholder')}
                   ghost
                 />
                 {fieldState.error && (
                   <FormMessage className="text-xs">{t('form.locationRequired')}</FormMessage>
                 )}
-                <p className="text-xs text-muted-foreground mt-1">Ex: Stade Charléty, Paris</p>
               </FormItem>
             )}
           />
