@@ -88,7 +88,6 @@ const Settings = () => {
     try {
       const updateData: any = {};
       
-      if (editingField === 'fullName') updateData.full_name = tempValues.fullName || null;
       if (editingField === 'displayName') updateData.display_name = tempValues.displayName || null;
       if (editingField === 'primarySport') updateData.primary_sport = tempValues.primarySport || null;
       if (editingField === 'teamName') updateData.team_name = tempValues.teamName || null;
