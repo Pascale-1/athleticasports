@@ -130,10 +130,10 @@ const PendingInvitations = () => {
 
       if (error) throw error;
 
-      toast({ title: t("common.success", "Success"), description: t("teams.invitationDeclined", "Invitation declined") });
+      toast.success(t("common.success", "Success"), { description: t("teams.invitationDeclined", "Invitation declined") });
       setInvitations((prev) => prev.filter((i) => i.id !== invitationId));
     } catch (err: any) {
-      toast({ title: t("common.error", "Error"), description: err.message, variant: "destructive" });
+      toast.error(t("common.error", "Error"), { description: err.message });
     } finally {
       setProcessingId(null);
     }

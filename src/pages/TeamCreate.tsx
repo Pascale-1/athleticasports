@@ -48,19 +48,12 @@ const TeamCreate = () => {
         is_private: formData.is_private,
         sport: formData.sport,
       });
-      toast({
-        title: t('status.success', { ns: 'common' }),
-        description: t('toast.createSuccess'),
-      });
+      toast.success(t('status.success', { ns: 'common' }), { description: t('toast.createSuccess') });
       navigate(`/teams/${team.id}`);
     } catch (error: any) {
       console.error("Error creating team:", error);
       const errorMessage = error?.message || error?.error?.message || t('toast.createError');
-      toast({
-        title: t('status.error', { ns: 'common' }),
-        description: errorMessage,
-        variant: "destructive",
-      });
+      toast.error(t('status.error', { ns: 'common' }), { description: errorMessage });
     } finally {
       setLoading(false);
     }

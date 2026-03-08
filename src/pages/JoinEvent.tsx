@@ -79,11 +79,7 @@ const JoinEvent = () => {
       // Redirect to event detail page
       navigate(`/events/${event.id}`);
     } catch (error: any) {
-      toast({
-        title: t('status.error', { ns: 'common' }),
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(t('status.error', { ns: 'common' }), { description: error.message });
     } finally {
       setJoining(false);
     }

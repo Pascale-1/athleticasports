@@ -118,11 +118,10 @@ const TeamDetail = () => {
         .insert({ team_member_id: memberData.id, role: 'member' });
       if (roleError) throw roleError;
 
-      toast({ title: t('toast.joinSuccess', { name: team?.name }) });
-      // Smooth refresh instead of full page reload
+      toast.success(t('toast.joinSuccess', { name: team?.name }));
       window.location.replace(window.location.href);
     } catch (error) {
-      toast({ title: t('toast.joinError'), variant: "destructive" });
+      toast.error(t('toast.joinError'));
     }
   };
 

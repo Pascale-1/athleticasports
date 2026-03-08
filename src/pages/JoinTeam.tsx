@@ -100,11 +100,7 @@ export default function JoinTeam() {
 
       navigate(`/teams/${result.teamId}`);
     } catch (err: any) {
-      toast({
-        title: t('status.error'),
-        description: err.message || tTeams('toast.leaveError'),
-        variant: "destructive",
-      });
+      toast.error(t('status.error'), { description: err.message || tTeams('toast.leaveError') });
     } finally {
       setIsJoining(false);
     }

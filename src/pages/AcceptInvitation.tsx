@@ -125,11 +125,7 @@ const AcceptInvitation = () => {
       const errorMessage = err.message || tTeams('toast.leaveError');
       setError(errorMessage);
       setPageState("error");
-      toast({
-        variant: "destructive",
-        title: t('status.error'),
-        description: errorMessage,
-      });
+      toast.error(t('status.error'), { description: errorMessage });
     }
   };
 
