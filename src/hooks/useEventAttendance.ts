@@ -46,22 +46,37 @@ export const useEventAttendance = (eventId: string) => {
       const { data: { session } } = await supabase.auth.getSession();
       const user = session?.user ?? null;
 
-      // Fetch attendance stats
+      // Fetch attendance data (no embedded join on profiles_public view)
       const { data: attendanceData, error: attendanceError } = await supabase
         .from("event_attendance" as any)
-        .select(`
-          *,
-          profiles_public:user_id (
-            username,
-            display_name,
-            avatar_url
-          )
-        `)
+        .select("*")
         .eq("event_id", eventId);
 
       if (attendanceError) throw attendanceError;
 
-      const typedData = (attendanceData || []) as unknown as EventAttendee[];
+      const rawData = (attendanceData || []) as unknown as EventAttendee[];
+
+      // Fetch profiles separately
+      const userIds = rawData.map((a) => a.user_id);
+      let profilesMap: Record<string, { username: string; display_name: string | null; avatar_url: string | null }> = {};
+
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles_public")
+          .select("user_id, username, display_name, avatar_url")
+          .in("user_id", userIds);
+
+        if (profiles) {
+          profilesMap = Object.fromEntries(
+            profiles.map((p: any) => [p.user_id, { username: p.username || "unknown", display_name: p.display_name, avatar_url: p.avatar_url }])
+          );
+        }
+      }
+
+      const typedData = rawData.map((a) => ({
+        ...a,
+        profiles_public: profilesMap[a.user_id] || undefined,
+      }));
 
       const attending = typedData.filter(a => a.status === 'attending').length || 0;
       const maybe = typedData.filter(a => a.status === 'maybe').length || 0;

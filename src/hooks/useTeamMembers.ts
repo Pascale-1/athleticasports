@@ -16,17 +16,11 @@ export const useTeamMembers = (teamId: string | null) => {
     }
 
     try {
-      // Single query with JOIN to fetch members, profiles, and roles together
-      // This eliminates the N+1 problem (previously: 1 + N queries, now: 1 query)
+      // Fetch members with roles (no embedded join on profiles_public view)
       const { data: membersData, error } = await supabase
         .from("team_members")
         .select(`
           *,
-          profiles_public:user_id (
-            username,
-            display_name,
-            avatar_url
-          ),
           team_member_roles (
             role
           )
@@ -36,13 +30,27 @@ export const useTeamMembers = (teamId: string | null) => {
 
       if (error) throw error;
 
+      // Fetch profiles separately to avoid PostgREST view join issue
+      const userIds = membersData.map((m) => m.user_id);
+      let profilesMap: Record<string, { username: string; display_name: string | null; avatar_url: string | null }> = {};
+
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles_public")
+          .select("user_id, username, display_name, avatar_url")
+          .in("user_id", userIds);
+
+        if (profiles) {
+          profilesMap = Object.fromEntries(
+            profiles.map((p) => [p.user_id, { username: p.username || "unknown", display_name: p.display_name, avatar_url: p.avatar_url }])
+          );
+        }
+      }
+
       const membersWithRoles = membersData.map((member) => {
-        // Get the first role from the joined data, default to "member"
         const roles = member.team_member_roles as { role: string }[] | null;
         const role = roles && roles.length > 0 ? roles[0].role : "member";
-
-        const rawProfile = Array.isArray(member.profiles_public) ? member.profiles_public[0] : member.profiles_public;
-        const profile = rawProfile || { username: "unknown", display_name: null, avatar_url: null };
+        const profile = profilesMap[member.user_id] || { username: "unknown", display_name: null, avatar_url: null };
 
         return {
           ...member,
