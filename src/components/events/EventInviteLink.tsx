@@ -66,18 +66,10 @@ export const EventInviteLink = ({
 
       if (error) throw error;
 
-      toast({
-        title: t('events:invite.codeRegenerated'),
-        description: t('events:invite.oldLinksInvalid'),
-      });
-
+      toast.success(t('events:invite.codeRegenerated'), { description: t('events:invite.oldLinksInvalid') });
       window.location.reload();
     } catch (error: any) {
-      toast({
-        title: t('common:errors.generic'),
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(t('common:errors.generic'), { description: error.message });
     } finally {
       setIsRegenerating(false);
     }
