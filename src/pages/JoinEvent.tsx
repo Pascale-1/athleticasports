@@ -74,10 +74,7 @@ const JoinEvent = () => {
 
       if (error) throw error;
 
-      toast({
-        title: t('status.success', { ns: 'common' }),
-        description: t('rsvp.attending', { ns: 'events' }) + ` ${event.title}`,
-      });
+      toast.success(t('status.success', { ns: 'common' }), { description: t('rsvp.attending', { ns: 'events' }) + ` ${event.title}` });
 
       // Redirect to event detail page
       navigate(`/events/${event.id}`);
