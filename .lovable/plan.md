@@ -1,31 +1,28 @@
 
 
-## Fix: `valid_email` check constraint violation when inviting existing users
+# Fix: Stale session after background on Android
 
-### Root Cause
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-When a user is selected from the search dropdown (by user_id), line 91 of `useTeamInvitations.ts` sets `email = profile.username` (e.g. `"passss"`). The `team_invitations` table has a `valid_email` check constraint that rejects non-email values.
+## Fix
 
-The `profiles_public` view doesn't expose the `email` column (by design), so the client can't get the user's actual email address.
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-### Fix
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-1. **Database migration** — Create a `SECURITY DEFINER` function `get_user_email_by_id(uuid)` that returns the email from `auth.users`. This is safe because it's only used server-side to populate the invitation record for a known user_id.
-
-```sql
-CREATE OR REPLACE FUNCTION public.get_user_email_by_id(_user_id uuid)
-RETURNS text
-LANGUAGE sql
-STABLE SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT email::text FROM auth.users WHERE id = _user_id LIMIT 1;
-$$;
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
 ```
 
-2. **`src/hooks/useTeamInvitations.ts`** — When `isUserId=true`, call `supabase.rpc('get_user_email_by_id', { _user_id: emailOrUserId })` to get the actual email. Also fix the `else` branch where a username match resolves `invitedUserId` but still stores the username as email — resolve the email there too.
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
 
-### Changes
-- 1 database migration (new function)
-- 1 file edit (`useTeamInvitations.ts` — resolve real email when inviting by user_id or username)
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 

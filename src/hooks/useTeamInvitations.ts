@@ -80,15 +80,10 @@ export const useTeamInvitations = (teamId: string | null) => {
         // User was selected from search
         invitedUserId = emailOrUserId;
         
-        // Get user's email for the invitation record
-        const { data: profile } = await supabase
-          .from("profiles_public")
-          .select("username")
-          .eq("user_id", emailOrUserId)
-          .single();
-        
-        if (!profile) throw new Error("User not found");
-        email = profile.username;
+        // Get user's actual email for the invitation record
+        const { data: resolvedEmail } = await supabase.rpc('get_user_email_by_id' as any, { _user_id: emailOrUserId });
+        if (!resolvedEmail) throw new Error("User not found");
+        email = resolvedEmail as string;
       } else {
         // Try to find existing user by exact username match first
         const { data: exactMatch } = await supabase
@@ -99,6 +94,9 @@ export const useTeamInvitations = (teamId: string | null) => {
 
         if (exactMatch) {
           invitedUserId = exactMatch.user_id;
+          // Resolve actual email for the invitation record
+          const { data: resolvedEmail } = await supabase.rpc('get_user_email_by_id' as any, { _user_id: exactMatch.user_id });
+          if (resolvedEmail) email = resolvedEmail as string;
         } else if (emailOrUserId.includes('@')) {
           // Resolve user by email via secure DB function
           const { data: resolvedUserId } = await supabase.rpc('resolve_user_id_by_email' as any, { _email: emailOrUserId });
