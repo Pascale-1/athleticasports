@@ -21,6 +21,7 @@ export const InlineInvitationCards = ({ invitations, onRemove, onRefresh }: Inli
   const { t, i18n } = useTranslation("teams");
   const lang = (i18n.language?.split("-")[0] || "fr") as "en" | "fr";
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const sports = getActiveSports();
 
   const handleAccept = async (invitation: PendingInvitation) => {
