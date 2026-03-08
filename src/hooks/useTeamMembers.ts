@@ -43,7 +43,7 @@ export const useTeamMembers = (teamId: string | null) => {
 
         return {
           ...member,
-          profile: Array.isArray(member.profiles) ? member.profiles[0] : member.profiles,
+          profile: Array.isArray(member.profiles_public) ? member.profiles_public[0] : member.profiles_public,
           role,
         };
       });
