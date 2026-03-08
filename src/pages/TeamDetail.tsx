@@ -18,7 +18,7 @@ import { useTeamInvitations } from "@/hooks/useTeamInvitations";
 import { useTeamAnnouncements } from "@/hooks/useTeamAnnouncements";
 import { useEvents } from "@/hooks/useEvents";
 import { leaveTeam } from "@/lib/teams";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Loader2, Lock, UserPlus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
