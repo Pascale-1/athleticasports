@@ -130,7 +130,7 @@ export const AddressAutocomplete = ({
     } finally {
       setIsLoading(false);
     }
-  }, [lang]);
+  }, [lang, selectedCountry]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
