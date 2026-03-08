@@ -34,7 +34,7 @@ interface TeamDangerZoneProps {
 export const TeamDangerZone = ({ team }: TeamDangerZoneProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation('teams');
-  const { toast } = useToast();
+  
   const { members } = useTeamMembers(team.id);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [selectedNewOwner, setSelectedNewOwner] = useState("");
