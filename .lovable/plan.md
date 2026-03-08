@@ -1,28 +1,19 @@
 
 
-# Fix: Stale session after background on Android
+## Fix Address Field and Time Field Layout Issues
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+### Problem 1: Address field "décalé" (misaligned)
+The country selector (`w-[72px]`) in `AddressAutocomplete.tsx` takes space, pushing the input field. When used inside FieldRow with `ghost` mode (borderless input), the country dropdown creates visual misalignment. The flex container with `gap-2` and the 72px selector eat into the input width.
 
-## Fix
+### Problem 2: Time taking two rows
+In `UnifiedEventForm.tsx` (line 748), the time input and `DurationPicker` are in a `flex items-center gap-2` container. On narrow screens the duration picker wraps to a second line.
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+### Changes
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+**1. `src/components/location/AddressAutocomplete.tsx`**
+- Make the country selector more compact: reduce width from `w-[72px]` to `w-[56px]` or similar
+- Reduce gap between selector and input from `gap-2` to `gap-1.5`
 
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
-```
-
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
-
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+**2. `src/components/events/UnifiedEventForm.tsx`**
+- On the time + duration row (line 748), add `flex-wrap-nowrap` and ensure the time input and duration picker stay on one line by using `shrink-0` on both elements and making the container `overflow-hidden` or constraining widths
 
