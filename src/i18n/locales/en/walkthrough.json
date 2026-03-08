@@ -40,7 +40,7 @@
     },
     "createButton": {
       "title": "Create an Event",
-      "description": "Tap + to create a new event: training session, competitive game, or social meetup."
+      "description": "Tap + to create a new event. Training lets you generate balanced teams. Games let you track scores and results. Hangouts are just for fun — no stats, just good times."
     }
   },
   "teams": {

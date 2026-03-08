@@ -40,7 +40,7 @@
     },
     "createButton": {
       "title": "Créer un Événement",
-      "description": "Appuie sur + pour créer un événement : séance d'entraînement, match compétitif ou sortie sociale."
+      "description": "Appuie sur + pour créer un événement. L'entraînement te permet de générer des équipes équilibrées. Les matchs te permettent de suivre les scores et résultats. Les sorties, c'est juste pour le plaisir — pas de stats, juste du bon temps."
     }
   },
   "teams": {

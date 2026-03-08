@@ -1,18 +1,28 @@
 
 
-## Add Event Type Differences to Walkthrough
+# Fix: Stale session after background on Android
 
-Update the `events.createButton` walkthrough step description in both EN and FR to explain what each event type offers:
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-### Files to change
+## Fix
 
-1. **`src/i18n/locales/en/walkthrough.json`** — Update `events.createButton.description`:
-   - From: `"Tap + to create a new event: training session, competitive game, or social meetup."`
-   - To: `"Tap + to create a new event. Training lets you generate balanced teams. Games let you track scores and results. Hangouts are just for fun — no stats, just good times."`
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-2. **`src/i18n/locales/fr/walkthrough.json`** — Update `events.createButton.description`:
-   - From: `"Appuie sur + pour créer un événement : séance d'entraînement, match compétitif ou sortie sociale."`
-   - To: `"Appuie sur + pour créer un événement. L'entraînement te permet de générer des équipes équilibrées. Les matchs te permettent de suivre les scores et résultats. Les sorties, c'est juste pour le plaisir — pas de stats, juste du bon temps."`
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-No code changes needed — just translation file updates.
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
+```
+
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 
