@@ -8,13 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { createTeam } from "@/lib/teams";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import { SportQuickSelector } from "@/components/events/SportQuickSelector";
 
 const TeamCreate = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const { t, i18n } = useTranslation('teams');
   const lang = (i18n.language?.split('-')[0] || 'en') as 'en' | 'fr';
   const [loading, setLoading] = useState(false);
