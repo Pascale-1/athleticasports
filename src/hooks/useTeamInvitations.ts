@@ -88,7 +88,7 @@ export const useTeamInvitations = (teamId: string | null) => {
           .single();
         
         if (!profile) throw new Error("User not found");
-        email = profile.email || profile.username;
+        email = profile.username;
       } else {
         // Try to find existing user by exact username match first
         const { data: exactMatch } = await supabase
