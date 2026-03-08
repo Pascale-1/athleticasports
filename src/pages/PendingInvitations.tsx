@@ -114,7 +114,7 @@ const PendingInvitations = () => {
         fetchInvitations();
       }
     } catch (err: any) {
-      toast({ title: t("common.error", "Error"), description: err.message, variant: "destructive" });
+      toast.error(t("common.error", "Error"), { description: err.message });
     } finally {
       setProcessingId(null);
     }
