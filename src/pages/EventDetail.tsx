@@ -118,9 +118,9 @@ const EventDetail = () => {
     if (!teamMembers) return [];
     return teamMembers.map((m: any) => ({
       user_id: m.user_id,
-      username: m.profiles?.username || "Unknown",
-      display_name: m.profiles?.display_name || null,
-      avatar_url: m.profiles?.avatar_url || null,
+      username: m.profile?.username || "Unknown",
+      display_name: m.profile?.display_name || null,
+      avatar_url: m.profile?.avatar_url || null,
       performance_level: getLevelForUser(m.user_id),
     }));
   }, [teamMembers, getLevelForUser]);

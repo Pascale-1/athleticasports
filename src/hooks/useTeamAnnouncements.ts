@@ -34,7 +34,7 @@ export const useTeamAnnouncements = (teamId: string | null) => {
         .from("team_announcements")
         .select(`
           *,
-          profiles:posted_by (
+          profiles_public:posted_by (
             username,
             display_name,
             avatar_url
