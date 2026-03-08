@@ -39,9 +39,16 @@ interface AddressSuggestion {
   };
 }
 
+const isAddressFormatValid = (str: string): boolean => {
+  if (!str || str.trim().length < 5) return false;
+  const parts = str.split(',').map(p => p.trim()).filter(p => p.length >= 2);
+  return parts.length >= 2;
+};
+
 interface AddressAutocompleteProps {
   value: string;
   onChange: (value: string, coordinates?: { lat: number; lng: number }) => void;
+  onValidChange?: (isValid: boolean) => void;
   label?: string;
   placeholder?: string;
   className?: string;
