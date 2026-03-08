@@ -8,6 +8,7 @@ import { Check, X, Loader2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { PendingInvitation } from "@/hooks/usePendingInvitations";
 import { getActiveSports } from "@/lib/sports";
 
