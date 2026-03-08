@@ -18,7 +18,7 @@ export const MatchProposalInlineCard = ({
   onDeclined 
 }: MatchProposalInlineCardProps) => {
   const { t } = useTranslation('matching');
-  const { toast } = useToast();
+  
   const { acceptProposal, declineProposal } = useMatchProposals();
   const [accepting, setAccepting] = useState(false);
   const [declining, setDeclining] = useState(false);
