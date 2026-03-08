@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useExternalLink } from "@/hooks/useExternalLink";
 import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,7 +25,7 @@ export const TeamInviteLink = ({
   allowLinkJoining,
   canManage 
 }: TeamInviteLinkProps) => {
-  const { toast } = useToast();
+  
   const { t } = useTranslation('teams');
   const { openExternalUrl } = useExternalLink();
   const [isRegenerating, setIsRegenerating] = useState(false);
@@ -36,10 +36,7 @@ export const TeamInviteLink = ({
   const handleCopy = async (text: string, label: string) => {
     const copied = await copyToClipboard(text);
     if (copied) {
-      toast({
-        title: t('invite.copied'),
-        description: t('invite.copiedToClipboard', { label }),
-      });
+      toast(t('invite.copied'), { description: t('invite.copiedToClipboard', { label }) });
     }
   };
 
@@ -59,19 +56,10 @@ export const TeamInviteLink = ({
 
       if (error) throw error;
 
-      toast({
-        title: t('invite.codeRegenerated'),
-        description: t('invite.oldLinksInvalid'),
-      });
-      
-      // Refresh page to show new code
+      toast.success(t('invite.codeRegenerated'), { description: t('invite.oldLinksInvalid') });
       window.location.reload();
     } catch (error) {
-      toast({
-        title: t('status.error', { ns: 'common' }),
-        description: t('invite.regenerateError'),
-        variant: "destructive",
-      });
+      toast.error(t('status.error', { ns: 'common' }), { description: t('invite.regenerateError') });
     } finally {
       setIsRegenerating(false);
     }
@@ -89,18 +77,11 @@ export const TeamInviteLink = ({
       if (error) throw error;
 
       setLinkJoiningEnabled(enabled);
-      toast({
-        title: enabled ? t('invite.linkJoiningEnabled') : t('invite.linkJoiningDisabled'),
-        description: enabled 
-          ? t('invite.linkJoiningEnabledDesc')
-          : t('invite.linkJoiningDisabledDesc'),
+      toast(enabled ? t('invite.linkJoiningEnabled') : t('invite.linkJoiningDisabled'), {
+        description: enabled ? t('invite.linkJoiningEnabledDesc') : t('invite.linkJoiningDisabledDesc'),
       });
     } catch (error) {
-      toast({
-        title: t('status.error', { ns: 'common' }),
-        description: t('invite.updateError'),
-        variant: "destructive",
-      });
+      toast.error(t('status.error', { ns: 'common' }), { description: t('invite.updateError') });
     }
   };
 

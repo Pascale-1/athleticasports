@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface PerformanceLevel {
@@ -25,9 +25,7 @@ export interface LevelStats {
 export const usePerformanceLevels = (teamId: string | null) => {
   const [levels, setLevels] = useState<PerformanceLevel[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
-  // Declare fetchLevels BEFORE it's used
   const fetchLevels = async () => {
     if (!teamId) {
       setLoading(false);
@@ -53,11 +51,9 @@ export const usePerformanceLevels = (teamId: string | null) => {
     fetchLevels();
   }, [teamId]);
 
-  // Use ref to store fetchLevels for stable callback
   const fetchLevelsRef = useRef(fetchLevels);
   fetchLevelsRef.current = fetchLevels;
 
-  // Realtime subscription using centralized manager
   const handleRealtimeChange = useCallback(() => {
     fetchLevelsRef.current();
   }, []);
@@ -69,11 +65,7 @@ export const usePerformanceLevels = (teamId: string | null) => {
     !!teamId
   );
 
-  const assignLevel = async (
-    userId: string,
-    level: number,
-    notes?: string
-  ) => {
+  const assignLevel = async (userId: string, level: number, notes?: string) => {
     if (!teamId) return;
 
     try {
@@ -95,17 +87,10 @@ export const usePerformanceLevels = (teamId: string | null) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: `Performance level ${level} assigned`,
-      });
+      toast.success("Success", { description: `Performance level ${level} assigned` });
     } catch (error: any) {
       console.error("Error assigning level:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to assign performance level",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to assign performance level" });
     }
   };
 
@@ -121,17 +106,10 @@ export const usePerformanceLevels = (teamId: string | null) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Performance level removed",
-      });
+      toast.success("Success", { description: "Performance level removed" });
     } catch (error: any) {
       console.error("Error removing level:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to remove performance level",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to remove performance level" });
     }
   };
 
@@ -152,18 +130,10 @@ export const usePerformanceLevels = (teamId: string | null) => {
 
     levels.forEach(level => {
       switch (level.level) {
-        case 1:
-          stats.level1++;
-          break;
-        case 2:
-          stats.level2++;
-          break;
-        case 3:
-          stats.level3++;
-          break;
-        case 4:
-          stats.level4++;
-          break;
+        case 1: stats.level1++; break;
+        case 2: stats.level2++; break;
+        case 3: stats.level3++; break;
+        case 4: stats.level4++; break;
       }
     });
 

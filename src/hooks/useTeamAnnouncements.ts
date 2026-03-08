@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface TeamAnnouncement {
@@ -21,7 +21,6 @@ export interface TeamAnnouncement {
 export const useTeamAnnouncements = (teamId: string | null) => {
   const [announcements, setAnnouncements] = useState<TeamAnnouncement[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
   const fetchAnnouncements = async () => {
     if (!teamId) {
@@ -63,7 +62,6 @@ export const useTeamAnnouncements = (teamId: string | null) => {
     fetchAnnouncements();
   }, [teamId]);
 
-  // Realtime subscription using centralized manager
   const handleRealtimeChange = useCallback(() => {
     fetchAnnouncements();
   }, []);
@@ -90,20 +88,11 @@ export const useTeamAnnouncements = (teamId: string | null) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Announcement posted",
-      });
-
-      // Immediately refetch to show the new announcement
+      toast.success("Success", { description: "Announcement posted" });
       await fetchAnnouncements();
     } catch (error: any) {
       console.error("Error creating announcement:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to post announcement",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to post announcement" });
     }
   };
 
@@ -115,22 +104,15 @@ export const useTeamAnnouncements = (teamId: string | null) => {
         .eq("id", announcementId);
 
       if (error) throw error;
-
-      // Immediately refetch to update pin status and reorder
       await fetchAnnouncements();
     } catch (error) {
       console.error("Error toggling pin:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update announcement",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: "Failed to update announcement" });
     }
   };
 
   const deleteAnnouncement = async (announcementId: string) => {
     try {
-      // Optimistic update
       setAnnouncements(prev => prev.filter(a => a.id !== announcementId));
       
       const { error } = await supabase
@@ -140,18 +122,10 @@ export const useTeamAnnouncements = (teamId: string | null) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Announcement deleted",
-      });
+      toast.success("Success", { description: "Announcement deleted" });
     } catch (error) {
       console.error("Error deleting announcement:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete announcement",
-        variant: "destructive",
-      });
-      // Refetch on error to restore correct state
+      toast.error("Error", { description: "Failed to delete announcement" });
       if (teamId) {
         const { data } = await supabase
           .from("team_announcements")

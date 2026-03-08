@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Check } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface MatchResultEntryProps {
   eventId: string;
@@ -28,7 +28,7 @@ export const MatchResultEntry = ({
   onSave,
 }: MatchResultEntryProps) => {
   const { t } = useTranslation('events');
-  const { toast } = useToast();
+  
   const [homeScore, setHomeScore] = useState("");
   const [awayScore, setAwayScore] = useState("");
   const [saving, setSaving] = useState(false);
@@ -60,7 +60,7 @@ export const MatchResultEntry = ({
         loss: { title: t('result.lossToast', 'Keep going! 💪'), desc: result },
         draw: { title: t('result.drawToast', 'Close game!'), desc: result },
       };
-      toast({ title: toastMessages[outcome].title, description: toastMessages[outcome].desc });
+      toast(toastMessages[outcome].title, { description: toastMessages[outcome].desc });
     }
     setSaving(false);
   };

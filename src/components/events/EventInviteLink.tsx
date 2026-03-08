@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Capacitor } from "@capacitor/core";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useExternalLink } from "@/hooks/useExternalLink";
 import { Copy, RefreshCw, Share2, MessageCircle, Settings, Upload } from "lucide-react";
 import { copyToClipboard } from "@/lib/clipboard";
@@ -38,7 +38,7 @@ export const EventInviteLink = ({
   isOrganizer = false,
 }: EventInviteLinkProps) => {
   const { t } = useTranslation(['events', 'common']);
-  const { toast } = useToast();
+  
   const { openExternalUrl } = useExternalLink();
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [localAllowPublicJoin, setLocalAllowPublicJoin] = useState(allowPublicJoin);
@@ -48,10 +48,7 @@ export const EventInviteLink = ({
   const handleCopyToClipboard = async () => {
     const copied = await copyToClipboard(inviteLink);
     if (copied) {
-      toast({
-        title: t('common:actions.copied'),
-        description: t('events:invite.linkCopied'),
-      });
+      toast(t('common:actions.copied'), { description: t('events:invite.linkCopied') });
     }
   };
 
@@ -69,18 +66,10 @@ export const EventInviteLink = ({
 
       if (error) throw error;
 
-      toast({
-        title: t('events:invite.codeRegenerated'),
-        description: t('events:invite.oldLinksInvalid'),
-      });
-
+      toast.success(t('events:invite.codeRegenerated'), { description: t('events:invite.oldLinksInvalid') });
       window.location.reload();
     } catch (error: any) {
-      toast({
-        title: t('common:errors.generic'),
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(t('common:errors.generic'), { description: error.message });
     } finally {
       setIsRegenerating(false);
     }
@@ -96,18 +85,11 @@ export const EventInviteLink = ({
       if (error) throw error;
 
       setLocalAllowPublicJoin(enabled);
-      toast({
-        title: enabled ? t('events:invite.publicJoinEnabled') : t('events:invite.publicJoinDisabled'),
-        description: enabled 
-          ? t('events:invite.anyoneCanRsvp')
-          : t('events:invite.sharingPaused'),
+      toast(enabled ? t('events:invite.publicJoinEnabled') : t('events:invite.publicJoinDisabled'), {
+        description: enabled ? t('events:invite.anyoneCanRsvp') : t('events:invite.sharingPaused'),
       });
     } catch (error: any) {
-      toast({
-        title: t('common:errors.generic'),
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(t('common:errors.generic'), { description: error.message });
     }
   };
 
@@ -126,12 +108,12 @@ export const EventInviteLink = ({
     try {
       const copied = await copyToClipboard(inviteLink);
       if (copied) {
-        toast({ title: t('common:actions.copied'), description: t('events:invite.linkCopied') });
+        toast(t('common:actions.copied'), { description: t('events:invite.linkCopied') });
       } else {
-        toast({ title: t('common:errors.generic', 'Error'), description: t('events:invite.shareFailed', 'Could not share link'), variant: 'destructive' });
+        toast.error(t('common:errors.generic', 'Error'), { description: t('events:invite.shareFailed', 'Could not share link') });
       }
     } catch {
-      toast({ title: t('common:errors.generic', 'Error'), description: t('events:invite.shareFailed', 'Could not share link'), variant: 'destructive' });
+      toast.error(t('common:errors.generic', 'Error'), { description: t('events:invite.shareFailed', 'Could not share link') });
     }
   };
 

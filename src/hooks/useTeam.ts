@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Team, getUserTeamRole, canManageTeam } from "@/lib/teams";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export const useTeam = (teamId: string | null) => {
@@ -10,7 +10,6 @@ export const useTeam = (teamId: string | null) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
   const [canManage, setCanManage] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     if (!teamId) {
@@ -40,20 +39,15 @@ export const useTeam = (teamId: string | null) => {
         }
       } catch (error) {
         console.error("Error fetching team:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load team details",
-          variant: "destructive",
-        });
+        toast.error("Error", { description: "Failed to load team details" });
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchTeam();
-  }, [teamId, toast]);
+  }, [teamId]);
 
-  // Realtime subscription using centralized manager
   const handleRealtimeChange = useCallback((payload: any) => {
     if (payload.eventType === "DELETE") {
       setTeam(null);

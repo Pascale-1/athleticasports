@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Bug, Lightbulb, HelpCircle, Star, Send, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -63,10 +63,7 @@ export function FeedbackForm({ open, onOpenChange }: FeedbackFormProps) {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({
-          title: t('errors.unauthorized'),
-          variant: 'destructive',
-        });
+        toast.error(t('errors.unauthorized'));
         return;
       }
 
@@ -90,19 +87,13 @@ export function FeedbackForm({ open, onOpenChange }: FeedbackFormProps) {
         },
       }).catch((err) => console.error('Feedback notification error:', err));
 
-      toast({
-        title: t('feedback.success'),
-        description: t('feedback.successDescription'),
-      });
+      toast.success(t('feedback.success'), { description: t('feedback.successDescription') });
 
       reset();
       onOpenChange(false);
     } catch (error) {
       console.error('Feedback submission error:', error);
-      toast({
-        title: t('feedback.error'),
-        variant: 'destructive',
-      });
+      toast.error(t('feedback.error'));
     } finally {
       setIsSubmitting(false);
     }

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { PageHeader } from "@/components/mobile/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,7 +29,7 @@ const PendingInvitations = () => {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
   const { t } = useTranslation();
 
   const fetchInvitations = useCallback(async () => {
@@ -100,13 +100,13 @@ const PendingInvitations = () => {
         if (errorMessage?.toLowerCase().includes("expired")) {
           // Remove expired invitation from list
           setInvitations((prev) => prev.filter((i) => i.id !== invitationId));
-          toast({ title: t("common.error", "Error"), description: t("teams.invitationExpired", "This invitation has expired. Ask the team admin for a new one."), variant: "destructive" });
+          toast.error(t("common.error", "Error"), { description: t("teams.invitationExpired", "This invitation has expired. Ask the team admin for a new one.") });
           return;
         }
         throw new Error(errorMessage || "Failed to accept invitation");
       }
 
-      toast({ title: t("common.success", "Success"), description: t("teams.invitationAccepted", "Invitation accepted!") });
+      toast.success(t("common.success", "Success"), { description: t("teams.invitationAccepted", "Invitation accepted!") });
 
       if (data?.teamId) {
         navigate(`/teams/${data.teamId}`);
@@ -114,7 +114,7 @@ const PendingInvitations = () => {
         fetchInvitations();
       }
     } catch (err: any) {
-      toast({ title: t("common.error", "Error"), description: err.message, variant: "destructive" });
+      toast.error(t("common.error", "Error"), { description: err.message });
     } finally {
       setProcessingId(null);
     }
@@ -130,10 +130,10 @@ const PendingInvitations = () => {
 
       if (error) throw error;
 
-      toast({ title: t("common.success", "Success"), description: t("teams.invitationDeclined", "Invitation declined") });
+      toast.success(t("common.success", "Success"), { description: t("teams.invitationDeclined", "Invitation declined") });
       setInvitations((prev) => prev.filter((i) => i.id !== invitationId));
     } catch (err: any) {
-      toast({ title: t("common.error", "Error"), description: err.message, variant: "destructive" });
+      toast.error(t("common.error", "Error"), { description: err.message });
     } finally {
       setProcessingId(null);
     }

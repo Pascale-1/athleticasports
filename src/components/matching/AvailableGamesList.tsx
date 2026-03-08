@@ -13,7 +13,7 @@ import { AvailableGameCard } from "./AvailableGameCard";
 import { getFeaturedSports, getRegularSports } from "@/lib/sports";
 import { PARIS_DISTRICTS, NEARBY_CITIES } from "@/lib/parisDistricts";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface AvailableGamesListProps {
   open: boolean;
@@ -22,7 +22,7 @@ interface AvailableGamesListProps {
 
 export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListProps) => {
   const { t, i18n } = useTranslation(['common', 'matching']);
-  const { toast } = useToast();
+  
   const lang = (i18n.language?.split('-')[0] || 'fr') as 'en' | 'fr';
   
   const [filters, setFilters] = useState<AvailableGamesFilters>({});
@@ -37,11 +37,7 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({
-          title: t('common:errors.notAuthenticated'),
-          description: t('common:errors.loginRequired'),
-          variant: "destructive",
-        });
+        toast.error(t('common:errors.notAuthenticated'), { description: t('common:errors.loginRequired') });
         return;
       }
 
@@ -54,10 +50,7 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
         .maybeSingle();
 
       if (existing) {
-        toast({
-          title: t('matching:alreadyInterested'),
-          variant: "default",
-        });
+        toast(t('matching:alreadyInterested'));
         return;
       }
 
@@ -73,19 +66,12 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
 
       if (error) throw error;
 
-      toast({
-        title: t('matching:interestExpressed'),
-        description: t('matching:interestDesc'),
-      });
+      toast.success(t('matching:interestExpressed'), { description: t('matching:interestDesc') });
 
       refetch();
     } catch (error: any) {
       console.error("Error expressing interest:", error);
-      toast({
-        title: t('common:errors.generic'),
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(t('common:errors.generic'), { description: error.message });
     }
   };
 

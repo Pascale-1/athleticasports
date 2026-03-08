@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { KeyRound } from "lucide-react";
 import { getAppBaseUrl } from "@/lib/appUrl";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface ChangePasswordSectionProps {
   email: string;
@@ -14,7 +14,6 @@ interface ChangePasswordSectionProps {
 
 export const ChangePasswordSection = ({ email }: ChangePasswordSectionProps) => {
   const { t } = useTranslation();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const handleChangePassword = async () => {
@@ -26,16 +25,9 @@ export const ChangePasswordSection = ({ email }: ChangePasswordSectionProps) => 
         body: { email, redirectTo },
       });
       if (response.error) throw response.error;
-      toast({
-        title: t('settings.changePasswordSuccess'),
-        description: t('settings.changePasswordSuccessDesc'),
-      });
+      toast.success(t('settings.changePasswordSuccess'), { description: t('settings.changePasswordSuccessDesc') });
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t('errors.generic'),
-        description: error.message,
-      });
+      toast.error(t('errors.generic'), { description: error.message });
     } finally {
       setLoading(false);
     }

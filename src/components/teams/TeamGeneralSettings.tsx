@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface TeamGeneralSettingsProps {
   team: Team;
@@ -15,7 +15,7 @@ interface TeamGeneralSettingsProps {
 
 export const TeamGeneralSettings = ({ team }: TeamGeneralSettingsProps) => {
   const { t } = useTranslation('teams');
-  const { toast } = useToast();
+  
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: team.name,
@@ -38,17 +38,10 @@ export const TeamGeneralSettings = ({ team }: TeamGeneralSettingsProps) => {
         chat_permission: formData.chat_permission,
       });
 
-      toast({
-        title: t('settingsPage.updateSuccess'),
-        description: t('settingsPage.updateSuccess'),
-      });
+      toast.success(t('settingsPage.updateSuccess'));
     } catch (error) {
       console.error("Error updating team:", error);
-      toast({
-        title: t('settingsPage.updateError'),
-        description: t('settingsPage.updateError'),
-        variant: "destructive",
-      });
+      toast.error(t('settingsPage.updateError'));
     } finally {
       setIsLoading(false);
     }

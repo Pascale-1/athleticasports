@@ -17,7 +17,7 @@ import {
   downloadICS,
   type CalendarEvent,
 } from "@/lib/calendarExport";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useExternalLink } from "@/hooks/useExternalLink";
 import { Capacitor } from "@capacitor/core";
 
@@ -39,7 +39,7 @@ export const AddToCalendarButton = ({
   size = "sm",
 }: AddToCalendarButtonProps) => {
   const { t } = useTranslation("events");
-  const { toast } = useToast();
+  
   const { openExternalUrl } = useExternalLink();
   const [isOpen, setIsOpen] = useState(false);
   const isNative = Capacitor.isNativePlatform();
@@ -66,28 +66,19 @@ export const AddToCalendarButton = ({
         // Fallback: download the file which triggers native calendar on most devices
         downloadICS(calendarEvent);
       }
-      toast({
-        title: t("calendar.downloaded"),
-        description: t("calendar.downloadedDesc"),
-      });
+      toast.success(t("calendar.downloaded"), { description: t("calendar.downloadedDesc") });
     } catch (error) {
       if ((error as DOMException)?.name === 'AbortError') return;
       // Fallback to download
       downloadICS(calendarEvent);
-      toast({
-        title: t("calendar.downloaded"),
-        description: t("calendar.downloadedDesc"),
-      });
+      toast.success(t("calendar.downloaded"), { description: t("calendar.downloadedDesc") });
     }
     setIsOpen(false);
   };
 
   const handleDownloadICS = () => {
     downloadICS(calendarEvent);
-    toast({
-      title: t("calendar.downloaded"),
-      description: t("calendar.downloadedDesc"),
-    });
+    toast.success(t("calendar.downloaded"), { description: t("calendar.downloadedDesc") });
     setIsOpen(false);
   };
 

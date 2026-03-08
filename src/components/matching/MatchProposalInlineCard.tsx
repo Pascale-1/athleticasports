@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, X, Loader2, Sparkles } from "lucide-react";
 import { useMatchProposals } from "@/hooks/useMatchProposals";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface MatchProposalInlineCardProps {
   proposalId: string;
@@ -18,7 +18,7 @@ export const MatchProposalInlineCard = ({
   onDeclined 
 }: MatchProposalInlineCardProps) => {
   const { t } = useTranslation('matching');
-  const { toast } = useToast();
+  
   const { acceptProposal, declineProposal } = useMatchProposals();
   const [accepting, setAccepting] = useState(false);
   const [declining, setDeclining] = useState(false);
@@ -30,10 +30,7 @@ export const MatchProposalInlineCard = ({
     setAccepting(false);
     
     if (success) {
-      toast({ 
-        title: t('proposal.youreIn'), 
-        description: t('proposal.committedDesc') 
-      });
+      toast.success(t('proposal.youreIn'), { description: t('proposal.committedDesc') });
       onAccepted?.();
     }
   };

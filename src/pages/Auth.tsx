@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { getAppBaseUrl } from "@/lib/appUrl";
 import {
   Card,
@@ -23,7 +23,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { toast } = useToast();
   const { t } = useTranslation('auth');
   const [loading, setLoading] = useState(false);
   
@@ -45,6 +44,14 @@ const Auth = () => {
     resolver: zodResolver(emailSchema),
   });
 
+  const onSubmit = async (data: EmailFormData) => {
+    console.log("onSubmit", data);
+  };
+
+  const onError = (errors: any) => {
+    console.error("onError", errors);
+  };
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data, error }) => {
       if (!error) return;
@@ -62,7 +69,6 @@ const Auth = () => {
       sessionStorage.setItem("pendingInvitationId", invitationIdParam);
     }
 
-    // Prefill remembered credentials
     if (localStorage.getItem("athletica_remember") === "true") {
       const savedEmail = localStorage.getItem("athletica_email");
       const savedPassword = localStorage.getItem("athletica_password");
@@ -111,7 +117,6 @@ const Auth = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      // Don't redirect on password recovery - let ResetPassword page handle it
       if (event === 'PASSWORD_RECOVERY') return;
       if (session?.user) {
         handleAuthRedirect();
@@ -144,10 +149,7 @@ const Auth = () => {
 
         if (error) throw error;
 
-        toast({
-          title: t('accountCreated'),
-          description: t('accountCreatedDesc'),
-        });
+        toast(t('accountCreated'), { description: t('accountCreatedDesc') });
         setIsSignUp(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -165,7 +167,6 @@ const Auth = () => {
           throw error;
         }
 
-        // Persist or clear remembered credentials
         if (rememberMe) {
           localStorage.setItem("athletica_remember", "true");
           localStorage.setItem("athletica_email", data.email);
@@ -176,17 +177,11 @@ const Auth = () => {
           localStorage.removeItem("athletica_password");
         }
 
-        toast({
-          title: t('welcomeBack'),
-          description: t('signedInSuccess'),
-        });
+        toast(t('welcomeBack'), { description: t('signedInSuccess') });
       }
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: isSignUp ? t('signUpError') : t('signInError'),
-        description:
-          error.message || "An error occurred during authentication.",
+      toast.error(isSignUp ? t('signUpError') : t('signInError'), {
+        description: error.message || "An error occurred during authentication.",
       });
     } finally {
       setLoading(false);
@@ -196,11 +191,7 @@ const Auth = () => {
   const handleForgotPassword = async () => {
     const email = emailForm.getValues("email");
     if (!email) {
-      toast({
-        variant: "destructive",
-        title: t('forgotPassword'),
-        description: t('forgotPasswordEnterEmail'),
-      });
+      toast.error(t('forgotPassword'), { description: t('forgotPasswordEnterEmail') });
       return;
     }
     try {
@@ -208,19 +199,11 @@ const Auth = () => {
         body: { email, redirectTo: `${getAppBaseUrl()}/reset-password` },
       });
       if (response.error) throw response.error;
-      toast({
-        title: t('forgotPasswordSuccess'),
-        description: t('forgotPasswordSuccessDesc'),
-      });
+      toast(t('forgotPasswordSuccess'), { description: t('forgotPasswordSuccessDesc') });
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t('signInError'),
-        description: error.message,
-      });
+      toast.error(t('signInError'), { description: error.message });
     }
   };
-
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -239,7 +222,6 @@ const Auth = () => {
             </Alert>
           )}
 
-          {/* Email Form */}
           <form
             onSubmit={emailForm.handleSubmit(handleEmailAuth)}
             className="space-y-4"

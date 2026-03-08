@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export type AttendanceStatus = "attending" | "not_attending" | "maybe";
@@ -33,9 +33,7 @@ export const useSessionAttendance = (
   const [attendance, setAttendance] = useState<SessionAttendance[]>([]);
   const [userStatus, setUserStatus] = useState<AttendanceStatus | null>(null);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
-  // Declare fetchAttendance BEFORE it's used
   const fetchAttendance = async () => {
     if (!sessionId) {
       setLoading(false);
@@ -46,7 +44,6 @@ export const useSessionAttendance = (
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Fetch all attendance records
       const { data: attendanceData, error: attendanceError } = await supabase
         .from("event_attendance")
         .select("*")
@@ -54,7 +51,6 @@ export const useSessionAttendance = (
 
       if (attendanceError) throw attendanceError;
 
-      // Fetch profiles for all users in attendance
       if (attendanceData && attendanceData.length > 0) {
         const userIds = attendanceData.map(a => a.user_id);
         const { data: profilesData, error: profilesError } = await supabase
@@ -64,7 +60,6 @@ export const useSessionAttendance = (
 
         if (profilesError) throw profilesError;
 
-        // Merge attendance with profiles
         const merged = attendanceData.map(a => ({
           ...a,
           status: a.status as AttendanceStatus,
@@ -73,7 +68,6 @@ export const useSessionAttendance = (
 
         setAttendance(merged);
 
-        // Find current user's status
         const userAttendance = merged.find((a) => a.user_id === user.id);
         setUserStatus(userAttendance?.status || null);
       } else {
@@ -91,11 +85,9 @@ export const useSessionAttendance = (
     fetchAttendance();
   }, [sessionId]);
 
-  // Use ref to store fetchAttendance for stable callback
   const fetchAttendanceRef = useRef(fetchAttendance);
   fetchAttendanceRef.current = fetchAttendance;
 
-  // Realtime subscription using centralized manager
   const handleRealtimeChange = useCallback(() => {
     fetchAttendanceRef.current();
   }, []);
@@ -121,11 +113,9 @@ export const useSessionAttendance = (
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Check if user already has an attendance record
       const existing = attendance.find((a) => a.user_id === user.id);
 
       if (existing) {
-        // Update existing record
         const { error } = await supabase
           .from("event_attendance")
           .update({ status, updated_at: new Date().toISOString() })
@@ -133,7 +123,6 @@ export const useSessionAttendance = (
 
         if (error) throw error;
       } else {
-        // Insert new record
         const { error } = await supabase
           .from("event_attendance")
           .insert({
@@ -150,17 +139,10 @@ export const useSessionAttendance = (
       const statusText = status === "attending" ? "Attending" : 
                         status === "not_attending" ? "Not Attending" : "Maybe";
       
-      toast({
-        title: "Attendance Updated",
-        description: `You're marked as ${statusText}`,
-      });
+      toast.success("Attendance Updated", { description: `You're marked as ${statusText}` });
     } catch (error: any) {
       console.error("Error updating attendance:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update attendance",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to update attendance" });
     }
   };
 
@@ -182,17 +164,10 @@ export const useSessionAttendance = (
       if (error) throw error;
 
       setUserStatus(null);
-      toast({
-        title: "Attendance Cleared",
-        description: "Your response has been removed",
-      });
+      toast.success("Attendance Cleared", { description: "Your response has been removed" });
     } catch (error: any) {
       console.error("Error clearing attendance:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to clear attendance",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to clear attendance" });
     }
   };
 

@@ -7,14 +7,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { Calendar, MapPin, Loader2, Users } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { formatEventDateRange, getEventStatus } from "@/lib/events";
 import { EVENT_CONFIG, getEventTypeKey } from "@/lib/eventConfig";
 
 const JoinEvent = () => {
   const { code } = useParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
@@ -43,11 +42,7 @@ const JoinEvent = () => {
 
       setEvent(eventData);
     } catch (error: any) {
-      toast({
-        title: t('status.error', { ns: 'common' }),
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(t('status.error', { ns: 'common' }), { description: error.message });
       setTimeout(() => navigate("/events"), 2000);
     } finally {
       setLoading(false);
@@ -79,19 +74,12 @@ const JoinEvent = () => {
 
       if (error) throw error;
 
-      toast({
-        title: t('status.success', { ns: 'common' }),
-        description: t('rsvp.attending', { ns: 'events' }) + ` ${event.title}`,
-      });
+      toast.success(t('status.success', { ns: 'common' }), { description: t('rsvp.attending', { ns: 'events' }) + ` ${event.title}` });
 
       // Redirect to event detail page
       navigate(`/events/${event.id}`);
     } catch (error: any) {
-      toast({
-        title: t('status.error', { ns: 'common' }),
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(t('status.error', { ns: 'common' }), { description: error.message });
     } finally {
       setJoining(false);
     }

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { joinTeamByCode } from "@/lib/teams";
 
@@ -25,7 +25,7 @@ interface TeamInfo {
 export default function JoinTeam() {
   const { code } = useParams<{ code: string }>();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
   const { t } = useTranslation('common');
   const { t: tTeams } = useTranslation('teams');
   const [team, setTeam] = useState<TeamInfo | null>(null);
@@ -93,24 +93,14 @@ export default function JoinTeam() {
       const result = await joinTeamByCode(code);
 
       if (result.alreadyMember) {
-        toast({
-          title: tTeams('toast.alreadyMember'),
-          description: tTeams('toast.alreadyMemberDesc'),
-        });
+        toast(tTeams('toast.alreadyMember'), { description: tTeams('toast.alreadyMemberDesc') });
       } else {
-        toast({
-          title: t('status.success'),
-          description: tTeams('toast.joinSuccess', { name: team?.name }),
-        });
+        toast.success(t('status.success'), { description: tTeams('toast.joinSuccess', { name: team?.name }) });
       }
 
       navigate(`/teams/${result.teamId}`);
     } catch (err: any) {
-      toast({
-        title: t('status.error'),
-        description: err.message || tTeams('toast.leaveError'),
-        variant: "destructive",
-      });
+      toast.error(t('status.error'), { description: err.message || tTeams('toast.leaveError') });
     } finally {
       setIsJoining(false);
     }

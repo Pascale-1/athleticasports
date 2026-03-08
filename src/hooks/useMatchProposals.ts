@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface MatchProposal {
@@ -27,11 +27,8 @@ export interface MatchProposal {
 export const useMatchProposals = () => {
   const [proposals, setProposals] = useState<MatchProposal[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
-
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Declare fetchProposals BEFORE it's used
   const fetchProposals = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -40,21 +37,13 @@ export const useMatchProposals = () => {
         return;
       }
 
-      // First, get proposals
       const { data, error } = await supabase
         .from("match_proposals")
         .select(`
           *,
           event:events (
-            id,
-            title,
-            start_time,
-            end_time,
-            location,
-            type,
-            max_participants,
-            players_needed,
-            created_by
+            id, title, start_time, end_time, location, type,
+            max_participants, players_needed, created_by
           )
         `)
         .eq("player_user_id", user.id)
@@ -63,7 +52,6 @@ export const useMatchProposals = () => {
 
       if (error) throw error;
 
-      // Get user's existing attendance to filter out proposals for events they already responded to
       const { data: userAttendance } = await supabase
         .from("event_attendance")
         .select("event_id, status")
@@ -72,7 +60,6 @@ export const useMatchProposals = () => {
 
       const respondedEventIds = new Set(userAttendance?.map(a => a.event_id) || []);
 
-      // Filter out proposals for events where user already has definitive attendance
       const filteredProposals = (data || []).filter(
         (p) => !respondedEventIds.has(p.event_id)
       );
@@ -94,16 +81,13 @@ export const useMatchProposals = () => {
     fetchProposals();
   }, []);
 
-  // Use ref to store fetchProposals for stable callback
   const fetchProposalsRef = useRef(fetchProposals);
   fetchProposalsRef.current = fetchProposals;
 
-  // Realtime subscription using centralized manager
   const handleRealtimeChange = useCallback(() => {
     fetchProposalsRef.current();
   }, []);
 
-  // Subscribe to both match_proposals and event_attendance for real-time updates
   useRealtimeSubscription(
     "match-proposals",
     [{ table: "match_proposals", event: "*", filter: userId ? `player_user_id=eq.${userId}` : undefined }],
@@ -119,7 +103,6 @@ export const useMatchProposals = () => {
   );
 
   const acceptProposal = async (proposalId: string) => {
-    // Track completed operations for rollback
     let proposalUpdated = false;
     let attendanceCreated = false;
     let previousAvailabilityIds: string[] = [];
@@ -129,10 +112,8 @@ export const useMatchProposals = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
-
       if (!proposal) throw new Error("Proposal not found");
 
-      // Step 1: Update proposal status
       const { error: proposalError } = await supabase
         .from("match_proposals")
         .update({
@@ -141,12 +122,11 @@ export const useMatchProposals = () => {
           commitment_acknowledged_at: new Date().toISOString(),
         })
         .eq("id", proposalId)
-        .eq("status", "pending"); // Ensure we only update pending proposals (prevents race condition)
+        .eq("status", "pending");
 
       if (proposalError) throw proposalError;
       proposalUpdated = true;
 
-      // Step 2: Add to event attendance with committed flag
       const { error: attendanceError } = await supabase
         .from("event_attendance")
         .upsert({
@@ -161,7 +141,6 @@ export const useMatchProposals = () => {
       if (attendanceError) throw attendanceError;
       attendanceCreated = true;
 
-      // Step 3: Get active availability IDs before deactivating (for potential rollback)
       const { data: activeAvailability } = await supabase
         .from("player_availability")
         .select("id")
@@ -170,7 +149,6 @@ export const useMatchProposals = () => {
 
       previousAvailabilityIds = activeAvailability?.map(a => a.id) || [];
 
-      // Step 4: Deactivate player's availability
       if (previousAvailabilityIds.length > 0) {
         const { error: availabilityError } = await supabase
           .from("player_availability")
@@ -180,22 +158,15 @@ export const useMatchProposals = () => {
         if (availabilityError) throw availabilityError;
       }
 
-      toast({
-        title: "Match accepted!",
-        description: "You're now committed to attend this match.",
-      });
-
-      // Refresh proposals
+      toast.success("Match accepted!", { description: "You're now committed to attend this match." });
       await fetchProposals();
       return true;
     } catch (error: any) {
       console.error("Error accepting proposal:", error);
 
-      // Rollback: revert changes in reverse order
       try {
         const { data: { user } } = await supabase.auth.getUser();
 
-        // Rollback availability deactivation
         if (previousAvailabilityIds.length > 0) {
           await supabase
             .from("player_availability")
@@ -203,7 +174,6 @@ export const useMatchProposals = () => {
             .in("id", previousAvailabilityIds);
         }
 
-        // Rollback attendance creation
         if (attendanceCreated && proposal && user) {
           await supabase
             .from("event_attendance")
@@ -212,7 +182,6 @@ export const useMatchProposals = () => {
             .eq("user_id", user.id);
         }
 
-        // Rollback proposal status
         if (proposalUpdated) {
           await supabase
             .from("match_proposals")
@@ -227,11 +196,7 @@ export const useMatchProposals = () => {
         console.error("Error during rollback:", rollbackError);
       }
 
-      toast({
-        title: "Error",
-        description: error.message || "Failed to accept proposal",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to accept proposal" });
       return false;
     }
   };
@@ -248,20 +213,12 @@ export const useMatchProposals = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Proposal declined",
-        description: "We'll keep looking for other matches.",
-      });
-
+      toast("Proposal declined", { description: "We'll keep looking for other matches." });
       await fetchProposals();
       return true;
     } catch (error: any) {
       console.error("Error declining proposal:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to decline proposal",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to decline proposal" });
       return false;
     }
   };

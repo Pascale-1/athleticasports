@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { AlertTriangle, Trash2, UserCog } from "lucide-react";
 
 interface TeamDangerZoneProps {
@@ -34,7 +34,7 @@ interface TeamDangerZoneProps {
 export const TeamDangerZone = ({ team }: TeamDangerZoneProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation('teams');
-  const { toast } = useToast();
+  
   const { members } = useTeamMembers(team.id);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [selectedNewOwner, setSelectedNewOwner] = useState("");
@@ -47,29 +47,18 @@ export const TeamDangerZone = ({ team }: TeamDangerZoneProps) => {
 
   const handleDeleteTeam = async () => {
     if (deleteConfirmation !== team.name) {
-      toast({
-        title: t('toast.nameError'),
-        description: t('toast.nameError'),
-        variant: "destructive",
-      });
+      toast.error(t('toast.nameError'));
       return;
     }
 
     setIsDeleting(true);
     try {
       await deleteTeam(team.id);
-      toast({
-        title: t('toast.deleteSuccess'),
-        description: t('toast.deleteSuccess'),
-      });
+      toast.success(t('toast.deleteSuccess'));
       navigate("/teams");
     } catch (error) {
       console.error("Error deleting team:", error);
-      toast({
-        title: t('toast.deleteError'),
-        description: t('toast.deleteError'),
-        variant: "destructive",
-      });
+      toast.error(t('toast.deleteError'));
     } finally {
       setIsDeleting(false);
     }
@@ -77,29 +66,18 @@ export const TeamDangerZone = ({ team }: TeamDangerZoneProps) => {
 
   const handleTransferOwnership = async () => {
     if (!selectedNewOwner) {
-      toast({
-        title: t('toast.selectOwnerError'),
-        description: t('toast.selectOwnerError'),
-        variant: "destructive",
-      });
+      toast.error(t('toast.selectOwnerError'));
       return;
     }
 
     setIsTransferring(true);
     try {
       await transferTeamOwnership(team.id, selectedNewOwner);
-      toast({
-        title: t('toast.transferSuccess'),
-        description: t('toast.transferSuccess'),
-      });
+      toast.success(t('toast.transferSuccess'));
       navigate(`/teams/${team.id}`);
     } catch (error) {
       console.error("Error transferring ownership:", error);
-      toast({
-        title: t('toast.transferError'),
-        description: t('toast.transferError'),
-        variant: "destructive",
-      });
+      toast.error(t('toast.transferError'));
     } finally {
       setIsTransferring(false);
     }

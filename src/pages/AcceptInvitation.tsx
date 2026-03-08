@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -22,7 +22,7 @@ interface TeamInfo {
 const AcceptInvitation = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { toast } = useToast();
+  
   const { t } = useTranslation('common');
   const { t: tTeams } = useTranslation('teams');
   const [pageState, setPageState] = useState<PageState>("loading");
@@ -113,15 +113,9 @@ const AcceptInvitation = () => {
       setPageState("success");
 
       if (data.alreadyAccepted) {
-        toast({
-          title: tTeams('toast.alreadyMember'),
-          description: tTeams('toast.alreadyMemberDesc'),
-        });
+        toast(tTeams('toast.alreadyMember'), { description: tTeams('toast.alreadyMemberDesc') });
       } else {
-        toast({
-          title: t('status.success'),
-          description: tTeams('toast.joinSuccess', { name: '' }),
-        });
+        toast.success(t('status.success'), { description: tTeams('toast.joinSuccess', { name: '' }) });
       }
 
       setTimeout(() => navigate(`/teams/${data.teamId}`), 1500);
@@ -131,11 +125,7 @@ const AcceptInvitation = () => {
       const errorMessage = err.message || tTeams('toast.leaveError');
       setError(errorMessage);
       setPageState("error");
-      toast({
-        variant: "destructive",
-        title: t('status.error'),
-        description: errorMessage,
-      });
+      toast.error(t('status.error'), { description: errorMessage });
     }
   };
 

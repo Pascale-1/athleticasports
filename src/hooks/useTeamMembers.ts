@@ -1,13 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { TeamMemberWithProfile } from "@/lib/teams";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export const useTeamMembers = (teamId: string | null) => {
   const [members, setMembers] = useState<TeamMemberWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
   const fetchMembers = async () => {
     if (!teamId) {
@@ -16,7 +15,6 @@ export const useTeamMembers = (teamId: string | null) => {
     }
 
     try {
-      // Fetch members with roles (no embedded join on profiles_public view)
       const { data: membersData, error } = await supabase
         .from("team_members")
         .select(`
@@ -30,7 +28,6 @@ export const useTeamMembers = (teamId: string | null) => {
 
       if (error) throw error;
 
-      // Fetch profiles separately to avoid PostgREST view join issue
       const userIds = membersData.map((m) => m.user_id);
       let profilesMap: Record<string, { username: string; display_name: string | null; avatar_url: string | null }> = {};
 
@@ -71,11 +68,9 @@ export const useTeamMembers = (teamId: string | null) => {
     fetchMembers();
   }, [teamId]);
 
-  // Use ref to store fetchMembers for stable callback
   const fetchMembersRef = useRef(fetchMembers);
   fetchMembersRef.current = fetchMembers;
 
-  // Realtime subscription using centralized manager
   const handleRealtimeChange = useCallback(() => {
     fetchMembersRef.current();
   }, []);
@@ -99,20 +94,11 @@ export const useTeamMembers = (teamId: string | null) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Member removed from team",
-      });
-
-      // Immediately refetch to update member list
+      toast.success("Success", { description: "Member removed from team" });
       await fetchMembers();
     } catch (error) {
       console.error("Error removing member:", error);
-      toast({
-        title: "Error",
-        description: "Failed to remove member",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: "Failed to remove member" });
     }
   };
 
@@ -135,20 +121,11 @@ export const useTeamMembers = (teamId: string | null) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Member role updated",
-      });
-
-      // Immediately refetch to show updated role
+      toast.success("Success", { description: "Member role updated" });
       await fetchMembers();
     } catch (error) {
       console.error("Error updating role:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update member role",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: "Failed to update member role" });
     }
   };
 

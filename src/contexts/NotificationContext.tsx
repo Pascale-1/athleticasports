@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -39,7 +39,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
   const { user } = useAuth();
   const notificationsRef = useRef(notifications);
   notificationsRef.current = notifications;
@@ -84,9 +83,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setNotifications((prev) => [newNotification, ...prev]);
       setUnreadCount((prev) => prev + 1);
 
-      toast({
-        title: newNotification.title,
+      toast(newNotification.title, {
         description: newNotification.message,
+        duration: 5000,
       });
     } else if (payload.eventType === "UPDATE") {
       const updatedNotification = payload.new as Notification;
@@ -102,7 +101,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         return prev;
       });
     }
-  }, [toast]);
+  }, []);
 
   useRealtimeSubscription(
     "user-notifications-context",

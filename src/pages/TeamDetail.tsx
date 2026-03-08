@@ -18,7 +18,7 @@ import { useTeamInvitations } from "@/hooks/useTeamInvitations";
 import { useTeamAnnouncements } from "@/hooks/useTeamAnnouncements";
 import { useEvents } from "@/hooks/useEvents";
 import { leaveTeam } from "@/lib/teams";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Loader2, Lock, UserPlus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -32,7 +32,7 @@ const TeamDetail = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation('teams');
-  const { toast } = useToast();
+  
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [memberCount, setMemberCount] = useState(0);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
@@ -79,17 +79,10 @@ const TeamDetail = () => {
     
     try {
       await leaveTeam(teamId);
-      toast({
-        title: t('toast.leaveSuccess'),
-        description: t('toast.leaveSuccess'),
-      });
+      toast.success(t('toast.leaveSuccess'));
       navigate("/teams");
     } catch (error) {
-      toast({
-        title: t('toast.leaveError'),
-        description: t('toast.leaveError'),
-        variant: "destructive",
-      });
+      toast.error(t('toast.leaveError'));
     }
   };
 
@@ -125,11 +118,10 @@ const TeamDetail = () => {
         .insert({ team_member_id: memberData.id, role: 'member' });
       if (roleError) throw roleError;
 
-      toast({ title: t('toast.joinSuccess', { name: team?.name }) });
-      // Smooth refresh instead of full page reload
+      toast.success(t('toast.joinSuccess', { name: team?.name }));
       window.location.replace(window.location.href);
     } catch (error) {
-      toast({ title: t('toast.joinError'), variant: "destructive" });
+      toast.error(t('toast.joinError'));
     }
   };
 

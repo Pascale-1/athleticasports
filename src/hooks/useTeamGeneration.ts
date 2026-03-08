@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface GeneratedTeamMember {
@@ -26,9 +26,7 @@ export const useTeamGeneration = (sessionId: string | null) => {
   const [teams, setTeams] = useState<GeneratedTeam[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-  const { toast } = useToast();
 
-  // Declare fetchTeams BEFORE it's used
   const fetchTeams = async () => {
     if (!sessionId) {
       setLoading(false);
@@ -59,7 +57,6 @@ export const useTeamGeneration = (sessionId: string | null) => {
 
           if (membersError) throw membersError;
 
-          // Fetch profiles for members
           const userIds = membersData?.map(m => m.user_id) || [];
           const { data: profilesData, error: profilesError } = await supabase
             .from("profiles_public")
@@ -68,7 +65,6 @@ export const useTeamGeneration = (sessionId: string | null) => {
 
           if (profilesError) throw profilesError;
 
-          // Merge profiles with members
           const profileMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
           const membersWithProfiles = (membersData || []).map(member => ({
             ...member,
@@ -98,11 +94,9 @@ export const useTeamGeneration = (sessionId: string | null) => {
     fetchTeams();
   }, [sessionId]);
 
-  // Use ref to store fetchTeams for stable callback
   const fetchTeamsRef = useRef(fetchTeams);
   fetchTeamsRef.current = fetchTeams;
 
-  // Realtime subscription using centralized manager
   const handleRealtimeChange = useCallback(() => {
     fetchTeamsRef.current();
   }, []);
@@ -121,26 +115,16 @@ export const useTeamGeneration = (sessionId: string | null) => {
     try {
       const { data, error } = await supabase.functions.invoke(
         "generate-balanced-teams",
-        {
-          body: { sessionId, numTeams },
-        }
+        { body: { sessionId, numTeams } }
       );
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: `Generated ${numTeams} balanced teams`,
-      });
-
+      toast.success("Success", { description: `Generated ${numTeams} balanced teams` });
       return data;
     } catch (error: any) {
       console.error("Error generating teams:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to generate teams",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to generate teams" });
     } finally {
       setGenerating(false);
     }
@@ -156,22 +140,13 @@ export const useTeamGeneration = (sessionId: string | null) => {
         .eq("event_id", sessionId);
 
       if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Teams cleared",
-      });
+      toast.success("Success", { description: "Teams cleared" });
     } catch (error: any) {
       console.error("Error deleting teams:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete teams",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to delete teams" });
     }
   };
 
-  // Manual assignment methods
   const createGroup = async (): Promise<string | undefined> => {
     if (!sessionId) return;
 
@@ -194,11 +169,7 @@ export const useTeamGeneration = (sessionId: string | null) => {
       return data?.id;
     } catch (error: any) {
       console.error("Error creating group:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create group",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to create group" });
     }
   };
 
@@ -213,11 +184,7 @@ export const useTeamGeneration = (sessionId: string | null) => {
       await fetchTeams();
     } catch (error: any) {
       console.error("Error deleting group:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete group",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to delete group" });
     }
   };
 
@@ -238,11 +205,7 @@ export const useTeamGeneration = (sessionId: string | null) => {
       await fetchTeams();
     } catch (error: any) {
       console.error("Error assigning player:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to assign player",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to assign player" });
     }
   };
 
@@ -257,11 +220,7 @@ export const useTeamGeneration = (sessionId: string | null) => {
       await fetchTeams();
     } catch (error: any) {
       console.error("Error removing player:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to remove player",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to remove player" });
     }
   };
 

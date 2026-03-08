@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface TrainingSession {
@@ -19,7 +19,6 @@ export interface TrainingSession {
 export const useTrainingSessions = (teamId: string | null) => {
   const [sessions, setSessions] = useState<TrainingSession[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
   const fetchSessions = async () => {
     if (!teamId) {
@@ -47,11 +46,9 @@ export const useTrainingSessions = (teamId: string | null) => {
     fetchSessions();
   }, [teamId]);
 
-  // Use ref to store fetchSessions for stable callback
   const fetchSessionsRef = useRef(fetchSessions);
   fetchSessionsRef.current = fetchSessions;
 
-  // Realtime subscription using centralized manager
   const handleRealtimeChange = useCallback(() => {
     fetchSessionsRef.current();
   }, []);
@@ -85,20 +82,11 @@ export const useTrainingSessions = (teamId: string | null) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Training session created",
-      });
-
-      // Immediately refetch to show the new session
+      toast.success("Success", { description: "Training session created" });
       await fetchSessions();
     } catch (error: any) {
       console.error("Error creating session:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create training session",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to create training session" });
     }
   };
 
@@ -114,20 +102,11 @@ export const useTrainingSessions = (teamId: string | null) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Training session updated",
-      });
-
-      // Immediately refetch to show the updates
+      toast.success("Success", { description: "Training session updated" });
       await fetchSessions();
     } catch (error) {
       console.error("Error updating session:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update training session",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: "Failed to update training session" });
     }
   };
 
@@ -140,20 +119,11 @@ export const useTrainingSessions = (teamId: string | null) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Training session deleted",
-      });
-
-      // Immediately refetch to remove deleted session
+      toast.success("Success", { description: "Training session deleted" });
       await fetchSessions();
     } catch (error) {
       console.error("Error deleting session:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete training session",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: "Failed to delete training session" });
     }
   };
 

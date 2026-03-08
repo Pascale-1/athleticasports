@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -17,7 +17,6 @@ import { Loader2 } from "lucide-react";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const { t } = useTranslation('auth');
   const [searchParams] = useSearchParams();
   const [newPassword, setNewPassword] = useState("");
@@ -31,7 +30,6 @@ const ResetPassword = () => {
     const type = searchParams.get('type');
 
     if (tokenHash && type === 'recovery') {
-      // Direct token-based verification (bypasses Supabase redirects)
       sessionStorage.setItem('password_recovery_active', 'true');
       supabase.auth.verifyOtp({
         token_hash: tokenHash,
@@ -47,7 +45,6 @@ const ResetPassword = () => {
       return;
     }
 
-    // Fallback: legacy hash-based recovery flow
     const hash = window.location.hash;
     if (hash && hash.includes('type=recovery')) {
       sessionStorage.setItem('password_recovery_active', 'true');
@@ -77,11 +74,11 @@ const ResetPassword = () => {
 
   const handleReset = async () => {
     if (newPassword.length < 6) {
-      toast({ variant: "destructive", title: t('resetPassword'), description: t('passwordMin') });
+      toast.error(t('resetPassword'), { description: t('passwordMin') });
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast({ variant: "destructive", title: t('resetPassword'), description: t('passwordMismatch') });
+      toast.error(t('resetPassword'), { description: t('passwordMismatch') });
       return;
     }
 
@@ -90,10 +87,10 @@ const ResetPassword = () => {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
       sessionStorage.removeItem('password_recovery_active');
-      toast({ title: t('passwordResetSuccess'), description: t('passwordResetSuccessDesc') });
+      toast.success(t('passwordResetSuccess'), { description: t('passwordResetSuccessDesc') });
       navigate("/");
     } catch (error: any) {
-      toast({ variant: "destructive", title: t('resetPassword'), description: error.message });
+      toast.error(t('resetPassword'), { description: error.message });
     } finally {
       setLoading(false);
     }
