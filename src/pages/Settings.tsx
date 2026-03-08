@@ -115,7 +115,6 @@ const Settings = () => {
       const { error } = await supabase
         .from('profiles')
         .update({
-          full_name: values.fullName || null,
           display_name: values.displayName || null,
           primary_sport: values.primarySport || null,
           team_name: values.teamName || null,
