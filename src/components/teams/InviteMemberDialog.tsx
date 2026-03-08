@@ -115,7 +115,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canMa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="mx-3 sm:mx-auto max-w-md max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-lg sm:text-xl">{t("inviteMembers.title")}</DialogTitle>
           <DialogDescription className="text-xs sm:text-sm">
