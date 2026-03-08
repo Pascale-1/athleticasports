@@ -1516,6 +1516,7 @@ export type Database = {
         Args: { notification_id: string }
         Returns: undefined
       }
+      resolve_user_id_by_email: { Args: { _email: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

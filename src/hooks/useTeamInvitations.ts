@@ -101,9 +101,9 @@ export const useTeamInvitations = (teamId: string | null) => {
           invitedUserId = exactMatch.user_id;
         } else if (emailOrUserId.includes('@')) {
           // Resolve user by email via secure DB function
-          const { data: resolvedUserId } = await supabase.rpc('resolve_user_id_by_email', { _email: emailOrUserId });
+          const { data: resolvedUserId } = await supabase.rpc('resolve_user_id_by_email' as any, { _email: emailOrUserId });
           if (resolvedUserId) {
-            invitedUserId = resolvedUserId;
+            invitedUserId = resolvedUserId as string;
           }
         }
       }
