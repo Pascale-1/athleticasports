@@ -93,15 +93,9 @@ export default function JoinTeam() {
       const result = await joinTeamByCode(code);
 
       if (result.alreadyMember) {
-        toast({
-          title: tTeams('toast.alreadyMember'),
-          description: tTeams('toast.alreadyMemberDesc'),
-        });
+        toast(tTeams('toast.alreadyMember'), { description: tTeams('toast.alreadyMemberDesc') });
       } else {
-        toast({
-          title: t('status.success'),
-          description: tTeams('toast.joinSuccess', { name: team?.name }),
-        });
+        toast.success(t('status.success'), { description: tTeams('toast.joinSuccess', { name: team?.name }) });
       }
 
       navigate(`/teams/${result.teamId}`);
