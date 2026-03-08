@@ -2,8 +2,23 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MapPin, Loader2, X } from "lucide-react";
+import { MapPin, Loader2, X, Globe } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+
+const COUNTRIES = [
+  { code: "fr", label: "🇫🇷", name: "France" },
+  { code: "gb", label: "🇬🇧", name: "UK" },
+  { code: "us", label: "🇺🇸", name: "USA" },
+  { code: "de", label: "🇩🇪", name: "Germany" },
+  { code: "es", label: "🇪🇸", name: "Spain" },
+  { code: "it", label: "🇮🇹", name: "Italy" },
+  { code: "be", label: "🇧🇪", name: "Belgium" },
+  { code: "ch", label: "🇨🇭", name: "Switzerland" },
+  { code: "nl", label: "🇳🇱", name: "Netherlands" },
+  { code: "pt", label: "🇵🇹", name: "Portugal" },
+  { code: "", label: "🌍", name: "All" },
+] as const;
 
 interface AddressSuggestion {
   place_id: number;
@@ -50,6 +65,7 @@ export const AddressAutocomplete = ({
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [selectedCountry, setSelectedCountry] = useState("fr");
 
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -71,6 +87,13 @@ export const AddressAutocomplete = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+  // Re-search when country changes
+  useEffect(() => {
+    if (inputValue.length >= 3) {
+      searchAddress(inputValue);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCountry]);
 
   const searchAddress = useCallback(async (query: string) => {
     if (query.length < 3) {
@@ -81,7 +104,6 @@ export const AddressAutocomplete = ({
     setIsLoading(true);
 
     try {
-      // Bias results towards France/Paris area
       const params = new URLSearchParams({
         q: query,
         format: "json",
@@ -89,6 +111,10 @@ export const AddressAutocomplete = ({
         limit: "5",
         "accept-language": lang,
       });
+
+      if (selectedCountry) {
+        params.set("countrycodes", selectedCountry);
+      }
 
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?${params}`,
@@ -111,7 +137,7 @@ export const AddressAutocomplete = ({
     } finally {
       setIsLoading(false);
     }
-  }, [lang]);
+  }, [lang, selectedCountry]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -244,10 +270,43 @@ export const AddressAutocomplete = ({
         </Label>
       )}
 
-      <div className="relative">
-        {ghost ? (
-          <div className="overflow-x-auto">
-            <input
+      <div className="flex gap-2 items-center">
+        <Select value={selectedCountry || "__all__"} onValueChange={(val) => setSelectedCountry(val === "__all__" ? "" : val)}>
+          <SelectTrigger className="w-[72px] shrink-0 h-9 px-2">
+            <SelectValue>
+              {COUNTRIES.find(c => c.code === selectedCountry)?.label || "🌍"}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {COUNTRIES.map((country) => (
+              <SelectItem key={country.code || "all"} value={country.code || "__all__"}>
+                <span className="flex items-center gap-2">
+                  <span>{country.label}</span>
+                  <span className="text-xs text-muted-foreground">{country.name}</span>
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <div className="relative flex-1 min-w-0">
+          {ghost ? (
+            <div className="overflow-x-auto">
+              <input
+                ref={inputRef}
+                type="text"
+                value={inputValue}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                placeholder={placeholder || (lang === "fr" ? "Rechercher une adresse..." : "Search for an address...")}
+                disabled={disabled}
+                className="w-full bg-transparent border-b border-border/40 focus:border-primary outline-none text-sm placeholder:text-muted-foreground/50 text-foreground pr-10 pb-1 transition-all duration-200"
+                autoComplete="off"
+              />
+            </div>
+          ) : (
+            <Input
               ref={inputRef}
               type="text"
               value={inputValue}
@@ -256,26 +315,12 @@ export const AddressAutocomplete = ({
               onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
               placeholder={placeholder || (lang === "fr" ? "Rechercher une adresse..." : "Search for an address...")}
               disabled={disabled}
-              className="w-full bg-transparent border-b border-border/40 focus:border-primary outline-none text-sm placeholder:text-muted-foreground/50 text-foreground pr-10 pb-1 transition-all duration-200"
+              className="pr-16"
               autoComplete="off"
             />
-          </div>
-        ) : (
-          <Input
-            ref={inputRef}
-            type="text"
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-            placeholder={placeholder || (lang === "fr" ? "Rechercher une adresse..." : "Search for an address...")}
-            disabled={disabled}
-            className="pr-16"
-            autoComplete="off"
-          />
-        )}
+          )}
 
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
           {isLoading && (
             <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
           )}
@@ -288,6 +333,7 @@ export const AddressAutocomplete = ({
               <X className="h-4 w-4" />
             </button>
           )}
+        </div>
         </div>
       </div>
 
