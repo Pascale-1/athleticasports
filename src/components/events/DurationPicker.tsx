@@ -46,7 +46,7 @@ export const DurationPicker = ({
   };
 
   return (
-    <div className={cn("flex flex-wrap gap-1.5", className)}>
+    <div className={cn("flex flex-nowrap gap-1.5 overflow-x-auto scrollbar-hide", className)}>
       {presets.map((preset) => (
         <button
           key={preset}

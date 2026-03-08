@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { MapPin, Loader2, X, Globe } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -270,42 +271,87 @@ export const AddressAutocomplete = ({
         </Label>
       )}
 
-      <div className="flex gap-1.5 items-center">
-        <Select value={selectedCountry || "__all__"} onValueChange={(val) => setSelectedCountry(val === "__all__" ? "" : val)}>
-          <SelectTrigger className="w-[52px] shrink-0 h-9 px-1.5">
-            <SelectValue>
-              {COUNTRIES.find(c => c.code === selectedCountry)?.label || "🌍"}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {COUNTRIES.map((country) => (
-              <SelectItem key={country.code || "all"} value={country.code || "__all__"}>
-                <span className="flex items-center gap-2">
+      {ghost ? (
+        /* Ghost mode: minimal inline flag button + popover for country */
+        <div className="flex gap-1 items-center">
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className="shrink-0 text-base leading-none p-0 bg-transparent border-0 outline-none hover:opacity-70 transition-opacity"
+              >
+                {COUNTRIES.find(c => c.code === selectedCountry)?.label || "🌍"}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-40 p-1" align="start">
+              {COUNTRIES.map((country) => (
+                <button
+                  key={country.code || "all"}
+                  type="button"
+                  onClick={() => setSelectedCountry(country.code)}
+                  className={cn(
+                    "w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm hover:bg-accent transition-colors",
+                    selectedCountry === country.code && "bg-accent"
+                  )}
+                >
                   <span>{country.label}</span>
                   <span className="text-xs text-muted-foreground">{country.name}</span>
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+                </button>
+              ))}
+            </PopoverContent>
+          </Popover>
 
-        <div className="relative flex-1 min-w-0">
-          {ghost ? (
-            <div className="overflow-x-auto">
-              <input
-                ref={inputRef}
-                type="text"
-                value={inputValue}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-                placeholder={placeholder || (lang === "fr" ? "Rechercher une adresse..." : "Search for an address...")}
-                disabled={disabled}
-                className="w-full bg-transparent border-b border-border/40 focus:border-primary outline-none text-sm placeholder:text-muted-foreground/50 text-foreground pr-10 pb-1 transition-all duration-200"
-                autoComplete="off"
-              />
+          <div className="relative flex-1 min-w-0">
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+              placeholder={placeholder || (lang === "fr" ? "Rechercher une adresse..." : "Search for an address...")}
+              disabled={disabled}
+              className="w-full bg-transparent border-b border-border/40 focus:border-primary outline-none text-sm placeholder:text-muted-foreground/50 text-foreground pr-8 pb-1 transition-all duration-200"
+              autoComplete="off"
+            />
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              {isLoading && (
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+              )}
+              {inputValue && !isLoading && (
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="p-0.5 hover:bg-muted rounded text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
             </div>
-          ) : (
+          </div>
+        </div>
+      ) : (
+        /* Normal mode: full Select + Input */
+        <div className="flex gap-1.5 items-center">
+          <Select value={selectedCountry || "__all__"} onValueChange={(val) => setSelectedCountry(val === "__all__" ? "" : val)}>
+            <SelectTrigger className="w-[52px] shrink-0 h-9 px-1.5">
+              <SelectValue>
+                {COUNTRIES.find(c => c.code === selectedCountry)?.label || "🌍"}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {COUNTRIES.map((country) => (
+                <SelectItem key={country.code || "all"} value={country.code || "__all__"}>
+                  <span className="flex items-center gap-2">
+                    <span>{country.label}</span>
+                    <span className="text-xs text-muted-foreground">{country.name}</span>
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <div className="relative flex-1 min-w-0">
             <Input
               ref={inputRef}
               type="text"
@@ -318,24 +364,23 @@ export const AddressAutocomplete = ({
               className="pr-16"
               autoComplete="off"
             />
-          )}
-
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-          {isLoading && (
-            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-          )}
-          {inputValue && !isLoading && (
-            <button
-              type="button"
-              onClick={handleClear}
-              className="p-1 hover:bg-muted rounded text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              {isLoading && (
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              )}
+              {inputValue && !isLoading && (
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="p-1 hover:bg-muted rounded text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          </div>
         </div>
-        </div>
-      </div>
+      )}
 
       {/* Suggestions dropdown */}
       {showSuggestions && suggestions.length > 0 && (
