@@ -13,7 +13,6 @@ interface ChangePasswordSectionProps {
 
 export const ChangePasswordSection = ({ email }: ChangePasswordSectionProps) => {
   const { t } = useTranslation();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const handleChangePassword = async () => {
