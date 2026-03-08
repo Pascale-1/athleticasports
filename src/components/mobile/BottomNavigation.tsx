@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useAuth } from "@/hooks/useAuth";
+import { useNotificationContext } from "@/contexts/NotificationContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const fetchBadgeCounts = async (userId: string) => {
