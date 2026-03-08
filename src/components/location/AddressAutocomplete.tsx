@@ -59,6 +59,7 @@ interface AddressAutocompleteProps {
 export const AddressAutocomplete = ({
   value,
   onChange,
+  onValidChange,
   label,
   placeholder,
   className,
