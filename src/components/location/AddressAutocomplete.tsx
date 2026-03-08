@@ -152,6 +152,7 @@ export const AddressAutocomplete = ({
     const newValue = e.target.value;
     setInputValue(newValue);
     onChange(newValue); // Update parent immediately
+    onValidChange?.(isAddressFormatValid(newValue));
 
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
@@ -169,6 +170,7 @@ export const AddressAutocomplete = ({
       lat: parseFloat(suggestion.lat),
       lng: parseFloat(suggestion.lon),
     });
+    onValidChange?.(true);
     setShowSuggestions(false);
     setSuggestions([]);
   };
@@ -202,6 +204,7 @@ export const AddressAutocomplete = ({
   const handleClear = () => {
     setInputValue("");
     onChange("");
+    onValidChange?.(false);
     setSuggestions([]);
     setShowSuggestions(false);
     inputRef.current?.focus();
