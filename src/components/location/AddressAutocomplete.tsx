@@ -97,7 +97,6 @@ export const AddressAutocomplete = ({
     setIsLoading(true);
 
     try {
-      // Bias results towards France/Paris area
       const params = new URLSearchParams({
         q: query,
         format: "json",
@@ -105,6 +104,10 @@ export const AddressAutocomplete = ({
         limit: "5",
         "accept-language": lang,
       });
+
+      if (selectedCountry) {
+        params.set("countrycodes", selectedCountry);
+      }
 
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?${params}`,
