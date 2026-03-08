@@ -106,7 +106,7 @@ const PendingInvitations = () => {
         throw new Error(errorMessage || "Failed to accept invitation");
       }
 
-      toast({ title: t("common.success", "Success"), description: t("teams.invitationAccepted", "Invitation accepted!") });
+      toast.success(t("common.success", "Success"), { description: t("teams.invitationAccepted", "Invitation accepted!") });
 
       if (data?.teamId) {
         navigate(`/teams/${data.teamId}`);
