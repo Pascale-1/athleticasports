@@ -1,28 +1,36 @@
 
 
-# Fix: Stale session after background on Android
+## Fix: Email-based invitation doesn't resolve existing user
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+### Root Cause
 
-## Fix
+When you invite by email (e.g. `pascale9a@gmail.com`), the `sendInvitation` function tries to find the user via `profiles_public.username`, which doesn't match emails. Since emails live in `auth.users` (inaccessible client-side), `invited_user_id` stays `null`.
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+**Consequences:**
+- The `notify_team_invitation` trigger checks `IF NEW.invited_user_id IS NOT NULL` — so **no in-app notification** is sent
+- The code falls through to send an email instead, which is the wrong path for existing users
+- The invited user sees the invitation only if they happen to check the pending invitations page (via `email = get_current_user_email()` RLS match), but they're never notified
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+### Fix
 
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
+1. **Database migration** — Create a `SECURITY DEFINER` function `resolve_user_id_by_email(text)` that looks up a user_id from `auth.users` by email. Returns `null` if no match. This is safe because it only returns the UUID, not any private data.
+
+```sql
+CREATE OR REPLACE FUNCTION public.resolve_user_id_by_email(_email text)
+RETURNS uuid
+LANGUAGE sql
+STABLE SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT id FROM auth.users WHERE email = lower(_email) LIMIT 1;
+$$;
 ```
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+2. **`src/hooks/useTeamInvitations.ts`** — In the `sendInvitation` function, when the input is an email (`isUserId=false` and contains `@`), call `supabase.rpc('resolve_user_id_by_email', { _email: emailOrUserId })` to resolve the user. If found, set `invitedUserId` so the notification trigger fires and the user gets an in-app notification instead of (or in addition to) an email.
 
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+3. **`src/hooks/useTeamInvitations.ts`** — Also send the email as a backup even for existing users (they might not check the app immediately), but the primary notification path becomes the in-app notification.
+
+### Changes Summary
+- 1 database migration (new function)
+- 1 file edit (`useTeamInvitations.ts` — update email invitation path to resolve user)
 
