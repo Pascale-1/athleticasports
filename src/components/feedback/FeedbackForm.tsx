@@ -87,10 +87,7 @@ export function FeedbackForm({ open, onOpenChange }: FeedbackFormProps) {
         },
       }).catch((err) => console.error('Feedback notification error:', err));
 
-      toast({
-        title: t('feedback.success'),
-        description: t('feedback.successDescription'),
-      });
+      toast.success(t('feedback.success'), { description: t('feedback.successDescription') });
 
       reset();
       onOpenChange(false);
