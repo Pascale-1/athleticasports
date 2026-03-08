@@ -108,7 +108,7 @@ export const useActivityFeed = (userId?: string) => {
 
       if (userIds.length > 0) {
         const { data: profiles } = await supabase
-          .from('profiles')
+          .from('profiles_public' as any)
           .select('user_id, username, display_name, avatar_url')
           .in('user_id', userIds);
 

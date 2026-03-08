@@ -30,8 +30,8 @@ export const usePendingInvitations = () => {
       }
 
       const { data: profile } = await supabase
-        .from("profiles")
-        .select("username, email")
+        .from("profiles_public" as any)
+        .select("username")
         .eq("user_id", user.id)
         .single();
 
@@ -41,9 +41,10 @@ export const usePendingInvitations = () => {
         return;
       }
 
+      const userEmail = user.email;
       const filters = [`invited_user_id.eq.${user.id}`];
       if (profile.username) filters.push(`email.eq.${profile.username}`);
-      if (profile.email) filters.push(`email.eq.${profile.email}`);
+      if (userEmail) filters.push(`email.eq.${userEmail}`);
 
       const { data: rawInvitations, error } = await supabase
         .from("team_invitations")

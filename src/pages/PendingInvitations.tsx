@@ -38,17 +38,18 @@ const PendingInvitations = () => {
       if (!user) return;
 
       const { data: profile } = await supabase
-        .from("profiles")
-        .select("username, email")
+        .from("profiles_public" as any)
+        .select("username")
         .eq("user_id", user.id)
         .single();
 
       if (!profile) return;
 
+      const userEmail = user.email;
       // Build OR filter for matching invitations
       const filters = [`invited_user_id.eq.${user.id}`];
       if (profile.username) filters.push(`email.eq.${profile.username}`);
-      if (profile.email) filters.push(`email.eq.${profile.email}`);
+      if (userEmail) filters.push(`email.eq.${userEmail}`);
 
       const { data, error } = await supabase
         .from("team_invitations")
