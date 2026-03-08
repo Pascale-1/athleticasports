@@ -108,9 +108,9 @@ export const EventInviteLink = ({
     try {
       const copied = await copyToClipboard(inviteLink);
       if (copied) {
-        toast({ title: t('common:actions.copied'), description: t('events:invite.linkCopied') });
+        toast(t('common:actions.copied'), { description: t('events:invite.linkCopied') });
       } else {
-        toast({ title: t('common:errors.generic', 'Error'), description: t('events:invite.shareFailed', 'Could not share link'), variant: 'destructive' });
+        toast.error(t('common:errors.generic', 'Error'), { description: t('events:invite.shareFailed', 'Could not share link') });
       }
     } catch {
       toast({ title: t('common:errors.generic', 'Error'), description: t('events:invite.shareFailed', 'Could not share link'), variant: 'destructive' });
