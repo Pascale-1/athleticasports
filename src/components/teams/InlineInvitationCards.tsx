@@ -50,6 +50,11 @@ export const InlineInvitationCards = ({ invitations, onRemove, onRefresh }: Inli
       queryClient.invalidateQueries({ queryKey: ['navigation-badges'] });
       toast.success(t("invitationAccepted", "You joined {{team}}!", { team: invitation.team_name }));
       onRefresh();
+      
+      const teamId = res.data?.teamId || invitation.team_id;
+      if (teamId) {
+        navigate(`/teams/${teamId}`);
+      }
     } catch (err: any) {
       toast.error(err.message || "Error");
     } finally {
