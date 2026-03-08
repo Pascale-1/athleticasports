@@ -71,10 +71,7 @@ export const AddToCalendarButton = ({
       if ((error as DOMException)?.name === 'AbortError') return;
       // Fallback to download
       downloadICS(calendarEvent);
-      toast({
-        title: t("calendar.downloaded"),
-        description: t("calendar.downloadedDesc"),
-      });
+      toast.success(t("calendar.downloaded"), { description: t("calendar.downloadedDesc") });
     }
     setIsOpen(false);
   };
