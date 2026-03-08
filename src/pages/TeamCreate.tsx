@@ -100,7 +100,7 @@ const TeamCreate = () => {
               />
             </div>
 
-            <div className="-mx-4 sm:-mx-6 px-4 sm:px-6 overflow-x-auto">
+            <div className="-mx-4 sm:-mx-6 px-4 sm:px-6">
               <Label className="mb-2 block">{t('form.sport')} *</Label>
               <SportQuickSelector
                 value={formData.sport || null}
