@@ -53,10 +53,10 @@ export const DurationPicker = ({
           type="button"
           onClick={() => handlePresetClick(preset)}
           className={cn(
-            "px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-150",
+            "px-2 py-0.5 rounded-full text-xs transition-all duration-150",
             !isCustom && value === preset
-              ? "bg-primary text-primary-foreground border-primary shadow-sm"
-              : "bg-transparent border-border text-muted-foreground hover:text-foreground hover:border-foreground/40"
+              ? "bg-muted text-foreground font-medium"
+              : "text-muted-foreground hover:text-foreground"
           )}
         >
           {formatDuration(preset)}
@@ -67,10 +67,10 @@ export const DurationPicker = ({
         type="button"
         onClick={() => setIsCustom(true)}
         className={cn(
-          "px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-150",
+          "px-2 py-0.5 rounded-full text-xs transition-all duration-150",
           isCustom
-            ? "bg-primary text-primary-foreground border-primary shadow-sm"
-            : "bg-transparent border-border text-muted-foreground hover:text-foreground hover:border-foreground/40"
+            ? "bg-muted text-foreground font-medium"
+            : "text-muted-foreground hover:text-foreground"
         )}
       >
         {isCustom ? formatDuration(value) : t('form.durationCustom')}

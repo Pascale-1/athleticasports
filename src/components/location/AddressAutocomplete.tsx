@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { MapPin, Loader2, X, Globe } from "lucide-react";
+import { MapPin, Loader2, X, Globe, ChevronDown } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
@@ -278,9 +278,10 @@ export const AddressAutocomplete = ({
             <PopoverTrigger asChild>
               <button
                 type="button"
-                className="shrink-0 text-base leading-none p-0 bg-transparent border-0 outline-none hover:opacity-70 transition-opacity"
+                className="shrink-0 flex items-center gap-0.5 text-base leading-none px-1 py-0.5 bg-transparent border-0 outline-none rounded-sm hover:bg-muted transition-colors"
               >
                 {COUNTRIES.find(c => c.code === selectedCountry)?.label || "🌍"}
+                <ChevronDown className="h-2.5 w-2.5 text-muted-foreground" />
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-40 p-1" align="start">

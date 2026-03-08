@@ -1,28 +1,28 @@
 
 
-## Make Country, Team, and Time Selection More Subtle
+# Fix: Stale session after background on Android
 
-### 1. Country selector — more discoverable but subtle (`AddressAutocomplete.tsx`)
-Currently in ghost mode it's just a bare flag emoji with no visual hint it's tappable. 
-- Add a small `ChevronDown` icon (h-2.5 w-2.5) next to the flag to signal interactivity
-- Add a subtle `hover:bg-muted rounded-sm px-1 py-0.5` background on hover so it looks clickable
-- Keep the Popover approach (no layout shift)
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-### 2. Team pills — more subtle (`InlineTeamPills.tsx`)
-The current pills have visible borders and padding that make the row feel heavy.
-- Reduce pill padding from `px-3 py-1.5` to `px-2 py-1`
-- Remove borders on unselected pills — use only `bg-muted/50` background instead of `border-border`
-- Selected state: keep `bg-primary` but lighter — use `bg-primary/10 text-primary border-primary/30` instead of full solid primary
-- Make the `+` create button even smaller: just an icon with `h-5 w-5` circle
-- Reduce overall gap from `gap-1.5` to `gap-1`
+## Fix
 
-### 3. Time + Duration row — more subtle (`UnifiedEventForm.tsx` + `DurationPicker.tsx`)
-Duration preset pills currently look the same weight as team pills — they compete visually.
-- In `DurationPicker.tsx`: reduce preset pill padding from `px-2.5 py-1` to `px-2 py-0.5`, remove borders on unselected (use `text-muted-foreground hover:text-foreground` only), selected uses `bg-muted text-foreground font-medium` instead of full `bg-primary`
-- Separator dot `·` between time input and duration presets instead of just gap
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-### Files to change
-1. **`src/components/location/AddressAutocomplete.tsx`** — Add chevron + hover state to ghost-mode flag button
-2. **`src/components/events/InlineTeamPills.tsx`** — Lighter pill styling, smaller gaps
-3. **`src/components/events/DurationPicker.tsx`** — Subtler preset buttons with no borders
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
+```
+
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 
