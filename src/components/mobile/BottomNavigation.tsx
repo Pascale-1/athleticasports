@@ -1,4 +1,4 @@
-import { Home, Users, Calendar, User } from "lucide-react";
+import { Home, Users, Calendar, User, Bell } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
