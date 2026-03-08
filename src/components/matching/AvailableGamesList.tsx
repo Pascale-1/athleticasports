@@ -13,7 +13,7 @@ import { AvailableGameCard } from "./AvailableGameCard";
 import { getFeaturedSports, getRegularSports } from "@/lib/sports";
 import { PARIS_DISTRICTS, NEARBY_CITIES } from "@/lib/parisDistricts";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface AvailableGamesListProps {
   open: boolean;
