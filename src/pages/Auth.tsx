@@ -246,16 +246,16 @@ const Auth = () => {
           >
             {isSignUp && (
               <div className="space-y-2">
-                <Label htmlFor="fullName">{t('fullName')}</Label>
+                <Label htmlFor="displayName">{t('displayName', t('fullName'))}</Label>
                 <Input
-                  id="fullName"
+                  id="displayName"
                   type="text"
                   placeholder={t('fullNamePlaceholder')}
-                  {...emailForm.register("fullName")}
+                  {...emailForm.register("displayName")}
                 />
-                {emailForm.formState.errors.fullName && (
+                {emailForm.formState.errors.displayName && (
                   <p className="text-sm text-destructive">
-                    {emailForm.formState.errors.fullName.message}
+                    {emailForm.formState.errors.displayName.message}
                   </p>
                 )}
               </div>

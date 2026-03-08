@@ -7,20 +7,18 @@ export const isSystemUsername = (username?: string | null): boolean =>
 /**
  * Returns a friendly display username.
  * - If the user has a custom username → returns it as-is
- * - If the username is a system UID → derives "FirstnameL" from display_name/full_name
+ * - If the username is a system UID → derives "FirstnameL" from display_name
  * - Falls back to the raw username if no name is available
  */
 export const getFriendlyUsername = (
   username: string,
   displayName?: string | null,
-  fullName?: string | null
 ): string => {
   if (!isSystemUsername(username)) return username;
 
-  const name = displayName || fullName;
-  if (!name) return username;
+  if (!displayName) return username;
 
-  const parts = name.trim().split(/\s+/);
+  const parts = displayName.trim().split(/\s+/);
   if (parts.length > 1) {
     return parts[0] + parts[parts.length - 1][0].toUpperCase();
   }
@@ -33,5 +31,4 @@ export const getFriendlyUsername = (
 export const getDisplayUsername = (
   username: string,
   displayName?: string | null,
-  fullName?: string | null
-): string => `@${getFriendlyUsername(username, displayName, fullName)}`;
+): string => `@${getFriendlyUsername(username, displayName)}`;

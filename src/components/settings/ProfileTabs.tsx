@@ -184,20 +184,6 @@ export const ProfileTabs = ({
             </div>
 
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>{t('profile.fullName')}</Label>
-                {isEditMode ? (
-                  <Input
-                    value={tempValues.fullName}
-                    onChange={(e) => setTempValues({ ...tempValues, fullName: e.target.value })}
-                    placeholder={t('profile.fullName')}
-                  />
-                ) : (
-                  <p className="text-sm py-2 px-3 bg-muted/50 rounded-md min-h-[40px] flex items-center">
-                    {profile?.full_name || <span className="text-muted-foreground">{t('empty.description')}</span>}
-                  </p>
-                )}
-              </div>
 
               <div className="space-y-2">
                 <Label>{t('profile.displayName')}</Label>

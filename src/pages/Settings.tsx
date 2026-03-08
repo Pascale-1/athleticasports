@@ -281,7 +281,7 @@ const Settings = () => {
                 {profile.display_name || profile.username}
               </h1>
               <p className="text-sm text-muted-foreground">
-                {getDisplayUsername(profile.username, profile.display_name, profile.full_name)}
+                {getDisplayUsername(profile.username, profile.display_name)}
               </p>
               {profile.is_founding_member && (
                 <FoundingMemberBadge size="sm" />
