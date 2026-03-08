@@ -43,6 +43,7 @@ const ChooseUsername = lazy(() => import("./pages/ChooseUsername"));
 const ConfirmDeletion = lazy(() => import("./pages/ConfirmDeletion"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const PendingInvitations = lazy(() => import("./pages/PendingInvitations"));
+const Notifications = lazy(() => import("./pages/Notifications"));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -189,6 +190,13 @@ const AppRoutes = () => (
         <ProtectedRoute>
           <AppLayout>
             <TeamSettings />
+          </AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/notifications" element={
+        <ProtectedRoute>
+          <AppLayout>
+            <Notifications />
           </AppLayout>
         </ProtectedRoute>
       } />

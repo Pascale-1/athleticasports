@@ -1,41 +1,28 @@
 
 
-## Fix Push Notification Flow
+# Fix: Stale session after background on Android
 
-### Issues Found
+## Problem
+In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
 
-1. **`PushNotificationPrompt` is never mounted** — The component exists (`src/components/notifications/PushNotificationPrompt.tsx`) but is not rendered anywhere in the app. Users are never asked to enable push notifications on first launch.
+## Fix
 
-2. **No auto-registration on app launch** — Even if a user previously granted permission, the hook only registers when explicitly called via `subscribe()`. On a fresh app launch, the device token is never sent to the server unless the user manually toggles the setting.
+**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
 
-3. **No notification trigger for chat messages** — There's no database trigger to create a notification row when a team chat message is sent, so chat messages never trigger push notifications.
+Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
 
-4. **In-app notification center already exists** — The `NotificationBell` + `NotificationPanel` already serve as the fallback in-app notification center. No new work needed here, but it could use a dedicated full-page view on mobile for better UX.
+```tsx
+const handleVisibility = () => {
+  if (document.visibilityState === 'visible') {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUser(session?.user ?? null);
+    });
+  }
+};
+```
 
-### Plan
+The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
 
-**1. Mount `PushNotificationPrompt` in `AppLayout` and `MobileLayout`**
-- Import and render `<PushNotificationPrompt />` in both layout components so users see the permission prompt on first authenticated launch.
-
-**2. Auto-register on app launch when permission is already granted**
-- In `usePushNotifications.ts`, add logic: if `permissionState === "granted"` and `!isSubscribed`, automatically call `PushNotifications.register()` to refresh the device token. This ensures the token is always current after app reinstalls or token rotations.
-
-**3. Add chat message notification trigger (database migration)**
-- Create a trigger function `notify_team_chat_message()` on the `team_messages` table that creates a notification for all other active team members when a message is inserted. This will cascade through the existing `trigger_push_notification` trigger on the `notifications` table.
-
-**4. Add a dedicated Notifications page for mobile**
-- Create `src/pages/Notifications.tsx` — a full-page view of all notifications (reuses `NotificationPanel`).
-- Add a route `/notifications` in `App.tsx`.
-- Add a bell icon / nav item in `BottomNavigation.tsx` with unread badge.
-
-### Files Changed
-| File | Change |
-|---|---|
-| `src/components/AppLayout.tsx` | Mount `<PushNotificationPrompt />` |
-| `src/components/mobile/MobileLayout.tsx` | Mount `<PushNotificationPrompt />` |
-| `src/hooks/usePushNotifications.ts` | Auto-register when permission already granted |
-| `src/pages/Notifications.tsx` | New full-page notification center |
-| `src/App.tsx` | Add `/notifications` route |
-| `src/components/mobile/BottomNavigation.tsx` | Add notifications tab with badge |
-| Database migration | Add `notify_team_chat_message()` trigger |
+### Files changed
+- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
 

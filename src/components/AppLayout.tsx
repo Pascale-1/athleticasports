@@ -8,6 +8,7 @@ import { useTheme } from "next-themes";
 import { Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { PushNotificationPrompt } from "@/components/notifications/PushNotificationPrompt";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -47,6 +48,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               <NotificationBell />
             </div>
           </header>
+          <PushNotificationPrompt />
           <main className="flex-1 p-6 md:p-8 bg-background min-h-screen">
             <div className="mx-auto max-w-7xl">
               {children}

@@ -27,7 +27,11 @@
     "home": "Accueil",
     "teams": "Équipes",
     "events": "Événements",
-    "profile": "Profil"
+    "profile": "Profil",
+    "notifications": "Notifications"
+  },
+  "notifications": {
+    "markAllRead": "Tout marquer comme lu"
   },
   "actions": {
     "save": "Enregistrer",

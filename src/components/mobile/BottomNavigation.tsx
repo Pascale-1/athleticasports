@@ -1,4 +1,4 @@
-import { Home, Users, Calendar, User } from "lucide-react";
+import { Home, Users, Calendar, User, Bell } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useAuth } from "@/hooks/useAuth";
+import { useNotificationContext } from "@/contexts/NotificationContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const fetchBadgeCounts = async (userId: string) => {
@@ -43,6 +44,7 @@ export const BottomNavigation = () => {
   const location = useLocation();
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { unreadCount } = useNotificationContext();
   const queryClient = useQueryClient();
   const userId = user?.id ?? null;
 
@@ -88,6 +90,7 @@ export const BottomNavigation = () => {
     { titleKey: "nav.home", url: "/", icon: Home, badge: 0 },
     { titleKey: "nav.events", url: "/events", icon: Calendar, badge: 0 },
     { titleKey: "nav.teams", url: "/teams", icon: Users, badge: pendingInvites },
+    { titleKey: "nav.notifications", url: "/notifications", icon: Bell, badge: unreadCount },
     { titleKey: "nav.profile", url: "/settings", icon: User, badge: 0 },
   ];
 

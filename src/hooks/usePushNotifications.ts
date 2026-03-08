@@ -14,7 +14,7 @@ export function usePushNotifications() {
 
   const isSupported = Capacitor.isNativePlatform();
 
-  // Check current state
+  // Check current state and auto-register if permission already granted
   useEffect(() => {
     if (!isSupported) {
       setPermissionState("unsupported");
@@ -22,9 +22,17 @@ export function usePushNotifications() {
     }
 
     PushNotifications.checkPermissions().then(({ receive }) => {
-      if (receive === "granted") setPermissionState("granted");
-      else if (receive === "denied") setPermissionState("denied");
-      else setPermissionState("default");
+      if (receive === "granted") {
+        setPermissionState("granted");
+        // Auto-register to refresh device token on every app launch
+        PushNotifications.register().catch((err) =>
+          console.warn("Auto-register failed:", err)
+        );
+      } else if (receive === "denied") {
+        setPermissionState("denied");
+      } else {
+        setPermissionState("default");
+      }
     });
   }, [isSupported]);
 
