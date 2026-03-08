@@ -63,10 +63,7 @@ export function FeedbackForm({ open, onOpenChange }: FeedbackFormProps) {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({
-          title: t('errors.unauthorized'),
-          variant: 'destructive',
-        });
+        toast.error(t('errors.unauthorized'));
         return;
       }
 
