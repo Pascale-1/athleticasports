@@ -69,12 +69,7 @@ export const useTeamActivityFeed = () => {
           date,
           distance,
           duration,
-          created_at,
-          profiles:user_id (
-            username,
-            display_name,
-            avatar_url
-          )
+          created_at
         `)
         .in("user_id", teammateIds)
         .in("visibility", ["public", "team"])
@@ -83,13 +78,22 @@ export const useTeamActivityFeed = () => {
 
       if (error) throw error;
 
+      // Fetch profiles separately since activities has no FK to profiles_public
+      const activityUserIds = [...new Set((activitiesData || []).map(a => a.user_id))];
+      const { data: profilesData } = await supabase
+        .from("profiles_public")
+        .select("user_id, username, display_name, avatar_url")
+        .in("user_id", activityUserIds);
+      
+      const profileMap = new Map((profilesData || []).map(p => [p.user_id, p]));
+
       // Enrich with team names
       const enrichedActivities = activitiesData?.map(activity => {
         const membership = allTeamMembers.find(tm => tm.user_id === activity.user_id);
         const team = teamMemberships.find(tm => tm.team_id === membership?.team_id);
         return {
           ...activity,
-          profile: Array.isArray(activity.profiles) ? activity.profiles[0] : activity.profiles,
+          profile: profileMap.get(activity.user_id) || { username: 'Unknown', display_name: null, avatar_url: null },
           team_name: team?.teams?.name || "Unknown Team",
         };
       }) || [];

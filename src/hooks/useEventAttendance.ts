@@ -18,7 +18,7 @@ export interface EventAttendee {
   responded_at: string;
   is_committed?: boolean;
   has_paid?: boolean;
-  profiles?: {
+  profiles_public?: {
     username: string;
     display_name: string | null;
     avatar_url: string | null;
@@ -51,7 +51,7 @@ export const useEventAttendance = (eventId: string) => {
         .from("event_attendance" as any)
         .select(`
           *,
-          profiles:user_id (
+          profiles_public:user_id (
             username,
             display_name,
             avatar_url

@@ -62,7 +62,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, onInvite, teamId, canMa
         const sanitizedQuery = searchQuery.replace(/[%_]/g, '\\$&');
         
         const { data, error } = await supabase
-          .from("profiles")
+          .from("profiles_public")
           .select("user_id, username, display_name, avatar_url")
           .or(`username.ilike.%${sanitizedQuery}%,display_name.ilike.%${sanitizedQuery}%`)
           .limit(5);

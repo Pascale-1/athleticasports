@@ -82,17 +82,17 @@ export const useTeamInvitations = (teamId: string | null) => {
         
         // Get user's email for the invitation record
         const { data: profile } = await supabase
-          .from("profiles")
-          .select("username, email")
+          .from("profiles_public")
+          .select("username")
           .eq("user_id", emailOrUserId)
           .single();
         
         if (!profile) throw new Error("User not found");
-        email = profile.email || profile.username;
+        email = profile.username;
       } else {
         // Try to find existing user by exact username match first
         const { data: exactMatch } = await supabase
-          .from("profiles")
+          .from("profiles_public")
           .select("user_id, username")
           .eq("username", emailOrUserId)
           .maybeSingle();
@@ -100,16 +100,8 @@ export const useTeamInvitations = (teamId: string | null) => {
         if (exactMatch) {
           invitedUserId = exactMatch.user_id;
         } else if (emailOrUserId.includes('@')) {
-          // Input is an email — check if a user with this email already exists
-          const { data: emailMatch } = await supabase
-            .from("profiles")
-            .select("user_id")
-            .eq("email", emailOrUserId)
-            .maybeSingle();
-
-          if (emailMatch) {
-            invitedUserId = emailMatch.user_id;
-          }
+          // Email-based invitation — we can't look up users by email client-side
+          // The invitation will be matched by email when the user logs in
         }
       }
 

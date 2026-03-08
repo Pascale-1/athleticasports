@@ -15,7 +15,7 @@ interface MembersPreviewProps {
 
 export const MembersPreview = ({ members, canInvite, onInvite, teamId }: MembersPreviewProps) => {
   const { t } = useTranslation(['teams', 'common']);
-  const activeMembers = members.filter(m => m.status === 'active');
+  const activeMembers = members.filter(m => m.status === 'active' && m.profile);
   const managers = activeMembers.filter(m => m.role === 'owner' || m.role === 'admin');
   const regularMembers = activeMembers.filter(m => m.role !== 'owner' && m.role !== 'admin');
 

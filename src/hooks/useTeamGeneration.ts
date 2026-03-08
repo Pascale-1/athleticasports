@@ -62,7 +62,7 @@ export const useTeamGeneration = (sessionId: string | null) => {
           // Fetch profiles for members
           const userIds = membersData?.map(m => m.user_id) || [];
           const { data: profilesData, error: profilesError } = await supabase
-            .from("profiles")
+            .from("profiles_public")
             .select("user_id, username, display_name, avatar_url")
             .in("user_id", userIds);
 

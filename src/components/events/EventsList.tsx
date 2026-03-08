@@ -85,12 +85,12 @@ const EventCardWithAttendance = ({
 
   // Map attendees to the format EventCard expects
   const mappedAttendees = attendees
-    .filter(a => a.status === 'attending' && a.profiles)
+    .filter(a => a.status === 'attending' && a.profiles_public)
     .map(a => ({
       user_id: a.user_id,
-      username: a.profiles?.username,
-      display_name: a.profiles?.display_name ?? undefined,
-      avatar_url: a.profiles?.avatar_url ?? null,
+      username: a.profiles_public?.username,
+      display_name: a.profiles_public?.display_name ?? undefined,
+      avatar_url: a.profiles_public?.avatar_url ?? null,
     }));
 
   return (

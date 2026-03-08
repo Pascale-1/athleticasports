@@ -58,7 +58,7 @@ export const useSessionAttendance = (
       if (attendanceData && attendanceData.length > 0) {
         const userIds = attendanceData.map(a => a.user_id);
         const { data: profilesData, error: profilesError } = await supabase
-          .from("profiles")
+          .from("profiles_public")
           .select("user_id, username, display_name, avatar_url")
           .in("user_id", userIds);
 

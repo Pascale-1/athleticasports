@@ -31,7 +31,7 @@ const ChooseUsername = () => {
     setIsChecking(true);
 
     supabase
-      .from("profiles")
+      .from("profiles_public")
       .select("user_id")
       .eq("username", debouncedInput)
       .maybeSingle()
