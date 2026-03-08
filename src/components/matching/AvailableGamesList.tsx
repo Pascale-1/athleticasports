@@ -37,11 +37,7 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({
-          title: t('common:errors.notAuthenticated'),
-          description: t('common:errors.loginRequired'),
-          variant: "destructive",
-        });
+        toast.error(t('common:errors.notAuthenticated'), { description: t('common:errors.loginRequired') });
         return;
       }
 
