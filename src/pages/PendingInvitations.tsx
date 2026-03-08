@@ -29,7 +29,7 @@ const PendingInvitations = () => {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
   const { t } = useTranslation();
 
   const fetchInvitations = useCallback(async () => {
