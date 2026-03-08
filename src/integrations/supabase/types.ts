@@ -795,7 +795,6 @@ export type Database = {
           created_at: string
           display_name: string | null
           email: string | null
-          full_name: string | null
           id: string
           is_founding_member: boolean | null
           onboarding_completed: boolean | null
@@ -812,7 +811,6 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           email?: string | null
-          full_name?: string | null
           id?: string
           is_founding_member?: boolean | null
           onboarding_completed?: boolean | null
@@ -829,7 +827,6 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           email?: string | null
-          full_name?: string | null
           id?: string
           is_founding_member?: boolean | null
           onboarding_completed?: boolean | null
@@ -1341,7 +1338,6 @@ export type Database = {
           bio: string | null
           created_at: string | null
           display_name: string | null
-          full_name: string | null
           id: string | null
           is_founding_member: boolean | null
           onboarding_completed: boolean | null
@@ -1357,7 +1353,6 @@ export type Database = {
           bio?: string | null
           created_at?: string | null
           display_name?: string | null
-          full_name?: string | null
           id?: string | null
           is_founding_member?: boolean | null
           onboarding_completed?: boolean | null
@@ -1373,7 +1368,6 @@ export type Database = {
           bio?: string | null
           created_at?: string | null
           display_name?: string | null
-          full_name?: string | null
           id?: string | null
           is_founding_member?: boolean | null
           onboarding_completed?: boolean | null
