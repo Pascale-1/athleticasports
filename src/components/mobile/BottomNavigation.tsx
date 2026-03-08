@@ -44,6 +44,7 @@ export const BottomNavigation = () => {
   const location = useLocation();
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { unreadCount } = useNotificationContext();
   const queryClient = useQueryClient();
   const userId = user?.id ?? null;
 
