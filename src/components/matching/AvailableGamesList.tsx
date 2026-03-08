@@ -50,10 +50,7 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
         .maybeSingle();
 
       if (existing) {
-        toast({
-          title: t('matching:alreadyInterested'),
-          variant: "default",
-        });
+        toast(t('matching:alreadyInterested'));
         return;
       }
 
