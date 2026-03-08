@@ -28,7 +28,7 @@ export const MatchResultEntry = ({
   onSave,
 }: MatchResultEntryProps) => {
   const { t } = useTranslation('events');
-  const { toast } = useToast();
+  
   const [homeScore, setHomeScore] = useState("");
   const [awayScore, setAwayScore] = useState("");
   const [saving, setSaving] = useState(false);
