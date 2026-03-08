@@ -127,7 +127,7 @@ export const ProfileTabs = ({
                 <div className="flex items-center gap-3">
                   <AtSign className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">{t('profile.username')}:</span>
-                  <span className="text-sm font-medium">{getDisplayUsername(profile.username, profile.display_name, profile.full_name)}</span>
+                  <span className="text-sm font-medium">{getDisplayUsername(profile.username, profile.display_name)}</span>
                 </div>
               )}
 
