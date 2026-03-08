@@ -36,10 +36,7 @@ export const TeamInviteLink = ({
   const handleCopy = async (text: string, label: string) => {
     const copied = await copyToClipboard(text);
     if (copied) {
-      toast({
-        title: t('invite.copied'),
-        description: t('invite.copiedToClipboard', { label }),
-      });
+      toast(t('invite.copied'), { description: t('invite.copiedToClipboard', { label }) });
     }
   };
 
