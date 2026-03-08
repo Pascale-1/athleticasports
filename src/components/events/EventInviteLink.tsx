@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Capacitor } from "@capacitor/core";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useExternalLink } from "@/hooks/useExternalLink";
 import { Copy, RefreshCw, Share2, MessageCircle, Settings, Upload } from "lucide-react";
 import { copyToClipboard } from "@/lib/clipboard";
