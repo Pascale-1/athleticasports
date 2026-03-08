@@ -65,6 +65,7 @@ export const InlineInvitationCards = ({ invitations, onRemove, onRefresh }: Inli
 
       if (error) throw error;
       onRemove(invitation.id);
+      queryClient.invalidateQueries({ queryKey: ['navigation-badges'] });
       toast.info(t("invitationDeclined", "Invitation declined"));
     } catch (err: any) {
       toast.error(err.message || "Error");
