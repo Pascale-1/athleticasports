@@ -8,6 +8,7 @@ import { useTheme } from "next-themes";
 import { Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { PushNotificationPrompt } from "@/components/notifications/PushNotificationPrompt";
 
 interface AppLayoutProps {
   children: React.ReactNode;
