@@ -7,14 +7,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { PageContainer } from "@/components/mobile/PageContainer";
 import { Calendar, MapPin, Loader2, Users } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { formatEventDateRange, getEventStatus } from "@/lib/events";
 import { EVENT_CONFIG, getEventTypeKey } from "@/lib/eventConfig";
 
 const JoinEvent = () => {
   const { code } = useParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
