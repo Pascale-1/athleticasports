@@ -58,17 +58,17 @@ export const InlineTeamPills = ({
 
   return (
     <>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-1">
         {/* Pickup option */}
         {showPickupOption && (
           <button
             type="button"
             onClick={() => onSelect(null, undefined)}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150",
+              "flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-all duration-150",
               isPickupGame
-                ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                : "bg-transparent border-border text-muted-foreground hover:text-foreground hover:border-foreground/40"
+                ? "bg-primary/10 text-primary border border-primary/30"
+                : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
             )}
           >
             <Globe className="h-3 w-3" />
@@ -83,10 +83,10 @@ export const InlineTeamPills = ({
             type="button"
             onClick={() => onSelect(team.id, team.name)}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150",
+              "flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-all duration-150",
               selectedTeamId === team.id
-                ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                : "bg-transparent border-border text-muted-foreground hover:text-foreground hover:border-foreground/40"
+                ? "bg-primary/10 text-primary border border-primary/30"
+                : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
             )}
           >
             {team.avatar_url ? (
@@ -109,7 +109,7 @@ export const InlineTeamPills = ({
         <button
           type="button"
           onClick={() => setShowCreateDialog(true)}
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-all duration-150"
+          className="flex items-center justify-center h-5 w-5 rounded-full text-xs text-muted-foreground bg-muted/50 hover:bg-muted hover:text-foreground transition-all duration-150"
         >
           <Plus className="h-3 w-3" />
         </button>
