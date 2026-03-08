@@ -327,6 +327,7 @@ export const AddressAutocomplete = ({
             </button>
           )}
         </div>
+        </div>
       </div>
 
       {/* Suggestions dropdown */}
