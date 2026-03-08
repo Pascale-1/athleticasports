@@ -77,18 +77,11 @@ export const TeamInviteLink = ({
       if (error) throw error;
 
       setLinkJoiningEnabled(enabled);
-      toast({
-        title: enabled ? t('invite.linkJoiningEnabled') : t('invite.linkJoiningDisabled'),
-        description: enabled 
-          ? t('invite.linkJoiningEnabledDesc')
-          : t('invite.linkJoiningDisabledDesc'),
+      toast(enabled ? t('invite.linkJoiningEnabled') : t('invite.linkJoiningDisabled'), {
+        description: enabled ? t('invite.linkJoiningEnabledDesc') : t('invite.linkJoiningDisabledDesc'),
       });
     } catch (error) {
-      toast({
-        title: t('status.error', { ns: 'common' }),
-        description: t('invite.updateError'),
-        variant: "destructive",
-      });
+      toast.error(t('status.error', { ns: 'common' }), { description: t('invite.updateError') });
     }
   };
 

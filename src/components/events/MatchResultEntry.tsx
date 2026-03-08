@@ -60,7 +60,7 @@ export const MatchResultEntry = ({
         loss: { title: t('result.lossToast', 'Keep going! 💪'), desc: result },
         draw: { title: t('result.drawToast', 'Close game!'), desc: result },
       };
-      toast({ title: toastMessages[outcome].title, description: toastMessages[outcome].desc });
+      toast(toastMessages[outcome].title, { description: toastMessages[outcome].desc });
     }
     setSaving(false);
   };

@@ -93,10 +93,7 @@ export function FeedbackForm({ open, onOpenChange }: FeedbackFormProps) {
       onOpenChange(false);
     } catch (error) {
       console.error('Feedback submission error:', error);
-      toast({
-        title: t('feedback.error'),
-        variant: 'destructive',
-      });
+      toast.error(t('feedback.error'));
     } finally {
       setIsSubmitting(false);
     }

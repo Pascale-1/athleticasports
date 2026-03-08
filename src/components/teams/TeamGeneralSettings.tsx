@@ -38,17 +38,10 @@ export const TeamGeneralSettings = ({ team }: TeamGeneralSettingsProps) => {
         chat_permission: formData.chat_permission,
       });
 
-      toast({
-        title: t('settingsPage.updateSuccess'),
-        description: t('settingsPage.updateSuccess'),
-      });
+      toast.success(t('settingsPage.updateSuccess'));
     } catch (error) {
       console.error("Error updating team:", error);
-      toast({
-        title: t('settingsPage.updateError'),
-        description: t('settingsPage.updateError'),
-        variant: "destructive",
-      });
+      toast.error(t('settingsPage.updateError'));
     } finally {
       setIsLoading(false);
     }

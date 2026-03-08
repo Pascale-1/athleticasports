@@ -26,11 +26,7 @@ export const ChangePasswordSection = ({ email }: ChangePasswordSectionProps) => 
       if (response.error) throw response.error;
       toast.success(t('settings.changePasswordSuccess'), { description: t('settings.changePasswordSuccessDesc') });
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t('errors.generic'),
-        description: error.message,
-      });
+      toast.error(t('errors.generic'), { description: error.message });
     } finally {
       setLoading(false);
     }

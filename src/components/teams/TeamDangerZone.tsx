@@ -66,29 +66,18 @@ export const TeamDangerZone = ({ team }: TeamDangerZoneProps) => {
 
   const handleTransferOwnership = async () => {
     if (!selectedNewOwner) {
-      toast({
-        title: t('toast.selectOwnerError'),
-        description: t('toast.selectOwnerError'),
-        variant: "destructive",
-      });
+      toast.error(t('toast.selectOwnerError'));
       return;
     }
 
     setIsTransferring(true);
     try {
       await transferTeamOwnership(team.id, selectedNewOwner);
-      toast({
-        title: t('toast.transferSuccess'),
-        description: t('toast.transferSuccess'),
-      });
+      toast.success(t('toast.transferSuccess'));
       navigate(`/teams/${team.id}`);
     } catch (error) {
       console.error("Error transferring ownership:", error);
-      toast({
-        title: t('toast.transferError'),
-        description: t('toast.transferError'),
-        variant: "destructive",
-      });
+      toast.error(t('toast.transferError'));
     } finally {
       setIsTransferring(false);
     }

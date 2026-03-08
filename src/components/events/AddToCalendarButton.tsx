@@ -78,10 +78,7 @@ export const AddToCalendarButton = ({
 
   const handleDownloadICS = () => {
     downloadICS(calendarEvent);
-    toast({
-      title: t("calendar.downloaded"),
-      description: t("calendar.downloadedDesc"),
-    });
+    toast.success(t("calendar.downloaded"), { description: t("calendar.downloadedDesc") });
     setIsOpen(false);
   };
 

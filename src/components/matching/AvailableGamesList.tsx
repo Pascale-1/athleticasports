@@ -71,11 +71,7 @@ export const AvailableGamesList = ({ open, onOpenChange }: AvailableGamesListPro
       refetch();
     } catch (error: any) {
       console.error("Error expressing interest:", error);
-      toast({
-        title: t('common:errors.generic'),
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(t('common:errors.generic'), { description: error.message });
     }
   };
 

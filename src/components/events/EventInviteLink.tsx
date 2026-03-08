@@ -113,7 +113,7 @@ export const EventInviteLink = ({
         toast.error(t('common:errors.generic', 'Error'), { description: t('events:invite.shareFailed', 'Could not share link') });
       }
     } catch {
-      toast({ title: t('common:errors.generic', 'Error'), description: t('events:invite.shareFailed', 'Could not share link'), variant: 'destructive' });
+      toast.error(t('common:errors.generic', 'Error'), { description: t('events:invite.shareFailed', 'Could not share link') });
     }
   };
 

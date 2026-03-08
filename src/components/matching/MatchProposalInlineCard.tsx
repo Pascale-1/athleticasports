@@ -30,10 +30,7 @@ export const MatchProposalInlineCard = ({
     setAccepting(false);
     
     if (success) {
-      toast({ 
-        title: t('proposal.youreIn'), 
-        description: t('proposal.committedDesc') 
-      });
+      toast.success(t('proposal.youreIn'), { description: t('proposal.committedDesc') });
       onAccepted?.();
     }
   };
