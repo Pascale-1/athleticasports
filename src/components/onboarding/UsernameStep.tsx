@@ -35,7 +35,7 @@ export const UsernameStep = ({ onNext, onBack }: UsernameStepProps) => {
     setIsChecking(true);
 
     supabase
-      .from("profiles")
+      .from("profiles_public")
       .select("user_id")
       .eq("username", debouncedInput)
       .maybeSingle()
