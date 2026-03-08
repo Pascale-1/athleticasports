@@ -66,7 +66,7 @@ const PendingInvitations = () => {
         (data || []).map(async (inv) => {
           const [teamRes, inviterRes] = await Promise.all([
             supabase.from("teams").select("name, avatar_url, sport").eq("id", inv.team_id).single(),
-            supabase.from("profiles").select("display_name, username").eq("user_id", inv.invited_by).single(),
+            supabase.from("profiles_public" as any).select("display_name, username").eq("user_id", inv.invited_by).single() as unknown as Promise<{ data: { display_name: string | null; username: string } | null }>,
           ]);
           return {
             ...inv,

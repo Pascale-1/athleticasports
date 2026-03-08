@@ -77,7 +77,7 @@ export const usePendingInvitations = () => {
             supabase.rpc('get_team_info_for_invitation' as any, { _team_id: tid, _user_id: user.id }).single()
           )
         ),
-        supabase.from("profiles").select("user_id, display_name, username").in("user_id", inviterIds),
+        supabase.from("profiles_public" as any).select("user_id, display_name, username").in("user_id", inviterIds) as unknown as Promise<{ data: { user_id: string; display_name: string | null; username: string }[] | null }>,
       ]);
 
       const teamsMap = new Map<string, { id: string; name: string; sport: string | null; avatar_url: string | null }>(
