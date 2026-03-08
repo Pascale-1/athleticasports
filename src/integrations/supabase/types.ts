@@ -1489,6 +1489,7 @@ export type Database = {
         Args: { _session_id: string; _user_id: string }
         Returns: string
       }
+      get_user_email_by_id: { Args: { _user_id: string }; Returns: string }
       get_user_team_role: {
         Args: { _team_id: string; _user_id: string }
         Returns: Database["public"]["Enums"]["team_role"]
