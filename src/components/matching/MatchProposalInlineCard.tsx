@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, X, Loader2, Sparkles } from "lucide-react";
 import { useMatchProposals } from "@/hooks/useMatchProposals";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface MatchProposalInlineCardProps {
   proposalId: string;
