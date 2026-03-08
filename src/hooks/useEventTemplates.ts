@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export interface EventTemplate {
   id: string;
@@ -38,21 +38,20 @@ export interface CreateTemplateData {
   meetup_category?: string | null;
 }
 
-// Pre-defined templates
 export const PRESET_TEMPLATES: Omit<CreateTemplateData, "name">[] = [
   {
     type: "training",
     title: "Weekly Training",
     default_time: "19:00",
     default_duration: 90,
-    default_day_of_week: 2, // Tuesday
+    default_day_of_week: 2,
   },
   {
     type: "match",
     title: "Home Game",
     default_time: "15:00",
     default_duration: 120,
-    default_day_of_week: 6, // Saturday
+    default_day_of_week: 6,
   },
   {
     type: "meetup",
@@ -74,7 +73,6 @@ export const PRESET_TEMPLATES: Omit<CreateTemplateData, "name">[] = [
 export const useEventTemplates = (teamId?: string | null) => {
   const [templates, setTemplates] = useState<EventTemplate[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
   const fetchTemplates = useCallback(async () => {
     try {
@@ -89,7 +87,6 @@ export const useEventTemplates = (teamId?: string | null) => {
         .select("*")
         .order("created_at", { ascending: false });
 
-      // Get user's personal templates and team templates
       if (teamId) {
         query = query.or(`user_id.eq.${user.id},team_id.eq.${teamId}`);
       } else {
@@ -123,20 +120,12 @@ export const useEventTemplates = (teamId?: string | null) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Template saved",
-        description: "Your event template has been saved.",
-      });
-
+      toast.success("Template saved", { description: "Your event template has been saved." });
       await fetchTemplates();
       return true;
     } catch (error: any) {
       console.error("Error creating template:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to save template",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to save template" });
       return false;
     }
   };
@@ -150,20 +139,12 @@ export const useEventTemplates = (teamId?: string | null) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Template deleted",
-        description: "Your event template has been deleted.",
-      });
-
+      toast.success("Template deleted", { description: "Your event template has been deleted." });
       await fetchTemplates();
       return true;
     } catch (error: any) {
       console.error("Error deleting template:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete template",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to delete template" });
       return false;
     }
   };

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Event } from "@/lib/events";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
@@ -24,14 +24,10 @@ export interface CreateEventData {
   match_format?: string;
   home_away?: 'home' | 'away' | 'neutral';
   meetup_category?: string;
-  // Player recruitment
   looking_for_players?: boolean;
   players_needed?: number;
-  // RSVP deadline
   rsvp_deadline?: string;
-  // Sport for matching
   sport?: string;
-  // Cost & payment
   cost?: string;
   cost_type?: 'total' | 'per_person';
   payment_link?: string;
@@ -46,9 +42,7 @@ export const useEvents = (teamId?: string | null, filters?: {
 }) => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
-  // Stable key for filters to prevent infinite loops from object reference changes
   const filtersKey = JSON.stringify({
     type: filters?.type,
     status: filters?.status,
@@ -56,11 +50,9 @@ export const useEvents = (teamId?: string | null, filters?: {
     includeAsOpponent: filters?.includeAsOpponent,
   });
 
-  // Use refs for values needed in callbacks to avoid stale closures
   const teamIdRef = useRef(teamId);
   const filtersRef = useRef(filters);
 
-  // Keep refs in sync
   useEffect(() => {
     teamIdRef.current = teamId;
     filtersRef.current = filters;
@@ -75,7 +67,6 @@ export const useEvents = (teamId?: string | null, filters?: {
         .select("*")
         .order("start_time", { ascending: true });
 
-      // Apply filters
       if (currentTeamId !== undefined) {
         if (currentTeamId === null) {
           query = query.is('team_id', null);
@@ -84,7 +75,6 @@ export const useEvents = (teamId?: string | null, filters?: {
           if (!uuidRegex.test(currentTeamId)) {
             throw new Error("Invalid team ID format");
           }
-          // Support querying by both team_id and opponent_team_id
           if (currentFilters?.includeAsOpponent) {
             query = query.or(`team_id.eq.${currentTeamId},opponent_team_id.eq.${currentTeamId}`);
           } else {
@@ -107,7 +97,6 @@ export const useEvents = (teamId?: string | null, filters?: {
 
       let filteredEvents = (data || []) as unknown as Event[];
 
-      // Apply status filter
       if (currentFilters?.status === 'upcoming') {
         const now = new Date().toISOString();
         filteredEvents = filteredEvents.filter(e => e.start_time >= now);
@@ -119,21 +108,16 @@ export const useEvents = (teamId?: string | null, filters?: {
       setEvents(filteredEvents);
     } catch (error) {
       console.error("Error fetching events:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load events",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: "Failed to load events" });
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     fetchEvents();
   }, [teamId, filtersKey, fetchEvents]);
 
-  // Realtime subscription using centralized manager
   useRealtimeSubscription(
     `events-${teamId || 'all'}`,
     [{ table: "events", event: "*" }],
@@ -153,19 +137,11 @@ export const useEvents = (teamId?: string | null, filters?: {
 
       if (error) throw error;
 
-      // Toast handled by CreateEventDialog success screen
-
-      // Immediately refetch to show the new event
       await fetchEvents();
-
       return true;
     } catch (error: any) {
       console.error("Error creating event:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create event",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to create event" });
       return false;
     }
   };
@@ -179,19 +155,11 @@ export const useEvents = (teamId?: string | null, filters?: {
 
       if (error) throw error;
 
-      // No hardcoded English toast — let caller handle
-
-      // Immediately refetch to show the updates
       await fetchEvents();
-
       return true;
     } catch (error: any) {
       console.error("Error updating event:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update event",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to update event" });
       return false;
     }
   };
@@ -205,19 +173,11 @@ export const useEvents = (teamId?: string | null, filters?: {
 
       if (error) throw error;
 
-      // No hardcoded English toast — let caller handle
-
-      // Immediately refetch to remove deleted event
       await fetchEvents();
-
       return true;
     } catch (error: any) {
       console.error("Error deleting event:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete event",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to delete event" });
       return false;
     }
   };

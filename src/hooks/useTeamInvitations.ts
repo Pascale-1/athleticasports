@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 import { getAppBaseUrl } from "@/lib/appUrl";
 
@@ -20,9 +20,7 @@ export interface TeamInvitation {
 export const useTeamInvitations = (teamId: string | null) => {
   const [invitations, setInvitations] = useState<TeamInvitation[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
-  // Declare fetchInvitations BEFORE it's used
   const fetchInvitations = async () => {
     if (!teamId) {
       setLoading(false);
@@ -50,11 +48,9 @@ export const useTeamInvitations = (teamId: string | null) => {
     fetchInvitations();
   }, [teamId]);
 
-  // Use ref to store fetchInvitations for stable callback
   const fetchInvitationsRef = useRef(fetchInvitations);
   fetchInvitationsRef.current = fetchInvitations;
 
-  // Realtime subscription using centralized manager
   const handleRealtimeChange = useCallback(() => {
     fetchInvitationsRef.current();
   }, []);
@@ -77,15 +73,11 @@ export const useTeamInvitations = (teamId: string | null) => {
       let email: string = emailOrUserId;
 
       if (isUserId) {
-        // User was selected from search
         invitedUserId = emailOrUserId;
-        
-        // Get user's actual email for the invitation record
         const { data: resolvedEmail } = await supabase.rpc('get_user_email_by_id' as any, { _user_id: emailOrUserId });
         if (!resolvedEmail) throw new Error("User not found");
         email = resolvedEmail as string;
       } else {
-        // Try to find existing user by exact username match first
         const { data: exactMatch } = await supabase
           .from("profiles_public")
           .select("user_id, username")
@@ -94,11 +86,9 @@ export const useTeamInvitations = (teamId: string | null) => {
 
         if (exactMatch) {
           invitedUserId = exactMatch.user_id;
-          // Resolve actual email for the invitation record
           const { data: resolvedEmail } = await supabase.rpc('get_user_email_by_id' as any, { _user_id: exactMatch.user_id });
           if (resolvedEmail) email = resolvedEmail as string;
         } else if (emailOrUserId.includes('@')) {
-          // Resolve user by email via secure DB function
           const { data: resolvedUserId } = await supabase.rpc('resolve_user_id_by_email' as any, { _email: emailOrUserId });
           if (resolvedUserId) {
             invitedUserId = resolvedUserId as string;
@@ -106,7 +96,6 @@ export const useTeamInvitations = (teamId: string | null) => {
         }
       }
 
-      // Check for existing pending invitation
       const { data: existingInvitation } = await supabase
         .from("team_invitations")
         .select("id")
@@ -116,11 +105,7 @@ export const useTeamInvitations = (teamId: string | null) => {
         .maybeSingle();
 
       if (existingInvitation) {
-        toast({
-          title: "Already invited",
-          description: "This user already has a pending invitation",
-          variant: "destructive",
-        });
+        toast.error("Already invited", { description: "This user already has a pending invitation" });
         return;
       }
 
@@ -138,15 +123,9 @@ export const useTeamInvitations = (teamId: string | null) => {
 
       if (error) throw error;
 
-      // If user exists in app, they get an in-app notification (via DB trigger).
-      // Only send email if user doesn't exist (no invited_user_id).
       if (invitedUserId) {
-        toast({
-          title: "Success",
-          description: "Invitation sent — they'll see it in their notifications",
-        });
+        toast.success("Success", { description: "Invitation sent — they'll see it in their notifications" });
       } else {
-        // Send email via edge function for new users
         try {
           const { error: emailError } = await supabase.functions.invoke(
             'send-team-invitation',
@@ -163,31 +142,18 @@ export const useTeamInvitations = (teamId: string | null) => {
 
           if (emailError) {
             console.error("Error sending invitation email:", emailError);
-            toast({
-              title: "Success",
-              description: "Invitation created (email failed to send)",
-            });
+            toast.success("Success", { description: "Invitation created (email failed to send)" });
           } else {
-            toast({
-              title: "Success",
-              description: "Invitation email sent successfully",
-            });
+            toast.success("Success", { description: "Invitation email sent successfully" });
           }
         } catch (emailError) {
           console.error("Error calling email function:", emailError);
-          toast({
-            title: "Success",
-            description: "Invitation created (email failed to send)",
-          });
+          toast.success("Success", { description: "Invitation created (email failed to send)" });
         }
       }
     } catch (error: any) {
       console.error("Error sending invitation:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send invitation",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to send invitation" });
     }
   };
 
@@ -200,17 +166,10 @@ export const useTeamInvitations = (teamId: string | null) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Invitation cancelled",
-      });
+      toast.success("Success", { description: "Invitation cancelled" });
     } catch (error: any) {
       console.error("Error cancelling invitation:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to cancel invitation",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to cancel invitation" });
     }
   };
 
@@ -224,7 +183,6 @@ export const useTeamInvitations = (teamId: string | null) => {
 
       if (!invitation) throw new Error("Invitation not found");
 
-      // Call edge function to resend email
       const { error: emailError } = await supabase.functions.invoke(
         'send-team-invitation',
         {
@@ -233,7 +191,7 @@ export const useTeamInvitations = (teamId: string | null) => {
             teamId: invitation.team_id,
             recipientEmail: invitation.email,
             role: invitation.role,
-            appOrigin: getAppBaseUrl(), // Pass production URL for link generation
+            appOrigin: getAppBaseUrl(),
           },
         }
       );
@@ -242,23 +200,15 @@ export const useTeamInvitations = (teamId: string | null) => {
         throw emailError;
       }
 
-      // Update the created_at timestamp to show it was resent
       await supabase
         .from("team_invitations")
         .update({ created_at: new Date().toISOString() })
         .eq("id", invitationId);
 
-      toast({
-        title: "Success",
-        description: "Invitation resent successfully",
-      });
+      toast.success("Success", { description: "Invitation resent successfully" });
     } catch (error: any) {
       console.error("Error resending invitation:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to resend invitation",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to resend invitation" });
     }
   };
 
@@ -287,7 +237,6 @@ export const useTeamInvitations = (teamId: string | null) => {
 
       if (memberError) throw memberError;
 
-      // Add member role with the role from invitation
       const { error: roleError } = await supabase
         .from("team_member_roles")
         .insert({
@@ -305,17 +254,10 @@ export const useTeamInvitations = (teamId: string | null) => {
 
       if (inviteError) throw inviteError;
 
-      toast({
-        title: "Success",
-        description: "Invitation accepted",
-      });
+      toast.success("Success", { description: "Invitation accepted" });
     } catch (error: any) {
       console.error("Error accepting invitation:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to accept invitation",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to accept invitation" });
     }
   };
 
@@ -328,17 +270,10 @@ export const useTeamInvitations = (teamId: string | null) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Invitation declined",
-      });
+      toast.success("Success", { description: "Invitation declined" });
     } catch (error) {
       console.error("Error declining invitation:", error);
-      toast({
-        title: "Error",
-        description: "Failed to decline invitation",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: "Failed to decline invitation" });
     }
   };
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface EventAttendanceStats {
@@ -38,15 +38,12 @@ export const useEventAttendance = (eventId: string) => {
   const [isCommitted, setIsCommitted] = useState(false);
   const [hasPaid, setHasPaid] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
-  // Declare fetchAttendance BEFORE it's used
   const fetchAttendance = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const user = session?.user ?? null;
 
-      // Fetch attendance data (no embedded join on profiles_public view)
       const { data: attendanceData, error: attendanceError } = await supabase
         .from("event_attendance" as any)
         .select("*")
@@ -56,7 +53,6 @@ export const useEventAttendance = (eventId: string) => {
 
       const rawData = (attendanceData || []) as unknown as EventAttendee[];
 
-      // Fetch profiles separately
       const userIds = rawData.map((a) => a.user_id);
       let profilesMap: Record<string, { username: string; display_name: string | null; avatar_url: string | null }> = {};
 
@@ -93,7 +89,6 @@ export const useEventAttendance = (eventId: string) => {
 
       setAttendees(typedData);
 
-      // Get user's status
       if (user) {
         const userAttendance = typedData.find(a => a.user_id === user.id);
         setUserStatus(userAttendance?.status || null);
@@ -112,15 +107,12 @@ export const useEventAttendance = (eventId: string) => {
       setLoading(false);
       return;
     }
-
     fetchAttendance();
   }, [eventId]);
 
-  // Use ref to store fetchAttendance for stable callback
   const fetchAttendanceRef = useRef(fetchAttendance);
   fetchAttendanceRef.current = fetchAttendance;
 
-  // Realtime subscription using centralized manager
   const handleRealtimeChange = useCallback(() => {
     fetchAttendanceRef.current();
   }, []);
@@ -149,7 +141,6 @@ export const useEventAttendance = (eventId: string) => {
 
       if (error) throw error;
 
-      // Sync with match proposals - auto-decline if not attending, auto-accept if attending
       if (status === 'not_attending') {
         await supabase
           .from("match_proposals")
@@ -174,33 +165,19 @@ export const useEventAttendance = (eventId: string) => {
       }
 
       setUserStatus(status);
-      
-      toast({
-        title: "Success",
-        description: "Your attendance has been updated",
-      });
-
+      toast.success("Success", { description: "Your attendance has been updated" });
       return true;
     } catch (error: any) {
       console.error("Error updating attendance:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update attendance",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to update attendance" });
       return false;
     }
   };
 
   const removeAttendance = async () => {
     try {
-      // Check if committed - cannot remove committed attendance
       if (isCommitted) {
-        toast({
-          title: "Cannot cancel",
-          description: "You are committed to this match and cannot cancel.",
-          variant: "destructive",
-        });
+        toast.error("Cannot cancel", { description: "You are committed to this match and cannot cancel." });
         return false;
       }
 
@@ -217,20 +194,11 @@ export const useEventAttendance = (eventId: string) => {
 
       setUserStatus(null);
       setIsCommitted(false);
-      
-      toast({
-        title: "Success",
-        description: "Your attendance has been removed",
-      });
-
+      toast.success("Success", { description: "Your attendance has been removed" });
       return true;
     } catch (error: any) {
       console.error("Error removing attendance:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to remove attendance",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to remove attendance" });
       return false;
     }
   };
@@ -249,19 +217,12 @@ export const useEventAttendance = (eventId: string) => {
       if (error) throw error;
 
       setHasPaid(true);
-      toast({
-        title: "Success",
-        description: "Payment marked successfully",
-      });
+      toast.success("Success", { description: "Payment marked successfully" });
       fetchAttendance();
       return true;
     } catch (error: any) {
       console.error("Error marking as paid:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to mark as paid",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to mark as paid" });
       return false;
     }
   };

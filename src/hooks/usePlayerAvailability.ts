@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export interface PlayerAvailability {
   id: string;
@@ -27,7 +27,6 @@ export interface CreateAvailabilityData {
 export const usePlayerAvailability = () => {
   const [availability, setAvailability] = useState<PlayerAvailability | null>(null);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
   useEffect(() => {
     fetchMyAvailability();
@@ -65,7 +64,6 @@ export const usePlayerAvailability = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Deactivate any existing availability
       await supabase
         .from("player_availability")
         .update({ is_active: false })
@@ -89,7 +87,6 @@ export const usePlayerAvailability = () => {
 
       setAvailability(newAvailability);
 
-      // Trigger matching
       try {
         await supabase.functions.invoke("match-players", {
           body: { availability_id: newAvailability.id },
@@ -98,19 +95,11 @@ export const usePlayerAvailability = () => {
         console.log("Matching will run in background");
       }
 
-      toast({
-        title: "You're now available!",
-        description: "We'll notify you when we find a match.",
-      });
-
+      toast.success("You're now available!", { description: "We'll notify you when we find a match." });
       return newAvailability;
     } catch (error: any) {
       console.error("Error creating availability:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to set availability",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to set availability" });
       return null;
     }
   };
@@ -129,19 +118,11 @@ export const usePlayerAvailability = () => {
       if (error) throw error;
 
       setAvailability(null);
-      toast({
-        title: "Availability cancelled",
-        description: "You're no longer looking for matches.",
-      });
-
+      toast.success("Availability cancelled", { description: "You're no longer looking for matches." });
       return true;
     } catch (error: any) {
       console.error("Error cancelling availability:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to cancel availability",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: error.message || "Failed to cancel availability" });
       return false;
     }
   };

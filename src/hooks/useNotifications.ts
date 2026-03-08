@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
 export interface Notification {
@@ -19,7 +19,6 @@ export const useNotifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -27,7 +26,6 @@ export const useNotifications = () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Fetch recent notifications (last 30 days, limit 50)
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -50,23 +48,20 @@ export const useNotifications = () => {
     };
 
     fetchNotifications();
-  }, [toast]);
+  }, []);
 
-  // Refs for accessing current state in callbacks
   const notificationsRef = useRef(notifications);
   notificationsRef.current = notifications;
 
-  // Realtime subscription using centralized manager
   const handleRealtimeChange = useCallback((payload: any) => {
     if (payload.eventType === "INSERT") {
       const newNotification = payload.new as Notification;
       setNotifications((prev) => [newNotification, ...prev]);
       setUnreadCount((prev) => prev + 1);
 
-      // Show toast for new notification
-      toast({
-        title: newNotification.title,
+      toast(newNotification.title, {
         description: newNotification.message,
+        duration: 5000,
       });
     } else if (payload.eventType === "UPDATE") {
       const updatedNotification = payload.new as Notification;
@@ -74,7 +69,6 @@ export const useNotifications = () => {
         prev.map((n) => (n.id === updatedNotification.id ? updatedNotification : n))
       );
 
-      // Update unread count
       setUnreadCount((prev) => {
         const oldNotification = notificationsRef.current.find(n => n.id === updatedNotification.id);
         if (oldNotification && !oldNotification.read && updatedNotification.read) {
@@ -83,7 +77,7 @@ export const useNotifications = () => {
         return prev;
       });
     }
-  }, [toast]);
+  }, []);
 
   useRealtimeSubscription(
     "user-notifications",
@@ -103,7 +97,6 @@ export const useNotifications = () => {
 
       if (error) throw error;
 
-      // Optimistic update
       setNotifications((prev) =>
         prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
       );
@@ -124,7 +117,6 @@ export const useNotifications = () => {
 
       if (error) throw error;
 
-      // Optimistic update
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
       setUnreadCount(0);
     } catch (error) {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useRealtimeSubscription } from "@/lib/realtimeManager";
 
@@ -25,7 +25,6 @@ export const useEventJoinRequests = (eventId: string) => {
   const [requests, setRequests] = useState<EventJoinRequest[]>([]);
   const [userRequest, setUserRequest] = useState<EventJoinRequest | null>(null);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
   const { t } = useTranslation("events");
 
   const fetchRequests = useCallback(async () => {
@@ -38,7 +37,6 @@ export const useEventJoinRequests = (eventId: string) => {
         return;
       }
 
-      // Fetch all requests for this event (organizers will see all, users see their own via RLS)
       const { data, error } = await supabase
         .from("event_join_requests")
         .select("*")
@@ -47,7 +45,6 @@ export const useEventJoinRequests = (eventId: string) => {
 
       if (error) throw error;
 
-      // Fetch profiles for all requesters
       if (data && data.length > 0) {
         const userIds = [...new Set(data.map(r => r.user_id))];
         const { data: profiles } = await supabase
@@ -65,7 +62,6 @@ export const useEventJoinRequests = (eventId: string) => {
 
         setRequests(requestsWithProfiles);
         
-        // Find current user's request
         const myRequest = requestsWithProfiles.find(r => r.user_id === user.id);
         setUserRequest(myRequest || null);
       } else {
@@ -83,7 +79,6 @@ export const useEventJoinRequests = (eventId: string) => {
     fetchRequests();
   }, [fetchRequests]);
 
-  // Realtime subscription
   const handleRealtimeChange = useCallback(() => {
     fetchRequests();
   }, [fetchRequests]);
@@ -102,11 +97,7 @@ export const useEventJoinRequests = (eventId: string) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({
-          title: t("common:error"),
-          description: "You must be logged in",
-          variant: "destructive",
-        });
+        toast.error(t("common:error"), { description: "You must be logged in" });
         return false;
       }
 
@@ -120,31 +111,19 @@ export const useEventJoinRequests = (eventId: string) => {
 
       if (error) {
         if (error.code === "23505") {
-          // Unique constraint violation - already requested
-          toast({
-            title: t("joinRequests.alreadyRequested"),
-            variant: "destructive",
-          });
+          toast.error(t("joinRequests.alreadyRequested"));
         } else {
           throw error;
         }
         return false;
       }
 
-      toast({
-        title: t("joinRequests.requestSent"),
-        description: t("joinRequests.requestSentDesc"),
-      });
-
+      toast.success(t("joinRequests.requestSent"), { description: t("joinRequests.requestSentDesc") });
       await fetchRequests();
       return true;
     } catch (error) {
       console.error("Error sending join request:", error);
-      toast({
-        title: t("common:error"),
-        description: "Failed to send request",
-        variant: "destructive",
-      });
+      toast.error(t("common:error"), { description: "Failed to send request" });
       return false;
     }
   };
@@ -169,21 +148,12 @@ export const useEventJoinRequests = (eventId: string) => {
 
       if (error) throw error;
 
-      // Note: Attendance is automatically created by database trigger
-      // when status changes to 'approved'
-
-      toast({
-        title: status === "approved" ? t("joinRequests.approved") : t("joinRequests.rejected"),
-      });
-
+      toast(status === "approved" ? t("joinRequests.approved") : t("joinRequests.rejected"));
       await fetchRequests();
       return true;
     } catch (error) {
       console.error("Error updating request:", error);
-      toast({
-        title: t("common:error"),
-        variant: "destructive",
-      });
+      toast.error(t("common:error"));
       return false;
     }
   };
