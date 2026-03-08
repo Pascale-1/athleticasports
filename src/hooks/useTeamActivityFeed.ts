@@ -70,7 +70,7 @@ export const useTeamActivityFeed = () => {
           distance,
           duration,
           created_at,
-          profiles:user_id (
+          profiles_public:user_id (
             username,
             display_name,
             avatar_url

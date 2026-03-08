@@ -82,8 +82,8 @@ export const useTeamInvitations = (teamId: string | null) => {
         
         // Get user's email for the invitation record
         const { data: profile } = await supabase
-          .from("profiles")
-          .select("username, email")
+          .from("profiles_public")
+          .select("username")
           .eq("user_id", emailOrUserId)
           .single();
         

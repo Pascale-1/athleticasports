@@ -51,7 +51,7 @@ export const useEventJoinRequests = (eventId: string) => {
       if (data && data.length > 0) {
         const userIds = [...new Set(data.map(r => r.user_id))];
         const { data: profiles } = await supabase
-          .from("profiles")
+          .from("profiles_public")
           .select("user_id, username, display_name, avatar_url")
           .in("user_id", userIds);
 

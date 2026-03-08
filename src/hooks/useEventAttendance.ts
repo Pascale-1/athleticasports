@@ -51,7 +51,7 @@ export const useEventAttendance = (eventId: string) => {
         .from("event_attendance" as any)
         .select(`
           *,
-          profiles:user_id (
+          profiles_public:user_id (
             username,
             display_name,
             avatar_url

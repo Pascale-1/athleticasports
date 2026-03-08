@@ -114,7 +114,7 @@ export const useAvailableGames = (filters?: AvailableGamesFilters) => {
       // Get organizer profiles
       const organizerIds = [...new Set((events || []).map(e => e.created_by))];
       const { data: profiles } = await supabase
-        .from("profiles")
+        .from("profiles_public")
         .select("user_id, display_name, username, avatar_url")
         .in("user_id", organizerIds);
 
