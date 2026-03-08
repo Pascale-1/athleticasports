@@ -110,7 +110,7 @@ export const useActivityFeed = (userId?: string) => {
         const { data: profiles } = await supabase
           .from('profiles_public' as any)
           .select('user_id, username, display_name, avatar_url')
-          .in('user_id', userIds);
+          .in('user_id', userIds) as { data: { user_id: string; username: string; display_name: string | null; avatar_url: string | null }[] | null };
 
         profilesMap = (profiles || []).reduce((acc, p) => {
           acc[p.user_id] = p;

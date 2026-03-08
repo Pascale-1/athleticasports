@@ -13,7 +13,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 const fetchBadgeCounts = async (userId: string) => {
   // Get pending team invitations
   const [profileRes, authRes] = await Promise.all([
-    supabase.from('profiles_public' as any).select('username').eq('user_id', userId).single(),
+    supabase.from('profiles_public' as any).select('username').eq('user_id', userId).single() as Promise<{ data: { username: string } | null }>,
     supabase.auth.getUser(),
   ]);
 

@@ -33,7 +33,7 @@ export const usePendingInvitations = () => {
         .from("profiles_public" as any)
         .select("username")
         .eq("user_id", user.id)
-        .single();
+        .single() as { data: { username: string } | null };
 
       if (!profile) {
         setInvitations([]);
