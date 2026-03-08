@@ -85,18 +85,11 @@ export const EventInviteLink = ({
       if (error) throw error;
 
       setLocalAllowPublicJoin(enabled);
-      toast({
-        title: enabled ? t('events:invite.publicJoinEnabled') : t('events:invite.publicJoinDisabled'),
-        description: enabled 
-          ? t('events:invite.anyoneCanRsvp')
-          : t('events:invite.sharingPaused'),
+      toast(enabled ? t('events:invite.publicJoinEnabled') : t('events:invite.publicJoinDisabled'), {
+        description: enabled ? t('events:invite.anyoneCanRsvp') : t('events:invite.sharingPaused'),
       });
     } catch (error: any) {
-      toast({
-        title: t('common:errors.generic'),
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(t('common:errors.generic'), { description: error.message });
     }
   };
 
