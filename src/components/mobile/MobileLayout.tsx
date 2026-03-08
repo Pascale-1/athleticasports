@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PushNotificationPrompt } from "@/components/notifications/PushNotificationPrompt";
 
 interface MobileLayoutProps {
   children: React.ReactNode;
