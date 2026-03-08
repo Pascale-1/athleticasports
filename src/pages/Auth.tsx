@@ -34,7 +34,7 @@ const Auth = () => {
   const returnUrl = searchParams.get("returnUrl");
 
   const emailSchema = z.object({
-    fullName: isSignUp ? z.string().min(1, t('fullNameRequired')).max(100) : z.string().optional(),
+    displayName: isSignUp ? z.string().min(1, t('fullNameRequired')).max(100) : z.string().optional(),
     email: z.string().email(t('invalidEmail')).max(255),
     password: z.string().min(6, t('passwordMin')).max(72),
   });
