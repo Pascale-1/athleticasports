@@ -1,28 +1,31 @@
 
 
-# Fix: Stale session after background on Android
+## Make In-App Notification Toasts Auto-Dismiss
 
-## Problem
-In `ProtectedRoute.tsx`, the visibility-change handler (lines 47-54) only processes sessions when `session?.user` is truthy. If the session expires while the app is in the background, coming back does nothing -- the component still holds the old `user` state, so the UI appears logged in but all backend calls fail with auth errors.
+### Problem
+The notification context (`NotificationContext.tsx`) and other parts of the app use shadcn's `useToast()` which renders via `<Toaster>`. These toasts are sticky -- they require the user to click "X" to dismiss them.
 
-## Fix
+### Recommendation
+Switch notification toasts to use **Sonner** (`toast()` from `sonner`), which already auto-dismisses after a few seconds. Sonner is already installed and rendered in `App.tsx`.
 
-**File: `src/components/ProtectedRoute.tsx`** (lines 47-54)
+Alternatively, we could add a `duration` prop to shadcn toasts, but Sonner is purpose-built for this and already configured.
 
-Update the visibility handler to always call `updateUser`, even when the session is null. This way, an expired session will correctly redirect to `/auth`.
+### Changes
 
-```tsx
-const handleVisibility = () => {
-  if (document.visibilityState === 'visible') {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUser(session?.user ?? null);
-    });
-  }
-};
-```
+**1. `src/contexts/NotificationContext.tsx`**
+- Replace `import { useToast } from "@/hooks/use-toast"` with `import { toast } from "sonner"`
+- Change the realtime notification toast from:
+  ```ts
+  toast({ title: newNotification.title, description: newNotification.message });
+  ```
+  to:
+  ```ts
+  toast(newNotification.title, { description: newNotification.message, duration: 5000 });
+  ```
+- Remove the `useToast` hook call and its dependency in `useCallback`.
 
-The only change is removing the `if (session?.user)` guard and always passing the result to `updateUser`. The deduplication logic already handles the case where the session hasn't changed.
+**2. Audit other `useToast()` calls** across the app (e.g. in hooks like `useTeamInvitations`, `useEvents`, etc.) and switch success/info toasts to Sonner as well, keeping shadcn toasts only for action-required toasts (if any). This is optional but would make UX consistent.
 
-### Files changed
-- `src/components/ProtectedRoute.tsx` -- visibility handler always syncs session state
+### Result
+Notification toasts will auto-dismiss after 5 seconds. Users can still hover to pause or swipe to dismiss early.
 
