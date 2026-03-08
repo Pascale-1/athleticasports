@@ -100,8 +100,11 @@ export const useTeamInvitations = (teamId: string | null) => {
         if (exactMatch) {
           invitedUserId = exactMatch.user_id;
         } else if (emailOrUserId.includes('@')) {
-          // Email-based invitation — we can't look up users by email client-side
-          // The invitation will be matched by email when the user logs in
+          // Resolve user by email via secure DB function
+          const { data: resolvedUserId } = await supabase.rpc('resolve_user_id_by_email' as any, { _email: emailOrUserId });
+          if (resolvedUserId) {
+            invitedUserId = resolvedUserId as string;
+          }
         }
       }
 
