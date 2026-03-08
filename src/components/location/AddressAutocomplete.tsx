@@ -39,9 +39,16 @@ interface AddressSuggestion {
   };
 }
 
+const isAddressFormatValid = (str: string): boolean => {
+  if (!str || str.trim().length < 5) return false;
+  const parts = str.split(',').map(p => p.trim()).filter(p => p.length >= 2);
+  return parts.length >= 2;
+};
+
 interface AddressAutocompleteProps {
   value: string;
   onChange: (value: string, coordinates?: { lat: number; lng: number }) => void;
+  onValidChange?: (isValid: boolean) => void;
   label?: string;
   placeholder?: string;
   className?: string;
@@ -52,6 +59,7 @@ interface AddressAutocompleteProps {
 export const AddressAutocomplete = ({
   value,
   onChange,
+  onValidChange,
   label,
   placeholder,
   className,
@@ -144,6 +152,7 @@ export const AddressAutocomplete = ({
     const newValue = e.target.value;
     setInputValue(newValue);
     onChange(newValue); // Update parent immediately
+    onValidChange?.(isAddressFormatValid(newValue));
 
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
@@ -161,6 +170,7 @@ export const AddressAutocomplete = ({
       lat: parseFloat(suggestion.lat),
       lng: parseFloat(suggestion.lon),
     });
+    onValidChange?.(true);
     setShowSuggestions(false);
     setSuggestions([]);
   };
@@ -194,6 +204,7 @@ export const AddressAutocomplete = ({
   const handleClear = () => {
     setInputValue("");
     onChange("");
+    onValidChange?.(false);
     setSuggestions([]);
     setShowSuggestions(false);
     inputRef.current?.focus();
@@ -412,6 +423,15 @@ export const AddressAutocomplete = ({
             );
           })}
         </div>
+      )}
+
+      {/* Format hint */}
+      {!ghost && (
+        <p className="text-[11px] text-muted-foreground/60 mt-1">
+          {lang === 'fr'
+            ? 'Format : rue, ville — ex: 12 Rue de Rivoli, 75001 Paris'
+            : 'Format: street, city — e.g. 12 Rue de Rivoli, 75001 Paris'}
+        </p>
       )}
     </div>
   );

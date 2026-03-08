@@ -6,6 +6,7 @@ import { AddressAutocomplete } from "./AddressAutocomplete";
 interface DistrictSelectorProps {
   value: { district: string; venueName?: string };
   onChange: (value: { district: string; venueName?: string; coordinates?: { lat: number; lng: number } }) => void;
+  onValidChange?: (isValid: boolean) => void;
   showVenueName?: boolean;
   placeholder?: string;
   label?: string;
@@ -17,6 +18,7 @@ interface DistrictSelectorProps {
 export const DistrictSelector = ({
   value,
   onChange,
+  onValidChange,
   placeholder,
   label,
   venuePlaceholder,
@@ -44,6 +46,7 @@ export const DistrictSelector = ({
       <AddressAutocomplete
         value={value.venueName || ''}
         onChange={handleAddressChange}
+        onValidChange={onValidChange}
         placeholder={venuePlaceholder || placeholder || (lang === 'fr' ? 'Rechercher une adresse...' : 'Search for an address...')}
         ghost={ghost}
       />

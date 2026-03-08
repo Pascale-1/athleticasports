@@ -173,6 +173,8 @@
     "locationPlaceholder": "Adresse ou nom du lieu",
     "venueName": "Nom du lieu",
     "locationRequired": "Veuillez indiquer un lieu",
+    "locationInvalid": "Entrez une adresse complète (ex: 12 Rue de Rivoli, 75001 Paris) ou choisissez-en une dans les suggestions",
+    "locationHint": "Format : rue, ville — ex: 12 Rue de Rivoli, 75001 Paris",
     "type": "Type d'événement",
     "maxParticipants": "Nombre max de participants",
     "participants": "Participants",

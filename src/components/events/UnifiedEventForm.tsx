@@ -197,6 +197,7 @@ export const UnifiedEventForm = ({
   const [selectedTeamName, setSelectedTeamName] = useState<string>('');
   const [duration, setDuration] = useState(DEFAULT_DURATIONS[defaultType]);
   const [locationValue, setLocationValue] = useState<{ district: string; venueName?: string }>({ district: '' });
+  const [isLocationValid, setIsLocationValid] = useState(false);
 
   // Inline teams for pill selector
   const { teams: inlineTeams, loading: inlineTeamsLoading } = useInlineTeams(selectedSport || undefined, true);
@@ -397,8 +398,18 @@ export const UnifiedEventForm = ({
         }
         return true;
       }
-      case 2:
-        return await form.trigger(['date', 'startTime', 'location']);
+      case 2: {
+        const fieldsValid = await form.trigger(['date', 'startTime', 'location']);
+        if (!fieldsValid) return false;
+        // Check address format if location is filled
+        const locationVal = form.getValues('location');
+        if (locationVal && !isLocationValid) {
+          const { toast } = await import('sonner');
+          toast.error(t('form.locationInvalid'));
+          return false;
+        }
+        return true;
+      }
       case 3:
         return true;
       default:
@@ -808,13 +819,13 @@ export const UnifiedEventForm = ({
                     setLocationValue(val);
                     field.onChange(val.venueName || '');
                   }}
+                  onValidChange={setIsLocationValid}
                   placeholder={t('form.locationPlaceholder')}
                   ghost
                 />
                 {fieldState.error && (
                   <FormMessage className="text-xs">{t('form.locationRequired')}</FormMessage>
                 )}
-                <p className="text-xs text-muted-foreground mt-1">Ex: Stade Charléty, Paris</p>
               </FormItem>
             )}
           />
