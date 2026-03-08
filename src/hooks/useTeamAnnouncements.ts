@@ -48,7 +48,7 @@ export const useTeamAnnouncements = (teamId: string | null) => {
       
       const formattedData = data.map(item => ({
         ...item,
-        profile: Array.isArray(item.profiles) ? item.profiles[0] : item.profiles
+        profile: Array.isArray(item.profiles_public) ? item.profiles_public[0] : item.profiles_public
       }));
       
       setAnnouncements(formattedData as TeamAnnouncement[]);
