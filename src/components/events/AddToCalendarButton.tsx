@@ -17,7 +17,7 @@ import {
   downloadICS,
   type CalendarEvent,
 } from "@/lib/calendarExport";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useExternalLink } from "@/hooks/useExternalLink";
 import { Capacitor } from "@capacitor/core";
 
