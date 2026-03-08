@@ -11,6 +11,7 @@ import { AppLayout } from "./components/AppLayout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { InstallPrompt } from "./components/InstallPrompt";
 import { UpdatePrompt } from "./components/UpdatePrompt";
+import { NativeUpdatePrompt } from "./components/NativeUpdatePrompt";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { ThemeProvider } from "next-themes";
