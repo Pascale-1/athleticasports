@@ -36,14 +36,14 @@ const AttendeeRow = ({
   youLabel: string;
   committedLabel: string;
 }) => {
-  const rawName = attendee.profiles?.display_name || attendee.profiles?.username || 'Player';
+  const rawName = attendee.profiles_public?.display_name || attendee.profiles_public?.username || 'Player';
   const displayName = rawName.startsWith('user_') ? 'Player' : rawName;
   const isCurrentUser = attendee.user_id === currentUserId;
   
   return (
     <div className="flex items-center gap-2 py-1">
       <Avatar className="h-5 w-5">
-        <AvatarImage src={attendee.profiles?.avatar_url || ''} />
+        <AvatarImage src={attendee.profiles_public?.avatar_url || ''} />
         <AvatarFallback className="text-[9px] bg-muted">
           {displayName[0]?.toUpperCase() || '?'}
         </AvatarFallback>
@@ -165,9 +165,9 @@ export const EventAttendees = ({ attendees, currentUserId, isPaidEvent }: EventA
         <div className="flex -space-x-1.5">
           {previewAttendees.map((attendee) => (
             <Avatar key={attendee.user_id} className="h-5 w-5 border-2 border-background ring-1 ring-border/50">
-              <AvatarImage src={attendee.profiles?.avatar_url || ''} />
+              <AvatarImage src={attendee.profiles_public?.avatar_url || ''} />
               <AvatarFallback className="text-[8px] bg-muted">
-                {(attendee.profiles?.display_name?.[0] || attendee.profiles?.username?.[0] || '?').toUpperCase()}
+                {(attendee.profiles_public?.display_name?.[0] || attendee.profiles_public?.username?.[0] || '?').toUpperCase()}
               </AvatarFallback>
             </Avatar>
           ))}
