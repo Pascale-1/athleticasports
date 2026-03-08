@@ -424,6 +424,15 @@ export const AddressAutocomplete = ({
           })}
         </div>
       )}
+
+      {/* Format hint */}
+      {!ghost && (
+        <p className="text-[11px] text-muted-foreground/60 mt-1">
+          {lang === 'fr'
+            ? 'Format : rue, ville — ex: 12 Rue de Rivoli, 75001 Paris'
+            : 'Format: street, city — e.g. 12 Rue de Rivoli, 75001 Paris'}
+        </p>
+      )}
     </div>
   );
 };
